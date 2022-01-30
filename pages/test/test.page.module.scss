@@ -1,0 +1,67 @@
+@use "sass:math";
+
+.test {
+   width: 100vw;
+   height: 100vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+:root {
+   --grid-cell-size: 24px;
+   --grid-cell-gap: 4px;
+   --main-grid-factor: 20;
+   --foreground-grid-factor: 56;
+}
+
+$grid-cell-size: 24px;
+$grid-cell-gap: 4px;
+
+$main-grid-factor: 20;
+$foreground-grid-factor: 56;
+
+@function grid-size($factor, $size: $grid-cell-size, $gap: $grid-cell-gap) {
+   @return $factor * ($size + $gap) - $gap;
+}
+
+$main-grid-width: grid-size($main-grid-factor);
+$foreground-grid-width: grid-size($foreground-grid-factor);
+
+.container {
+   position: relative;
+   height: grid-size(30);
+   width: $foreground-grid-width;
+   overflow-y: auto;
+   overflow-x: hidden;
+   background-image: repeating-linear-gradient(
+         0deg,
+         #dadada60 0 $grid-cell-size,
+         transparent 0 $grid-cell-size + $grid-cell-gap
+      ),
+      repeating-linear-gradient(90deg, #dadada60 0 $grid-cell-size, transparent 0 $grid-cell-size + $grid-cell-gap);
+   background-attachment: local;
+}
+.grid {
+   position: absolute;
+   height: grid-size(50);
+   opacity: 0.8;
+   background-position: 0 0, 15px 15px;
+   background-size: 30px 30px;
+}
+
+.main-grid {
+   $d: #{math.div($foreground-grid-width - $main-grid-width, 2)};
+   width: $main-grid-width;
+   background: rgba(128, 128, 128, 0.507);
+   margin: 0 $d;
+}
+.foreground-grid {
+   width: $foreground-grid-width;
+}
+
+.draggable {
+   background: red;
+   width: 250px;
+   height: grid-size(1);
+   z-index: 10;
+}

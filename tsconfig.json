@@ -1,0 +1,49 @@
+{
+   "compilerOptions": {
+      "strict": false,
+      // Target and output
+      "target": "ESNext",
+      "module": "ESNext",
+      "moduleResolution": "node",
+      "emitDecoratorMetadata": true,
+      // Typechecking
+      "noImplicitAny": false,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      // "importHelpers": true,
+      "skipDefaultLibCheck": true,
+      "inlineSourceMap": true,
+      "skipLibCheck": true,
+      "outDir": "./dist/backend",
+      "lib": [
+         "ESNext",
+      ],
+      "isolatedModules": false,
+      "baseUrl": "./",
+      "experimentalDecorators": true,
+      "jsx": "preserve",
+      "jsxImportSource": "solid-js",
+      // Misc
+      "forceConsistentCasingInFileNames": true,
+      "paths": {
+         "@/*": [
+            "./*"
+         ],
+      },
+      "plugins": [
+         {
+            "name": "typescript-plugin-css-modules",
+            "options": {
+               "classnameTransform": "camelCaseOnly"
+            }
+         }
+      ],
+   },
+   "exclude": [
+      "node_modules",
+      ".vscode",
+      "assets",
+      ".git",
+      "temp",
+   ]
+}

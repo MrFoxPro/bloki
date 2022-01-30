@@ -1,0 +1,10 @@
+root = true
+[*]
+charset = utf-8
+end_of_line = lf
+
+[*.{js,ts,tsx,scss,json}]
+insert_final_newline = false
+indent_style = space
+indent_size = 3
+trim_trailing_whitespace = true
