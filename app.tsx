@@ -9,6 +9,10 @@ import { TestPage } from './pages/test';
 
 const routes: RouteDefinition[] = [
    {
+      path: '/',
+      component: TestPage,
+   },
+   {
       path: '/test',
       component: TestPage,
    },

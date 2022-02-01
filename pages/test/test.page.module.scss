@@ -1,4 +1,5 @@
 @use "sass:math";
+@import "./confg.scss";
 
 .test {
    width: 100vw;
@@ -7,23 +8,6 @@
    justify-content: center;
    align-items: center;
 }
-:root {
-   --grid-cell-size: 24px;
-   --grid-cell-gap: 4px;
-   --main-grid-factor: 20;
-   --foreground-grid-factor: 56;
-}
-
-$grid-cell-size: 24px;
-$grid-cell-gap: 4px;
-
-$main-grid-factor: 20;
-$foreground-grid-factor: 56;
-
-@function grid-size($factor, $size: $grid-cell-size, $gap: $grid-cell-gap) {
-   @return $factor * ($size + $gap) - $gap;
-}
-
 $main-grid-width: grid-size($main-grid-factor);
 $foreground-grid-width: grid-size($foreground-grid-factor);
 
@@ -41,7 +25,17 @@ $foreground-grid-width: grid-size($foreground-grid-factor);
       repeating-linear-gradient(90deg, #dadada60 0 $grid-cell-size, transparent 0 $grid-cell-size + $grid-cell-gap);
    background-attachment: local;
 }
+
+.backlight {
+   z-index: 1;
+   position: absolute;
+   width: $foreground-grid-width;
+   height: grid-size(30);
+}
+
+
 .grid {
+   z-index: 0;
    position: absolute;
    height: grid-size(50);
    opacity: 0.8;

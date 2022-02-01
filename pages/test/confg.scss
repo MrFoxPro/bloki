@@ -1,0 +1,11 @@
+// SAME AS IN ./config.ts
+
+$grid-cell-size: 24px;
+$grid-cell-gap: 4px;
+
+$main-grid-factor: 20;
+$foreground-grid-factor: 56;
+
+@function grid-size($factor, $size: $grid-cell-size, $gap: $grid-cell-gap) {
+   @return $factor * ($size + $gap) - $gap;
+}
