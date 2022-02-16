@@ -1,13 +1,14 @@
 {
    "compilerOptions": {
-      "strict": false,
+      "strict": true,
       // Target and output
       "target": "ESNext",
-      "module": "ESNext",
+      "module": "CommonJS",
       "moduleResolution": "node",
       "emitDecoratorMetadata": true,
       // Typechecking
       "noImplicitAny": false,
+      "strictNullChecks": false,
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
       // "importHelpers": true,

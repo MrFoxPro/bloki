@@ -3,8 +3,8 @@
 $grid-cell-size: 24px;
 $grid-cell-gap: 4px;
 
-$main-grid-factor: 20;
-$foreground-grid-factor: 56;
+$main-grid-width-factor: 20;
+$foreground-grid-width-factor: 56;
 
 @function grid-size($factor, $size: $grid-cell-size, $gap: $grid-cell-gap) {
    @return $factor * ($size + $gap) - $gap;

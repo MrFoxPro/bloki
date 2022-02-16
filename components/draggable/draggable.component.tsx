@@ -26,7 +26,7 @@ type DraggableProps = {
    addRelX?: (el: Element) => number;
    addRelY?: (el: Element) => number;
 
-   style?: JSX.CSSProperties
+   style?: JSX.CSSProperties;
 } & Omit<ComponentProps<'div'>, 'onDrag' | 'onDragStart' | 'onDragEnd' | 'style'>;
 
 export default function Draggable(props: DraggableProps) {
@@ -44,6 +44,7 @@ export default function Draggable(props: DraggableProps) {
 
    createComputed(() => {
       const parentBox = parentElement?.getBoundingClientRect();
+
       batch(() => {
          setX(props.x - (props.relativeParent ? parentBox?.x : 0));
          setY(props.y - (props.relativeParent ? parentBox?.y : 0));
@@ -82,8 +83,7 @@ export default function Draggable(props: DraggableProps) {
 
    function onMouseMove(e: MouseEvent, notify = true) {
       const isPathDisallowed =
-         props.disallowed &&
-         e.composedPath().find(x => props.disallowed.includes((x as HTMLDivElement).id)) != null;
+         props.disallowed && e.composedPath().some(x => props.disallowed.includes((x as Element).id));
       if (isPathDisallowed || fixed()) {
          if (!fixed()) setFixed(true);
          return;
