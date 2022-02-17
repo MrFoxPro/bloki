@@ -32,8 +32,8 @@ jobs:
         PORT: ${{ secrets.PORT }}
         KEY: ${{ secrets.SSHKEY }}
       with:
-        source: "./dist/*"
-        target: "/home/foxpro/bloki"
+        source: "./dist/"
+        target: "/home/foxpro/bloki/"
 
     - name: Restart service
       uses: appleboy/ssh-action@v0.1.4
