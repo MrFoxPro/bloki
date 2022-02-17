@@ -11,8 +11,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      with:
-         ref: "master"
       
     - name: Cache pnpm modules
       uses: actions/cache@v2
@@ -34,19 +32,19 @@ jobs:
       with:
         cache: 'pnpm'
 
-    - name: Copy repository contents via scp
-      uses: appleboy/scp-action@v0.1.2
+    - name: Copy repository contents via rsync
+      uses: easingthemes/ssh-deploy@main
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        port: ${{ secrets.PORT }}
-        key: ${{ secrets.SSHKEY }}
-        source: "./dist"
-        target: "/home/foxpro/bloki"
-        strip_components: 1
+        REMOTE_HOST: ${{ secrets.HOST }}
+        REMOTE_USER: ${{ secrets.USERNAME }}
+        REMOTE_PORT: ${{ secrets.PORT }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSHKEY }}
+        SOURCE: "./dist/"
+        TARGET: "/home/foxpro/bloki"
+        ARGS: "-avzr --delete"
 
     - name: Restart service
-      uses: appleboy/ssh-action@v0.1.4
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
