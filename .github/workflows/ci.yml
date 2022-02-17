@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-frontend:
+  frontend:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -18,17 +18,11 @@ jobs:
         version: 6.31.0
         run_install: true
     - run: pnpm build
-    
+
     - name: Install node and packages
       uses: actions/setup-node@v2
       with:
         cache: 'pnpm'
-
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
 
     - name: Copy repository contents via scp
       uses: appleboy/scp-action@v0.1.2
