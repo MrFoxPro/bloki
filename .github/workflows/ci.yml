@@ -1,0 +1,51 @@
+name: Build and deploy to bloki.app
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install node and packages
+    - uses: actions/setup-node@v2
+      with:
+        cache: 'pnpm'
+
+    - name: Build frontend
+      uses: pnpm/action-setup@v2.1.0
+      with:
+        version: 6.31.0
+        run_install: true
+    - run: pnpm build
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Copy repository contents via scp
+      uses: appleboy/scp-action@v0.1.2
+      env:
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.SSHKEY }}
+      with:
+        source: "./dist/*"
+        target: "/home/foxpro/bloki"
+
+    - name: Restart service
+      uses: appleboy/ssh-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        port: ${{ secrets.PORT }}
+        key: ${{ secrets.SSHKEY }}
+        script: sudo systemctl restart bloki
