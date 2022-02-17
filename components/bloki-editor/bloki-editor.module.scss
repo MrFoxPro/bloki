@@ -19,14 +19,6 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
    background-attachment: local;
 }
 
-.backlight {
-   z-index: 1;
-   position: absolute;
-   width: $foreground-grid-width;
-   height: grid-size(30);
-}
-
-
 .grid {
    z-index: 0;
    position: absolute;
@@ -53,4 +45,3 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
    z-index: 10;
    user-select: none;
 }
-

@@ -24,9 +24,7 @@ function App() {
    return (
       <>
          <Router>
-            {/* <AppProvider> */}
             <Routes />
-            {/* </AppProvider> */}
          </Router>
          <BuildInfo />
       </>

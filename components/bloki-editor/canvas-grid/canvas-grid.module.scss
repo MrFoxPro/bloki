@@ -1,0 +1,8 @@
+@import "../bloki-editor.module.scss";
+
+.backlight {
+   z-index: 1;
+   position: absolute;
+   width: $foreground-grid-width;
+   height: grid-size(30);
+}

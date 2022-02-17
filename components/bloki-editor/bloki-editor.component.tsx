@@ -1,34 +1,22 @@
 import { capacitor } from '@/lib/capacitor';
-import { createEffect, mergeProps } from 'solid-js';
+import { ComponentProps, createEffect, mergeProps, splitProps } from 'solid-js';
 import Draggable from '../draggable/draggable.component';
 import s from './bloki-editor.module.scss';
 import { gridSize, DEFAULT_FOREGROUND_GRID_FACTOR } from './config';
 import cc from 'classcat';
-
+import { EditorStoreProvider } from './editor.store';
+import { BlokiCanvasGrid } from './canvas-grid/canvas-grid.component';
 
 type BlokiEditorProps = {
 
 };
 
-export function BlokiEditor(props: BlokiEditorProps) {
+function BlokiEditor(props: BlokiEditorProps) {
 
    let editingBlock: HTMLDivElement;
-   let backlightCanvasRef: HTMLCanvasElement;
-
    props = mergeProps({
 
    }, props);
-
-   createEffect(() => {
-      if (!backlightCanvasRef) return;
-
-      const ctx = backlightCanvasRef.getContext('2d');
-      ctx.fillStyle = 'rgb(200, 0, 0)';
-      ctx.fillRect(10, 10, 50, 50);
-
-      ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
-      ctx.fillRect(30, 30, 50, 50);
-   });
 
    const onBlockDblClick = capacitor((e: MouseEvent & { currentTarget: HTMLDivElement; }) => {
       e.preventDefault();
@@ -46,17 +34,11 @@ export function BlokiEditor(props: BlokiEditorProps) {
 
    return (
       <div class={s.container}>
-         <canvas
-            class={s.backlight}
-            ref={backlightCanvasRef}
-            width={gridSize(DEFAULT_FOREGROUND_GRID_FACTOR) + 'px'}
-            height={gridSize(30) + 'px'}
-         />
+         <BlokiCanvasGrid />
          <div class={cc([s.grid, s.foregroundGrid])} />
          <div class={cc([s.grid, s.mainGrid])}>
          </div>
          <Draggable
-            // classList={{ [s.draggable]: true }}
             class={s.block}
             onClick={onBlockDblClick}
             onFocusOut={onBlockUnfocus}
@@ -65,3 +47,17 @@ export function BlokiEditor(props: BlokiEditorProps) {
       </div>
    );
 }
+
+type WrappedEditorProps = Omit<ComponentProps<typeof EditorStoreProvider>, 'children'> & ComponentProps<typeof BlokiEditor>;
+const WrappedEditor = (props: WrappedEditorProps) => {
+   const [provider, others] = splitProps(props, ['layout']);
+   return (
+      <EditorStoreProvider {...provider}>
+         <BlokiEditor {...others} />
+      </EditorStoreProvider>
+   );
+};
+
+export {
+   WrappedEditor as BlokiEditor
+};

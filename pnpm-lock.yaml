@@ -8,6 +8,7 @@ specifiers:
   sass: ^1.49.0
   solid-app-router: ^0.2.1
   solid-js: ^1.3.4
+  type-expand: ^1.0.0
   typescript: ^4.5.5
   typescript-plugin-css-modules: ^3.4.0
   vite: ^2.7.13
@@ -23,6 +24,7 @@ dependencies:
 devDependencies:
   '@types/node': 17.0.17
   sass: 1.49.7
+  type-expand: 1.0.0
   typescript: 4.5.5
   typescript-plugin-css-modules: 3.4.0_typescript@4.5.5
   vite: 2.8.0_sass@1.49.7
@@ -1408,6 +1410,10 @@ packages:
 
   /tslib/2.3.1:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
+    dev: true
+
+  /type-expand/1.0.0:
+    resolution: {integrity: sha512-1fO/mIOl7QRreOBn83x07v8TL6OqhYKr/CHwFOI70D9cIr9YJ2PM/57Uazi9GbKSQJHB9yNXzYaE14wqQ4kmeQ==}
     dev: true
 
   /typescript-plugin-css-modules/3.4.0_typescript@4.5.5:

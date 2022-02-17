@@ -1,5 +1,6 @@
 {
    "compilerOptions": {
+      "noErrorTruncation": true,
       "strict": true,
       // Target and output
       "target": "ESNext",
