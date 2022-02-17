@@ -41,9 +41,8 @@ jobs:
         username: ${{ secrets.USERNAME }}
         port: ${{ secrets.PORT }}
         key: ${{ secrets.SSHKEY }}
-        source: "./dist" 
+        source: "./dist/" 
         target: "/home/foxpro/bloki"
-        strip_components: 1
         rm: true
         command_timeout: 1m
 
