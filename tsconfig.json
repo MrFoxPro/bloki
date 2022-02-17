@@ -3,7 +3,7 @@
       "strict": true,
       // Target and output
       "target": "ESNext",
-      "module": "CommonJS",
+      "module": "ESNext",
       "moduleResolution": "node",
       "emitDecoratorMetadata": true,
       // Typechecking

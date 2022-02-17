@@ -6,6 +6,7 @@ import { RouteDefinition, Router, useRoutes } from 'solid-app-router';
 
 import { render } from 'solid-js/web';
 import { TestPage } from './pages/test';
+import { BuildInfo } from './components/build-info/build-info.component';
 
 const routes: RouteDefinition[] = [
    {
@@ -16,16 +17,19 @@ const routes: RouteDefinition[] = [
       path: '/test',
       component: TestPage,
    },
-]
+];
 
 function App() {
    const Routes = useRoutes(routes);
    return (
-      <Router>
-         {/* <AppProvider> */}
-         <Routes />
-         {/* </AppProvider> */}
-      </Router>
+      <>
+         <Router>
+            {/* <AppProvider> */}
+            <Routes />
+            {/* </AppProvider> */}
+         </Router>
+         <BuildInfo />
+      </>
    );
 }
 
