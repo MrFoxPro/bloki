@@ -39,7 +39,7 @@ jobs:
         REMOTE_USER: ${{ secrets.USERNAME }}
         REMOTE_PORT: ${{ secrets.PORT }}
         SSH_PRIVATE_KEY: ${{ secrets.SSHKEY }}
-        SOURCE: "./dist/"
+        SOURCE: "dist/"
         TARGET: "/home/foxpro/bloki"
         ARGS: "-avzr --delete"
 
