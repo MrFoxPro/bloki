@@ -43,7 +43,7 @@ jobs:
         key: ${{ secrets.SSHKEY }}
         source: "./dist" 
         target: "/home/foxpro/bloki"
-        strip_components: 2
+        strip_components: 1
         rm: true
         command_timeout: 1m
 
