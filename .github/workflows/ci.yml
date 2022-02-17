@@ -12,6 +12,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Cache pnpm modules
+      uses: actions/cache@v2
+      with:
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-
+
     - name: Build frontend
       uses: pnpm/action-setup@v2.1.0
       with:
@@ -26,14 +34,14 @@ jobs:
 
     - name: Copy repository contents via scp
       uses: appleboy/scp-action@v0.1.2
-      env:
-        HOST: ${{ secrets.HOST }}
-        USERNAME: ${{ secrets.USERNAME }}
-        PORT: ${{ secrets.PORT }}
-        KEY: ${{ secrets.SSHKEY }}
       with:
-        source: "./dist/*"
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        port: ${{ secrets.PORT }}
+        key: ${{ secrets.SSHKEY }}
+        source: "./dist"
         target: "/home/foxpro/bloki"
+        strip_components: 1
 
     - name: Restart service
       uses: appleboy/ssh-action@v0.1.4
