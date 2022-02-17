@@ -41,11 +41,11 @@ jobs:
         username: ${{ secrets.USERNAME }}
         port: ${{ secrets.PORT }}
         key: ${{ secrets.SSHKEY }}
-        source: "./dist/" 
+        source: "dist/" 
         target: "/home/foxpro/bloki"
         rm: true
         command_timeout: 1m
-        strip_components: 1
+        strip_components: 2
 
    #  - name: Restart service
    #    uses: appleboy/ssh-action@v0.1.4
