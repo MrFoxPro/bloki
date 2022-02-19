@@ -6,17 +6,9 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
 
 .container {
    position: relative;
-   height: grid-size(30);
-   width: $foreground-grid-width;
    overflow-y: auto;
    overflow-x: hidden;
    background-attachment: local;
-   background-image: repeating-linear-gradient(
-         0deg,
-         #dadada60 0 $grid-cell-size,
-         transparent 0 $grid-cell-size + $grid-cell-gap
-      ),
-      repeating-linear-gradient(90deg, #dadada60 0 $grid-cell-size, transparent 0 $grid-cell-size + $grid-cell-gap);
 }
 
 .grid {
@@ -31,14 +23,6 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
    background: rgba(128, 128, 128, 0.507);
 }
 .foreground-grid {
-   // width: $foreground-grid-width;
    display: initial;
 }
 
-.block {
-   background: red;
-   width: 250px;
-   height: grid-size(4);
-   z-index: 10;
-   user-select: none;
-}

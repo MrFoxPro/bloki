@@ -12,9 +12,10 @@ type LayoutOptions = {
    fGridWidth: number;
    fGridHeight: number;
 };
+type BlockType = 'text' | 'image'
 type Block = {
    id: string;
-   type: 'text' | 'image';
+   type: BlockType;
    width: number;
    height: number;
 };
@@ -43,6 +44,7 @@ export {
    LayoutOptions,
    BlokiDocument,
    Block,
+   BlockType,
    TextBlock,
    ImageBlock,
 };

@@ -13,13 +13,14 @@
    flex-direction: column;
 
    z-index: 100;
+   background: rgba($color: #42424270, $alpha: 0.2);
    .control {
       display: flex;
       flex-direction: column;
       justify-content: center;
       font-family: monospace;
       > input {
-         width: 210px;
+         width: 150px;
       }
    }
 }

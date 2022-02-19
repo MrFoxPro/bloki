@@ -1,22 +1,26 @@
-import { capacitor } from '@/lib/capacitor';
-import { ComponentProps, createEffect, createMemo, For, mergeProps, splitProps } from 'solid-js';
-import Draggable from '../draggable/draggable.component';
+import { Component, ComponentProps, For, splitProps } from 'solid-js';
 import s from './bloki-editor.module.scss';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { BlokiCanvasGrid } from './canvas-grid/canvas-grid.component';
+import type { BlockType } from './entities';
+import { Block } from './blocks/block.component';
 
 type BlokiEditorProps = {
 
 };
 
-function BlokiEditor() {
+function BlokiEditor(props: BlokiEditorProps) {
 
    let editingBlock: HTMLDivElement;
    let containerRef: HTMLDivElement;
 
-   const [editor, { onDragStart, onDrag, onDragEnd, gridSize, realSize }] = useEditorStore();
+   const [editor, { onDragStart, onDrag, onDragEnd, gridSize, realSize, locker }] = useEditorStore();
 
+   const blockMap: Record<BlockType, Component> = {
+      text: null,
+      image: null,
+   };
    // const onBlockDblClick = capacitor((e: MouseEvent & { currentTarget: HTMLDivElement; }) => {
    //    e.preventDefault();
    //    if (editingBlock === e.currentTarget) return;
@@ -31,10 +35,10 @@ function BlokiEditor() {
    //    editingBlock = null;
    // }
 
-   createEffect(() => {
-      console.log(realSize());
-      if (!containerRef) return;
-   });
+   // createEffect(() => {
+   //    console.log(realSize());
+   //    if (!containerRef) return;
+   // });
    return (
       <div
          class={s.container}
@@ -68,20 +72,8 @@ function BlokiEditor() {
          >
          </div>
          <For each={editor.document.blocks}>
-            {(item) => (
-               <Draggable
-                  style={{
-                     width: gridSize(5),
-                     height: gridSize(4),
-                  }}
-                  class={s.block}
-                  onDragStart={(absX, absY, x, y) => onDragStart(item, x, y)}
-                  onDrag={(absX, absY, x, y) => onDrag(item, x, y)}
-                  onDragEnd={(absX, absY, x, y) => onDragEnd(item, x, y)}
-               // onClick={onBlockDblClick}
-               // onFocusOut={onBlockUnfocus}
-               >
-               </Draggable>
+            {(block) => (
+               <Block block={block} />
             )}
          </For>
       </div>

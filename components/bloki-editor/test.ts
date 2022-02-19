@@ -1,12 +1,13 @@
-import { DEFAULT_FOREGROUND_GRID_WIDTH_FACTOR, DEFAULT_GRID_CELL_GAP_PX, DEFAULT_GRID_CELL_SIZE_PX, DEFAULT_GRID_HEIGHT_FACTOR, DEFAULT_MAIN_GRID_WIDTH_FACTOR } from "./defaults";
+import { DEFAULT_FOREGROUND_GRID_WIDTH_FACTOR, DEFAULT_CELL_GAP_PX, DEFAULT_CELL_SIZE_PX, DEFAULT_GRID_HEIGHT_FACTOR, DEFAULT_MAIN_GRID_WIDTH_FACTOR } from "./defaults";
 import { Block, BlokiDocument, TextBlock } from "./entities";
 
-
-export const testLayout1: Block[] = [
+const testLayout1: Block[] = [
    ({
       id: '620b2cb4-d175-4f1f-9bf1-bc5a42d15c6f',
       type: 'text',
-      value: 'Мы вынуждены отталкиваться от того, что выбранный нами инновационный путь однозначно определяет каждого участника как способного принимать собственные решения касаемо дальнейших направлений развития.'
+      value: 'Мы вынуждены отталкиваться от того, что выбранный нами инновационный путь однозначно определяет каждого участника как способного принимать собственные решения касаемо дальнейших направлений развития.',
+      height: 4,
+      width: 8
    }) as TextBlock,
    // {
    //    id: '2331c430-8300-4248-a65a-a6b4388c3c5d',
@@ -15,7 +16,7 @@ export const testLayout1: Block[] = [
    // },
 ];
 
-export const testDocument1: BlokiDocument = {
+const testDoc1: BlokiDocument = {
    title: 'Untitled 1',
    layoutOptions: {
       fGridWidth: DEFAULT_FOREGROUND_GRID_WIDTH_FACTOR,
@@ -24,9 +25,13 @@ export const testDocument1: BlokiDocument = {
       mGridHeight: DEFAULT_GRID_HEIGHT_FACTOR,
       mGridWidth: DEFAULT_MAIN_GRID_WIDTH_FACTOR,
 
-      gap: DEFAULT_GRID_CELL_GAP_PX,
-      size: DEFAULT_GRID_CELL_SIZE_PX,
+      gap: DEFAULT_CELL_GAP_PX,
+      size: DEFAULT_CELL_SIZE_PX,
    },
    blocks: testLayout1,
 };
+
+export function getTestDocument(random = false, index = 0): BlokiDocument {
+   return structuredClone(testDoc1);
+}
 
