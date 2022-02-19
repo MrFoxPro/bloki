@@ -11,14 +11,14 @@ export function TestPage() {
       <main class={s.test}>
          <div class={s.controls}>
             <div class={s.control}>
-               <For each={[['gap', []], 'size', 'mGridWidth', 'mGridHeight', 'fGridWidth', 'fGridHeight']}>
+               <For each={['gap', 'size', 'mGridWidth', 'mGridHeight', 'fGridWidth', 'fGridHeight']}>
                   {p =>
                      <div class={s.control}>
                         <span>{p} {document.layoutOptions[p]}</span>
                         <input
                            type="range"
-                           min={}
-                           max={}
+                           min={0}
+                           max={100}
                            value={document.layoutOptions[p]}
                            onInput={(e) => setDocument('layoutOptions', p as any, e.currentTarget.valueAsNumber)}
                         />
