@@ -27,7 +27,7 @@ type DraggableProps = {
    addRelY?: (el: Element) => number;
 
    style?: JSX.CSSProperties;
-} & Omit<ComponentProps<'div'>, 'onDrag' | 'onDragStart' | 'onDragEnd' | 'style'>;
+} & Omit<ComponentProps<'div'>, 'onDrag' | 'ondrag' | 'onDragStart' | 'ondragstart' | 'onDragEnd' | 'ondragend' | 'style'>;
 
 export default function Draggable(props: DraggableProps) {
    let relX = 0;

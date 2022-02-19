@@ -1,7 +1,8 @@
 import path from 'path';
 import { execSync } from 'child_process';
-import { ConfigEnv, UserConfigExport } from 'vite';
+import { ConfigEnv, Terser, UserConfigExport } from 'vite';
 import solid from 'vite-plugin-solid';
+import viteCompression from 'vite-plugin-compression';
 
 export default ({ mode }: ConfigEnv) => {
    const dev = mode === 'development';
@@ -21,9 +22,13 @@ export default ({ mode }: ConfigEnv) => {
       assetsInclude: ['*.gltf', /.gltf/],
       plugins: [
          solid({
-            hot: dev,
-            dev: dev,
+            hot: false,
+            dev: false,
             ssr: false,
+         }),
+         viteCompression({
+            disable: dev,
+            filter: /\.(js|mjs|json|css|html|woff2)$/i
          }),
       ],
       build: {
@@ -32,7 +37,11 @@ export default ({ mode }: ConfigEnv) => {
          outDir: './dist',
          reportCompressedSize: true,
          minify: 'terser',
-         // target: 'esnext',
+         terserOptions: {
+            compress: true,
+            ecma: 2020,
+            sourceMap: false
+         },
       },
       css: {
          modules: {

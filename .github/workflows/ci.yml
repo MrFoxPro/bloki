@@ -48,6 +48,16 @@ jobs:
         command_timeout: 1m
         strip_components: 1
 
+    - name: Send tg message
+      uses: appleboy/telegram-action@v0.1.1
+      with:
+         token: ${{ secrets.TG_KEY }}
+         to: ${{ secrets.RECEIVER_1 }}
+         message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            
+            See changes: https://bloki.app
    #  - name: Restart service
    #    uses: appleboy/ssh-action@v0.1.4
    #    with:

@@ -2,31 +2,30 @@ type User = {
    id: string;
    name: string;
 };
-type CellsOptions = {
-   /**
-    * in pixels
-    */
-   gap: number;
-
-   /**
-    * in pixels
-    */
-   size: number;
-};
 type LayoutOptions = {
-   cellsOptions: CellsOptions;
+   gap: number;
+   size: number;
+
+   mGridWidth: number;
+   mGridHeight: number;
+
+   fGridWidth: number;
+   fGridHeight: number;
 };
 type Block = {
    id: string;
-   type: 'text';
+   type: 'text' | 'image';
+   width: number;
+   height: number;
+};
+type TextBlock = Block & {
    value: string;
-} | {
+};
+type ImageBlock = Block & {
    type: 'image';
-   value: {
-      src: string;
-      width: number;
-      height: number;
-   };
+   src: string;
+   width: number;
+   height: number;
 };
 type BlokiDocument = {
    title: string;
@@ -40,8 +39,10 @@ type Workspace = {
 };
 
 export {
-   CellsOptions,
+   Workspace,
    LayoutOptions,
    BlokiDocument,
-   Block
+   Block,
+   TextBlock,
+   ImageBlock,
 };
