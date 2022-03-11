@@ -22,7 +22,7 @@ export default ({ mode }: ConfigEnv) => {
       assetsInclude: ['*.gltf', /.gltf/],
       plugins: [
          solid({
-            hot: false,
+            hot: true,
             dev: false,
             ssr: false,
          }),

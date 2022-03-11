@@ -1,14 +1,14 @@
-import type { Expand } from 'type-expand';
-import { Accessor, createContext, createMemo, PropsWithChildren, splitProps, useContext } from "solid-js";
-import { createStore, DeepReadonly } from "solid-js/store";
-import { Block, BlokiDocument } from "./entities";
+import { Accessor, batch, createContext, createMemo, PropsWithChildren, splitProps, useContext } from "solid-js";
+import { createStore, DeepReadonly, unwrap } from "solid-js/store";
+import { Block, BlokiDocument } from "../../lib/entities";
 
-type EditorStoreValues = {
-   readonly draggingItem: Block | null;
-   readonly isPlacementCorrect: boolean;
-   readonly projection: Set<number>;
-   readonly document: DeepReadonly<BlokiDocument>;
-};
+type Point = { x: number, y: number; };
+type EditorStoreValues = DeepReadonly<{
+   draggingItem: Block | null;
+   isPlacementCorrect: boolean;
+   projection: Point[];
+   document: BlokiDocument;
+}>;
 
 type CalculatedSize = {
    gap_px: string;
@@ -23,44 +23,24 @@ type CalculatedSize = {
    mGridWidth_px: string;
    mGridHeight_px: string;
 };
-
-class EditorStoreLocker {
-   private _callbacks: Set<Function> = new Set<Function>();
-   public lock() {
-      this._callbacks.forEach((cb) => cb());
-   }
-   public addLockListener(cb: Function) {
-      if (this._callbacks.has(cb)) {
-         console.warn('This callback already registered', cb);
-         return;
-      }
-      this._callbacks.add(cb);
-   }
-   public removeLockListener(cb: Function) {
-      this._callbacks.delete(cb);
-   }
-   public dispose() {
-      this._callbacks.clear();
-   }
-}
-
 type EditorStoreHandles = {
-   readonly onDragStart: (block: Block, absX: number, absY: number) => void;
-   readonly onDrag: (block: Block, absX: number, absY: number) => void;
-   readonly onDragEnd: (block: Block, absX: number, absY: number) => void;
-   readonly isDragging: Accessor<boolean>;
-   readonly gridSize: (factor: number) => number;
-   readonly realSize: Accessor<CalculatedSize>;
-   readonly locker: EditorStoreLocker;
+   onDragStart: (block: Block, absX: number, absY: number) => void;
+   onDrag: (block: Block, absX: number, absY: number) => void;
+   onDragEnd: (block: Block, absX: number, absY: number) => void;
+   isDragging: Accessor<boolean>;
+   gridSize: (factor: number) => number;
+   realSize: Accessor<CalculatedSize>;
+   getRelativePosition: (absX: number, absY: number) => Point;
+   getAbsolutePosition: (x: number, y: number) => Point;
 };
 
 export type EditorStoreEvents = 'lock';
 
 const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
 
-type EditorStoreProviderProps = Expand<PropsWithChildren<{
-
-}> & Pick<typeof EditorStore['defaultValue'][0], 'document'>>;
+type EditorStoreProviderProps = PropsWithChildren<{
+   document: BlokiDocument;
+}>;
 
 export function EditorStoreProvider(props: EditorStoreProviderProps) {
    const [local, others] = splitProps(props, ['children']);
@@ -68,9 +48,10 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       {
          draggingItem: null,
          isPlacementCorrect: false,
-         projection: new Set<number>(),
-         document: null,
-         ...others
+         projection: [],
+         // document: null,
+         // lastDocumentId: null,
+         document: unwrap(props.document),
       }
    );
 
@@ -99,46 +80,64 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function getRelativePosition(absX: number, absY: number) {
       const x = Math.floor(absX / gridBoxSize());
       const y = Math.floor(absY / gridBoxSize());
-      return [x, y] as const;
+      return { x, y };
    }
    function getAbsolutePosition(x: number, y: number) {
-      return [x * gridBoxSize(), y * gridBoxSize()] as const;
+      return { x: x * gridBoxSize(), y: y * gridBoxSize() };
    }
 
    function onDragStart(block: Block, absX: number, absY: number) {
       setState('draggingItem', block);
    }
+   function isProjectionsEquals(p1, p2) {
+      if (!p1 || !p2) return false;
+      if (p1.length !== p2.length) return false;
+
+      let result = true;
+      for (let i = 0; i < p1.length; i++) {
+         if (p1[i].x !== p2[i].x || p1[i].y !== p2[i].y) {
+            result = false;
+            break;
+         }
+      }
+      return result;
+   }
    function onDrag(block: Block, absX: number, absY: number) {
-      const [x, y] = getRelativePosition(absX, absY);
-
-      const square = block.width * block.height;
-      const projection = new Set<number>();
-      // const startCellId =
-      for (let i = 0; i < square; i++) {
-         // let cellId =
-         // projection.add()
+      const { x, y } = getRelativePosition(absX, absY);
+      const oldStartPoint = state.projection[0];
+      if (oldStartPoint?.x === x && oldStartPoint?.y === y) {
+         return;
       }
+      const projection = [];
+      for (let w = 0; w < 12; w++) {
+         for (let h = 0; h < 12; h++) {
+            projection.push({ x: x + w, y: y + h });
+         }
+      }
+      setState('projection', projection);
    }
+
    function onDragEnd(block: Block, absX: number, absY: number) {
-      const [x, y] = getRelativePosition(absX, absY);
-      setState('draggingItem', null);
+      const { x, y } = getRelativePosition(absX, absY);
+      batch(() => {
+         setState('draggingItem', null);
+         setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y });
+      });
    }
-
-   const locker = new EditorStoreLocker();
-   const context: [EditorStoreValues, EditorStoreHandles] = [
-      state,
-      {
-         onDragStart,
-         onDrag,
-         onDragEnd,
-         isDragging,
-         gridSize,
-         realSize,
-         locker,
-      }
-   ];
    return (
-      <EditorStore.Provider value={context}>
+      <EditorStore.Provider value={[
+         state,
+         {
+            onDragStart,
+            onDrag,
+            onDragEnd,
+            isDragging,
+            gridSize,
+            realSize,
+            getRelativePosition,
+            getAbsolutePosition,
+         }
+      ]}>
          {props.children}
       </EditorStore.Provider>
    );

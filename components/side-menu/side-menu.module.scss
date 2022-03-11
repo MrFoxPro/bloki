@@ -1,0 +1,133 @@
+.side-menu {
+   width: 250px;
+   min-width: 250px;
+   display: flex;
+   flex-direction: column;
+   align-items: stretch;
+
+   background: #f6f9fb;
+   height: 100%;
+
+   font-family: "Roboto";
+   font-style: normal;
+   font-weight: 400;
+   font-size: 14px;
+   line-height: 16px;
+
+   color: #51575e;
+}
+
+.top-bar {
+   height: 50px;
+
+   border-bottom: 1px solid #d7dcdf;
+   background: #f6f9fb;
+}
+.workspace-bar {
+   @extend .top-bar;
+   display: flex;
+   align-items: center;
+
+   gap: 12px;
+
+   .box {
+      width: 24px;
+      height: 24px;
+
+      background: #007aff;
+      border-radius: 6px;
+
+      margin-left: 24px;
+   }
+   .title {
+      font-family: Roboto;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 18px;
+      color: #312f2f;
+   }
+   margin-bottom: 15px;
+}
+.menus {
+   width: 207px;
+   // margin: 0 auto;
+   margin-left: #{24 - 3}px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 38px;
+}
+
+.controls {
+   .icon.search {
+      background-image: url(./assets/search.icon.svg);
+   }
+   .icon.settings {
+      background-image: url(./assets/settings.icon.svg);
+   }
+   .icon.trash {
+      background-image: url(./assets/delete.icon.svg);
+   }
+}
+
+.item-highlighed {
+   background-color: #edf2f4;
+   border-radius: 6px;
+}
+.item {
+   box-sizing: border-box;
+
+   display: flex;
+   align-items: center;
+   padding-left: 3px;
+
+   height: 28px;
+   width: 207px;
+
+   cursor: pointer;
+
+   &:hover {
+      @extend .item-highlighed;
+   }
+   > .icon {
+      width: 15px;
+      height: 15px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+   }
+   > span {
+      margin-left: 8px;
+   }
+}
+.block {
+   .name {
+      font-family: "Roboto";
+      font-style: normal;
+      font-weight: 600;
+      font-size: 12px;
+      color: #9ca5ab;
+      margin-bottom: 8px;
+   }
+}
+.pages {
+   .page {
+      > .icon {
+         &.page {
+            background-image: url(./assets/page.icon.svg);
+            margin-left: 3px;
+         }
+         &.arrow {
+            background-image: url(./assets/arrow.icon.svg);
+            width: 9px;
+            height: 9px;
+            margin-left: 3px;
+         }
+      }
+      // &.item-highlighed {
+      //    padding-left: #{3 + 15 + 8 + 5}px;
+      //    background-image: url(./assets/page.icon.svg), url(./assets/arrow.icon.svg);
+      //    background-position: 10px center;
+      // }
+   }
+}

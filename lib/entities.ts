@@ -1,6 +1,12 @@
 type User = {
    id: string;
    name: string;
+   workspaces?: Workspace[];
+};
+type Workspace = {
+   title: string;
+   participants: User[];
+   documents: BlokiDocument[];
 };
 type LayoutOptions = {
    gap: number;
@@ -12,10 +18,13 @@ type LayoutOptions = {
    fGridWidth: number;
    fGridHeight: number;
 };
-type BlockType = 'text' | 'image'
+type BlockType = 'text' | 'image';
 type Block = {
    id: string;
    type: BlockType;
+
+   x: number;
+   y: number;
    width: number;
    height: number;
 };
@@ -29,17 +38,14 @@ type ImageBlock = Block & {
    height: number;
 };
 type BlokiDocument = {
+   id: string;
    title: string;
    layoutOptions: LayoutOptions;
    blocks: Block[],
 };
-type Workspace = {
-   title: string;
-   participants: User[];
-   documents: BlokiDocument[];
-};
 
 export {
+   User,
    Workspace,
    LayoutOptions,
    BlokiDocument,

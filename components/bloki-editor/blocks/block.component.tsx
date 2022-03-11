@@ -1,8 +1,8 @@
 import Draggable from '@/components/draggable/draggable.component';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import { useEditorStore } from '../editor.store';
 // Causes an error
-import type { Block as BlockEntity } from '../entities';
+import type { Block as BlockEntity } from '../../../lib/entities';
 import s from './block.module.scss';
 
 type BlockProps = {
@@ -10,25 +10,45 @@ type BlockProps = {
 };
 
 export function Block(props: BlockProps) {
-   const [pos, setPos] = createSignal({
-      x: 0,
-      y: 0,
-   });
-
-   const [editor, { onDragStart, onDrag, onDragEnd, gridSize, realSize, locker, isDragging }] = useEditorStore();
+   const [editor, { onDragStart, onDrag, onDragEnd, gridSize, realSize, getAbsolutePosition, isDragging }] = useEditorStore();
 
    const isMeDragging = createMemo(() => isDragging() && editor.draggingItem === props.block);
 
-   createEffect(() => {
-      function onForce() {
-      }
-      locker.addLockListener(onForce);
+   const [pos, setPos] = createSignal({
+      x: props.block.x,
+      y: props.block.y,
+   });
+   // const onBlockDblClick = capacitor((e: MouseEvent & { currentTarget: HTMLDivElement; }) => {
+   //    e.preventDefault();
+   //    if (editingBlock === e.currentTarget) return;
+   //    e.currentTarget.setAttribute('contenteditable', 'true');
+   //    e.currentTarget.focus();
+   //    editingBlock = e.currentTarget;
+   // }, 2);
 
-      onCleanup(() => locker.removeLockListener(onForce));
+   // function onBlockUnfocus() {
+   //    if (!editingBlock) return;
+   //    editingBlock.removeAttribute('contenteditable');
+   //    editingBlock = null;
+   // }
+
+   // createEffect(() => {
+   //    console.log(realSize());
+   //    if (!containerRef) return;
+   // });
+   createEffect(() => {
+      setPos(getAbsolutePosition(props.block.x, props.block.y));
+   });
+   createEffect(() => {
+      if (!isMeDragging()) {
+         setPos(getAbsolutePosition(props.block.x, props.block.y));
+      }
    });
 
    return (
       <Draggable
+         x={pos().x}
+         y={pos().y}
          style={{
             width: gridSize(props.block.width) + 'px',
             height: gridSize(props.block.height) + 'px',

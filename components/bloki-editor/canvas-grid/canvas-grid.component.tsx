@@ -1,33 +1,24 @@
 import s from './canvas-grid.module.scss';
-import { createEffect } from "solid-js";
-import { DEFAULT_FOREGROUND_GRID_WIDTH_FACTOR } from "../defaults";
+import { createComputed, createDeferred, createEffect, on } from "solid-js";
+import { DEFAULT_FOREGROUND_GRID_WIDTH_FACTOR } from "../../../lib/test-data/editor-settings";
 import { useEditorStore } from '../editor.store';
+import { reconcile } from 'solid-js/store';
 
 export function BlokiCanvasGrid() {
    let backlightCanvasRef: HTMLCanvasElement;
-
-   const [editor, { isDragging, gridSize }] = useEditorStore();
-
-   createEffect(() => {
-      if (!backlightCanvasRef) return;
-
-      const ctx = backlightCanvasRef.getContext('2d');
-
-      console.log(editor.projection);
+   const [, { gridSize }] = useEditorStore();
 
 
-      // if (isDragging() && editor.projection) {
-      //    ctx.fillStyle = 'rgb(200, 0, 0)';
-      //    ctx.fillRect(10, 10, 50, 50);
+   // createEffect(() => {
+   //    if (!backlightCanvasRef) return;
 
-      //    ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
-      //    ctx.fillRect(30, 30, 50, 50);
-      // }
-      // else {
-      //    ctx.clearRect(10, 10, 50, 50);
-      //    ctx.clearRect(30, 30, 50, 50);
-      // }
-   });
+   //    ctx = backlightCanvasRef.getContext('2d', {});
+
+   // });
+
+   // createEffect(() => {
+   //    console.log('updated!', editor.projection);
+   // });
 
    return (
       <canvas

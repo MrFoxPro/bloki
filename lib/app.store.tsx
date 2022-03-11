@@ -1,28 +1,102 @@
-import { createContext, PropsWithChildren, useContext } from "solid-js";
-import { createStore } from "solid-js/store";
+import { batch, createComputed, createContext, mergeProps, PropsWithChildren, useContext } from "solid-js";
+import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
+import { IApiProvider } from "./api-providers/api-provider.interface";
+import { LocalApiProvider } from "./api-providers/local-api-provider";
+import { BlokiDocument, LayoutOptions, User, Workspace } from "./entities";
 
-const AppStore = createContext([
-   {
-      workspaces: [
+export type AppStoreValues = {
+   user: User;
+   isLoading: boolean;
 
-      ],
-      documents: [],
-      user: null as any,
-   },
-   {
+   selectedWorkspace: Workspace;
+   selectedDocument: BlokiDocument;
+};
+type AppStoreHandlers = {
+   moveItem(): void;
+   deleteItem(): void;
+
+   selectWorkspace(workspace: Workspace): void;
+   selectDocument(document: BlokiDocument): void;
+
+   changeLayoutOptions(document: BlokiDocument, options: LayoutOptions): void;
+
+};
+
+const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
+   [
+      {
+         user: null,
+
+         isLoading: true,
+
+         selectedDocument: null,
+         selectedWorkspace: null,
+      },
+      {
+         moveItem: () => void 0,
+         deleteItem: () => void 0,
+         selectWorkspace: () => void 0,
+         selectDocument: () => void 0,
+         changeLayoutOptions: () => void 0,
+      }
+   ]
+);
+
+type AppStoreProps = PropsWithChildren<{
+   apiProvider?: IApiProvider;
+}>;
+
+export function AppStoreProvider(props: AppStoreProps) {
+   props = mergeProps(props, {
+      apiProvider: new LocalApiProvider()
+   });
+
+   const [store, setStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
+
+   createComputed(async () => {
+      const me = await props.apiProvider.getMe();
+      const defaultWorkspace = me.workspaces[0];
+      const defaultDocument = defaultWorkspace.documents[0];
+      batch(() => {
+         setStore('user', me);
+         setStore('selectedWorkspace', defaultWorkspace);
+         setStore('selectedDocument', defaultDocument);
+      });
+      console.log('data loaded', unwrap(store));
+   });
+
+   function moveItem() {
 
    }
-] as const);
+   function deleteItem() {
 
-export function AppStoreProvider(props: PropsWithChildren<{}>) {
-   const [store, setStore] = createStore(AppStore.defaultValue[0]);
-   const context = [
-      store,
-      {
+   }
 
-      }
-   ] as const;
-   return <AppStore.Provider value={context}>{props.children}</AppStore.Provider>;
+   function selectWorkspace(workspace: Workspace) {
+      setStore('selectedWorkspace', workspace);
+   }
+
+   function selectDocument(document: BlokiDocument) {
+      setStore('selectedDocument', document);
+   }
+
+   function changeLayoutOptions(document: BlokiDocument, options: LayoutOptions) {
+      // setStore('user', 'workspaces')
+   }
+   return (
+      <AppStore.Provider value={[
+         store as AppStoreValues,
+         {
+            moveItem,
+            deleteItem,
+
+            selectWorkspace,
+            selectDocument
+         }
+      ]}>
+         {props.children}
+      </AppStore.Provider>
+   );
 }
 
 export const useAppStore = () => useContext(AppStore);
