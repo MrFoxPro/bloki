@@ -20,7 +20,7 @@ export function TestPage() {
 
                <h4>{app.selectedDocument?.title}</h4>
             </div>
-            <Show when={app.selectedDocument}>
+            <Show when={app.selectedWorkspace && app.selectedDocument}>
                <div class={s.controls}>
                   <div class={s.control}>
                      <For each={[['gap', [2, 10]], ['size', [4, 48]], ['mGridWidth', [5, 50]], ['mGridHeight', [10, 60]], ['fGridWidth', [32, 92]], ['fGridHeight', [10, 60]]] as const}>
@@ -32,20 +32,27 @@ export function TestPage() {
                                  min={min}
                                  max={max}
                                  value={app.selectedDocument.layoutOptions[p]}
-                              // onInput={(e) => setDocument('layoutOptions', p, e.currentTarget.valueAsNumber)}
+                                 oninput={(e) =>
+                                    changeLayoutOptions(
+                                       app.selectedWorkspace.id,
+                                       app.selectedDocument.id,
+                                       { ...app.selectedDocument.layoutOptions, [p]: e.currentTarget.valueAsNumber }
+                                    )}
                               />
                            </div>
                         )}
                      </For>
                      <button
                         onClick={() => {
-                           changeLayoutOptions(app.selectedDocument, app.selectedDocument.layoutOptions);
+                           changeLayoutOptions(app.selectedWorkspace.id, app.selectedDocument.id, app.selectedDocument.layoutOptions);
                         }}>
                         Reset
                      </button>
                   </div>
                </div>
-               <BlokiEditor document={app.selectedDocument} />
+               <div class={s.editorWrapper}>
+                  <BlokiEditor document={app.selectedDocument} />
+               </div>
             </Show>
          </div>
       </main >

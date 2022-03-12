@@ -7,6 +7,7 @@ export function getTestUserWithDocs(): User {
       ...testUser1,
       workspaces: [
          {
+            id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
             title: 'District Operations Associate',
             participants: [testUser1, testUser2],
             documents: [

@@ -1,5 +1,5 @@
 import { batch, createComputed, createContext, mergeProps, PropsWithChildren, useContext } from "solid-js";
-import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
+import { createStore, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
 import { LocalApiProvider } from "./api-providers/local-api-provider";
 import { BlokiDocument, LayoutOptions, User, Workspace } from "./entities";
@@ -18,7 +18,7 @@ type AppStoreHandlers = {
    selectWorkspace(workspace: Workspace): void;
    selectDocument(document: BlokiDocument): void;
 
-   changeLayoutOptions(document: BlokiDocument, options: LayoutOptions): void;
+   changeLayoutOptions(workspaceId: string, documentId: string, options: LayoutOptions): void;
 
 };
 
@@ -80,8 +80,8 @@ export function AppStoreProvider(props: AppStoreProps) {
       setStore('selectedDocument', document);
    }
 
-   function changeLayoutOptions(document: BlokiDocument, options: LayoutOptions) {
-      // setStore('user', 'workspaces')
+   function changeLayoutOptions(workspaceId: string, documentId: string, options: LayoutOptions) {
+      setStore('user', 'workspaces', ws => ws.id === workspaceId, 'documents', doc => doc.id === documentId, 'layoutOptions', options);
    }
    return (
       <AppStore.Provider value={[
@@ -89,7 +89,7 @@ export function AppStoreProvider(props: AppStoreProps) {
          {
             moveItem,
             deleteItem,
-
+            changeLayoutOptions,
             selectWorkspace,
             selectDocument
          }

@@ -4,6 +4,7 @@ type User = {
    workspaces?: Workspace[];
 };
 type Workspace = {
+   id: string;
    title: string;
    participants: User[];
    documents: BlokiDocument[];

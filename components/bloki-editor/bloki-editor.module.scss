@@ -5,9 +5,10 @@ $main-grid-width: grid-size($main-grid-width-factor);
 $foreground-grid-width: grid-size($foreground-grid-width-factor);
 
 .container {
-   position: relative;
-   overflow-y: auto;
-   overflow-x: hidden;
+   // position: relative;
+   // overflow-y: auto;
+   // overflow-x: hidden;
+   position: absolute;
    background-attachment: local;
 }
 
