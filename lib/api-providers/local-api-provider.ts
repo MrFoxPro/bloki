@@ -8,6 +8,9 @@ const LS_KEY = 'bloki_data_';
 export class TestLocalApiProvider implements IApiProvider {
    provider: IndexeddbPersistence;
 
+   constructor() {
+      localStorage.clear();
+   }
    private getOrFillWithDefault<T>(key: string, defaultData: T) {
       const data = localStorage.getItem(LS_KEY + key);
       let result: T;
