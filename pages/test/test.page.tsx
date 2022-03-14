@@ -1,9 +1,8 @@
 import s from './test.page.module.scss';
 import { BlokiEditor } from '@/components/bloki-editor/bloki-editor.component';
-import { createEffect, createSignal, For, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { SideMenu } from '@/components/side-menu/side-menu';
 import { useAppStore } from '@/lib/app.store';
-import { BlokiDocument } from '@/lib/entities';
 
 export function TestPage() {
    const [app, { changeLayoutOptions }] = useAppStore();

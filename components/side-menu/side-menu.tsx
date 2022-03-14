@@ -1,5 +1,4 @@
 import { useAppStore } from '@/lib/app.store';
-import { BlokiDocument, Workspace } from '@/lib/entities';
 import { ComponentProps, For, Show } from 'solid-js';
 import { upperFirst } from 'lodash-es';
 import s from './side-menu.module.scss';

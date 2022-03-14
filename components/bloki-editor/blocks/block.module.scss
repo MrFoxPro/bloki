@@ -1,6 +1,10 @@
-
 .block {
-   background: red;
+   background-color: rgb(158, 236, 56);
    z-index: 10;
    user-select: none;
+
+   transition: background-color 70ms ease-out;
+   &.dragging {
+      background-color: rgba(196, 204, 209, 0.85);
+   }
 }

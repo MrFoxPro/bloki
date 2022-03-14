@@ -1,7 +1,6 @@
 type User = {
    id: string;
    name: string;
-   workspaces?: Workspace[];
 };
 type Workspace = {
    id: string;
@@ -41,9 +40,11 @@ type ImageBlock = Block & {
 type BlokiDocument = {
    id: string;
    title: string;
+   workspaceId?: string;
    layoutOptions: LayoutOptions;
-   blocks: Block[],
+   blocks: AnyBlock[],
 };
+type AnyBlock = Block | TextBlock | ImageBlock;
 
 export {
    User,
@@ -54,4 +55,6 @@ export {
    BlockType,
    TextBlock,
    ImageBlock,
+
+   AnyBlock,
 };

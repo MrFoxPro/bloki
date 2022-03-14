@@ -109,8 +109,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          return;
       }
       const projection = [];
-      for (let w = 0; w < 12; w++) {
-         for (let h = 0; h < 12; h++) {
+      for (let w = 0; w < block.width; w++) {
+         for (let h = 0; h < block.height; h++) {
             projection.push({ x: x + w, y: y + h });
          }
       }

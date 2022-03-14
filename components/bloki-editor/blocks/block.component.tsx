@@ -53,7 +53,7 @@ export function Block(props: BlockProps) {
             width: gridSize(props.block.width) + 'px',
             height: gridSize(props.block.height) + 'px',
          }}
-         class={s.block}
+         classList={{ [s.block]: true, [s.dragging]: isMeDragging() }}
          onDragStart={(absX, absY, x, y) => onDragStart(props.block, x, y)}
          onDrag={(absX, absY, x, y) => onDrag(props.block, x, y)}
          onDragEnd={(absX, absY, x, y) => onDragEnd(props.block, x, y)}

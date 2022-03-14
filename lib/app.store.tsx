@@ -1,11 +1,13 @@
 import { batch, createComputed, createContext, mergeProps, PropsWithChildren, useContext } from "solid-js";
 import { createStore, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
-import { LocalApiProvider } from "./api-providers/local-api-provider";
+import { TestLocalApiProvider } from "./api-providers/local-api-provider";
 import { BlokiDocument, LayoutOptions, User, Workspace } from "./entities";
 
 export type AppStoreValues = {
    user: User;
+
+   workspaces: Workspace[];
    isLoading: boolean;
 
    selectedWorkspace: Workspace;
@@ -26,7 +28,7 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
    [
       {
          user: null,
-
+         workspaces: [],
          isLoading: true,
 
          selectedDocument: null,
@@ -48,17 +50,19 @@ type AppStoreProps = PropsWithChildren<{
 
 export function AppStoreProvider(props: AppStoreProps) {
    props = mergeProps(props, {
-      apiProvider: new LocalApiProvider()
+      apiProvider: new TestLocalApiProvider()
    });
 
    const [store, setStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
 
    createComputed(async () => {
       const me = await props.apiProvider.getMe();
-      const defaultWorkspace = me.workspaces[0];
+      const workspaces = await props.apiProvider.getMyWorkspaces();
+      const defaultWorkspace = workspaces[0];
       const defaultDocument = defaultWorkspace.documents[0];
       batch(() => {
          setStore('user', me);
+         setStore('workspaces', workspaces)
          setStore('selectedWorkspace', defaultWorkspace);
          setStore('selectedDocument', defaultDocument);
       });
@@ -81,7 +85,7 @@ export function AppStoreProvider(props: AppStoreProps) {
    }
 
    function changeLayoutOptions(workspaceId: string, documentId: string, options: LayoutOptions) {
-      setStore('user', 'workspaces', ws => ws.id === workspaceId, 'documents', doc => doc.id === documentId, 'layoutOptions', options);
+      setStore('workspaces', ws => ws.id === workspaceId, 'documents', doc => doc.id === documentId, 'layoutOptions', options);
    }
    return (
       <AppStore.Provider value={[
