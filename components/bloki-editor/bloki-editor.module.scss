@@ -19,11 +19,10 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
    background-position: 0 0, 15px 15px;
    background-size: 30px 30px;
 }
-
 .main-grid {
-   background: rgba(128, 128, 128, 0.507);
+   position: absolute;
+   // pointer-events: auto;
 }
 .foreground-grid {
    display: initial;
 }
-

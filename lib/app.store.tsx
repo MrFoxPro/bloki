@@ -1,8 +1,8 @@
 import { batch, createComputed, createContext, mergeProps, PropsWithChildren, useContext } from "solid-js";
-import { createStore, unwrap } from "solid-js/store";
+import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
 import { TestLocalApiProvider } from "./api-providers/local-api-provider";
-import { BlokiDocument, LayoutOptions, User, Workspace } from "./entities";
+import { Block, BlokiDocument, LayoutOptions, User, Workspace } from "./entities";
 
 export type AppStoreValues = {
    user: User;
@@ -14,14 +14,14 @@ export type AppStoreValues = {
    selectedDocument: BlokiDocument;
 };
 type AppStoreHandlers = {
+   createBlock(block: Block): void;
    moveItem(): void;
    deleteItem(): void;
 
    selectWorkspace(workspace: Workspace): void;
    selectDocument(document: BlokiDocument): void;
 
-   changeLayoutOptions(workspaceId: string, documentId: string, options: LayoutOptions): void;
-
+   setStore: SetStoreFunction<AppStoreValues>;
 };
 
 const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
@@ -35,11 +35,12 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
          selectedWorkspace: null,
       },
       {
+         createBlock: () => void 0,
          moveItem: () => void 0,
          deleteItem: () => void 0,
          selectWorkspace: () => void 0,
          selectDocument: () => void 0,
-         changeLayoutOptions: () => void 0,
+         setStore: () => void 0,
       }
    ]
 );
@@ -62,7 +63,7 @@ export function AppStoreProvider(props: AppStoreProps) {
       const defaultDocument = defaultWorkspace.documents[0];
       batch(() => {
          setStore('user', me);
-         setStore('workspaces', workspaces)
+         setStore('workspaces', workspaces);
          setStore('selectedWorkspace', defaultWorkspace);
          setStore('selectedDocument', defaultDocument);
       });
@@ -84,16 +85,13 @@ export function AppStoreProvider(props: AppStoreProps) {
       setStore('selectedDocument', document);
    }
 
-   function changeLayoutOptions(workspaceId: string, documentId: string, options: LayoutOptions) {
-      setStore('workspaces', ws => ws.id === workspaceId, 'documents', doc => doc.id === documentId, 'layoutOptions', options);
-   }
    return (
       <AppStore.Provider value={[
          store as AppStoreValues,
          {
             moveItem,
             deleteItem,
-            changeLayoutOptions,
+            setStore,
             selectWorkspace,
             selectDocument
          }

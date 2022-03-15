@@ -3,11 +3,10 @@ import { BlokiEditor } from '@/components/bloki-editor/bloki-editor.component';
 import { For, Show } from 'solid-js';
 import { SideMenu } from '@/components/side-menu/side-menu';
 import { useAppStore } from '@/lib/app.store';
+import { defaultLayotOptions } from '@/lib/test-data/layout-options';
 
 export function TestPage() {
-   const [app, { changeLayoutOptions }] = useAppStore();
-
-   // const [document, setDocument] = createSignal<BlokiDocument>();
+   const [app, { setStore }] = useAppStore();
 
    return (
       <main class={s.test}>
@@ -16,7 +15,6 @@ export function TestPage() {
             <div class={s.topBar}>
                <div class={s.arrow} />
                <div class={s.arrow} />
-
                <h4>{app.selectedDocument?.title}</h4>
             </div>
             <Show when={app.selectedWorkspace && app.selectedDocument}>
@@ -25,25 +23,29 @@ export function TestPage() {
                      <For each={[['gap', [2, 10]], ['size', [4, 48]], ['mGridWidth', [5, 50]], ['mGridHeight', [10, 60]], ['fGridWidth', [32, 92]], ['fGridHeight', [10, 60]]] as const}>
                         {([p, [min, max]]) => (
                            <div class={s.control}>
-                              <span>{p} {app.selectedDocument.layoutOptions[p]}</span>
+                              <span>{p} [{app.selectedDocument.layoutOptions[p]}]</span>
                               <input
                                  type="range"
                                  min={min}
                                  max={max}
                                  value={app.selectedDocument.layoutOptions[p]}
-                                 oninput={(e) =>
-                                    changeLayoutOptions(
-                                       app.selectedWorkspace.id,
-                                       app.selectedDocument.id,
-                                       { ...app.selectedDocument.layoutOptions, [p]: e.currentTarget.valueAsNumber }
-                                    )}
+                                 oninput={(e) => setStore('selectedDocument', 'layoutOptions', p, e.currentTarget.valueAsNumber)}
                               />
                            </div>
                         )}
                      </For>
+                     <div>
+                        <label for="show-gradient">Show grid</label>
+                        <input
+                           type="checkbox"
+                           name="show-gradient"
+                           onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
+                           checked={app.selectedDocument.layoutOptions.showGridGradient}
+                        />
+                     </div>
                      <button
                         onClick={() => {
-                           changeLayoutOptions(app.selectedWorkspace.id, app.selectedDocument.id, app.selectedDocument.layoutOptions);
+                           setStore('selectedDocument', 'layoutOptions', defaultLayotOptions);
                         }}>
                         Reset
                      </button>

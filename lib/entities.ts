@@ -1,3 +1,5 @@
+import { boolean } from "yup";
+
 type User = {
    id: string;
    name: string;
@@ -17,8 +19,11 @@ type LayoutOptions = {
 
    fGridWidth: number;
    fGridHeight: number;
+
+   showGridGradient: boolean;
 };
 type BlockType = 'text' | 'image';
+
 type Block = {
    id: string;
    type: BlockType;
@@ -29,6 +34,7 @@ type Block = {
    height: number;
 };
 type TextBlock = Block & {
+   type: 'text';
    value: string;
 };
 type ImageBlock = Block & {

@@ -1,10 +1,33 @@
 .block {
-   background-color: rgb(158, 236, 56);
+   // background-color: rgb(158, 236, 56, 0.2);
    z-index: 10;
    user-select: none;
-
+   border: 1px solid #4281FA;
    transition: background-color 70ms ease-out;
    &.dragging {
-      background-color: rgba(196, 204, 209, 0.85);
+      // background-color: rgba(196, 204, 209, 0.85);
+   }
+   &:hover {
+      > .handy {
+         fill: #e6e5e6;
+      }
+   }
+   .handy {
+      position: absolute;
+      left: -15px;
+      cursor: pointer;
+      transition: fill 130ms linear;
+      fill: transparent;
+
+      &.dragging {
+         fill: #7597ff !important;
+      }
+      &:hover {
+         fill: #18A0FB;
+      }
+   }
+   &.shadow {
+      color: rgba(0, 0, 0, 0.2);
+      opacity: 0.5;
    }
 }

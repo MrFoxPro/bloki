@@ -2,6 +2,7 @@ import {
    batch,
    ComponentProps,
    createComputed,
+   createEffect,
    createSignal,
    JSX,
    onCleanup,
@@ -11,15 +12,17 @@ import {
 
 import s from './draggable.module.scss';
 
+type DragRule = { ref: Element, btn?: number; };
 type DraggableProps = {
    x?: number;
    y?: number;
-   onDrag?: (absX?: number, absY?: number, x?: number, y?: number) => void;
+
    onDragStart?: (absX?: number, absY?: number, x?: number, y?: number) => void;
+   onDrag?: (absX?: number, absY?: number, x?: number, y?: number) => void;
    onDragEnd?: (absX?: number, absY?: number, x?: number, y?: number) => void;
 
    disallowed?: string[];
-   children?: JSX.Element | JSX.Element[];
+   children?: JSX.Element;
 
    relativeParent?: boolean;
 
@@ -27,6 +30,9 @@ type DraggableProps = {
    addRelY?: (el: Element) => number;
 
    style?: JSX.CSSProperties;
+
+   rules?: DragRule[];
+
 } & Omit<ComponentProps<'div'>, 'onDrag' | 'ondrag' | 'onDragStart' | 'ondragstart' | 'onDragEnd' | 'ondragend' | 'style'>;
 
 export default function Draggable(props: DraggableProps) {
@@ -37,13 +43,16 @@ export default function Draggable(props: DraggableProps) {
    const [y, setY] = createSignal(props?.y ?? 0);
    const [fixed, setFixed] = createSignal(false);
 
-   let parentElement: HTMLElement;
    let handle: HTMLDivElement | undefined;
 
-   onMount(() => (parentElement = handle.parentElement));
-
+   onMount(() => {
+      props.rules?.forEach(rule => {
+         if (!rule.ref) return;
+         rule.ref.addEventListener('mousedown', (e) => onMouseDown(e, rule.btn));
+      });
+   });
    createComputed(() => {
-      const parentBox = parentElement?.getBoundingClientRect();
+      const parentBox = handle?.parentElement?.getBoundingClientRect();
 
       batch(() => {
          setX(props.x - (props.relativeParent ? parentBox?.x : 0));
@@ -54,6 +63,7 @@ export default function Draggable(props: DraggableProps) {
    onCleanup(() => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
+      // handle.removeEventListener('mousedown', onMouseDown);
    });
 
    function onStart(e: MouseEvent) {
@@ -62,12 +72,13 @@ export default function Draggable(props: DraggableProps) {
       const box = handle.getBoundingClientRect();
       relX = e.clientX - (box.left + body.scrollLeft - body.clientLeft);
       relY = e.clientY - (box.top + body.scrollTop - body.clientTop);
-      onMouseMove(e, false);
+      // onMouseMove(e, false);
       props.onDragStart && props.onDragStart(e.clientX - relX, e.clientY - relY);
    }
 
-   function onMouseDown(e: MouseEvent) {
-      if (e.button !== 0) return;
+   function onMouseDown(e: MouseEvent, btn = 0) {
+      console.log(e.button, btn)
+      if (e.button !== btn) return;
       if (fixed()) setFixed(false);
       onStart(e);
       document.addEventListener('mousemove', onMouseMove);
@@ -88,7 +99,7 @@ export default function Draggable(props: DraggableProps) {
          if (!fixed()) setFixed(true);
          return;
       }
-      const parentBox = parentElement.getBoundingClientRect();
+      const parentBox = handle.parentElement.getBoundingClientRect();
       const offX = props.addRelX ? props.addRelX(handle) : 0;
       const offY = props.addRelY ? props.addRelY(handle) : 0;
       const newX = e.clientX - relX - parentBox.x + offX;
@@ -115,7 +126,6 @@ export default function Draggable(props: DraggableProps) {
 
    return (
       <div
-         onMouseDown={onMouseDown}
          classList={{ [s.draggable]: true, ...local.classList }}
          style={{
             transform: `translate(${x()}px, ${y()}px)`,

@@ -1,10 +1,11 @@
-import { Accessor, batch, createContext, createMemo, PropsWithChildren, splitProps, useContext } from "solid-js";
+import { Accessor, batch, createContext, createMemo, createRenderEffect, onCleanup, PropsWithChildren, splitProps, useContext } from "solid-js";
 import { createStore, DeepReadonly, unwrap } from "solid-js/store";
 import { Block, BlokiDocument } from "../../lib/entities";
 
 type Point = { x: number, y: number; };
 type EditorStoreValues = DeepReadonly<{
-   draggingItem: Block | null;
+   editingBlock: Block | null;
+   draggingBlock: Block | null;
    isPlacementCorrect: boolean;
    projection: Point[];
    document: BlokiDocument;
@@ -24,14 +25,16 @@ type CalculatedSize = {
    mGridHeight_px: string;
 };
 type EditorStoreHandles = {
-   onDragStart: (block: Block, absX: number, absY: number) => void;
-   onDrag: (block: Block, absX: number, absY: number) => void;
-   onDragEnd: (block: Block, absX: number, absY: number) => void;
+   onDragStart(block: Block, absX: number, absY: number): void;
+   onDrag(block: Block, absX: number, absY: number): void;
+   onDragEnd(block: Block, absX: number, absY: number): void;
+   onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }): void;
+   onTextBlockClick(block: Block): void;
    isDragging: Accessor<boolean>;
-   gridSize: (factor: number) => number;
+   gridSize(factor: number): number;
    realSize: Accessor<CalculatedSize>;
-   getRelativePosition: (absX: number, absY: number) => Point;
-   getAbsolutePosition: (x: number, y: number) => Point;
+   getRelativePosition(absX: number, absY: number): Point;
+   getAbsolutePosition(x: number, y: number): Point;
 };
 
 export type EditorStoreEvents = 'lock';
@@ -46,7 +49,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    const [local, others] = splitProps(props, ['children']);
    const [state, setState] = createStore<EditorStoreValues>(
       {
-         draggingItem: null,
+         draggingBlock: null,
+         editingBlock: null,
          isPlacementCorrect: false,
          projection: [],
          // document: null,
@@ -55,7 +59,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
    );
 
-   const isDragging = createMemo(() => state.draggingItem != null);
+   const isDragging = createMemo(() => state.draggingBlock != null);
 
    function gridSize(factor: number) {
       const size = state.document.layoutOptions.size;
@@ -86,21 +90,50 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return { x: x * gridBoxSize(), y: y * gridBoxSize() };
    }
 
-   function onDragStart(block: Block, absX: number, absY: number) {
-      setState('draggingItem', block);
+   function onDragStart(draggingBlock: Block, absX: number, absY: number) {
+      setState({ draggingBlock });
    }
-   function isProjectionsEquals(p1, p2) {
-      if (!p1 || !p2) return false;
-      if (p1.length !== p2.length) return false;
+   // function isProjectionsEquals(p1, p2) {
+   //    if (!p1 || !p2) return false;
+   //    if (p1.length !== p2.length) return false;
 
-      let result = true;
-      for (let i = 0; i < p1.length; i++) {
-         if (p1[i].x !== p2[i].x || p1[i].y !== p2[i].y) {
-            result = false;
-            break;
+   //    let result = true;
+   //    for (let i = 0; i < p1.length; i++) {
+   //       if (p1[i].x !== p2[i].x || p1[i].y !== p2[i].y) {
+   //          result = false;
+   //          break;
+   //       }
+   //    }
+   //    return result;
+   // }
+   function checkIfPlacementCorrect(block: Block, x: number, y: number) {
+      const { fGridHeight, fGridWidth } = state.document.layoutOptions;
+      // TODO: different grid sizes?
+      if (x < 0 || y < 0 || y + block.height > fGridHeight || x + block.width > fGridWidth) {
+         return false;
+      }
+      for (let i = 0; i < state.document.blocks.length; i++) {
+         const sBlock = state.document.blocks[i];
+         if (!sBlock) console.warn('wut');
+         if (sBlock === block) continue;
+
+         const x1 = x;
+         const y1 = y;
+         const sizeX1 = block.width;
+         const sizeY1 = block.height;
+
+         const x2 = sBlock.x;
+         const y2 = sBlock.y;
+         const sizeX2 = sBlock.width;
+         const sizeY2 = sBlock.height;
+
+         const colXDist = x2 - x1 > 0 ? sizeX1 : sizeX2;
+         const colYDist = y2 - y1 > 0 ? sizeY1 : sizeY2;
+         if (Math.abs(y2 - y1) < colYDist && Math.abs(x2 - x1) < colXDist) {
+            return false;
          }
       }
-      return result;
+      return true;
    }
    function onDrag(block: Block, absX: number, absY: number) {
       const { x, y } = getRelativePosition(absX, absY);
@@ -114,16 +147,46 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             projection.push({ x: x + w, y: y + h });
          }
       }
-      setState('projection', projection);
+      const isPlacementCorrect = checkIfPlacementCorrect(block, x, y);
+      setState({ projection, isPlacementCorrect });
    }
 
    function onDragEnd(block: Block, absX: number, absY: number) {
       const { x, y } = getRelativePosition(absX, absY);
+      const isPlacementCorrect = checkIfPlacementCorrect(block, x, y);
       batch(() => {
-         setState('draggingItem', null);
-         setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y });
+         setState({
+            draggingBlock: null,
+            projection: [],
+         });
+         if (isPlacementCorrect) {
+            setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y });
+         }
+         else setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y });
       });
    }
+   function onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
+      const { x, y } = getRelativePosition(e.offsetX, e.offsetY);
+      console.log('dblclick', x, y);
+      const newBlock: Block = {
+         id: crypto.randomUUID(),
+         height: 1,
+         width: 3,
+         type: 'text',
+         x, y
+      };
+      if (checkIfPlacementCorrect(newBlock, x, y)) {
+         setState('document', 'blocks', blocks => [...blocks, newBlock]);
+      }
+   }
+   function onTextBlockClick(block: Block) {
+      if (block.type === 'text') {
+         setState({
+            editingBlock: block
+         });
+      }
+   }
+
    return (
       <EditorStore.Provider value={[
          state,
@@ -131,6 +194,9 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             onDragStart,
             onDrag,
             onDragEnd,
+            onGridDblClick,
+            onTextBlockClick,
+
             isDragging,
             gridSize,
             realSize,
