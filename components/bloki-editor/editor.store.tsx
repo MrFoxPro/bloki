@@ -171,7 +171,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const newBlock: Block = {
          id: crypto.randomUUID(),
          height: 1,
-         width: 3,
+         width: state.document.layoutOptions.mGridWidth,
          type: 'text',
          x, y
       };
