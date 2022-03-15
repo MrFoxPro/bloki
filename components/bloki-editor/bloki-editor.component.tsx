@@ -57,7 +57,14 @@ function BlokiEditor(props: BlokiEditorProps) {
                background: editor.document.layoutOptions.showGridGradient === true ? 'rgba(128, 128, 128, 0.507)' : null,
             }}
          />
-
+         <div
+            class={cc([s.grid, s.foregroundGrid])}
+            style={{
+               width: realSize().fGridWidth_px,
+               height: realSize().fGridHeight_px
+            }}
+            onDblClick={onGridDblClick}
+         />
          <For each={editor.document.blocks}>
             {(block) => (
                <Block block={block} />
