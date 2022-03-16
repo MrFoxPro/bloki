@@ -3,12 +3,31 @@
    height: 100%;
    box-sizing: border-box;
    padding-top: 2px;
+   padding-left: 2px;
 
    font-family: Roboto;
    color: #312f2f;
    overflow: auto;
+   scrollbar-width: none;
+   ::-webkit-scrollbar {
+      display: none;
+   }
    &.regular {
       font-weight: 400;
       font-size: 16px;
+   }
+   white-space: pre-wrap;
+   word-break: break-word;
+   &::after {
+      cursor: text;
+      content: attr(placeholder);
+      white-space: pre-wrap;
+      word-break: break-word;
+      caret-color: rgb(55, 53, 47);
+      color: rgb(55, 53, 47);
+      -webkit-text-fill-color: rgba(55, 53, 47, 0.5);
+   }
+   &:focus {
+      outline: 0;
    }
 }

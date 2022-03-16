@@ -1,11 +1,11 @@
 import { Accessor, batch, createContext, createMemo, createRenderEffect, onCleanup, PropsWithChildren, splitProps, useContext } from "solid-js";
-import { createStore, DeepReadonly, unwrap } from "solid-js/store";
-import { Block, BlokiDocument } from "../../lib/entities";
+import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
+import { AnyBlock, BlokiDocument } from "../../lib/entities";
 
 type Point = { x: number, y: number; };
 type EditorStoreValues = DeepReadonly<{
-   editingBlock: Block | null;
-   draggingBlock: Block | null;
+   editingBlock: AnyBlock | null;
+   draggingBlock: AnyBlock | null;
    isPlacementCorrect: boolean;
    projection: Point[];
    document: BlokiDocument;
@@ -25,16 +25,18 @@ type CalculatedSize = {
    mGridHeight_px: string;
 };
 type EditorStoreHandles = {
-   onDragStart(block: Block, absX: number, absY: number): void;
-   onDrag(block: Block, absX: number, absY: number): void;
-   onDragEnd(block: Block, absX: number, absY: number): void;
+   onDragStart(block: AnyBlock, absX: number, absY: number): void;
+   onDrag(block: AnyBlock, absX: number, absY: number): void;
+   onDragEnd(block: AnyBlock, absX: number, absY: number): void;
    onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }): void;
-   onTextBlockClick(block: Block): void;
+   onTextBlockClick(block: AnyBlock): void;
    isDragging: Accessor<boolean>;
    gridSize(factor: number): number;
    realSize: Accessor<CalculatedSize>;
    getRelativePosition(absX: number, absY: number): Point;
    getAbsolutePosition(x: number, y: number): Point;
+
+   setStore: SetStoreFunction<EditorStoreValues>;
 };
 
 export type EditorStoreEvents = 'lock';
@@ -90,7 +92,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return { x: x * gridBoxSize(), y: y * gridBoxSize() };
    }
 
-   function onDragStart(draggingBlock: Block, absX: number, absY: number) {
+   function onDragStart(draggingBlock: AnyBlock, absX: number, absY: number) {
       setState({ draggingBlock });
    }
    // function isProjectionsEquals(p1, p2) {
@@ -106,7 +108,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    //    }
    //    return result;
    // }
-   function checkIfPlacementCorrect(block: Block, x: number, y: number) {
+   function checkIfPlacementCorrect(block: AnyBlock, x: number, y: number) {
       const { fGridHeight, fGridWidth } = state.document.layoutOptions;
       // TODO: different grid sizes?
       if (x < 0 || y < 0 || y + block.height > fGridHeight || x + block.width > fGridWidth) {
@@ -135,7 +137,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
       return true;
    }
-   function onDrag(block: Block, absX: number, absY: number) {
+   function onDrag(block: AnyBlock, absX: number, absY: number) {
       const { x, y } = getRelativePosition(absX, absY);
       const oldStartPoint = state.projection[0];
       if (oldStartPoint?.x === x && oldStartPoint?.y === y) {
@@ -151,7 +153,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       setState({ projection, isPlacementCorrect });
    }
 
-   function onDragEnd(block: Block, absX: number, absY: number) {
+   function onDragEnd(block: AnyBlock, absX: number, absY: number) {
       const { x, y } = getRelativePosition(absX, absY);
       const isPlacementCorrect = checkIfPlacementCorrect(block, x, y);
       batch(() => {
@@ -168,7 +170,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
       const { x, y } = getRelativePosition(e.offsetX, e.offsetY);
       console.log('dblclick', x, y);
-      const newBlock: Block = {
+      const newBlock: AnyBlock = {
          id: crypto.randomUUID(),
          height: 1,
          width: state.document.layoutOptions.mGridWidth,
@@ -179,11 +181,18 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          setState('document', 'blocks', blocks => [...blocks, newBlock]);
       }
    }
-   function onTextBlockClick(block: Block) {
+   function onTextBlockClick(block: AnyBlock) {
       if (block.type === 'text') {
-         setState({
-            editingBlock: block
-         });
+         if (!state.editingBlock) {
+            setState({
+               editingBlock: block
+            });
+         }
+         else if (state.editingBlock !== block) {
+            setState({
+               editingBlock: null
+            });
+         }
       }
    }
 
@@ -202,6 +211,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             realSize,
             getRelativePosition,
             getAbsolutePosition,
+
+            setStore: setState,
          }
       ]}>
          {props.children}

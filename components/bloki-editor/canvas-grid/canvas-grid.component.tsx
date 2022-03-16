@@ -13,7 +13,7 @@ export function BlokiCanvasGrid() {
       ctx = backlightCanvasRef.getContext('2d', {});
    });
    const okFillColor = 'rgba(24, 160, 251, 0.2)';
-   const badFillColor = 'rgba(255, 0, 0, 0.4)';
+   const badFillColor = 'rgba(83, 83, 83, 0.2)';
 
    function roundRect(x: number, y: number, width: number, height: number, radius: number) {
       if (width < 2 * radius) radius = width / 2;

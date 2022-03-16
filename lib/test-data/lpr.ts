@@ -29,6 +29,15 @@ const lprPlatformDoc: BlokiDocument = {
          x: 9,
          y: 5,
       },
+      {
+         id: '620b2cb4-d175-4f1f-9bf1-bc5a42d15c6f',
+         type: 'text',
+         value: 'Государство — это великая фикция, с помощью которой каждый пытается жить за счет всех остальных.',
+         height: 3,
+         width: 10,
+         x: 15,
+         y: 15,
+      },
    ],
 };
 
