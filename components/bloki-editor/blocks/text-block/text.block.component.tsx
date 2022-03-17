@@ -18,11 +18,10 @@ export function TextBlock(props: TextBlockProps) {
       }
    });
    createEffect(on(() => props.block.value, () => {
-      // if (!contentRef) return;
-      // if (contentRef.lastElementChild?.tagName === 'BR') {
-      //    console.log('removing');
-      //    contentRef.lastElementChild.remove();
-      // }
+      if (!contentRef) return;
+      if (contentRef.lastElementChild?.tagName === 'BR') {
+         contentRef.lastElementChild.remove();
+      }
    }));
    return (
       <div
