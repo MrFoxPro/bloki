@@ -192,10 +192,18 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    }
 
    function selectBlock(selectedBlock: AnyBlock) {
-      setState({
-         editingBlock: selectedBlock,
-         editingType: 'select',
-      });
+      if (selectedBlock) {
+         setState({
+            editingBlock: selectedBlock,
+            editingType: 'select',
+         });
+      }
+      else {
+         setState({
+            editingBlock: null,
+            editingType: null,
+         });
+      }
    }
 
    return (

@@ -7,7 +7,12 @@
 
    font-family: Roboto;
    color: #312f2f;
-   overflow: clip;
+
+   // This is not working in safari ;)
+   // overflow: clip;
+
+   overflow: hidden;
+
    scrollbar-width: none;
    &::-webkit-scrollbar {
       display: none;

@@ -71,8 +71,10 @@ export function Block(props: BlockProps) {
       if (!boxRef) throw new Error('boxRef is undefined!');
       const body = document.body;
       const box = boxRef.getBoundingClientRect();
+
       relX = e.clientX - (box.left + body.scrollLeft - body.clientLeft);
       relY = e.clientY - (box.top + body.scrollTop - body.clientTop);
+      console.log(relX, e.pageX);
       // onMouseMove(e, false);
       onDragStart(props.block, e.clientX - relX, e.clientY - relY);
    }
@@ -138,6 +140,7 @@ export function Block(props: BlockProps) {
       original_height = rect.height;
       original_x = rect.left;
       original_y = rect.top;
+
       relX = e.pageX;
       relY = e.pageY;
 
@@ -150,7 +153,6 @@ export function Block(props: BlockProps) {
 
 
    function onVertPointerMove(e: PointerEvent, vertIndex: number) {
-      console.log('moving pointer');
 
       let height: number, width: number;
 
@@ -220,17 +222,17 @@ export function Block(props: BlockProps) {
          ondrop={(e) => e.preventDefault()}
          draggable={false}
          onPointerDown={(e) => onBoxPointerDown(e, 1)}
-         onMouseLeave={() => {
-            if (!isMeDragging() && isMeSelected()) {
+         // onMouseLeave={() => {
+         //    if (!isMeDragging() && isMeSelected()) {
+         //       selectBlock(null);
+         //    }
+         // }}
+         onPointerMove={(e) => {
+            // IN CHROME IT IS WORKING OK WITH onMouseLeave. Not in FF. Check: https://bugzilla.mozilla.org/show_bug.cgi?id=1352061. There is a problem when element is overflowing.
+            if (!isMeDragging() && isMeSelected() && !isInside(e.clientX, e.clientY, boxRef.getBoundingClientRect())) {
                selectBlock(null);
             }
          }}
-      // onPointerMove={(e) => {
-      //    // IN CHROME IT IS WORKING OK WITH onMouseLeave. Not in FF. Check: https://bugzilla.mozilla.org/show_bug.cgi?id=1352061. There is a problem when element is overflowing.
-      //    if (!isMeDragging() && isMeSelected() && !isInside(e.clientX, e.clientY, boxRef.getBoundingClientRect())) {
-      //       selectBlock(null);
-      //    }
-      // }}
       >
          <svg
             classList={{
