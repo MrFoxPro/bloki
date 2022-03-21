@@ -1,15 +1,10 @@
 .draggable {
    position: absolute;
    will-change: transform;
-   // touch-action: none;
 }
 
 .block {
    z-index: 10;
-   user-select: none;
-
-   // transition: all 70ms ease-out;
-   // transition-property: background-color, border-color;
 
    &:hover {
       > .handy {
@@ -34,14 +29,13 @@
    &.shadow {
       color: rgba(0, 0, 0, 0.2);
       opacity: 0.5;
+      > * {
+         user-select: none;
+      }
    }
    .vert,
    .edge {
       opacity: 1;
-
-      // &:hover {
-      //    opacity: 1;
-      // }
    }
    & > .vert:hover {
       opacity: 1;

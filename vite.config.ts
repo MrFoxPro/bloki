@@ -20,6 +20,9 @@ export default ({ mode }: ConfigEnv) => {
    const config: UserConfigExport = {
       base: dev ? './' : '/',
       assetsInclude: ['*.gltf', /.gltf/],
+      server: {
+         host: true,
+      },
       plugins: [
          solid({
             hot: true,

@@ -12,24 +12,10 @@ type BlokiEditorProps = {
 };
 function BlokiEditor(props: BlokiEditorProps) {
 
-   let editingBlock: HTMLDivElement;
    let containerRef: HTMLDivElement;
 
-   const [editor, { onDragStart, onDrag, onDragEnd, onGridDblClick, gridSize, realSize, getRelativePosition }] = useEditorStore();
-   const [app, { setStore }] = useAppStore();
+   const [editor, { onGridDblClick, realSize, selectBlock }] = useEditorStore();
 
-   // function onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
-   //    const { x, y } = getRelativePosition(e.offsetX, e.offsetY);
-   //    console.log(x, y, e.offsetX, e.offsetY);
-   //    const newBlock: BlockTsType = {
-   //       id: crypto.randomUUID(),
-   //       height: 1,
-   //       width: 3,
-   //       type: 'text',
-   //       x, y
-   //    };
-   //    setStore('selectedDocument', 'blocks', blocks => [...blocks, newBlock]);
-   // }
    return (
       <div
          class={s.container}
@@ -44,7 +30,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                repeating-linear-gradient(90deg, #dadada60 0 ${realSize().size_px}, transparent 0 ${realSize().sum_px})`
                : null,
             width: realSize().fGridWidth_px,
-            height: realSize().fGridHeight_px
+            height: realSize().fGridHeight_px,
          }}
       >
          <BlokiCanvasGrid />
@@ -61,17 +47,18 @@ function BlokiEditor(props: BlokiEditorProps) {
             class={cc([s.grid, s.foregroundGrid])}
             style={{
                width: realSize().fGridWidth_px,
-               height: realSize().fGridHeight_px
+               height: realSize().fGridHeight_px,
             }}
             onDblClick={onGridDblClick}
+            onClick={() => selectBlock(null)}
          />
          <For each={editor.document.blocks}>
             {(block) => (
                <Block block={block} />
             )}
          </For>
-         <Show when={editor.draggingBlock}>
-            <Block block={/*@once*/editor.draggingBlock} shadowed />
+         <Show when={editor.editingType === 'drag'}>
+            <Block block={editor.editingBlock} shadowed />
          </Show>
       </div>
    );

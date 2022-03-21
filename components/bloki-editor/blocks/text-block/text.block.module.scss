@@ -7,9 +7,9 @@
 
    font-family: Roboto;
    color: #312f2f;
-   overflow: auto;
+   overflow: clip;
    scrollbar-width: none;
-   ::-webkit-scrollbar {
+   &::-webkit-scrollbar {
       display: none;
    }
    &.regular {
@@ -25,9 +25,13 @@
       word-break: break-word;
       caret-color: rgb(55, 53, 47);
       color: rgb(55, 53, 47);
-      -webkit-text-fill-color: rgba(55, 53, 47, 0.5);
    }
    &:focus {
       outline: 0;
    }
+
+   // CHROME HACK
+   backface-visibility: hidden;
+
+   -webkit-user-drag: none;
 }

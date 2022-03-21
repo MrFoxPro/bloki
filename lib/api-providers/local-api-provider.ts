@@ -24,7 +24,10 @@ export class TestLocalApiProvider implements IApiProvider {
          }
       }
       localStorage.setItem(key, JSON.stringify(defaultData));
-      return (window as any).structuredClone(defaultData) as T;
+      if ((window as any).structuredClone) {
+         return (window as any).structuredClone(defaultData) as T;
+      }
+      else return JSON.parse(JSON.stringify(defaultData)) as T;
    }
    async getMyWorkspaces() {
       const workspaces = this.getOrFillWithDefault('workspaces', [lprWorkspace1]);

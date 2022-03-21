@@ -10,6 +10,8 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
    // overflow-x: hidden;
    position: absolute;
    background-attachment: local;
+   margin-left: 20px;
+   margin-top: 20px;
 }
 
 .grid {
