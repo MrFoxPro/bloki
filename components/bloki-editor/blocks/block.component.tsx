@@ -1,4 +1,4 @@
-import { createComputed, createEffect, createMemo, createSignal, For } from 'solid-js';
+import { createEffect, createMemo, createSignal, For } from 'solid-js';
 import { useEditorStore } from '../editor.store';
 // Causes an error
 import type { AnyBlock, BlockType } from '@/lib/entities';
@@ -17,7 +17,7 @@ const blockContentTypeMap: Record<BlockType, any> = {
    text: TextBlock,
 };
 export function Block(props: BlockProps) {
-   const [editor, { onDragStart, onDrag, onDragEnd, gridSize, getAbsoluteSize, getAbsolutePosition, isDragging, selectBlock }] = useEditorStore();
+   const [editor, { onDragStart, onDrag, onDragEnd, getAbsoluteSize, getAbsolutePosition, selectBlock }] = useEditorStore();
 
    if (props.shadowed) {
       const { x, y } = getAbsolutePosition(props.block.x, props.block.y);
@@ -60,11 +60,14 @@ export function Block(props: BlockProps) {
       }
    });
 
-   createComputed(() => {
-      setPos({
-         x: props.block.x,
-         y: props.block.y
-      });
+   createEffect(() => {
+      setSize(getAbsoluteSize(props.block.width, props.block.height));
+   });
+
+   createEffect(() => {
+      if (!isMeResizing()) {
+         setSize(getAbsoluteSize(props.block.width, props.block.height));
+      }
    });
 
    function onStart(e: PointerEvent) {
@@ -222,17 +225,17 @@ export function Block(props: BlockProps) {
          ondrop={(e) => e.preventDefault()}
          draggable={false}
          onPointerDown={(e) => onBoxPointerDown(e, 1)}
-         // onMouseLeave={() => {
-         //    if (!isMeDragging() && isMeSelected()) {
-         //       selectBlock(null);
-         //    }
-         // }}
-         onPointerMove={(e) => {
-            // IN CHROME IT IS WORKING OK WITH onMouseLeave. Not in FF. Check: https://bugzilla.mozilla.org/show_bug.cgi?id=1352061. There is a problem when element is overflowing.
-            if (!isMeDragging() && isMeSelected() && !isInside(e.clientX, e.clientY, boxRef.getBoundingClientRect())) {
+         onMouseLeave={() => {
+            if (!isMeDragging() && isMeSelected()) {
                selectBlock(null);
             }
          }}
+         // onPointerMove={(e) => {
+         //    // IN CHROME IT IS WORKING OK WITH onMouseLeave. Not in FF. Check: https://bugzilla.mozilla.org/show_bug.cgi?id=1352061. There is a problem when element is overflowing.
+         //    if (!isMeDragging() && isMeSelected() && !isInside(e.clientX, e.clientY, boxRef.getBoundingClientRect())) {
+         //       selectBlock(null);
+         //    }
+         // }}
       >
          <svg
             classList={{

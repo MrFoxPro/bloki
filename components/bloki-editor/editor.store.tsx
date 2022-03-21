@@ -1,4 +1,4 @@
-import { Accessor, batch, createContext, createMemo, createRenderEffect, onCleanup, PropsWithChildren, splitProps, useContext } from "solid-js";
+import { Accessor, batch, createContext, createMemo, PropsWithChildren, splitProps, useContext } from "solid-js";
 import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
 import { AnyBlock, BlokiDocument } from "../../lib/entities";
 
@@ -29,13 +29,15 @@ type CalculatedSize = {
    mGridHeight_px: string;
 };
 type EditorStoreHandles = {
+
    onDragStart(block: AnyBlock, absX: number, absY: number): void;
    onDrag(block: AnyBlock, absX: number, absY: number): void;
    onDragEnd(block: AnyBlock, absX: number, absY: number): void;
+
    onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }): void;
    onTextBlockClick(block: AnyBlock): void;
    selectBlock(block: AnyBlock): void;
-   isDragging: Accessor<boolean>;
+
    gridSize(factor: number): number;
    realSize: Accessor<CalculatedSize>;
    getRelativePosition(absX: number, absY: number): Point;
@@ -67,8 +69,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          document: unwrap(props.document),
       }
    );
-
-   const isDragging = createMemo(() => state.editingType === 'drag');
 
    function gridSize(factor: number) {
       const size = state.document.layoutOptions.size;
@@ -216,7 +216,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             onGridDblClick,
             onTextBlockClick,
             selectBlock,
-            isDragging,
             gridSize,
             realSize,
             getRelativePosition,
