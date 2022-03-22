@@ -62,7 +62,7 @@
          > svg {
             width: 24px;
             height: 24px;
-            stroke: #2c3e50;
+            stroke: #2c3e50 !important;
          }
       }
    }
@@ -142,7 +142,7 @@
    }
    > span {
       margin-left: 8px;
-      font-weight: 600;
+      font-weight: 500;
    }
 }
 .block {
@@ -168,11 +168,11 @@
          > svg {
             width: 16px;
             height: 16px;
-            stroke: #9ca5ab;
+            stroke: #9ca5ab !important;
          }
          &:hover > svg {
-            stroke: #4281fa;
-            fill: #4281fa;
+            stroke: #4281fa !important;
+            fill: #4281fa !important;
          }
       }
    }
