@@ -23,14 +23,12 @@
       font-size: 16px;
    }
    white-space: pre-wrap;
-   word-break: break-word;
+
    &::after {
       cursor: text;
-      content: attr(placeholder);
-      white-space: pre-wrap;
-      word-break: break-word;
-      caret-color: rgb(55, 53, 47);
-      color: rgb(55, 53, 47);
+      content: attr(data-placeholder);
+      // caret-color: rgb(55, 53, 47, 0.5);
+      color: rgb(55, 53, 47, 0.5);
    }
    &:focus {
       outline: 0;

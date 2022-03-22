@@ -28,15 +28,21 @@ export function TextBlock(props: TextBlockProps) {
          }
       }
    ));
+   function onTextInput(e: InputEvent & { currentTarget: HTMLDivElement; }) {
+      const text = e.currentTarget.textContent + '\n';
+      setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), 'value', text);
+   }
    return (
       <div
+         style={{
+            // 'word-break': 'break-word',
+            'white-space': 'nowrap',
+         }}
          classList={{ [s.content]: true, [s.regular]: true }}
-         placeholder={!props.block.value ? "Type '/' for commands" : null}
+         data-placeholder={!props.block.value ? "Type '/' for commands" : null}
          contentEditable={isEditingContent()}
          ref={contentRef}
-         onInput={(e) => {
-            setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), 'value', e.currentTarget.textContent);
-         }}
+         onInput={onTextInput}
          {...other}
       >
          {untrack(() => props.block.value)}

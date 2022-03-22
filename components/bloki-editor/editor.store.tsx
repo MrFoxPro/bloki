@@ -123,7 +123,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    const minBlockSize = createMemo(() => getAbsoluteSize(1, 1));
    const maxBlockSize = createMemo(() => getAbsoluteSize(BLOCK_MAX_WIDTH, BLOCK_MAX_HEIGHT));
 
-   function checkIfPlacementCorrect(block: AnyBlock, x: number, y: number, width = block.width, height = block.height) {
+   function checkIfPlacementCorrect(block: BlockTransform, x: number, y: number, width = block.width, height = block.height) {
       const { fGridHeight, fGridWidth } = state.document.layoutOptions;
 
       if (width > BLOCK_MAX_WIDTH || width < BLOCK_MIN_WIDTH || height > BLOCK_MAX_HEIGHT || height < BLOCK_MIN_HEIGHT) {
@@ -163,7 +163,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          height: roundFunc(height / gridBoxSize())
       };
    }
-
 
    function onChangeStart(block: AnyBlock, type: EditingType) {
       setState({ editingBlock: block, editingType: type });
@@ -230,18 +229,37 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    //    return result;
    // }
 
+   function isInMainGrid(x: number) {
+      const { mGridWidth, fGridWidth } = state.document.layoutOptions;
+      const start = (fGridWidth - mGridWidth) / 2;
+      const end = start + mGridWidth;
+      return x >= start && x < end;
+   }
    function onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
-      const { x, y } = getRelativePosition(e.offsetX, e.offsetY);
-      console.log('dblclick', x, y);
-      const newBlock: AnyBlock = {
-         id: crypto.randomUUID(),
+      let { x, y } = getRelativePosition(e.offsetX, e.offsetY);
+
+
+      if (isInMainGrid(x)) {
+         const { mGridWidth, fGridWidth } = state.document.layoutOptions;
+         x = (fGridWidth - mGridWidth) / 2;
+      }
+      const newBlockDimension: BlockTransform = {
          height: 1,
          width: state.document.layoutOptions.mGridWidth,
-         type: 'text',
          x, y
       };
-      if (checkIfPlacementCorrect(newBlock, x, y)) {
+      if (checkIfPlacementCorrect(newBlockDimension, x, y)) {
+         const newBlock: AnyBlock = {
+            id: crypto.randomUUID(),
+            type: 'text',
+            ...newBlockDimension
+         };
          setState('document', 'blocks', blocks => [...blocks, newBlock]);
+         const block = state.document.blocks.find(x => x.id === newBlock.id);
+         setState({
+            editingBlock: block,
+            editingType: 'content'
+         });
       }
    }
 

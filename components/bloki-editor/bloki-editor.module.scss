@@ -4,6 +4,12 @@
 $main-grid-width: grid-size($main-grid-width-factor);
 $foreground-grid-width: grid-size($foreground-grid-width-factor);
 
+.wrapper {
+   width: 100%;
+   height: 100%;
+   overflow: scroll;
+   position: relative;
+}
 .container {
    // position: relative;
    // overflow-y: auto;

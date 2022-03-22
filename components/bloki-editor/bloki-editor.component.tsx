@@ -15,18 +15,21 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    const [editor, { onGridDblClick, realSize, selectBlock, setStore }] = useEditorStore();
 
+   const calculateBoxRect = debounce(() => {
+      const containerRect = containerRef.getBoundingClientRect();
+      setStore({ containerRect });
+   }, 150);
+
    createRenderEffect(() => {
-      const calculateBoxRect = debounce(() => {
-         const containerRect = containerRef.getBoundingClientRect();
-         setStore({ containerRect });
-      }, 150);
       calculateBoxRect();
       window.addEventListener('resize', calculateBoxRect);
-      onCleanup(() => window.removeEventListener('resize', calculateBoxRect));
+      onCleanup(() => {
+         window.removeEventListener('resize', calculateBoxRect);
+      });
    });
 
    return (
-      <>
+      <div class={s.wrapper} onScroll={calculateBoxRect}>
          <div
             class={s.container}
             ref={containerRef}
@@ -42,6 +45,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                width: realSize().fGridWidth_px,
                height: realSize().fGridHeight_px,
             }}
+            onScroll={calculateBoxRect}
          >
             <BlokiCanvasGrid />
             <div
@@ -76,7 +80,7 @@ function BlokiEditor(props: BlokiEditorProps) {
             <div class={s.control}>Editing type: [{editor.editingType}]</div>
          </div>
 
-      </>
+      </div>
    );
 }
 

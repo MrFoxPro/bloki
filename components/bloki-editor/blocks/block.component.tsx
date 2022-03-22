@@ -1,6 +1,5 @@
-import { batch, createEffect, createMemo, createRenderEffect, createSignal, For, on } from 'solid-js';
+import { createEffect, createMemo, createSignal, For } from 'solid-js';
 import { useEditorStore } from '../editor.store';
-// Causes an error
 import type { AnyBlock, BlockType } from '@/lib/entities';
 import s from './block.module.scss';
 
@@ -84,7 +83,7 @@ export function Block(props: BlockProps) {
    });
 
    createEffect(() => {
-      if (!isMeDragging()) {
+      if (!isMeDragging() && !isMeResizing()) {
          setPos(getAbsolutePosition(props.block.x, props.block.y));
       }
    });
@@ -94,7 +93,9 @@ export function Block(props: BlockProps) {
       }
    });
 
+   let pointerDown = false;
    function onBoxPointerDown(e: PointerEvent, btn = 0) {
+      pointerDown = true;
       if (e.button !== btn) {
          // boxRef.releasePointerCapture(e.pointerId);
          return;
@@ -105,8 +106,10 @@ export function Block(props: BlockProps) {
 
       const box = boxRef.getBoundingClientRect();
 
-      relX = e.pageX - box.left;
-      relY = e.pageY - box.top;
+      const body = document.body;
+      relX = e.clientX - (box.left + body.scrollLeft - body.clientLeft);
+      relY = e.clientY - (box.top + body.scrollTop - body.clientTop);
+
       // onMouseMove(e, false);
       onChangeStart(props.block, 'drag');
 
@@ -126,6 +129,7 @@ export function Block(props: BlockProps) {
    }
 
    function onBoxPointerUp(e: PointerEvent) {
+      pointerDown = false;
       boxRef.onpointermove = null;
       const { x, y } = pos();
       const { width, height } = size();
@@ -246,8 +250,9 @@ export function Block(props: BlockProps) {
          ondrop={(e) => e.preventDefault()}
          draggable={false}
          onPointerDown={(e) => onBoxPointerDown(e, 1)}
+         onPointerUp={() => pointerDown = false}
          onPointerLeave={() => {
-            if (isMeEditing() && !isMeDragging()) {
+            if (pointerDown && isMeEditing() && !isMeDragging()) {
                selectBlock(props.block, 'select');
             }
          }}

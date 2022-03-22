@@ -57,14 +57,9 @@ export function TestPage() {
                         }}>
                         Reset
                      </button>
-                     <div>
-                        { }
-                     </div>
                   </div>
                </div>
-               <div class={s.editorWrapper}>
-                  <BlokiEditor document={app.selectedDocument} />
-               </div>
+               <BlokiEditor document={app.selectedDocument} />
             </Show>
          </div>
       </main >
