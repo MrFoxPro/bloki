@@ -14,17 +14,18 @@
    position: relative;
 
    > div:nth-child(1) {
-      border-left: 1px solid #d7dcdf;
+      // border-left: 1px solid #d7dcdf;
       display: flex;
       align-items: center;
       gap: 15px;
-      padding-left: 24px;
-      > .arrow {
+      // padding-left: 24px;
+      .arrow {
          width: 15px;
          height: 15px;
          background-position: center;
          background-repeat: no-repeat;
          background-size: contain;
+
          &:nth-child(1) {
             background-image: url("@/components/side-menu/assets/arrow.icon.svg");
             transform: rotate(180deg);
@@ -37,7 +38,7 @@
 }
 .controls {
    position: fixed;
-   top: 10px;
+   top: 50px;
    right: 10px;
    display: flex;
    flex-direction: column;

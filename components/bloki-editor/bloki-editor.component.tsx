@@ -1,10 +1,11 @@
-import { ComponentProps, createRenderEffect, For, onCleanup, Show, splitProps } from 'solid-js';
+import { ComponentProps, createEffect, createRenderEffect, For, on, onCleanup, Show, splitProps } from 'solid-js';
 import s from './bloki-editor.module.scss';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { BlokiCanvasGrid } from './canvas-grid/canvas-grid.component';
 import { Block } from './blocks/block.component';
 import { debounce } from 'lodash-es';
+import { unwrap } from 'solid-js/store';
 
 type BlokiEditorProps = {
 
@@ -27,6 +28,9 @@ function BlokiEditor(props: BlokiEditorProps) {
          window.removeEventListener('resize', calculateBoxRect);
       });
    });
+   createEffect(on(() => JSON.stringify(editor.document.layoutOptions), () => {
+      calculateBoxRect();
+   }));
 
    return (
       <div class={s.wrapper} onScroll={calculateBoxRect}>

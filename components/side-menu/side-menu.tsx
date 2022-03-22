@@ -2,6 +2,7 @@ import { useAppStore } from '@/lib/app.store';
 import { ComponentProps, For, Show } from 'solid-js';
 import { upperFirst } from 'lodash-es';
 import s from './side-menu.module.scss';
+import AddIcon from './assets/add.icon.svg?raw';
 
 type SideMenuProps = {
 
@@ -31,6 +32,7 @@ export function SideMenu(props: SideMenuProps) {
             <div class={s.block}>
                <div class={s.name}>
                   Pages
+                  <div class={s.icon} innerHTML={AddIcon} />
                </div>
                <div class={s.pages}>
                   <For each={app.selectedWorkspace?.documents}>
@@ -41,6 +43,9 @@ export function SideMenu(props: SideMenuProps) {
                            </Show>
                            <div classList={{ [s.icon]: true, [s.page]: true }} />
                            <span>{doc.title}</span>
+                           <Show when={true}>
+                              <div class={s.dotsIcon} />
+                           </Show>
                         </div>
                      )}
                   </For>
