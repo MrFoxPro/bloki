@@ -8,10 +8,14 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
    // position: relative;
    // overflow-y: auto;
    // overflow-x: hidden;
-   position: absolute;
+   // position: absolute;
    background-attachment: local;
-   margin-left: 20px;
-   margin-top: 20px;
+   // margin-left: 20px;
+   // margin-top: 20px;
+
+   position: absolute;
+   inset: 0;
+   margin: 0 auto;
 }
 
 .grid {
@@ -27,4 +31,25 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
 }
 .foreground-grid {
    display: initial;
+}
+
+.controls {
+   position: fixed;
+   top: 550px;
+   width: 150px;
+   right: 0px;
+   display: flex;
+   flex-direction: column;
+
+   z-index: 100;
+   background: rgba($color: #42424270, $alpha: 0.2);
+   .control {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      font-family: monospace;
+      > input {
+         width: 150px;
+      }
+   }
 }

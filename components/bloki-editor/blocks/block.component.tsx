@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, For } from 'solid-js';
+import { batch, createEffect, createMemo, createRenderEffect, createSignal, For, on } from 'solid-js';
 import { useEditorStore } from '../editor.store';
 // Causes an error
 import type { AnyBlock, BlockType } from '@/lib/entities';
@@ -6,7 +6,6 @@ import s from './block.module.scss';
 
 import { Dynamic } from 'solid-js/web';
 import { TextBlock } from './text-block/text.block.component';
-
 
 type BlockProps = {
    block: AnyBlock;
@@ -16,8 +15,31 @@ const blockContentTypeMap: Record<BlockType, any> = {
    image: null,
    text: TextBlock,
 };
+
+enum BlockVert {
+   NW,
+   NE,
+   SE,
+   SW,
+}
+
+enum BlockEdge {
+   L,
+   T,
+   R,
+   B
+}
 export function Block(props: BlockProps) {
-   const [editor, { onDragStart, onDrag, onDragEnd, getAbsoluteSize, getAbsolutePosition, selectBlock }] = useEditorStore();
+   const [editor, {
+      onChangeStart,
+      onChange,
+      onChangeEnd,
+      getAbsoluteSize,
+      getAbsolutePosition,
+      selectBlock,
+      minBlockSize,
+      maxBlockSize
+   }] = useEditorStore();
 
    if (props.shadowed) {
       const { x, y } = getAbsolutePosition(props.block.x, props.block.y);
@@ -42,16 +64,23 @@ export function Block(props: BlockProps) {
    let relY = 0;
 
    const [fixed, setFixed] = createSignal(false);
-   const [pos, setPos] = createSignal(getAbsolutePosition(props.block.x, props.block.y));
-   const [size, setSize] = createSignal(getAbsoluteSize(props.block.width, props.block.height));
+
+   const [pos, setPos] = createSignal(getAbsolutePosition(props.block.x, props.block.y),
+      { equals: (a, b) => a.x === b.x && a.y === b.y });
+
+   const [size, setSize] = createSignal(getAbsoluteSize(props.block.width, props.block.height),
+      { equals: (a, b) => a.width === b.width && a.height === b.height });
 
    const isMeEditing = createMemo(() => editor.editingBlock === props.block);
    const isMeDragging = createMemo(() => isMeEditing() && editor.editingType === 'drag');
    const isMeResizing = createMemo(() => isMeEditing() && editor.editingType === 'resize');
-   const isMeSelected = createMemo(() => isMeEditing() && editor.editingType === 'select');
+
 
    createEffect(() => {
       setPos(getAbsolutePosition(props.block.x, props.block.y));
+   });
+   createEffect(() => {
+      setSize(getAbsoluteSize(props.block.width, props.block.height));
    });
 
    createEffect(() => {
@@ -59,28 +88,11 @@ export function Block(props: BlockProps) {
          setPos(getAbsolutePosition(props.block.x, props.block.y));
       }
    });
-
-   createEffect(() => {
-      setSize(getAbsoluteSize(props.block.width, props.block.height));
-   });
-
    createEffect(() => {
       if (!isMeResizing()) {
          setSize(getAbsoluteSize(props.block.width, props.block.height));
       }
    });
-
-   function onStart(e: PointerEvent) {
-      if (!boxRef) throw new Error('boxRef is undefined!');
-      const body = document.body;
-      const box = boxRef.getBoundingClientRect();
-
-      relX = e.clientX - (box.left + body.scrollLeft - body.clientLeft);
-      relY = e.clientY - (box.top + body.scrollTop - body.clientTop);
-      console.log(relX, e.pageX);
-      // onMouseMove(e, false);
-      onDragStart(props.block, e.clientX - relX, e.clientY - relY);
-   }
 
    function onBoxPointerDown(e: PointerEvent, btn = 0) {
       if (e.button !== btn) {
@@ -90,29 +102,35 @@ export function Block(props: BlockProps) {
       e.preventDefault();
       e.stopImmediatePropagation();
       if (fixed()) setFixed(false);
-      onStart(e);
+
+      const box = boxRef.getBoundingClientRect();
+
+      relX = e.pageX - box.left;
+      relY = e.pageY - box.top;
+      // onMouseMove(e, false);
+      onChangeStart(props.block, 'drag');
+
       boxRef.onpointermove = onBoxPointerMove;
       boxRef.onpointerup = onBoxPointerUp;
       boxRef.setPointerCapture(e.pointerId);
    }
 
-   function onBoxPointerUp(e: PointerEvent) {
-      boxRef.onpointermove = null;
-      onDragEnd(props.block, pos().x, pos().y);
-      e.preventDefault();
+   function onBoxPointerMove(e: PointerEvent) {
+      const x = e.clientX - relX - editor.containerRect.x;
+      const y = e.clientY - relY - editor.containerRect.y;
+      if (x !== pos().x || y !== pos().y) {
+         setPos({ x, y });
+         const { width, height } = size();
+         onChange(props.block, { x, y, width, height }, 'drag');
+      }
    }
 
-   function onBoxPointerMove(e: PointerEvent, notify = true) {
-      const parentBox = boxRef.parentElement.getBoundingClientRect();
-      const newX = e.clientX - relX - parentBox.x;
-      const newY = e.clientY - relY - parentBox.y;
-      if (newX !== pos().x || newY !== pos().y) {
-         setPos({
-            x: newX,
-            y: newY
-         });
-         onDrag(props.block, newX, newY);
-      }
+   function onBoxPointerUp(e: PointerEvent) {
+      boxRef.onpointermove = null;
+      const { x, y } = pos();
+      const { width, height } = size();
+      onChangeEnd(props.block, { x, y, width, height }, 'drag');
+      e.preventDefault();
    }
 
    function isInside(x, y, rect: DOMRect) {
@@ -122,27 +140,15 @@ export function Block(props: BlockProps) {
       const rect = e.currentTarget.getBoundingClientRect();
 
       if (isInside(e.clientX, e.clientY, rect)) {
-         selectBlock(props.block);
+         selectBlock(props.block, 'content');
       }
       else {
          e.preventDefault();
       }
    }
 
-   const minimum_size = 20;
-   let original_width = 0;
-   let original_height = 0;
-   let original_x = 0;
-   let original_y = 0;
-
    function onVertPointerDown(e: PointerEvent & { currentTarget: HTMLDivElement; }, vertIndex: number) {
       e.preventDefault();
-
-      const rect = boxRef.getBoundingClientRect();
-      original_width = rect.width;
-      original_height = rect.height;
-      original_x = rect.left;
-      original_y = rect.top;
 
       relX = e.pageX;
       relY = e.pageY;
@@ -151,59 +157,74 @@ export function Block(props: BlockProps) {
 
       e.currentTarget.onpointerup = (e) => onVertPointerUp(e, vertIndex);
       e.currentTarget.onpointermove = (e) => onVertPointerMove(e, vertIndex);
+      onChangeStart(props.block, 'resize');
    }
 
+   function onVertPointerMove(e: PointerEvent, vert: BlockVert) {
+      let { width, height } = size();
+      let { x, y } = pos();
 
+      switch (vert) {
+         case BlockVert.NW: {
+            const yc = e.pageY - editor.containerRect.y;
+            height += y - yc;
+            y = yc;
 
-   function onVertPointerMove(e: PointerEvent, vertIndex: number) {
-
-      let height: number, width: number;
-
-      switch (vertIndex) {
-         case 0: {
-            width = original_width - (e.pageX - relX);
-            height = original_height - (e.pageY - relY);
-            if (width > minimum_size) {
-               boxRef.style.left = original_x + (e.pageX - relX) + 'px';
-            }
-            if (height > minimum_size) {
-               boxRef.style.top = original_y + (e.pageY - relY) + 'px';
-            }
+            const xc = e.pageX - editor.containerRect.x;
+            width += x - xc;
+            x = xc;
             break;
          }
-         case 1: {
-            width = original_width + (e.pageX - relX);
-            height = original_height - (e.pageY - relY);
-            if (height > minimum_size) {
-               boxRef.style.top = original_y + (e.pageY - relY) + 'px';
-            }
+         case BlockVert.NE: {
+            width = e.pageX - pos().x - editor.containerRect.x;
+
+            const yc = e.pageY - editor.containerRect.y;
+            height += y - yc;
+            y = yc;
             break;
          }
-         case 2: {
-            width = original_width + (e.pageX - relX);
-            height = original_height + (e.pageY - relY);
+         case BlockVert.SE: {
+            width = e.pageX - pos().x - editor.containerRect.x;
+            height = e.pageY - pos().y - editor.containerRect.y;
             break;
          }
-         case 3: {
-            width = original_width - (e.pageX - relX);
-            height = original_height + (e.pageY - relY);
-            if (width > minimum_size) {
-               boxRef.style.left = original_x + (e.pageX - relX) + 'px';
-            }
+
+         case BlockVert.SW: {
+            const xc = e.pageX - editor.containerRect.x;
+            width += x - xc;
+            x = xc;
+
+            height = e.pageY - pos().y - editor.containerRect.y;
             break;
          }
+
       }
-      if (height > minimum_size) {
-         boxRef.style.height = height + 'px';
-      }
-      if (width > minimum_size) {
-         boxRef.style.width = width + 'px';
-      }
+      // const { width: minWidth, height: minHeight } = minBlockSize();
+      // const { width: maxWidth, height: maxHeight } = maxBlockSize();
+
+      // if (width < minWidth) width = minWidth;
+      // if (height < minHeight) height = minHeight;
+      // if (width > maxWidth) width = maxWidth;
+      // if (height > maxHeight) height = maxHeight;
+
+      // if (x < 1) x = pos().x;
+      // if (y < 1) y = pos().y;
+
+      // if (x <> 1) height = pos().x;
+      // if (y < 1) width = pos().y;
+
+      setSize({ width, height });
+      setPos({ x, y });
+
+      onChange(props.block, { x, y, width, height }, 'resize');
    }
 
    function onVertPointerUp(e: PointerEvent, vertIndex: number) {
       (e.currentTarget as HTMLDivElement).onpointermove = null;
       (e.currentTarget as HTMLDivElement).onpointerup = null;
+      const { width, height } = size();
+      const { x, y } = pos();
+      onChangeEnd(props.block, { x, y, width, height }, 'resize');
    }
 
    return (
@@ -217,7 +238,7 @@ export function Block(props: BlockProps) {
             [s.block]: true,
             [s.draggable]: true,
             [s.dragging]: isMeDragging(),
-            [s.selected]: isMeSelected(),
+            [s.selected]: isMeEditing(),
          }}
          ref={boxRef}
          onClick={onBoxClick}
@@ -225,17 +246,17 @@ export function Block(props: BlockProps) {
          ondrop={(e) => e.preventDefault()}
          draggable={false}
          onPointerDown={(e) => onBoxPointerDown(e, 1)}
-         onMouseLeave={() => {
-            if (!isMeDragging() && isMeSelected()) {
-               selectBlock(null);
+         onPointerLeave={() => {
+            if (isMeEditing() && !isMeDragging()) {
+               selectBlock(props.block, 'select');
             }
          }}
-         // onPointerMove={(e) => {
-         //    // IN CHROME IT IS WORKING OK WITH onMouseLeave. Not in FF. Check: https://bugzilla.mozilla.org/show_bug.cgi?id=1352061. There is a problem when element is overflowing.
-         //    if (!isMeDragging() && isMeSelected() && !isInside(e.clientX, e.clientY, boxRef.getBoundingClientRect())) {
-         //       selectBlock(null);
-         //    }
-         // }}
+      // onPointerMove={(e) => {
+      //    // IN CHROME IT IS WORKING OK WITH onMouseLeave. Not in FF. Check: https://bugzilla.mozilla.org/show_bug.cgi?id=1352061. There is a problem when element is overflowing.
+      //    if (!isMeDragging() && isMeSelected() && !isInside(e.clientX, e.clientY, boxRef.getBoundingClientRect())) {
+      //       selectBlock(null);
+      //    }
+      // }}
       >
          <svg
             classList={{
@@ -261,7 +282,7 @@ export function Block(props: BlockProps) {
          <For each={/*@once*/new Array(4).fill(0)}>
             {() => (<div class={s.edge} />)}
          </For>
-         <Dynamic component={blockContentTypeMap[props.block.type]} block={props.block} selected={isMeSelected()} />
+         <Dynamic component={blockContentTypeMap[props.block.type]} block={props.block} selected={isMeEditing()} />
       </div>
    );
 };

@@ -15,8 +15,8 @@ export function BlokiCanvasGrid() {
    const okFillColor = 'rgba(24, 160, 251, 0.2)';
    const badFillColor = 'rgba(83, 83, 83, 0.2)';
 
-   const semiOkFillColor = 'rgba(24, 160, 251, 0.08)';
-   const semiBadFillColor = 'rgba(83, 83, 83, 0.08)';
+   // const semiOkFillColor = 'rgba(24, 160, 251, 0.08)';
+   // const semiBadFillColor = 'rgba(83, 83, 83, 0.08)';
 
    function roundRect(x: number, y: number, width: number, height: number, radius: number) {
       if (width < 2 * radius) radius = width / 2;
@@ -41,7 +41,7 @@ export function BlokiCanvasGrid() {
                ctx.clearRect(gridSize(first.x) + gap, gridSize(first.y) + gap, gridSize(last.x - first.x + 1), gridSize(last.y - first.y + 1));
             }
 
-            if (!editor.editingBlock) return;
+            if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
 
             ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
             for (let i = 0; i < proj.length; i++) {

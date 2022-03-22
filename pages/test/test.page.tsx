@@ -8,6 +8,7 @@ import { defaultLayotOptions } from '@/lib/test-data/layout-options';
 export function TestPage() {
    const [app, { setStore }] = useAppStore();
 
+
    return (
       <main class={s.test}>
          <SideMenu />
@@ -20,7 +21,14 @@ export function TestPage() {
             <Show when={app.selectedWorkspace && app.selectedDocument}>
                <div class={s.controls}>
                   <div class={s.control}>
-                     <For each={[['gap', [2, 10]], ['size', [4, 48]], ['mGridWidth', [5, 50]], ['mGridHeight', [10, 60]], ['fGridWidth', [32, 92]], ['fGridHeight', [10, 60]]] as const}>
+                     <For each={[
+                        ['gap', [2, 10]],
+                        ['size', [4, 48]],
+                        ['mGridWidth', [5, 50]],
+                        ['mGridHeight', [10, 60]],
+                        ['fGridWidth', [32, 92]],
+                        ['fGridHeight', [10, 60]]
+                     ] as const}>
                         {([p, [min, max]]) => (
                            <div class={s.control}>
                               <span>{p} [{app.selectedDocument.layoutOptions[p]}]</span>
@@ -49,6 +57,9 @@ export function TestPage() {
                         }}>
                         Reset
                      </button>
+                     <div>
+                        { }
+                     </div>
                   </div>
                </div>
                <div class={s.editorWrapper}>

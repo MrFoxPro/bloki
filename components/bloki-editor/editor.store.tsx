@@ -1,18 +1,25 @@
-import { Accessor, batch, createContext, createMemo, PropsWithChildren, splitProps, useContext } from "solid-js";
+import { Accessor, batch, createContext, createEffect, createMemo, PropsWithChildren, splitProps, useContext } from "solid-js";
 import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
-import { AnyBlock, BlokiDocument } from "../../lib/entities";
+import { AnyBlock, Block, BlokiDocument } from "../../lib/entities";
 
 type Point = { x: number, y: number; };
 type Dimension = { width: number, height: number; };
 type EditingType = 'drag' | 'resize' | 'select' | 'content';
 
+type BlockTransform = Point & Dimension;
+type TransformType = 'drag' | 'resize';
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock: AnyBlock | null;
    editingType: EditingType | null;
+
+   selectedBlocks: AnyBlock[];
+
    isPlacementCorrect: boolean;
    projection: Point[];
    document: BlokiDocument;
+
+   containerRect?: DOMRect;
 }>;
 
 type CalculatedSize = {
@@ -30,13 +37,13 @@ type CalculatedSize = {
 };
 type EditorStoreHandles = {
 
-   onDragStart(block: AnyBlock, absX: number, absY: number): void;
-   onDrag(block: AnyBlock, absX: number, absY: number): void;
-   onDragEnd(block: AnyBlock, absX: number, absY: number): void;
+   onChangeStart(block: AnyBlock, type: EditingType): void;
+   onChange(block: AnyBlock, absTransform: BlockTransform, type: EditingType): void;
+   onChangeEnd(block: AnyBlock, absTransform: BlockTransform, type: EditingType): void;
 
    onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }): void;
    onTextBlockClick(block: AnyBlock): void;
-   selectBlock(block: AnyBlock): void;
+   selectBlock(block: AnyBlock, type?: EditingType): void;
 
    gridSize(factor: number): number;
    realSize: Accessor<CalculatedSize>;
@@ -46,6 +53,9 @@ type EditorStoreHandles = {
    getAbsoluteSize(width: number, height: number): Dimension;
 
    setStore: SetStoreFunction<EditorStoreValues>;
+
+   minBlockSize: Accessor<Dimension>;
+   maxBlockSize: Accessor<Dimension>;
 };
 
 export type EditorStoreEvents = 'lock';
@@ -57,15 +67,15 @@ type EditorStoreProviderProps = PropsWithChildren<{
 }>;
 
 export function EditorStoreProvider(props: EditorStoreProviderProps) {
-   const [local, others] = splitProps(props, ['children']);
+   // const [local, others] = splitProps(props, ['children']);
    const [state, setState] = createStore<EditorStoreValues>(
       {
          editingBlock: null,
          editingType: null,
+         selectedBlocks: [],
          isPlacementCorrect: false,
          projection: [],
-         // document: null,
-         // lastDocumentId: null,
+         containerRect: null,
          document: unwrap(props.document),
       }
    );
@@ -95,6 +105,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const y = Math.floor(absY / gridBoxSize());
       return { x, y };
    }
+
    function getAbsolutePosition(x: number, y: number) {
       return { x: x * gridBoxSize(), y: y * gridBoxSize() };
    }
@@ -102,14 +113,24 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function getAbsoluteSize(width: number, height: number) {
       return { width: gridSize(width), height: gridSize(height) };
    }
-   function onDragStart(draggingBlock: AnyBlock, absX: number, absY: number) {
-      setState({ editingBlock: draggingBlock, editingType: 'drag' });
-   }
 
-   function checkIfPlacementCorrect(block: AnyBlock, x: number, y: number) {
+   const BLOCK_MIN_WIDTH = 1;
+   const BLOCK_MIN_HEIGHT = 1;
+
+   const BLOCK_MAX_WIDTH = 45;
+   const BLOCK_MAX_HEIGHT = 45;
+
+   const minBlockSize = createMemo(() => getAbsoluteSize(1, 1));
+   const maxBlockSize = createMemo(() => getAbsoluteSize(BLOCK_MAX_WIDTH, BLOCK_MAX_HEIGHT));
+
+   function checkIfPlacementCorrect(block: AnyBlock, x: number, y: number, width = block.width, height = block.height) {
       const { fGridHeight, fGridWidth } = state.document.layoutOptions;
+
+      if (width > BLOCK_MAX_WIDTH || width < BLOCK_MIN_WIDTH || height > BLOCK_MAX_HEIGHT || height < BLOCK_MIN_HEIGHT) {
+         return false;
+      }
       // TODO: different grid sizes?
-      if (x < 0 || y < 0 || y + block.height > fGridHeight || x + block.width > fGridWidth) {
+      if (x < 0 || y < 0 || y + height > fGridHeight || x + width > fGridWidth) {
          return false;
       }
       for (let i = 0; i < state.document.blocks.length; i++) {
@@ -119,8 +140,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
          const x1 = x;
          const y1 = y;
-         const sizeX1 = block.width;
-         const sizeY1 = block.height;
+         const sizeX1 = width;
+         const sizeY1 = height;
 
          const x2 = sBlock.x;
          const y2 = sBlock.y;
@@ -135,38 +156,80 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
       return true;
    }
-   function onDrag(block: AnyBlock, absX: number, absY: number) {
-      const { x, y } = getRelativePosition(absX, absY);
-      const oldStartPoint = state.projection[0];
-      if (oldStartPoint?.x === x && oldStartPoint?.y === y) {
+
+   function getRelativeSize(width, height, roundFunc = Math.ceil) {
+      return {
+         width: roundFunc(width / gridBoxSize()),
+         height: roundFunc(height / gridBoxSize())
+      };
+   }
+
+
+   function onChangeStart(block: AnyBlock, type: EditingType) {
+      setState({ editingBlock: block, editingType: type });
+   }
+
+   function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditingType) {
+      const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
+      if (type === 'resize') {
+         absTransform.height += state.document.layoutOptions.gap;
+         absTransform.width += state.document.layoutOptions.gap;
+      }
+      const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
+
+      const oldNWPoint = state.projection[0];
+      const oldSEPoint = state.projection[state.projection.length - 1];
+
+      if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
+         oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
          return;
       }
+
       const projection = [];
-      for (let w = 0; w < block.width; w++) {
-         for (let h = 0; h < block.height; h++) {
+      for (let h = 0; h < height; h++) {
+         for (let w = 0; w < width; w++) {
             projection.push({ x: x + w, y: y + h });
          }
       }
-      const isPlacementCorrect = checkIfPlacementCorrect(block, x, y);
+
+      const isPlacementCorrect = checkIfPlacementCorrect(block, x, y, width, height);
       setState({ projection, isPlacementCorrect });
    }
 
-   function onDragEnd(block: AnyBlock, absX: number, absY: number) {
-      const { x, y } = getRelativePosition(absX, absY);
-      const isPlacementCorrect = checkIfPlacementCorrect(block, x, y);
+   function onChangeEnd(block: AnyBlock, absTransform: BlockTransform) {
+      const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
+      const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
+      const isPlacementCorrect = checkIfPlacementCorrect(block, x, y, width, height);
+      console.log('change end');
       batch(() => {
          setState({
-            editingBlock: null,
-            editingType: null,
-
+            // editingBlock: null,
+            editingType: 'select',
             projection: [],
          });
          if (isPlacementCorrect) {
-            setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y });
+            setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y, width, height });
+            return;
          }
-         else setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y });
+         console.log('wrong placement');
+         setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
    }
+
+   // function isProjectionsEquals(p1: Point[], p2: Point[]) {
+   //    if (!p1 || !p2) return false;
+   //    if (p1.length !== p2.length) return false;
+
+   //    let result = true;
+   //    for (let i = 0; i < p1.length; i++) {
+   //       if (p1[i].x !== p2[i].x || p1[i].y !== p2[i].y) {
+   //          result = false;
+   //          break;
+   //       }
+   //    }
+   //    return result;
+   // }
+
    function onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
       const { x, y } = getRelativePosition(e.offsetX, e.offsetY);
       console.log('dblclick', x, y);
@@ -181,6 +244,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          setState('document', 'blocks', blocks => [...blocks, newBlock]);
       }
    }
+
    function onTextBlockClick(block: AnyBlock) {
       if (state.editingBlock !== block) {
          setState({
@@ -191,11 +255,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
    }
 
-   function selectBlock(selectedBlock: AnyBlock) {
+   function selectBlock(selectedBlock: AnyBlock, type: EditingType = 'select') {
       if (selectedBlock) {
          setState({
             editingBlock: selectedBlock,
-            editingType: 'select',
+            editingType: type,
          });
       }
       else {
@@ -210,9 +274,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       <EditorStore.Provider value={[
          state,
          {
-            onDragStart,
-            onDrag,
-            onDragEnd,
+            onChangeStart,
+            onChange,
+            onChangeEnd,
+            minBlockSize,
+            maxBlockSize,
             onGridDblClick,
             onTextBlockClick,
             selectBlock,
