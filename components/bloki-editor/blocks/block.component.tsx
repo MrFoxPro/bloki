@@ -1,5 +1,5 @@
-import { createEffect, createMemo, createSignal, For } from 'solid-js';
-import { useEditorStore } from '../editor.store';
+import { createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import { Point, useEditorStore } from '../editor.store';
 import type { AnyBlock, BlockType } from '@/lib/entities';
 import s from './block.module.scss';
 
@@ -36,8 +36,6 @@ export function Block(props: BlockProps) {
       getAbsoluteSize,
       getAbsolutePosition,
       selectBlock,
-      minBlockSize,
-      maxBlockSize
    }] = useEditorStore();
 
    if (props.shadowed) {
@@ -58,9 +56,9 @@ export function Block(props: BlockProps) {
    }
 
    let boxRef: HTMLDivElement | undefined;
-
    let relX = 0;
    let relY = 0;
+   let pointerDown = false;
 
    const [fixed, setFixed] = createSignal(false);
 
@@ -74,7 +72,6 @@ export function Block(props: BlockProps) {
    const isMeDragging = createMemo(() => isMeEditing() && editor.editingType === 'drag');
    const isMeResizing = createMemo(() => isMeEditing() && editor.editingType === 'resize');
 
-
    createEffect(() => {
       setPos(getAbsolutePosition(props.block.x, props.block.y));
    });
@@ -87,13 +84,93 @@ export function Block(props: BlockProps) {
          setPos(getAbsolutePosition(props.block.x, props.block.y));
       }
    });
+
    createEffect(() => {
       if (!isMeResizing()) {
          setSize(getAbsoluteSize(props.block.width, props.block.height));
       }
    });
 
-   let pointerDown = false;
+   const [dot, setDot] = createSignal({
+      x: 0,
+      y: 0
+   });
+
+   const [dotExpanded, setDotExpanded] = createSignal(false);
+   const SEARCH_RADIUS = 100;
+   const DRAG_ACTIVATE_DIST = 50;
+
+   const delta = () => dotExpanded() ? -5 : -2;
+   function onMouseMove(e: MouseEvent) {
+      const M: Point = {
+         x: e.pageX - editor.containerRect.x - pos().x - 4,
+         y: e.pageY - editor.containerRect.y - pos().y - 1,
+      };
+      const x = delta(), y = delta();
+      const { width, height } = size();
+
+      const points: Point[] = [
+         { x, y },
+         { x: x + width, y },
+         { x: x + width, y: y + height },
+         { x, y: y + height }
+      ];
+      let minDist = Number.POSITIVE_INFINITY;
+      let H: Point;
+      let edgeI: number;
+
+      for (let i = 0; i < 4; i++) {
+         const p1 = points[!i ? 3 : i - 1];
+         const p2 = points[i];
+
+         const t = ((M.x - p1.x) * (p2.x - p1.x) + (M.y - p1.y) * (p2.y - p1.y)) / ((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+
+         if (t < 0 || t > 1) continue;
+
+         const h: Point = {
+            x: p1.x + t * (p2.x - p1.x),
+            y: p1.y + t * (p2.y - p1.y)
+         };
+
+         let dist = Math.sqrt((h.x - M.x) ** 2 + (h.y - M.y) ** 2);
+         if (dist < minDist) {
+            minDist = dist;
+            H = h;
+            edgeI = i;
+         }
+      }
+      if (H) {
+         if (minDist < 25 && !dotExpanded()) {
+            setDotExpanded(true);
+            onMouseMove(e);
+            return;
+         }
+         else if (dotExpanded() && minDist > 30) setDotExpanded(false);
+
+         if (edgeI === 0) {
+            H.x += delta() / 2;
+         }
+         else if (edgeI === 1) {
+            H.y += delta() / 2;
+         }
+         setDot(H);
+      }
+   }
+
+   createEffect(() => {
+      if (isMeEditing()) {
+         window.addEventListener('mousemove', onMouseMove, { passive: true });
+      }
+      else {
+         window.removeEventListener('mousemove', onMouseMove);
+      }
+   });
+
+   onCleanup(() => {
+      window.removeEventListener('mousemove', onmousemove);
+   });
+
+
    function onBoxPointerDown(e: PointerEvent, btn = 0) {
       pointerDown = true;
       if (e.button !== btn) {
@@ -107,8 +184,8 @@ export function Block(props: BlockProps) {
       const box = boxRef.getBoundingClientRect();
 
       const body = document.body;
-      relX = e.clientX - (box.left + body.scrollLeft - body.clientLeft);
-      relY = e.clientY - (box.top + body.scrollTop - body.clientTop);
+      relX = e.pageX - (box.left + body.scrollLeft - body.clientLeft);
+      relY = e.pageY - (box.top + body.scrollTop - body.clientTop);
 
       // onMouseMove(e, false);
       onChangeStart(props.block, 'drag');
@@ -119,8 +196,8 @@ export function Block(props: BlockProps) {
    }
 
    function onBoxPointerMove(e: PointerEvent) {
-      const x = e.clientX - relX - editor.containerRect.x;
-      const y = e.clientY - relY - editor.containerRect.y;
+      const x = e.pageX - relX - editor.containerRect.x;
+      const y = e.pageY - relY - editor.containerRect.y;
       if (x !== pos().x || y !== pos().y) {
          setPos({ x, y });
          const { width, height } = size();
@@ -143,7 +220,7 @@ export function Block(props: BlockProps) {
    function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
       const rect = e.currentTarget.getBoundingClientRect();
 
-      if (isInside(e.clientX, e.clientY, rect)) {
+      if (isInside(e.pageX, e.pageY, rect)) {
          selectBlock(props.block, 'content');
       }
       else {
@@ -231,6 +308,7 @@ export function Block(props: BlockProps) {
       onChangeEnd(props.block, { x, y, width, height }, 'resize');
    }
 
+
    return (
       <div
          style={{
@@ -258,7 +336,7 @@ export function Block(props: BlockProps) {
          }}
       // onPointerMove={(e) => {
       //    // IN CHROME IT IS WORKING OK WITH onMouseLeave. Not in FF. Check: https://bugzilla.mozilla.org/show_bug.cgi?id=1352061. There is a problem when element is overflowing.
-      //    if (!isMeDragging() && isMeSelected() && !isInside(e.clientX, e.clientY, boxRef.getBoundingClientRect())) {
+      //    if (!isMeDragging() && isMeSelected() && !isInside(e.pageX, e.pageY, boxRef.getBoundingClientRect())) {
       //       selectBlock(null);
       //    }
       // }}
@@ -280,13 +358,19 @@ export function Block(props: BlockProps) {
             <path d="M1.5 17.5C2.32843 17.5 3 16.8284 3 16C3 15.1716 2.32843 14.5 1.5 14.5C0.671573 14.5 0 15.1716 0 16C0 16.8284 0.671573 17.5 1.5 17.5Z" />
             <path d="M8.5 17.5C9.32843 17.5 10 16.8284 10 16C10 15.1716 9.32843 14.5 8.5 14.5C7.67157 14.5 7 15.1716 7 16C7 16.8284 7.67157 17.5 8.5 17.5Z" />
          </svg>
-
-         <For each={/*@once*/new Array(4).fill(0)}>
+         <Show when={isMeEditing()}>
+            <div
+               classList={{ [s.sizedot]: true, [s.expand]: dotExpanded() }}
+               style={{
+                  transform: `translate(${dot().x}px, ${dot().y}px)`
+               }} />
+         </Show>
+         {/* <For each={new Array(4).fill(0)}>
             {(_, i) => (<div class={s.vert} onPointerDown={(e) => onVertPointerDown(e, i())} />)}
          </For>
-         <For each={/*@once*/new Array(4).fill(0)}>
+         <For each={new Array(4).fill(0)}>
             {() => (<div class={s.edge} />)}
-         </For>
+         </For> */}
          <Dynamic component={blockContentTypeMap[props.block.type]} block={props.block} selected={isMeEditing()} />
       </div>
    );

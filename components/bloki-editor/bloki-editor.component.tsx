@@ -5,7 +5,6 @@ import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { BlokiCanvasGrid } from './canvas-grid/canvas-grid.component';
 import { Block } from './blocks/block.component';
 import { debounce } from 'lodash-es';
-import { unwrap } from 'solid-js/store';
 
 type BlokiEditorProps = {
 
@@ -14,20 +13,36 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    let containerRef: HTMLDivElement;
 
-   const [editor, { onGridDblClick, realSize, selectBlock, setStore }] = useEditorStore();
+   const [editor, { onGridClick, realSize, selectBlock, setStore }] = useEditorStore();
 
    const calculateBoxRect = debounce(() => {
       const containerRect = containerRef.getBoundingClientRect();
       setStore({ containerRect });
    }, 150);
 
+   function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+         if (editor.editingType === 'content' || editor.editingType === 'select') {
+            selectBlock(null);
+         }
+      }
+   }
+   function onMouseMove(e: MouseEvent) {
+
+   }
+
    createRenderEffect(() => {
       calculateBoxRect();
       window.addEventListener('resize', calculateBoxRect);
+      window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
       onCleanup(() => {
          window.removeEventListener('resize', calculateBoxRect);
+         window.removeEventListener('keydown', onKeyDown);
+         window.removeEventListener('mousemove', onMouseMove);
       });
    });
+
    createEffect(on(() => JSON.stringify(editor.document.layoutOptions), () => {
       calculateBoxRect();
    }));
@@ -53,22 +68,23 @@ function BlokiEditor(props: BlokiEditorProps) {
          >
             <BlokiCanvasGrid />
             <div
-               class={cc([s.grid])}
-               style={{
-                  width: realSize().mGridWidth_px,
-                  height: realSize().mGridHeight_px,
-                  margin: `0 ${(realSize().fGridWidth - realSize().mGridWidth) / 2}px`,
-                  background: editor.document.layoutOptions.showGridGradient === true ? 'rgba(128, 128, 128, 0.507)' : null,
-               }}
-            />
-            <div
                class={cc([s.grid, s.foregroundGrid])}
                style={{
                   width: realSize().fGridWidth_px,
                   height: realSize().fGridHeight_px,
                }}
-               onDblClick={onGridDblClick}
-               onPointerDown={() => selectBlock(null)}
+               onClick={(e) => onGridClick(e, 'foreground')}
+            />
+            <div
+               class={cc([s.grid, s.mainGrid])}
+               style={{
+                  width: realSize().mGridWidth_px,
+                  height: realSize().mGridHeight_px,
+                  margin: `0 ${(realSize().fGridWidth - realSize().mGridWidth) / 2}px`,
+                  background: editor.document.layoutOptions.showGridGradient === true ? 'rgba(128, 128, 128, 0.507)' : null,
+                  cursor: editor.editingBlock ? 'initial' : 'text'
+               }}
+               onClick={(e) => onGridClick(e, 'main')}
             />
             <For each={editor.document.blocks}>
                {(block) => (

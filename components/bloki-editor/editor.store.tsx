@@ -2,11 +2,11 @@ import { Accessor, batch, createContext, createEffect, createMemo, PropsWithChil
 import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
 import { AnyBlock, Block, BlokiDocument } from "../../lib/entities";
 
-type Point = { x: number, y: number; };
-type Dimension = { width: number, height: number; };
-type EditingType = 'drag' | 'resize' | 'select' | 'content';
+export type Point = { x: number, y: number; };
+export type Dimension = { width: number, height: number; };
+export type EditingType = 'drag' | 'resize' | 'select' | 'content';
 
-type BlockTransform = Point & Dimension;
+export type BlockTransform = Point & Dimension;
 type TransformType = 'drag' | 'resize';
 
 type EditorStoreValues = DeepReadonly<{
@@ -41,7 +41,7 @@ type EditorStoreHandles = {
    onChange(block: AnyBlock, absTransform: BlockTransform, type: EditingType): void;
    onChangeEnd(block: AnyBlock, absTransform: BlockTransform, type: EditingType): void;
 
-   onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }): void;
+   onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, type: 'main' | 'foreground'): void;
    onTextBlockClick(block: AnyBlock): void;
    selectBlock(block: AnyBlock, type?: EditingType): void;
 
@@ -235,24 +235,30 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const end = start + mGridWidth;
       return x >= start && x < end;
    }
-   function onGridDblClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
-      let { x, y } = getRelativePosition(e.offsetX, e.offsetY);
 
+   function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {
+      if (state.editingBlock) {
+         selectBlock(null);
+         return;
+      }
 
-      if (isInMainGrid(x)) {
+      let { x, y } = getRelativePosition(e.pageX - state.containerRect.x, e.pageY - state.containerRect.y);
+
+      if (grid === 'main') {
          const { mGridWidth, fGridWidth } = state.document.layoutOptions;
          x = (fGridWidth - mGridWidth) / 2;
       }
-      const newBlockDimension: BlockTransform = {
+      else return;
+      const newBlockTransform: BlockTransform = {
          height: 1,
          width: state.document.layoutOptions.mGridWidth,
          x, y
       };
-      if (checkIfPlacementCorrect(newBlockDimension, x, y)) {
+      if (checkIfPlacementCorrect(newBlockTransform, x, y)) {
          const newBlock: AnyBlock = {
             id: crypto.randomUUID(),
             type: 'text',
-            ...newBlockDimension
+            ...newBlockTransform
          };
          setState('document', 'blocks', blocks => [...blocks, newBlock]);
          const block = state.document.blocks.find(x => x.id === newBlock.id);
@@ -261,6 +267,30 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             editingType: 'content'
          });
       }
+
+      // if (isInMainGrid(x)) {
+      //    console.log('in main grid');
+      //    const { mGridWidth, fGridWidth } = state.document.layoutOptions;
+      //    x = (fGridWidth - mGridWidth) / 2;
+      // }
+      // const newBlockDimension: BlockTransform = {
+      //    height: 1,
+      //    width: state.document.layoutOptions.mGridWidth,
+      //    x, y
+      // };
+      // if (checkIfPlacementCorrect(newBlockDimension, x, y)) {
+      //    const newBlock: AnyBlock = {
+      //       id: crypto.randomUUID(),
+      //       type: 'text',
+      //       ...newBlockDimension
+      //    };
+      //    setState('document', 'blocks', blocks => [...blocks, newBlock]);
+      //    const block = state.document.blocks.find(x => x.id === newBlock.id);
+      //    setState({
+      //       editingBlock: block,
+      //       editingType: 'content'
+      //    });
+      // }
    }
 
    function onTextBlockClick(block: AnyBlock) {
@@ -297,7 +327,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             onChangeEnd,
             minBlockSize,
             maxBlockSize,
-            onGridDblClick,
+            onGridClick,
             onTextBlockClick,
             selectBlock,
             gridSize,

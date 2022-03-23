@@ -33,6 +33,25 @@
          user-select: none;
       }
    }
+
+   .sizedot {
+      width: 5px;
+      height: 5px;
+      outline: 0.5px solid transparent;
+      border-radius: 50%;
+      background: #4281fa;
+      position: absolute;
+
+      transition: all 110ms linear;
+      transition-property: width, height, outline-color;
+      &.expand {
+         width: 11px;
+         height: 11px;
+         background: white;
+         outline-color: #4281fa;
+      }
+   }
+
    // .vert,
    // .edge {
    //    opacity: 1;
@@ -40,11 +59,20 @@
    // & > .vert:hover {
    //    opacity: 1;
    // }
+   // border: 1px solid transparent;
+   // border-radius: 4px;
+   // transition: border-color 50ms linear;
+
+   outline: 1px solid transparent;
+   border-radius: 4px;
+   // outline-offset: -1px;
    &.selected {
-      .vert,
-      .edge {
-         opacity: 1;
-      }
+      // border-color: #4281fa;
+      outline-color: #4281fa;
+      // .vert,
+      // .edge {
+      //    opacity: 1;
+      // }
    }
    .vert,
    .edge {

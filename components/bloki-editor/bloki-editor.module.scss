@@ -33,6 +33,7 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
 }
 .main-grid {
    position: absolute;
+   cursor: text;
    // pointer-events: auto;
 }
 .foreground-grid {
