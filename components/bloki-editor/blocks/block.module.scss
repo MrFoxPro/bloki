@@ -14,7 +14,7 @@
    .handy {
       position: absolute;
       top: 3px;
-      left: -15px;
+      left: -21px;
       cursor: pointer;
       transition: fill 130ms linear;
       fill: transparent;
@@ -42,8 +42,12 @@
       background: #4281fa;
       position: absolute;
 
+
       transition: all 110ms linear;
       transition-property: width, height, outline-color;
+
+      cursor: ne-resize;
+
       &.expand {
          width: 11px;
          height: 11px;

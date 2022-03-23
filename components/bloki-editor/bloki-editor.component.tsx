@@ -27,19 +27,14 @@ function BlokiEditor(props: BlokiEditorProps) {
          }
       }
    }
-   function onMouseMove(e: MouseEvent) {
-
-   }
 
    createRenderEffect(() => {
       calculateBoxRect();
       window.addEventListener('resize', calculateBoxRect);
       window.addEventListener('keydown', onKeyDown);
-      window.addEventListener('mousemove', onMouseMove, { passive: true });
       onCleanup(() => {
          window.removeEventListener('resize', calculateBoxRect);
          window.removeEventListener('keydown', onKeyDown);
-         window.removeEventListener('mousemove', onMouseMove);
       });
    });
 
