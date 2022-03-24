@@ -1,22 +1,21 @@
-import { Accessor, batch, createContext, createEffect, createMemo, PropsWithChildren, splitProps, useContext } from "solid-js";
+import { Accessor, batch, createContext, createMemo, PropsWithChildren, useContext } from "solid-js";
 import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
-import { AnyBlock, Block, BlokiDocument } from "../../lib/entities";
+import { AnyBlock, BlokiDocument } from "@/lib/entities";
+import { createNanoEvents, Emitter } from 'nanoevents';
 
 export type Point = { x: number, y: number; };
 export type Dimension = { width: number, height: number; };
-export type EditingType = 'drag' | 'resize' | 'select' | 'content';
+export type EditType = 'drag' | 'resize' | 'select' | 'content';
 
 export type BlockTransform = Point & Dimension;
-type TransformType = 'drag' | 'resize';
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock: AnyBlock | null;
-   editingType: EditingType | null;
+   editingType: EditType | null;
 
    selectedBlocks: AnyBlock[];
 
    isPlacementCorrect: boolean;
-   projection: Point[];
    document: BlokiDocument;
 
    containerRect?: DOMRect;
@@ -35,15 +34,18 @@ type CalculatedSize = {
    mGridWidth_px: string;
    mGridHeight_px: string;
 };
-type EditorStoreHandles = {
 
-   onChangeStart(block: AnyBlock, type: EditingType): void;
-   onChange(block: AnyBlock, absTransform: BlockTransform, type: EditingType): void;
-   onChangeEnd(block: AnyBlock, absTransform: BlockTransform, type: EditingType): void;
+
+type ChangeHandler = (block: AnyBlock, absTransform: BlockTransform, type: EditType) => void;
+
+type EditorStoreHandles = {
+   onChangeStart: ChangeHandler;
+   onChange: ChangeHandler;
+   onChangeEnd: ChangeHandler;
 
    onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, type: 'main' | 'foreground'): void;
    onTextBlockClick(block: AnyBlock): void;
-   selectBlock(block: AnyBlock, type?: EditingType): void;
+   selectBlock(block: AnyBlock, type?: EditType): void;
 
    gridSize(factor: number): number;
    realSize: Accessor<CalculatedSize>;
@@ -54,11 +56,18 @@ type EditorStoreHandles = {
 
    setStore: SetStoreFunction<EditorStoreValues>;
 
-   minBlockSize: Accessor<Dimension>;
-   maxBlockSize: Accessor<Dimension>;
+   emitter: Emitter<EditorEvents>;
 };
 
-export type EditorStoreEvents = 'lock';
+type ChangeEventInfo = {
+   type: EditType;
+   absTransform: BlockTransform;
+   relTransform: BlockTransform;
+   isPlacementCorrect: boolean;
+};
+interface EditorEvents {
+   change: (block: AnyBlock, stage: 'start' | 'change' | 'end', changeInfo: ChangeEventInfo) => void;
+}
 
 const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
 
@@ -67,14 +76,14 @@ type EditorStoreProviderProps = PropsWithChildren<{
 }>;
 
 export function EditorStoreProvider(props: EditorStoreProviderProps) {
-   // const [local, others] = splitProps(props, ['children']);
+   const emitter = createNanoEvents<EditorEvents>();
+
    const [state, setState] = createStore<EditorStoreValues>(
       {
          editingBlock: null,
          editingType: null,
          selectedBlocks: [],
          isPlacementCorrect: false,
-         projection: [],
          containerRect: null,
          document: unwrap(props.document),
       }
@@ -120,8 +129,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    const BLOCK_MAX_WIDTH = 45;
    const BLOCK_MAX_HEIGHT = 45;
 
-   const minBlockSize = createMemo(() => getAbsoluteSize(1, 1));
-   const maxBlockSize = createMemo(() => getAbsoluteSize(BLOCK_MAX_WIDTH, BLOCK_MAX_HEIGHT));
+   // const minBlockSize = createMemo(() => getAbsoluteSize(1, 1));
+   // const maxBlockSize = createMemo(() => getAbsoluteSize(BLOCK_MAX_WIDTH, BLOCK_MAX_HEIGHT));
 
    function checkIfPlacementCorrect(block: BlockTransform, x: number, y: number, width = block.width, height = block.height) {
       const { fGridHeight, fGridWidth } = state.document.layoutOptions;
@@ -164,70 +173,61 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       };
    }
 
-   function onChangeStart(block: AnyBlock, type: EditingType) {
+   function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
       setState({ editingBlock: block, editingType: type });
+
+      emitter.emit('change', block, 'start', {
+         absTransform: abs,
+         isPlacementCorrect: true,
+         relTransform: { height: block.height, width: block.width, x: block.x, y: block.y },
+         type
+      });
    }
 
-   function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditingType) {
+   function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       if (type === 'resize') {
          absTransform.height += state.document.layoutOptions.gap;
          absTransform.width += state.document.layoutOptions.gap;
       }
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
-
-      const oldNWPoint = state.projection[0];
-      const oldSEPoint = state.projection[state.projection.length - 1];
-
-      if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
-         oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
-         return;
-      }
-
-      const projection = [];
-      for (let h = 0; h < height; h++) {
-         for (let w = 0; w < width; w++) {
-            projection.push({ x: x + w, y: y + h });
-         }
-      }
-
       const isPlacementCorrect = checkIfPlacementCorrect(block, x, y, width, height);
-      setState({ projection, isPlacementCorrect });
+
+      setState({ isPlacementCorrect });
+
+      emitter.emit('change', block, 'change', {
+         absTransform,
+         isPlacementCorrect,
+         relTransform: { x, y, width, height },
+         type
+      });
    }
 
-   function onChangeEnd(block: AnyBlock, absTransform: BlockTransform) {
+   function onChangeEnd(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
       const isPlacementCorrect = checkIfPlacementCorrect(block, x, y, width, height);
-      console.log('change end');
+
       batch(() => {
          setState({
             // editingBlock: null,
             editingType: 'select',
-            projection: [],
          });
          if (isPlacementCorrect) {
             setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y, width, height });
             return;
          }
-         console.log('wrong placement');
          setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
+
+
+      emitter.emit('change', block, 'end', {
+         absTransform,
+         isPlacementCorrect,
+         relTransform: { x, y, width, height },
+         type
+      });
    }
-
-   // function isProjectionsEquals(p1: Point[], p2: Point[]) {
-   //    if (!p1 || !p2) return false;
-   //    if (p1.length !== p2.length) return false;
-
-   //    let result = true;
-   //    for (let i = 0; i < p1.length; i++) {
-   //       if (p1[i].x !== p2[i].x || p1[i].y !== p2[i].y) {
-   //          result = false;
-   //          break;
-   //       }
-   //    }
-   //    return result;
-   // }
 
    function isInMainGrid(x: number) {
       const { mGridWidth, fGridWidth } = state.document.layoutOptions;
@@ -267,30 +267,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             editingType: 'content'
          });
       }
-
-      // if (isInMainGrid(x)) {
-      //    console.log('in main grid');
-      //    const { mGridWidth, fGridWidth } = state.document.layoutOptions;
-      //    x = (fGridWidth - mGridWidth) / 2;
-      // }
-      // const newBlockDimension: BlockTransform = {
-      //    height: 1,
-      //    width: state.document.layoutOptions.mGridWidth,
-      //    x, y
-      // };
-      // if (checkIfPlacementCorrect(newBlockDimension, x, y)) {
-      //    const newBlock: AnyBlock = {
-      //       id: crypto.randomUUID(),
-      //       type: 'text',
-      //       ...newBlockDimension
-      //    };
-      //    setState('document', 'blocks', blocks => [...blocks, newBlock]);
-      //    const block = state.document.blocks.find(x => x.id === newBlock.id);
-      //    setState({
-      //       editingBlock: block,
-      //       editingType: 'content'
-      //    });
-      // }
    }
 
    function onTextBlockClick(block: AnyBlock) {
@@ -303,7 +279,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
    }
 
-   function selectBlock(selectedBlock: AnyBlock, type: EditingType = 'select') {
+   function selectBlock(selectedBlock: AnyBlock, type: EditType = 'select') {
       if (selectedBlock) {
          setState({
             editingBlock: selectedBlock,
@@ -325,8 +301,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             onChangeStart,
             onChange,
             onChangeEnd,
-            minBlockSize,
-            maxBlockSize,
             onGridClick,
             onTextBlockClick,
             selectBlock,
@@ -335,7 +309,9 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             getRelativePosition,
             getAbsolutePosition,
             getAbsoluteSize,
+
             setStore: setState,
+            emitter,
          }
       ]}>
          {props.children}

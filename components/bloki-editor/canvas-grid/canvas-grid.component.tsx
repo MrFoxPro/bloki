@@ -1,11 +1,11 @@
 import s from './canvas-grid.module.scss';
-import { createEffect, on } from "solid-js";
-import { useEditorStore } from '../editor.store';
+import { createDeferred, createEffect, createRenderEffect, on, onCleanup } from "solid-js";
+import { Point, useEditorStore } from '../editor.store';
 
 export function BlokiCanvasGrid() {
    let backlightCanvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
-   const [editor, { gridSize, realSize }] = useEditorStore();
+   const [editor, { gridSize, realSize, emitter }] = useEditorStore();
 
    createEffect(() => {
       if (!backlightCanvasRef) return;
@@ -30,27 +30,85 @@ export function BlokiCanvasGrid() {
       ctx.closePath();
    }
 
-   createEffect(
-      on(
-         () => editor.projection,
-         (proj, prev) => {
-            const { size, gap } = editor.document.layoutOptions;
-            if (prev?.length) {
-               const first = prev[0];
-               const last = prev[prev.length - 1];
-               ctx.clearRect(gridSize(first.x) + gap, gridSize(first.y) + gap, gridSize(last.x - first.x + 1), gridSize(last.y - first.y + 1));
-            }
+   function clearProjection(prev: Point[]) {
+      const { size, gap } = editor.document.layoutOptions;
+      if (prev?.length) {
+         const first = prev[0];
+         const last = prev[prev.length - 1];
+         ctx.clearRect(gridSize(first.x) + gap, gridSize(first.y) + gap, gridSize(last.x - first.x + 1), gridSize(last.y - first.y + 1));
+      }
+   }
 
-            if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
+   function drawProjection(proj: Point[]) {
+      const { size, gap } = editor.document.layoutOptions;
 
-            ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
-            for (let i = 0; i < proj.length; i++) {
-               roundRect(gridSize(proj[i].x) + gap, gridSize(proj[i].y) + gap, size, size, 4);
-               ctx.fill();
+      ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
+      for (let i = 0; i < proj.length; i++) {
+         roundRect(gridSize(proj[i].x) + gap, gridSize(proj[i].y) + gap, size, size, 4);
+         ctx.fill();
+      }
+   }
+
+   createRenderEffect(() => {
+      let prev = [];
+      const changeEvent = emitter.on('change', (block, stage, { relTransform: { x, y, width, height } }) => {
+         if (stage === 'start') return;
+         if (stage === 'end') {
+            clearProjection(prev);
+            prev = [];
+            return;
+         }
+
+         const oldNWPoint = prev[0];
+         const oldSEPoint = prev[prev.length - 1];
+         if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
+            oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
+            return;
+         }
+
+         if (prev.length) {
+            clearProjection(prev);
+         }
+
+         if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
+
+         const proj = [];
+         for (let h = 0; h < height; h++) {
+            for (let w = 0; w < width; w++) {
+               proj.push({ x: x + w, y: y + h });
             }
          }
-      )
-   );
+         drawProjection(proj);
+         prev = proj;
+      });
+
+      onCleanup(() => {
+         changeEvent();
+      });
+   });
+
+   // createEffect(
+   //    on(
+   //       () => editor.projection,
+   //       (projC, prevC) => {
+
+   //          const { size, gap } = editor.document.layoutOptions;
+   //          if (prev?.length) {
+   //             const first = prev[0];
+   //             const last = prev[prev.length - 1];
+   //             ctx.clearRect(gridSize(first.x) + gap, gridSize(first.y) + gap, gridSize(last.x - first.x + 1), gridSize(last.y - first.y + 1));
+   //          }
+
+   //          if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
+
+   //          ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
+   //          for (let i = 0; i < proj.length; i++) {
+   //             roundRect(gridSize(proj[i].x) + gap, gridSize(proj[i].y) + gap, size, size, 4);
+   //             ctx.fill();
+   //          }
+   //       }
+   //    )
+   // );
 
    return (
       <canvas

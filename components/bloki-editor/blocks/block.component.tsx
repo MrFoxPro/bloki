@@ -209,7 +209,7 @@ export function Block(props: BlockProps) {
       relX = e.pageX - (box.left + body.scrollLeft - body.clientLeft);
       relY = e.pageY - (box.top + body.scrollTop - body.clientTop);
 
-      onChangeStart(props.block, 'drag');
+      onChangeStart(props.block, state.transform, 'drag');
 
       boxRef.onpointermove = onBoxPointerMove;
       boxRef.onpointerup = onBoxPointerUp;
@@ -258,7 +258,7 @@ export function Block(props: BlockProps) {
 
       e.currentTarget.onpointerup = (e) => onVertPointerUp(e, vertIndex);
       e.currentTarget.onpointermove = (e) => onVertPointerMove(e, vertIndex);
-      onChangeStart(props.block, 'resize');
+      // onChangeStart(props.block, 'resize');
    }
 
    function onVertPointerMove(e: PointerEvent, vert: BlockVert) {
