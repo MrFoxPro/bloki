@@ -1,30 +1,21 @@
 .draggable {
    position: absolute;
-   will-change: transform;
+   // causes some artifacts in chrome. possibly cause of overlay or outline
+   // will-change: transform;
 }
 
 .block {
    z-index: 10;
+   outline: 1px solid transparent;
+   border-radius: 4px;
 
    &:hover {
       > .handy {
          fill: #e6e5e6;
       }
    }
-   .handy {
-      position: absolute;
-      top: 3px;
-      left: -21px;
-      cursor: pointer;
-      transition: fill 130ms linear;
-      fill: transparent;
-
-      &.dragging {
-         fill: #7597ff !important;
-      }
-      &:hover {
-         fill: #18a0fb;
-      }
+   &.selected {
+      outline-color: #4281fa;
    }
    &.shadow {
       color: rgba(0, 0, 0, 0.2);
@@ -33,121 +24,48 @@
          user-select: none;
       }
    }
-
-   .dot-wrapper {
-      position: absolute;
-      .sizedot {
-         width: 5px;
-         height: 5px;
-         outline: 0.5px solid transparent;
-         border-radius: 50%;
-         background: #4281fa;
-         position: absolute;
-         transform-origin: center;
-         transition: transform 100ms linear;
-
-         // cursor: ne-resize;
-
-         &.expand {
-            background: white;
-            outline-color: #4281fa;
-         }
-      }
-   }
-
-   // .vert,
-   // .edge {
-   //    opacity: 1;
-   // }
-   // & > .vert:hover {
-   //    opacity: 1;
-   // }
-   // border: 1px solid transparent;
-   // border-radius: 4px;
-   // transition: border-color 50ms linear;
-
-   outline: 1px solid transparent;
-   border-radius: 4px;
-   // outline-offset: -1px;
-   &.selected {
-      // border-color: #4281fa;
-      outline-color: #4281fa;
-      // .vert,
-      // .edge {
-      //    opacity: 1;
-      // }
-   }
-   .vert,
-   .edge {
-      opacity: 0;
-   }
-   .vert {
-      position: absolute;
-
-      width: 5px;
-      height: 5px;
-
-      background: #ffffff;
-      border: 0.5px solid #4281fa;
-      box-sizing: border-box;
-
-      $vert-margin: 3px;
-
-      &:nth-of-type(1) {
-         top: -3px;
-         left: -3px;
-         cursor: nwse-resize;
-      }
-      &:nth-of-type(2) {
-         top: -3px;
-         right: -3px;
-         cursor: nesw-resize;
-      }
-      &:nth-of-type(3) {
-         bottom: -3px;
-         right: -3px;
-         cursor: nwse-resize;
-      }
-      &:nth-of-type(4) {
-         bottom: -3px;
-         left: -3px;
-         cursor: nesw-resize;
-      }
-   }
-   .edge {
-      position: absolute;
-      background-color: #4281fa;
-
-      &:nth-of-type(5) {
-         width: 100%;
-         height: 1px;
-         // cursor: ns-resize;
-      }
-      &:nth-of-type(6) {
-         right: 0;
-         width: 1px;
-         height: 100%;
-         // cursor: ew-resize;
-      }
-      &:nth-of-type(7) {
-         bottom: 0;
-         width: 100%;
-         height: 1px;
-         // cursor: ns-resize;
-      }
-      &:nth-of-type(8) {
-         width: 1px;
-         height: 100%;
-         // cursor: ew-resize;
-      }
-   }
-   .borders {
-      position: absolute;
-      // width: 100%;
-      // height: 100%;
-   }
    &.dragging {
       // border-color: #4281fa;
       cursor: crosshair;
+   }
+
+   > .overlay {
+      position: absolute;
+
+      // z-index: -1;
+      inset: 0px;
+   }
+}
+.handy {
+   position: absolute;
+   top: 3px;
+   left: -21px;
+   cursor: pointer;
+   transition: fill 130ms linear;
+   fill: transparent;
+
+   &.dragging {
+      fill: #7597ff !important;
+   }
+   &:hover {
+      fill: #18a0fb;
+   }
+}
+
+.dot-wrapper {
+   // position: absolute;
+   .sizedot {
+      width: 5px;
+      height: 5px;
+      outline: 0.5px solid transparent;
+      border-radius: 50%;
+      background: #4281fa;
+      transform-origin: center;
+      transition: transform 100ms linear;
+
+      &.expand {
+         background: white;
+         outline-color: #4281fa;
+      }
    }
 }

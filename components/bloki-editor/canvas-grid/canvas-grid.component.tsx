@@ -62,7 +62,6 @@ export function BlokiCanvasGrid() {
             oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
             return;
          }
-
          if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
 
          if (prev.length) {

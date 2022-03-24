@@ -1,34 +1,38 @@
 import { createComputed, createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
 import { Point, useEditorStore } from '../editor.store';
 import type { AnyBlock, BlockType } from '@/lib/entities';
-import s, { edge } from './block.module.scss';
+import s from './block.module.scss';
 
 import { Dynamic } from 'solid-js/web';
 import { TextBlock } from './text-block/text.block.component';
 import { createStore } from 'solid-js/store';
 
-type BlockProps = {
-   block: AnyBlock;
-   shadowed?: boolean;
-};
+
 const blockContentTypeMap: Record<BlockType, any> = {
    image: null,
    text: TextBlock,
 };
+enum DotState {
+   None,
+   Micro,
+   Full
+}
+enum CursorSide {
+   W = 'w-resize',
+   N = 'n-resize',
+   E = 'e-resize',
+   S = 's-resize',
 
-enum BlockVert {
-   NW,
-   NE,
-   SE,
-   SW,
+   SW = 'sw-resize',
+   NW = 'nw-resize',
+   NE = 'ne-resize',
+   SE = 'se-resize'
 }
 
-enum BlockEdge {
-   L,
-   T,
-   R,
-   B
-}
+type BlockProps = {
+   block: AnyBlock;
+   shadowed?: boolean;
+};
 export function Block(props: BlockProps) {
    const [editor, {
       onChangeStart,
@@ -60,19 +64,15 @@ export function Block(props: BlockProps) {
    let relX = 0;
    let relY = 0;
    let pointerDown = false;
-   let mouseInside = false;
 
-   enum ResizerState {
-      None,
-      Micro,
-      Full
-   }
-   enum VertEdgeCursor {
-      W = 'w-resize',
-      N = 'n-resize',
-      E = 'e-resize',
-      S = 's-resize',
-   }
+   const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
+   const RESIZER_ACTIVATE_OUTER_LIM = 60;
+
+   const CURSOR_X_OFFSET = 0;
+   const CURSOR_Y_OFFSET = -1;
+
+   let relPoints: Point[];
+
    const [state, setState] = createStore({
       fixed: false,
       transform: {
@@ -80,11 +80,21 @@ export function Block(props: BlockProps) {
          ...getAbsoluteSize(props.block.width, props.block.height)
       },
       dot: {
-         state: ResizerState.None,
+         state: DotState.None,
          x: 0,
          y: 0,
-         side: VertEdgeCursor.E,
+         side: CursorSide.E,
       },
+   });
+
+   createComputed(() => {
+      const x = 0, y = 0;
+      relPoints = [
+         { x, y },
+         { x: x + state.transform.width, y },
+         { x: x + state.transform.width, y: y + state.transform.height },
+         { x, y: y + state.transform.height }
+      ];
    });
 
    const isMeEditing = createMemo(() => editor.editingBlock === props.block);
@@ -111,111 +121,100 @@ export function Block(props: BlockProps) {
       }
    });
 
-   const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
-   const RESIZER_ACTIVATE_OUTER_LIM = 60;
+   function distanceBetweenPoints(p1: Point, p2: Point) {
+      return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+   }
 
-   const CURSOR_X_OFFSET = 0;
-   const CURSOR_Y_OFFSET = -1;
+   let mouseInside = false;
 
-
-   let relPoints: Point[];
-
-   createComputed(() => {
-      const x = 0, y = 0;
-      relPoints = [
-         { x, y },
-         { x: x + state.transform.width, y },
-         { x: x + state.transform.width, y: y + state.transform.height },
-         { x, y: y + state.transform.height }
-      ];
-   });
-
+   const sideCursorValues = Object.values(CursorSide);
+   const edgeIndexVertCursorMap = [
+      CursorSide.NW,
+      CursorSide.NE,
+      CursorSide.SE,
+      CursorSide.SW
+   ];
    function onMouseMove(e: MouseEvent) {
+      if (mouseInside) {
+         setState('dot', { state: DotState.None });
+         return;
+      }
 
-      // if (mouseInside) {
-      //    setState('dot', { state: ResizerState.None });
-      //    return;
-      // }
       // Current mouse point
       const M: Point = {
          x: e.pageX - editor.containerRect.x - state.transform.x + CURSOR_X_OFFSET,
          y: e.pageY - editor.containerRect.y - state.transform.y + CURSOR_Y_OFFSET,
       };
 
-      let sample: {
-         point: Point;
-         dist: number;
-         t: number;
-         i: number;
-      }[] = [];
+      let minDist = Number.POSITIVE_INFINITY, dot: Point, edgeIndex: number, t: number;
 
       for (let i = 0; i < 4; i++) {
          const p1 = relPoints[!i ? 3 : i - 1];
          const p2 = relPoints[i];
 
-         const t = ((M.x - p1.x) * (p2.x - p1.x) + (M.y - p1.y) * (p2.y - p1.y)) / ((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+         const _t = ((M.x - p1.x) * (p2.x - p1.x) + (M.y - p1.y) * (p2.y - p1.y)) / ((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
 
-         const point: Point = {
-            x: p1.x + t * (p2.x - p1.x),
-            y: p1.y + t * (p2.y - p1.y)
+         const _dot: Point = {
+            x: p1.x + _t * (p2.x - p1.x),
+            y: p1.y + _t * (p2.y - p1.y)
          };
 
-         const dist = Math.sqrt((point.x - M.x) ** 2 + (point.y - M.y) ** 2);
-         sample.push({
-            dist,
-            i,
-            point,
-            t
-         });
+         const dist = distanceBetweenPoints(_dot, M);
+
+         if (dist < minDist) {
+            minDist = dist;
+            dot = _dot;
+            edgeIndex = i;
+            t = _t;
+         }
       }
 
-      sample = sample.sort((a, b) => a.dist - b.dist);
+      let side = sideCursorValues[edgeIndex];
+      let p: Point;
 
-      let dot = sample[0];
-      if(dot.t < 0 || dot.t > 1) {
-
+      if (t > 1) {
+         p = relPoints[edgeIndex];
+         side = edgeIndexVertCursorMap[edgeIndex];
       }
-      if (!dot) {
-         setState('dot', { state: ResizerState.None });
-         return;
+      else if (t < 0) {
+         const newIndex = !edgeIndex ? 3 : edgeIndex - 1;
+         p = relPoints[newIndex];
+         side = edgeIndexVertCursorMap[edgeIndex - 1];
       }
-
-      let resState: ResizerState;
-      if (dot.dist > RESIZER_LOD_ACTIVATE_OUTER_LIM) {
-         resState = ResizerState.None;
-      }
-      else if (dot.dist <= RESIZER_LOD_ACTIVATE_OUTER_LIM && dot.dist > RESIZER_ACTIVATE_OUTER_LIM) {
-         resState = ResizerState.Micro;
-      }
-      else if (dot.dist <= RESIZER_ACTIVATE_OUTER_LIM) {
-         resState = ResizerState.Full;
+      if (t < 0 || t > 1) {
+         dot.x = p.x;
+         dot.y = p.y;
+         minDist = distanceBetweenPoints(M, dot);
       }
 
-      dot.point.x -= resState === ResizerState.Full ? 3 : 2;
-      dot.point.y -= resState === ResizerState.Full ? 3 : 2;
-
-      if (dot.i === 0) {
-         dot.point.x -= 1;
+      let resState: DotState;
+      if (minDist > RESIZER_LOD_ACTIVATE_OUTER_LIM) {
+         resState = DotState.None;
+      }
+      else if (minDist <= RESIZER_LOD_ACTIVATE_OUTER_LIM && minDist > RESIZER_ACTIVATE_OUTER_LIM) {
+         resState = DotState.Micro;
+      }
+      else if (minDist <= RESIZER_ACTIVATE_OUTER_LIM) {
+         resState = DotState.Full;
       }
 
-      else if (dot.i === 1) {
-         dot.point.y -= 1;
-      }
+      dot.x -= resState === DotState.Full ? 3 : 2;
+      dot.y -= resState === DotState.Full ? 3 : 2;
 
       setState('dot', {
          state: resState,
-         x: dot.point.x,
-         y: dot.point.y,
-         side: Object.values(VertEdgeCursor)[dot.i]
+         x: dot.x,
+         y: dot.y,
+         side
       });
    }
 
    createEffect(() => {
       if (isMeEditing()) {
-         window.addEventListener('mousemove', onMouseMove, { passive: true });
+         window.addEventListener('mousemove', onMouseMove);
       }
       else {
-         setState('dot', 'state', ResizerState.None);
+         setState('dot', 'state', DotState.None);
          window.removeEventListener('mousemove', onMouseMove);
       }
    });
@@ -224,14 +223,11 @@ export function Block(props: BlockProps) {
       window.removeEventListener('mousemove', onmousemove);
    });
 
-
    function onBoxPointerDown(e: PointerEvent, btn = 0) {
       pointerDown = true;
       if (e.button !== btn) {
          return;
       }
-      e.preventDefault();
-      e.stopImmediatePropagation();
       if (state.fixed) setState('fixed', false);
 
       const box = boxRef.getBoundingClientRect();
@@ -258,16 +254,19 @@ export function Block(props: BlockProps) {
    }
 
    function onBoxPointerUp(e: PointerEvent) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
       pointerDown = false;
       boxRef.onpointermove = null;
+      boxRef.onpointerup = null;
       const { x, y, width, height } = state.transform;
       onChangeEnd(props.block, { x, y, width, height }, 'drag');
-      e.preventDefault();
    }
 
    function isInside(x: number, y: number, rect: DOMRect) {
       return x < rect.left + rect.width && x > rect.left && y < rect.top + rect.height && y > rect.top;
    }
+
    function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
       const rect = e.currentTarget.getBoundingClientRect();
 
@@ -279,24 +278,50 @@ export function Block(props: BlockProps) {
       }
    }
 
-   function onVertPointerDown(e: PointerEvent & { currentTarget: HTMLDivElement; }, vertIndex: number) {
+   function onDotPointerDown(e: PointerEvent) {
+      e.stopPropagation();
       e.preventDefault();
+      e.stopImmediatePropagation();
 
       relX = e.pageX;
       relY = e.pageY;
 
-      e.currentTarget.setPointerCapture(e.pointerId);
+      const dot = e.currentTarget as HTMLDivElement;
+      dot.setPointerCapture(e.pointerId);
 
-      e.currentTarget.onpointerup = (e) => onVertPointerUp(e, vertIndex);
-      e.currentTarget.onpointermove = (e) => onVertPointerMove(e, vertIndex);
-      // onChangeStart(props.block, 'resize');
+      dot.onpointerup = onDotPointerUp;
+      dot.onpointermove = onDotPointerMove;
+
+      onChangeStart(props.block, state.transform, 'resize');
    }
 
-   function onVertPointerMove(e: PointerEvent, vert: BlockVert) {
+   function onDotPointerMove(e: PointerEvent) {
+      if (state.dot.state === DotState.None) return;
+
       let { x, y, width, height } = state.transform;
 
-      switch (vert) {
-         case BlockVert.NW: {
+      switch (state.dot.side) {
+         case CursorSide.W: {
+            const xc = e.pageX - editor.containerRect.x;
+            width += x - xc;
+            x = xc;
+            break;
+         }
+         case CursorSide.E: {
+            width = e.pageX - state.transform.x - editor.containerRect.x;
+            break;
+         }
+         case CursorSide.N: {
+            const yc = e.pageY - editor.containerRect.y;
+            height += y - yc;
+            y = yc;
+            break;
+         }
+         case CursorSide.S: {
+            height = e.pageY - state.transform.y - editor.containerRect.y;
+            break;
+         }
+         case CursorSide.NW: {
             const yc = e.pageY - editor.containerRect.y;
             height += y - yc;
             y = yc;
@@ -306,7 +331,7 @@ export function Block(props: BlockProps) {
             x = xc;
             break;
          }
-         case BlockVert.NE: {
+         case CursorSide.NE: {
             width = e.pageX - state.transform.x - editor.containerRect.x;
 
             const yc = e.pageY - editor.containerRect.y;
@@ -314,13 +339,12 @@ export function Block(props: BlockProps) {
             y = yc;
             break;
          }
-         case BlockVert.SE: {
+         case CursorSide.SE: {
             width = e.pageX - state.transform.x - editor.containerRect.x;
             height = e.pageY - state.transform.y - editor.containerRect.y;
             break;
          }
-
-         case BlockVert.SW: {
+         case CursorSide.SW: {
             const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
             x = xc;
@@ -343,16 +367,16 @@ export function Block(props: BlockProps) {
 
       // if (x <> 1) height = state.transform.pos.x;
       // if (y < 1) width = state.transform.pos.y;
-      setState('transform', {
-         x, y, width, height
-      });
+      setState('transform', { x, y, width, height });
 
       onChange(props.block, { x, y, width, height }, 'resize');
    }
 
-   function onVertPointerUp(e: PointerEvent, vertIndex: number) {
-      (e.currentTarget as HTMLDivElement).onpointermove = null;
-      (e.currentTarget as HTMLDivElement).onpointerup = null;
+   function onDotPointerUp(e: PointerEvent) {
+      console.log('up!');
+      const dot = e.currentTarget as HTMLDivElement;
+      dot.onpointermove = null;
+      dot.onpointerup = null;
       const { x, y, width, height } = state.transform;
       onChangeEnd(props.block, { x, y, width, height }, 'resize');
    }
@@ -371,23 +395,11 @@ export function Block(props: BlockProps) {
             [s.dragging]: isMeDragging(),
             [s.selected]: isMeEditing(),
          }}
-         ref={boxRef}
-         onClick={onBoxClick}
          ondragstart={(e) => e.preventDefault()}
          ondrop={(e) => e.preventDefault()}
          draggable={false}
-         onPointerDown={(e) => onBoxPointerDown(e, 1)}
-         onPointerUp={() => pointerDown = false}
-         onPointerOver={() => {
-            mouseInside = true;
-         }}
-         onPointerOut={() => {
-            mouseInside = false;
-            if (pointerDown && isMeEditing() && !isMeDragging()) {
-               selectBlock(props.block, 'select');
-            }
-         }}
       >
+         {/* This overlay helps with preveinting mouseenter on firing on child elements */}
          <svg
             classList={{
                [s.handy]: true,
@@ -405,26 +417,49 @@ export function Block(props: BlockProps) {
             <path d="M1.5 17.5C2.32843 17.5 3 16.8284 3 16C3 15.1716 2.32843 14.5 1.5 14.5C0.671573 14.5 0 15.1716 0 16C0 16.8284 0.671573 17.5 1.5 17.5Z" />
             <path d="M8.5 17.5C9.32843 17.5 10 16.8284 10 16C10 15.1716 9.32843 14.5 8.5 14.5C7.67157 14.5 7 15.1716 7 16C7 16.8284 7.67157 17.5 8.5 17.5Z" />
          </svg>
-         <Show when={state.dot.state !== ResizerState.None}>
+
+         <Show when={state.dot.state !== DotState.None}>
             <div
                class={s.dotWrapper}
                style={{
                   transform: `translate(${state.dot.x}px, ${state.dot.y}px)`,
                }}
+               onPointerDown={onDotPointerDown}
             >
                <div
                   classList={{
                      [s.sizedot]: true,
-                     [s.expand]: state.dot.state === ResizerState.Full
+                     [s.expand]: state.dot.state === DotState.Full
                   }}
                   style={{
-                     transform: `scale(${state.dot.state === ResizerState.Full ? 2.2 : 1})`,
+                     transform: `scale(${state.dot.state === DotState.Full ? 2.2 : 1})`,
                      cursor: state.dot.side,
                   }}
                />
             </div>
          </Show>
-         <Dynamic component={blockContentTypeMap[props.block.type]} block={props.block} selected={isMeEditing()} />
+         <div
+            class={s.overlay}
+            ref={boxRef}
+            onPointerEnter={() => {
+               mouseInside = true;
+            }}
+            onPointerLeave={() => {
+               mouseInside = false;
+               if (pointerDown && isMeEditing() && !isMeDragging()) {
+                  selectBlock(props.block, 'select');
+               }
+            }}
+            onPointerDown={(e) => onBoxPointerDown(e, 1)}
+            onPointerUp={() => pointerDown = false}
+            onClick={onBoxClick}
+         >
+            <Dynamic
+               component={blockContentTypeMap[props.block.type]}
+               block={props.block}
+               selected={isMeEditing()}
+            />
+         </div>
       </div>
    );
 };

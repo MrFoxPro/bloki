@@ -194,7 +194,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const isPlacementCorrect = checkIfPlacementCorrect(block, x, y, width, height);
 
       setState({ isPlacementCorrect });
-
       emitter.emit('change', block, 'change', {
          absTransform,
          isPlacementCorrect,
@@ -214,9 +213,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             editingType: 'select',
          });
          if (isPlacementCorrect) {
+            console.log('correct!');
             setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y, width, height });
             return;
          }
+         console.log('incorrect!');
          setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
