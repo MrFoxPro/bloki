@@ -1,6 +1,7 @@
 import s from './canvas-grid.module.scss';
-import { createDeferred, createEffect, createRenderEffect, on, onCleanup } from "solid-js";
+import { createEffect, onCleanup, onMount } from "solid-js";
 import { Point, useEditorStore } from '../editor.store';
+import { throttle } from 'lodash-es';
 
 export function BlokiCanvasGrid() {
    let backlightCanvasRef: HTMLCanvasElement;
@@ -10,7 +11,7 @@ export function BlokiCanvasGrid() {
    createEffect(() => {
       if (!backlightCanvasRef) return;
 
-      ctx = backlightCanvasRef.getContext('2d', {});
+      ctx = backlightCanvasRef.getContext('2d');
    });
    const okFillColor = 'rgba(24, 160, 251, 0.2)';
    const badFillColor = 'rgba(83, 83, 83, 0.2)';
@@ -49,10 +50,9 @@ export function BlokiCanvasGrid() {
       }
    }
 
-   createRenderEffect(() => {
+   onMount(() => {
       let prev = [];
-      const changeEvent = emitter.on('change', (block, stage, { relTransform: { x, y, width, height } }) => {
-         if (stage === 'start') return;
+      const changeEvent = emitter.on('change', throttle((block, stage, { relTransform: { x, y, width, height } }) => {
          if (stage === 'end') {
             clearProjection(prev);
             prev = [];
@@ -66,11 +66,11 @@ export function BlokiCanvasGrid() {
             return;
          }
 
+         if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
+
          if (prev.length) {
             clearProjection(prev);
          }
-
-         if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
 
          const proj = [];
          for (let h = 0; h < height; h++) {
@@ -78,9 +78,10 @@ export function BlokiCanvasGrid() {
                proj.push({ x: x + w, y: y + h });
             }
          }
+
          drawProjection(proj);
          prev = proj;
-      });
+      }, 30));
 
       onCleanup(() => {
          changeEvent();
