@@ -1,7 +1,7 @@
-import { createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import { createComputed, createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
 import { Point, useEditorStore } from '../editor.store';
 import type { AnyBlock, BlockType } from '@/lib/entities';
-import s from './block.module.scss';
+import s, { edge } from './block.module.scss';
 
 import { Dynamic } from 'solid-js/web';
 import { TextBlock } from './text-block/text.block.component';
@@ -60,7 +60,19 @@ export function Block(props: BlockProps) {
    let relX = 0;
    let relY = 0;
    let pointerDown = false;
+   let mouseInside = false;
 
+   enum ResizerState {
+      None,
+      Micro,
+      Full
+   }
+   enum VertEdgeCursor {
+      W = 'w-resize',
+      N = 'n-resize',
+      E = 'e-resize',
+      S = 's-resize',
+   }
    const [state, setState] = createStore({
       fixed: false,
       transform: {
@@ -68,10 +80,10 @@ export function Block(props: BlockProps) {
          ...getAbsoluteSize(props.block.width, props.block.height)
       },
       dot: {
-         show: false,
-         expand: false,
+         state: ResizerState.None,
          x: 0,
          y: 0,
+         side: VertEdgeCursor.E,
       },
    });
 
@@ -99,95 +111,114 @@ export function Block(props: BlockProps) {
       }
    });
 
-   const SEARCH_RADIUS = 100;
-   const DRAG_ACTIVATE_DIST = 50;
+   const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
+   const RESIZER_ACTIVATE_OUTER_LIM = 60;
 
-   const delta = () => state.dot.expand ? -5 : -2;
+   const CURSOR_X_OFFSET = 0;
+   const CURSOR_Y_OFFSET = -1;
+
+
+   let relPoints: Point[];
+
+   createComputed(() => {
+      const x = 0, y = 0;
+      relPoints = [
+         { x, y },
+         { x: x + state.transform.width, y },
+         { x: x + state.transform.width, y: y + state.transform.height },
+         { x, y: y + state.transform.height }
+      ];
+   });
 
    function onMouseMove(e: MouseEvent) {
-      const M: Point = {
-         x: e.pageX - editor.containerRect.x - state.transform.x - 4,
-         y: e.pageY - editor.containerRect.y - state.transform.y - 1,
-      };
-      const x = delta(), y = delta();
-      const { width, height } = state.transform;
 
-      const points: Point[] = [
-         { x, y },
-         { x: x + width, y },
-         { x: x + width, y: y + height },
-         { x, y: y + height }
-      ];
-      let minDist = Number.POSITIVE_INFINITY;
-      let H: Point;
-      let edgeI: number;
+      // if (mouseInside) {
+      //    setState('dot', { state: ResizerState.None });
+      //    return;
+      // }
+      // Current mouse point
+      const M: Point = {
+         x: e.pageX - editor.containerRect.x - state.transform.x + CURSOR_X_OFFSET,
+         y: e.pageY - editor.containerRect.y - state.transform.y + CURSOR_Y_OFFSET,
+      };
+
+      let sample: {
+         point: Point;
+         dist: number;
+         t: number;
+         i: number;
+      }[] = [];
 
       for (let i = 0; i < 4; i++) {
-         const p1 = points[!i ? 3 : i - 1];
-         const p2 = points[i];
+         const p1 = relPoints[!i ? 3 : i - 1];
+         const p2 = relPoints[i];
 
          const t = ((M.x - p1.x) * (p2.x - p1.x) + (M.y - p1.y) * (p2.y - p1.y)) / ((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
 
-         if (t < 0 || t > 1) continue;
-
-         const h: Point = {
+         const point: Point = {
             x: p1.x + t * (p2.x - p1.x),
             y: p1.y + t * (p2.y - p1.y)
          };
 
-         let dist = Math.sqrt((h.x - M.x) ** 2 + (h.y - M.y) ** 2);
-         if (dist < minDist) {
-            minDist = dist;
-            H = h;
-            edgeI = i;
-         }
+         const dist = Math.sqrt((point.x - M.x) ** 2 + (point.y - M.y) ** 2);
+         sample.push({
+            dist,
+            i,
+            point,
+            t
+         });
       }
 
-      if (minDist > 50) {
-         setState('dot', {
-            show: false,
-            expand: false
-         });
+      sample = sample.sort((a, b) => a.dist - b.dist);
+
+      let dot = sample[0];
+      if(dot.t < 0 || dot.t > 1) {
+
+      }
+      if (!dot) {
+         setState('dot', { state: ResizerState.None });
          return;
       }
 
-      if (H) {
-         if (minDist < 25) {
-            setState('dot', {
-               show: false,
-            });
-            if (!state.dot.expand) {
-               setState('dot', {
-                  expand: false,
-               });
-               onMouseMove(e);
-               return;
-            }
-         }
-         else if (minDist > 30) {
-            setState('dot', {
-               expand: false,
-            });
-         }
-
-         if (edgeI === 0) {
-            H.x += delta() / 2;
-         }
-         else if (edgeI === 1) {
-            H.y += delta() / 2;
-         }
-         setState('dot', H);
+      let resState: ResizerState;
+      if (dot.dist > RESIZER_LOD_ACTIVATE_OUTER_LIM) {
+         resState = ResizerState.None;
       }
+      else if (dot.dist <= RESIZER_LOD_ACTIVATE_OUTER_LIM && dot.dist > RESIZER_ACTIVATE_OUTER_LIM) {
+         resState = ResizerState.Micro;
+      }
+      else if (dot.dist <= RESIZER_ACTIVATE_OUTER_LIM) {
+         resState = ResizerState.Full;
+      }
+
+      dot.point.x -= resState === ResizerState.Full ? 3 : 2;
+      dot.point.y -= resState === ResizerState.Full ? 3 : 2;
+
+      if (dot.i === 0) {
+         dot.point.x -= 1;
+      }
+
+      else if (dot.i === 1) {
+         dot.point.y -= 1;
+      }
+
+      setState('dot', {
+         state: resState,
+         x: dot.point.x,
+         y: dot.point.y,
+         side: Object.values(VertEdgeCursor)[dot.i]
+      });
    }
 
-   // createEffect(() => {
-   //    if (isMeEditing()) {
-   //       window.addEventListener('mousemove', onMouseMove, { passive: true });
-   //    }
-   //    else {
-   //       window.removeEventListener('mousemove', onMouseMove);
-   //    }
-   // });
+   createEffect(() => {
+      if (isMeEditing()) {
+         window.addEventListener('mousemove', onMouseMove, { passive: true });
+      }
+      else {
+         setState('dot', 'state', ResizerState.None);
+         window.removeEventListener('mousemove', onMouseMove);
+      }
+   });
 
    onCleanup(() => {
       window.removeEventListener('mousemove', onmousemove);
@@ -347,7 +378,11 @@ export function Block(props: BlockProps) {
          draggable={false}
          onPointerDown={(e) => onBoxPointerDown(e, 1)}
          onPointerUp={() => pointerDown = false}
-         onPointerLeave={() => {
+         onPointerOver={() => {
+            mouseInside = true;
+         }}
+         onPointerOut={() => {
+            mouseInside = false;
             if (pointerDown && isMeEditing() && !isMeDragging()) {
                selectBlock(props.block, 'select');
             }
@@ -370,12 +405,24 @@ export function Block(props: BlockProps) {
             <path d="M1.5 17.5C2.32843 17.5 3 16.8284 3 16C3 15.1716 2.32843 14.5 1.5 14.5C0.671573 14.5 0 15.1716 0 16C0 16.8284 0.671573 17.5 1.5 17.5Z" />
             <path d="M8.5 17.5C9.32843 17.5 10 16.8284 10 16C10 15.1716 9.32843 14.5 8.5 14.5C7.67157 14.5 7 15.1716 7 16C7 16.8284 7.67157 17.5 8.5 17.5Z" />
          </svg>
-         <Show when={state.dot.show && !isMeDragging() && isMeEditing()}>
+         <Show when={state.dot.state !== ResizerState.None}>
             <div
-               classList={{ [s.sizedot]: true, [s.expand]: state.dot.expand }}
+               class={s.dotWrapper}
                style={{
-                  transform: `translate(${state.dot.x}px, ${state.dot.y}px)`
-               }} />
+                  transform: `translate(${state.dot.x}px, ${state.dot.y}px)`,
+               }}
+            >
+               <div
+                  classList={{
+                     [s.sizedot]: true,
+                     [s.expand]: state.dot.state === ResizerState.Full
+                  }}
+                  style={{
+                     transform: `scale(${state.dot.state === ResizerState.Full ? 2.2 : 1})`,
+                     cursor: state.dot.side,
+                  }}
+               />
+            </div>
          </Show>
          <Dynamic component={blockContentTypeMap[props.block.type]} block={props.block} selected={isMeEditing()} />
       </div>

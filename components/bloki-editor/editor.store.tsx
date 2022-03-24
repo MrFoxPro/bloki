@@ -77,7 +77,6 @@ type EditorStoreProviderProps = PropsWithChildren<{
 
 export function EditorStoreProvider(props: EditorStoreProviderProps) {
    const emitter = createNanoEvents<EditorEvents>();
-
    const [state, setState] = createStore<EditorStoreValues>(
       {
          editingBlock: null,
@@ -88,6 +87,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          document: unwrap(props.document),
       }
    );
+
+   const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
 
    function gridSize(factor: number) {
       const size = state.document.layoutOptions.size;
@@ -107,7 +108,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return { ...cellPx, ...grid, ...gridPx } as CalculatedSize;
    });
 
-   const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
 
    function getRelativePosition(absX: number, absY: number) {
       const x = Math.floor(absX / gridBoxSize());
@@ -249,6 +249,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          x = (fGridWidth - mGridWidth) / 2;
       }
       else return;
+
       const newBlockTransform: BlockTransform = {
          height: 1,
          width: state.document.layoutOptions.mGridWidth,

@@ -34,25 +34,24 @@
       }
    }
 
-   .sizedot {
-      width: 5px;
-      height: 5px;
-      outline: 0.5px solid transparent;
-      border-radius: 50%;
-      background: #4281fa;
+   .dot-wrapper {
       position: absolute;
+      .sizedot {
+         width: 5px;
+         height: 5px;
+         outline: 0.5px solid transparent;
+         border-radius: 50%;
+         background: #4281fa;
+         position: absolute;
+         transform-origin: center;
+         transition: transform 100ms linear;
 
+         // cursor: ne-resize;
 
-      transition: all 110ms linear;
-      transition-property: width, height, outline-color;
-
-      cursor: ne-resize;
-
-      &.expand {
-         width: 11px;
-         height: 11px;
-         background: white;
-         outline-color: #4281fa;
+         &.expand {
+            background: white;
+            outline-color: #4281fa;
+         }
       }
    }
 

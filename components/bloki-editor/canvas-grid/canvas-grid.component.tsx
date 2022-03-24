@@ -1,5 +1,5 @@
 import s from './canvas-grid.module.scss';
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { onCleanup, onMount } from "solid-js";
 import { Point, useEditorStore } from '../editor.store';
 import { throttle } from 'lodash-es';
 
@@ -8,11 +8,6 @@ export function BlokiCanvasGrid() {
    let ctx: CanvasRenderingContext2D;
    const [editor, { gridSize, realSize, emitter }] = useEditorStore();
 
-   createEffect(() => {
-      if (!backlightCanvasRef) return;
-
-      ctx = backlightCanvasRef.getContext('2d');
-   });
    const okFillColor = 'rgba(24, 160, 251, 0.2)';
    const badFillColor = 'rgba(83, 83, 83, 0.2)';
 
@@ -32,7 +27,7 @@ export function BlokiCanvasGrid() {
    }
 
    function clearProjection(prev: Point[]) {
-      const { size, gap } = editor.document.layoutOptions;
+      const { gap } = editor.document.layoutOptions;
       if (prev?.length) {
          const first = prev[0];
          const last = prev[prev.length - 1];
@@ -51,6 +46,8 @@ export function BlokiCanvasGrid() {
    }
 
    onMount(() => {
+      ctx = backlightCanvasRef.getContext('2d');
+
       let prev = [];
       const changeEvent = emitter.on('change', throttle((block, stage, { relTransform: { x, y, width, height } }) => {
          if (stage === 'end') {
@@ -87,29 +84,6 @@ export function BlokiCanvasGrid() {
          changeEvent();
       });
    });
-
-   // createEffect(
-   //    on(
-   //       () => editor.projection,
-   //       (projC, prevC) => {
-
-   //          const { size, gap } = editor.document.layoutOptions;
-   //          if (prev?.length) {
-   //             const first = prev[0];
-   //             const last = prev[prev.length - 1];
-   //             ctx.clearRect(gridSize(first.x) + gap, gridSize(first.y) + gap, gridSize(last.x - first.x + 1), gridSize(last.y - first.y + 1));
-   //          }
-
-   //          if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
-
-   //          ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
-   //          for (let i = 0; i < proj.length; i++) {
-   //             roundRect(gridSize(proj[i].x) + gap, gridSize(proj[i].y) + gap, size, size, 4);
-   //             ctx.fill();
-   //          }
-   //       }
-   //    )
-   // );
 
    return (
       <canvas
