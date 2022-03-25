@@ -1,7 +1,7 @@
 .draggable {
    position: absolute;
    // causes some artifacts in chrome. possibly cause of overlay or outline
-   // will-change: transform;
+   will-change: transform;
 }
 
 .block {
@@ -29,11 +29,76 @@
       cursor: crosshair;
    }
 
-   > .overlay {
+   .overlay {
       position: absolute;
-
-      // z-index: -1;
       inset: 0px;
+   }
+
+   $area-size: 14px;
+   $area-offset: -10px;
+   // I'm too lazy to make array and iterate here
+   .vert {
+      position: absolute;
+      width: $area-size - $area-offset;
+      height: $area-size - $area-offset;
+      background: rgba(255, 0, 0, 0.212);
+      &.nw {
+         left: $area-offset;
+         top: $area-offset;
+         cursor: nw-resize;
+      }
+      &.ne {
+         right: $area-offset;
+         top: $area-offset;
+         cursor: ne-resize;
+      }
+      &.se {
+         right: $area-offset;
+         bottom: $area-offset;
+         cursor: se-resize;
+      }
+      &.sw {
+         left: $area-offset;
+         bottom: $area-offset;
+         cursor: sw-resize;
+      }
+   }
+   .edge {
+      position: absolute;
+      background: rgba(0, 0, 255, 0.199);
+
+      &.n {
+         top: $area-offset;
+         right: $area-size;
+         left: $area-size;
+         height: $area-size;
+         cursor: n-resize;
+      }
+      &.s {
+         bottom: $area-offset;
+         right: $area-size;
+         left: $area-size;
+         height: $area-size;
+         cursor: s-resize;
+      }
+      &.e {
+         right: $area-offset;
+
+         top: $area-size;
+         bottom: $area-size;
+
+         width: $area-size;
+         cursor: e-resize;
+      }
+      &.w {
+         left: $area-offset;
+
+         top: $area-size;
+         bottom: $area-size;
+
+         width: $area-size;
+         cursor: w-resize;
+      }
    }
 }
 .handy {

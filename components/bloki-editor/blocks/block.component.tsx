@@ -1,4 +1,5 @@
-import { createComputed, createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import { createComputed, createEffect, createMemo, For, Match, onCleanup, Show, Switch } from 'solid-js';
+import cc from 'classcat';
 import { Point, useEditorStore } from '../editor.store';
 import type { AnyBlock, BlockType } from '@/lib/entities';
 import s from './block.module.scss';
@@ -18,15 +19,14 @@ enum DotState {
    Full
 }
 enum CursorSide {
-   W = 'w-resize',
-   N = 'n-resize',
-   E = 'e-resize',
-   S = 's-resize',
-
-   SW = 'sw-resize',
    NW = 'nw-resize',
+   N = 'n-resize',
    NE = 'ne-resize',
-   SE = 'se-resize'
+   E = 'e-resize',
+   SE = 'se-resize',
+   S = 's-resize',
+   SW = 'sw-resize',
+   W = 'w-resize',
 }
 
 type BlockProps = {
@@ -83,7 +83,6 @@ export function Block(props: BlockProps) {
          state: DotState.None,
          x: 0,
          y: 0,
-         side: CursorSide.E,
       },
    });
 
@@ -127,13 +126,6 @@ export function Block(props: BlockProps) {
 
    let mouseInside = false;
 
-   const sideCursorValues = Object.values(CursorSide);
-   const edgeIndexVertCursorMap = [
-      CursorSide.NW,
-      CursorSide.NE,
-      CursorSide.SE,
-      CursorSide.SW
-   ];
    function onMouseMove(e: MouseEvent) {
       if (mouseInside) {
          setState('dot', { state: DotState.None });
@@ -169,17 +161,14 @@ export function Block(props: BlockProps) {
          }
       }
 
-      let side = sideCursorValues[edgeIndex];
       let p: Point;
 
       if (t > 1) {
          p = relPoints[edgeIndex];
-         side = edgeIndexVertCursorMap[edgeIndex];
       }
       else if (t < 0) {
          const newIndex = !edgeIndex ? 3 : edgeIndex - 1;
          p = relPoints[newIndex];
-         side = edgeIndexVertCursorMap[edgeIndex - 1];
       }
       if (t < 0 || t > 1) {
          dot.x = p.x;
@@ -205,7 +194,6 @@ export function Block(props: BlockProps) {
          state: resState,
          x: dot.x,
          y: dot.y,
-         side
       });
    }
 
@@ -278,7 +266,7 @@ export function Block(props: BlockProps) {
       }
    }
 
-   function onDotPointerDown(e: PointerEvent) {
+   function onHookPointerDown(e: PointerEvent, side: CursorSide) {
       e.stopPropagation();
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -290,17 +278,17 @@ export function Block(props: BlockProps) {
       dot.setPointerCapture(e.pointerId);
 
       dot.onpointerup = onDotPointerUp;
-      dot.onpointermove = onDotPointerMove;
+      dot.onpointermove = (_e) => onHookPointerMove(_e, side);
 
       onChangeStart(props.block, state.transform, 'resize');
    }
 
-   function onDotPointerMove(e: PointerEvent) {
+   function onHookPointerMove(e: PointerEvent, side: CursorSide) {
       if (state.dot.state === DotState.None) return;
 
       let { x, y, width, height } = state.transform;
 
-      switch (state.dot.side) {
+      switch (side) {
          case CursorSide.W: {
             const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
@@ -381,17 +369,15 @@ export function Block(props: BlockProps) {
       onChangeEnd(props.block, { x, y, width, height }, 'resize');
    }
 
-
    return (
       <div
+         class={cc([s.block, s.draggable])}
          style={{
             transform: `translate(${state.transform.x}px, ${state.transform.y}px)`,
             width: `${state.transform.width}px`,
             height: `${state.transform.height}px`,
          }}
          classList={{
-            [s.block]: true,
-            [s.draggable]: true,
             [s.dragging]: isMeDragging(),
             [s.selected]: isMeEditing(),
          }}
@@ -417,23 +403,20 @@ export function Block(props: BlockProps) {
             <path d="M1.5 17.5C2.32843 17.5 3 16.8284 3 16C3 15.1716 2.32843 14.5 1.5 14.5C0.671573 14.5 0 15.1716 0 16C0 16.8284 0.671573 17.5 1.5 17.5Z" />
             <path d="M8.5 17.5C9.32843 17.5 10 16.8284 10 16C10 15.1716 9.32843 14.5 8.5 14.5C7.67157 14.5 7 15.1716 7 16C7 16.8284 7.67157 17.5 8.5 17.5Z" />
          </svg>
-
          <Show when={state.dot.state !== DotState.None}>
             <div
                class={s.dotWrapper}
                style={{
                   transform: `translate(${state.dot.x}px, ${state.dot.y}px)`,
                }}
-               onPointerDown={onDotPointerDown}
             >
                <div
+                  class={s.sizedot}
                   classList={{
-                     [s.sizedot]: true,
                      [s.expand]: state.dot.state === DotState.Full
                   }}
                   style={{
                      transform: `scale(${state.dot.state === DotState.Full ? 2.2 : 1})`,
-                     cursor: state.dot.side,
                   }}
                />
             </div>
@@ -460,6 +443,14 @@ export function Block(props: BlockProps) {
                selected={isMeEditing()}
             />
          </div>
+         <For each={/*@once*/Object.keys(CursorSide) as (keyof typeof CursorSide)[]}>
+            {side => (
+               <div
+                  class={cc([side.length === 2 ? s.vert : s.edge, s[side.toLowerCase()]])}
+                  onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
+               />
+            )}
+         </For>
       </div>
    );
 };
