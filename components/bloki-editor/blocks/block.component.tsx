@@ -66,7 +66,7 @@ export function Block(props: BlockProps) {
    let pointerDown = false;
 
    const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
-   const RESIZER_ACTIVATE_OUTER_LIM = 60;
+   const RESIZER_ACTIVATE_OUTER_LIM = 30;
 
    const CURSOR_X_OFFSET = 0;
    const CURSOR_Y_OFFSET = -1;
