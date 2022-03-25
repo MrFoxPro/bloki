@@ -386,12 +386,8 @@ export function Block(props: BlockProps) {
          ondrop={(e) => e.preventDefault()}
          draggable={false}
       >
-         {/* This overlay helps with preveinting mouseenter on firing on child elements */}
          <svg
-            classList={{
-               [s.handy]: true,
-               [s.dragging]: isMeDragging()
-            }}
+            class={s.handy}
             width="10"
             height="18"
             viewBox="0 0 10 18"
@@ -422,6 +418,7 @@ export function Block(props: BlockProps) {
                />
             </div>
          </Show>
+         {/* This overlay helps with preveinting mouseenter on firing on child elements */}
          <div
             class={s.overlay}
             ref={boxRef}

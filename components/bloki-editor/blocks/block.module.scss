@@ -10,13 +10,16 @@
    border-radius: 4px;
 
    &:hover {
-      > .handy {
-         fill: #e6e5e6;
+      .handy {
+         fill: #9ca5ab;
       }
    }
    &.selected {
       outline-color: #4281fa;
       z-index: 25;
+      .handy {
+         fill: #9ca5ab;
+      }
    }
    &.shadow {
       color: rgba(0, 0, 0, 0.2);
@@ -28,6 +31,9 @@
    &.dragging {
       // border-color: #4281fa;
       cursor: grabbing;
+      .handy {
+         fill: #7597ff;
+      }
    }
    &.resizing {
       .sizedot {
@@ -117,12 +123,8 @@
    cursor: pointer;
    transition: fill 130ms linear;
    fill: transparent;
-
-   &.dragging {
-      fill: #7597ff !important;
-   }
    &:hover {
-      fill: #18a0fb;
+      fill: #18a0fb !important;
    }
 }
 
