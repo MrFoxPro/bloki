@@ -69,7 +69,7 @@ export function TestPage() {
                         onClick={() => {
                            setStore('selectedDocument', 'layoutOptions', defaultLayotOptions);
                         }}>
-                        Reset
+                        Reset layout options
                      </button>
                   </div>
                </div>

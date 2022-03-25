@@ -28,10 +28,12 @@ export function TextBlock(props: TextBlockProps) {
          }
       }
    ));
+
    function onTextInput(e: InputEvent & { currentTarget: HTMLDivElement; }) {
-      const text = e.currentTarget.textContent + '\n';
+      const text = e.currentTarget.textContent;
       setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), 'value', text);
    }
+
    return (
       <div
          style={{

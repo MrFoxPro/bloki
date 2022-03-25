@@ -35,12 +35,20 @@ export function BlokiCanvasGrid() {
       }
    }
 
-   function drawProjection(proj: Point[]) {
+   function drawProjection(proj: Point[], intersection: Point[]) {
       const { size, gap } = editor.document.layoutOptions;
 
-      ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
+      // ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
+
       for (let i = 0; i < proj.length; i++) {
-         roundRect(gridSize(proj[i].x) + gap, gridSize(proj[i].y) + gap, size, size, 4);
+         const x = gridSize(proj[i].x) + gap;
+         const y = gridSize(proj[i].y) + gap;
+         roundRect(x, y, size, size, 4);
+         // TODO: OPTIMIZE THIS!!!
+         if (intersection.find(p => p.x === proj[i].x && p.y === proj[i].y)) {
+            ctx.fillStyle = badFillColor;
+         }
+         else ctx.fillStyle = okFillColor;
          ctx.fill();
       }
    }
@@ -49,7 +57,8 @@ export function BlokiCanvasGrid() {
       ctx = backlightCanvasRef.getContext('2d');
 
       let prev = [];
-      const changeEvent = emitter.on('change', throttle((block, stage, { relTransform: { x, y, width, height } }) => {
+
+      const changeEvent = emitter.on('change', (block, stage, { relTransform: { x, y, width, height }, placementStatus }): void => {
          if (stage === 'end') {
             clearProjection(prev);
             prev = [];
@@ -75,9 +84,9 @@ export function BlokiCanvasGrid() {
             }
          }
 
-         drawProjection(proj);
+         drawProjection(proj, placementStatus.intersection);
          prev = proj;
-      }, 30));
+      });
 
       onCleanup(() => {
          changeEvent();
