@@ -441,14 +441,19 @@ export function Block(props: BlockProps) {
                selected={isMeEditing()}
             />
          </div>
-         <For each={/*@once*/Object.keys(CursorSide) as (keyof typeof CursorSide)[]}>
-            {side => (
-               <div
-                  class={cc([side.length === 2 ? s.vert : s.edge, s[side.toLowerCase()]])}
-                  onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
-               />
-            )}
-         </For>
+         <Show when={isMeEditing()}>
+            <For each={/*@once*/Object.keys(CursorSide) as (keyof typeof CursorSide)[]}>
+               {side => (
+                  <div
+                     class={cc([side.length === 2 ? s.vert : s.edge, s[side.toLowerCase()]])}
+                     classList={{
+                        [s.showResizeAreas]: editor.document.layoutOptions.showResizeAreas
+                     }}
+                     onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
+                  />
+               )}
+            </For>
+         </Show>
       </div>
    );
 };

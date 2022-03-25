@@ -9,7 +9,6 @@ import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg?r
 export function TestPage() {
    const [app, { setStore }] = useAppStore();
 
-
    return (
       <main class={s.test}>
          <SideMenu />
@@ -55,6 +54,15 @@ export function TestPage() {
                            name="show-gradient"
                            onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
                            checked={app.selectedDocument.layoutOptions.showGridGradient}
+                        />
+                     </div>
+                     <div>
+                        <label for="show-gradient">Show resize areas</label>
+                        <input
+                           type="checkbox"
+                           name="show-gradient"
+                           onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
+                           checked={app.selectedDocument.layoutOptions.showResizeAreas}
                         />
                      </div>
                      <button

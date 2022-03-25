@@ -50,57 +50,74 @@
    }
 
    $area-size: 14px;
-   $area-offset: -10px;
+   $area-offset: -14px;
    // I'm too lazy to make array and iterate here
+   .edge,
    .vert {
       position: absolute;
+      // pointer-events: none;
+      // &.active {
+      //    pointer-events: initial;
+      // }
+   }
+   .vert {
       width: $area-size - $area-offset;
       height: $area-size - $area-offset;
-      // background: rgba(255, 0, 0, 0.212);
+      &.show-resize-areas {
+         background: rgba(255, 0, 0, 0.212);
+      }
       &.nw {
-         left: $area-offset;
-         top: $area-offset;
+         left: $area-offset - $area-size;
+         top: $area-offset - $area-size;
          cursor: nw-resize;
       }
       &.ne {
-         right: $area-offset;
-         top: $area-offset;
+         right: $area-offset - $area-size;
+         top: $area-offset - $area-size;
          cursor: ne-resize;
       }
       &.se {
-         right: $area-offset;
-         bottom: $area-offset;
+         right: $area-offset - $area-size;
+         bottom: $area-offset - $area-size;
          cursor: se-resize;
       }
       &.sw {
-         left: $area-offset;
-         bottom: $area-offset;
+         left: $area-offset - $area-size;
+         bottom: $area-offset - $area-size;
          cursor: sw-resize;
       }
    }
    .edge {
-      position: absolute;
-      // background: rgba(0, 0, 255, 0.199);
-
+      &.show-resize-areas {
+         background: rgba(0, 0, 255, 0.199);
+      }
       &.n {
          top: $area-offset;
-         right: $area-size;
-         left: $area-size;
+         // right: $area-size;
+         // left: $area-size;
+         left: 0;
+         right: 0;
+
          height: $area-size;
          cursor: n-resize;
       }
       &.s {
          bottom: $area-offset;
-         right: $area-size;
-         left: $area-size;
+         // right: $area-size;
+         // left: $area-size;
+         left: 0;
+         right: 0;
+
          height: $area-size;
          cursor: s-resize;
       }
       &.e {
          right: $area-offset;
 
-         top: $area-size;
-         bottom: $area-size;
+         // top: $area-size;
+         // bottom: $area-size;
+         top: 0;
+         bottom: 0;
 
          width: $area-size;
          cursor: e-resize;
@@ -108,8 +125,10 @@
       &.w {
          left: $area-offset;
 
-         top: $area-size;
-         bottom: $area-size;
+         // top: $area-size;
+         // bottom: $area-size;
+         top: 0;
+         bottom: 0;
 
          width: $area-size;
          cursor: w-resize;
@@ -138,7 +157,7 @@
       background: #4281fa;
       transform-origin: center;
       transition: transform 100ms linear;
-
+      pointer-events: none;
       &.expand {
          background: white;
          outline-color: #4281fa;

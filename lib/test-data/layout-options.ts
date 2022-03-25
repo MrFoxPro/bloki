@@ -16,5 +16,6 @@ export const defaultLayotOptions: LayoutOptions = {
 
    gap: DEFAULT_CELL_GAP_PX,
    size: DEFAULT_CELL_SIZE_PX,
-   showGridGradient: true,
+   showGridGradient: false,
+   showResizeAreas: false,
 };

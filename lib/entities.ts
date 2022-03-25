@@ -21,6 +21,7 @@ type LayoutOptions = {
    fGridHeight: number;
 
    showGridGradient: boolean;
+   showResizeAreas: boolean;
 };
 type BlockType = 'text' | 'image';
 
