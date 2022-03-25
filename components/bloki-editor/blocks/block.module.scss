@@ -16,6 +16,7 @@
    }
    &.selected {
       outline-color: #4281fa;
+      z-index: 25;
    }
    &.shadow {
       color: rgba(0, 0, 0, 0.2);
@@ -26,9 +27,17 @@
    }
    &.dragging {
       // border-color: #4281fa;
-      cursor: crosshair;
+      cursor: grabbing;
    }
-
+   &.resizing {
+      .sizedot {
+         background: #4281fa !important;
+      }
+      .vert,
+      .edge {
+         cursor: none !important;
+      }
+   }
    .overlay {
       position: absolute;
       inset: 0px;

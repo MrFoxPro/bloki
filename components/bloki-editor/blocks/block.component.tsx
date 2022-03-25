@@ -380,6 +380,7 @@ export function Block(props: BlockProps) {
          classList={{
             [s.dragging]: isMeDragging(),
             [s.selected]: isMeEditing(),
+            [s.resizing]: isMeResizing(),
          }}
          ondragstart={(e) => e.preventDefault()}
          ondrop={(e) => e.preventDefault()}
@@ -413,7 +414,7 @@ export function Block(props: BlockProps) {
                <div
                   class={s.sizedot}
                   classList={{
-                     [s.expand]: state.dot.state === DotState.Full
+                     [s.expand]: state.dot.state === DotState.Full,
                   }}
                   style={{
                      transform: `scale(${state.dot.state === DotState.Full ? 2.2 : 1})`,
