@@ -267,9 +267,9 @@ export function Block(props: BlockProps) {
    }
 
    function onHookPointerDown(e: PointerEvent, side: CursorSide) {
-      e.stopPropagation();
-      e.preventDefault();
-      e.stopImmediatePropagation();
+      // e.stopPropagation();
+      // e.preventDefault();
+      // e.stopImmediatePropagation();
 
       relX = e.pageX;
       relY = e.pageY;

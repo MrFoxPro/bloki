@@ -41,7 +41,7 @@
       position: absolute;
       width: $area-size - $area-offset;
       height: $area-size - $area-offset;
-      background: rgba(255, 0, 0, 0.212);
+      // background: rgba(255, 0, 0, 0.212);
       &.nw {
          left: $area-offset;
          top: $area-offset;
@@ -65,7 +65,7 @@
    }
    .edge {
       position: absolute;
-      background: rgba(0, 0, 255, 0.199);
+      // background: rgba(0, 0, 255, 0.199);
 
       &.n {
          top: $area-offset;
