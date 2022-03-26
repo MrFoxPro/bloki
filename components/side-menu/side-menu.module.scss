@@ -39,12 +39,17 @@
    padding: 0 20px;
    box-sizing: border-box;
    .left-bar {
-      width: 190px;
+      // width: 190px;
       display: flex;
-      justify-content: center;
       align-items: center;
 
-      gap: 16px;
+      > .arrow {
+         margin-left: 10px;
+         cursor: pointer;
+      }
+      > h4 {
+         margin-left: 15px;
+      }
    }
    .right-bar {
       width: 100px;

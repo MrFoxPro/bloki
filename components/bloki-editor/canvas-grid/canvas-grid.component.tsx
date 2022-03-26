@@ -1,7 +1,7 @@
 import s from './canvas-grid.module.scss';
 import { onCleanup, onMount } from "solid-js";
-import { Intersection, PlacementStatus, Point, useEditorStore } from '../editor.store';
-import { throttle } from 'lodash-es';
+import { useEditorStore } from '../editor.store';
+import { PlacementStatus, Point } from "../types";
 
 export function BlokiCanvasGrid() {
    let backlightCanvasRef: HTMLCanvasElement;

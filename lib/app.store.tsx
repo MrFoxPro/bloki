@@ -1,8 +1,8 @@
-import { batch, createComputed, createContext, mergeProps, PropsWithChildren, useContext } from "solid-js";
+import { createComputed, createContext, createEffect, createMemo, mergeProps, on, PropsWithChildren, useContext } from "solid-js";
 import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
 import { TestLocalApiProvider } from "./api-providers/local-api-provider";
-import { Block, BlokiDocument, LayoutOptions, User, Workspace } from "./entities";
+import { BlokiDocument, User, Workspace } from "./entities";
 
 export type AppStoreValues = {
    user: User;
@@ -14,7 +14,6 @@ export type AppStoreValues = {
    selectedDocument: BlokiDocument;
 };
 type AppStoreHandlers = {
-   createBlock(block: Block): void;
    moveItem(): void;
    deleteItem(): void;
 
@@ -35,7 +34,6 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
          selectedWorkspace: null,
       },
       {
-         createBlock: () => void 0,
          moveItem: () => void 0,
          deleteItem: () => void 0,
          selectWorkspace: () => void 0,
@@ -59,15 +57,28 @@ export function AppStoreProvider(props: AppStoreProps) {
    createComputed(async () => {
       const me = await props.apiProvider.getMe();
       const workspaces = await props.apiProvider.getMyWorkspaces();
-      const defaultWorkspace = workspaces[0];
-      const defaultDocument = defaultWorkspace.documents[0];
-      batch(() => {
-         setStore('user', me);
-         setStore('workspaces', workspaces);
-         setStore('selectedWorkspace', defaultWorkspace);
-         setStore('selectedDocument', defaultDocument);
+      setStore({
+         user: me,
+         workspaces,
+         isLoading: false,
       });
       console.log('data loaded', unwrap(store));
+   });
+
+   createComputed(() => {
+      if (store.workspaces?.length) {
+         setStore({
+            selectedWorkspace: store.workspaces.find(x => x.id === store.user.selectedWorkspaceId)
+         });
+      }
+   });
+
+   createComputed(() => {
+      if (store.selectedWorkspace) {
+         setStore({
+            selectedDocument: store.selectedWorkspace.documents.find(x => x.id === store.user.selectedDocumentId)
+         });
+      }
    });
 
    function moveItem() {
@@ -78,11 +89,15 @@ export function AppStoreProvider(props: AppStoreProps) {
    }
 
    function selectWorkspace(workspace: Workspace) {
-      setStore('selectedWorkspace', workspace);
+      setStore({
+         selectedWorkspace: workspace
+      });
    }
 
    function selectDocument(document: BlokiDocument) {
-      setStore('selectedDocument', document);
+      setStore({
+         selectedDocument: document
+      });
    }
 
    return (
@@ -93,7 +108,7 @@ export function AppStoreProvider(props: AppStoreProps) {
             deleteItem,
             setStore,
             selectWorkspace,
-            selectDocument
+            selectDocument,
          }
       ]}>
          {props.children}

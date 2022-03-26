@@ -1,13 +1,8 @@
-import { Accessor, batch, createContext, createMemo, PropsWithChildren, useContext } from "solid-js";
+import { Accessor, batch, createComputed, createContext, createEffect, createMemo, PropsWithChildren, useContext } from "solid-js";
 import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
 import { AnyBlock, BlokiDocument } from "@/lib/entities";
 import { createNanoEvents, Emitter } from 'nanoevents';
-
-export type Point = { x: number, y: number; };
-export type Dimension = { width: number, height: number; };
-export type EditType = 'drag' | 'resize' | 'select' | 'content';
-
-export type BlockTransform = Point & Dimension;
+import { BlockTransform, ChangeEventInfo, Dimension, EditType, Intersection, Point } from "./types";
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock: AnyBlock | null;
@@ -34,10 +29,7 @@ type CalculatedSize = {
    mGridWidth_px: string;
    mGridHeight_px: string;
 };
-
-
 type ChangeHandler = (block: AnyBlock, absTransform: BlockTransform, type: EditType) => void;
-
 type EditorStoreHandles = {
    onChangeStart: ChangeHandler;
    onChange: ChangeHandler;
@@ -59,24 +51,6 @@ type EditorStoreHandles = {
    emitter: Emitter<EditorEvents>;
 };
 
-export type Intersection = {
-   startX: number;
-   width: number;
-   startY: number;
-   height: number;
-};
-export type PlacementStatus = {
-   correct: boolean;
-   intersections: Intersection[];
-   outOfBorder: boolean;
-};
-
-type ChangeEventInfo = {
-   type: EditType;
-   absTransform: BlockTransform;
-   relTransform: BlockTransform;
-   placement: PlacementStatus;
-};
 interface EditorEvents {
    change: (block: AnyBlock, stage: 'start' | 'change' | 'end', changeInfo: ChangeEventInfo) => void;
 }
@@ -96,10 +70,14 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          selectedBlocks: [],
          isPlacementCorrect: false,
          containerRect: null,
-         document: unwrap(props.document),
+         document: null,
       }
    );
-
+   createComputed(() => {
+      setState({
+         document: props.document
+      });
+   });
    const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
 
    function gridSize(factor: number) {
@@ -244,6 +222,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       });
    }
 
+
    function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       if (type === 'drag' && x === block.x && y === block.y) {
@@ -256,6 +235,10 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
       if (type === 'resize' && x === block.x && y === block.y && height === block.height && width === block.width) {
          return;
+      }
+
+      if (type === 'content') {
+
       }
 
       const placement = checkPlacement(block, x, y, width, height);

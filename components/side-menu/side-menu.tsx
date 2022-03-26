@@ -2,6 +2,7 @@ import { useAppStore } from '@/lib/app.store';
 import { ComponentProps, For, Show } from 'solid-js';
 import { upperFirst } from 'lodash-es';
 import s from './side-menu.module.scss';
+import cc from 'classcat';
 import AddIcon from './assets/add.icon.svg?raw';
 
 type SideMenuProps = {
@@ -9,17 +10,17 @@ type SideMenuProps = {
 } & ComponentProps<'div'>;
 
 export function SideMenu(props: SideMenuProps) {
-   const [app] = useAppStore();
+   const [app, { setStore }] = useAppStore();
 
    return (
-      <div classList={{ [s.sideMenu]: true, [props.class]: true }}>
+      <div class={s.sideMenu} classList={{ [props.class]: true }}>
          <div class={s.workspaceBar}>
             <div class={s.box} />
             <div class={s.title}>{app.selectedWorkspace?.title ?? 'Select workspace'}</div>
             {/* new file and search */}
          </div>
          <div class={s.menus}>
-            <div classList={{ [s.block]: true, [s.controls]: true }}>
+            <div class={cc([s.block, s.controls])}>
                <For each={['search', 'settings', 'trash'] as const}>
                   {(item) => (
                      <div classList={{ [s.item]: true }}>
@@ -37,11 +38,17 @@ export function SideMenu(props: SideMenuProps) {
                <div class={s.pages}>
                   <For each={app.selectedWorkspace?.documents}>
                      {(doc) => (
-                        <div classList={{ [s.page]: true, [s.item]: true, [s.itemHighlighed]: doc.id === app.selectedDocument.id }}>
+                        <div
+                           class={cc([s.page, s.item])}
+                           classList={{
+                              [s.itemHighlighed]: doc.id === app.selectedDocument?.id
+                           }}
+                           onClick={() => setStore({ selectedDocument: doc })}
+                        >
                            <Show when={true}>
-                              <div classList={{ [s.icon]: true, [s.arrow]: true }} />
+                              <div class={cc([s.icon, s.arrow])} />
                            </Show>
-                           <div classList={{ [s.icon]: true, [s.page]: true }} />
+                           <div class={cc([s.icon, s.page])} />
                            <span>{doc.title}</span>
                            <Show when={true}>
                               <div class={s.dotsIcon} />

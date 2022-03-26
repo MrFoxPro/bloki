@@ -1,12 +1,13 @@
 import { createComputed, createEffect, createMemo, For, Match, onCleanup, Show, Switch } from 'solid-js';
 import cc from 'classcat';
-import { Point, useEditorStore } from '../editor.store';
+import { useEditorStore } from '../editor.store';
 import type { AnyBlock, BlockType } from '@/lib/entities';
 import s from './block.module.scss';
 
 import { Dynamic } from 'solid-js/web';
 import { TextBlock } from './text-block/text.block.component';
 import { createStore } from 'solid-js/store';
+import { Point } from '../types';
 
 
 const blockContentTypeMap: Record<BlockType, any> = {

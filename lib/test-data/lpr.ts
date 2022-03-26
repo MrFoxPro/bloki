@@ -1,13 +1,24 @@
 import { BlokiDocument, User, Workspace } from "../entities";
 import { defaultLayotOptions } from "./layout-options";
 
-const lpr1User: User = {
-   id: '709240ee-24a7-4fdd-866e-e08206dbb8aa',
-   name: 'Михаил Светов',
+const middleX = (defaultLayotOptions.fGridWidth - defaultLayotOptions.mGridWidth) / 2;
+
+const emptyDoc: BlokiDocument = {
+   id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
+   title: 'Empty',
+   layoutOptions: {
+      ...defaultLayotOptions,
+      showGridGradient: true,
+      showResizeAreas: true,
+   },
+   blocks: [],
 };
-
-const middleX = (defaultLayotOptions.fGridWidth - defaultLayotOptions.mGridWidth) / 2
-
+const geometryHomeworkDoc: BlokiDocument = {
+   id: '30273036-fa69-461d-8870-37a9fc5e1156',
+   title: 'Geometry homework',
+   layoutOptions: defaultLayotOptions,
+   blocks: []
+};
 const lprPlatformDoc: BlokiDocument = {
    id: 'ba76b267-d1b6-4d18-80a0-636c794ef518',
    title: 'Наши принципы',
@@ -56,11 +67,22 @@ const lprWorkspace1: Workspace = {
    id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
    title: 'Либертарианская партия',
    documents: [
+      emptyDoc,
+      geometryHomeworkDoc,
       lprPlatformDoc,
    ],
-   participants: [lpr1User],
+   participants: [],
 };
 
+
+const lpr1User: User = {
+   id: '709240ee-24a7-4fdd-866e-e08206dbb8aa',
+   name: 'Михаил Светов',
+   selectedWorkspaceId: lprWorkspace1.id,
+   selectedDocumentId: lprPlatformDoc.id,
+};
+
+lprWorkspace1.participants.push(lpr1User);
 export {
    lpr1User,
    lprPlatformDoc,

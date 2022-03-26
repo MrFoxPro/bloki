@@ -11,7 +11,6 @@
    // This is not working in safari ;)
    // https://caniuse.com/?search=overflow%3A%20clip
    // overflow: clip;
-
    overflow: hidden;
 
    scrollbar-width: none;
@@ -22,7 +21,6 @@
       font-weight: 400;
       font-size: 16px;
    }
-   // white-space: pre-wrap;
 
    &::after {
       cursor: text;

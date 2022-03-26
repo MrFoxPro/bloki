@@ -3,6 +3,9 @@ import { boolean } from "yup";
 type User = {
    id: string;
    name: string;
+
+   selectedWorkspaceId?: string;
+   selectedDocumentId?: string;
 };
 type Workspace = {
    id: string;
