@@ -58,16 +58,23 @@ type EditorStoreHandles = {
 
    emitter: Emitter<EditorEvents>;
 };
+
+export type Intersection = {
+   startX: number;
+   width: number;
+   startY: number;
+   height: number;
+};
 export type PlacementStatus = {
-   isPlacementCorrect: boolean;
-   intersection: Point[];
+   correct: boolean;
+   intersections: Intersection[];
 };
 
 type ChangeEventInfo = {
    type: EditType;
    absTransform: BlockTransform;
    relTransform: BlockTransform;
-   placementStatus: PlacementStatus;
+   placement: PlacementStatus;
 };
 interface EditorEvents {
    change: (block: AnyBlock, stage: 'start' | 'change' | 'end', changeInfo: ChangeEventInfo) => void;
@@ -136,18 +143,18 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    // const minBlockSize = createMemo(() => getAbsoluteSize(1, 1));
    // const maxBlockSize = createMemo(() => getAbsoluteSize(BLOCK_MAX_WIDTH, BLOCK_MAX_HEIGHT));
 
-   function checkIfPlacementCorrect(block: BlockTransform, x: number, y: number, width = block.width, height = block.height) {
-      const intersection: Point[] = [];
-      let isPlacementCorrect = true;
+   function checkPlacement(block: BlockTransform, x: number, y: number, width = block.width, height = block.height) {
+      const intersections: Intersection[] = [];
+      let correct = true;
 
       if (width > BLOCK_MAX_WIDTH || width < BLOCK_MIN_WIDTH || height > BLOCK_MAX_HEIGHT || height < BLOCK_MIN_HEIGHT) {
-         isPlacementCorrect = false;
+         correct = false;
       }
 
       // TODO: different grid sizes?
       const { fGridHeight, fGridWidth } = state.document.layoutOptions;
       if (x < 0 || y < 0 || y + height > fGridHeight || x + width > fGridWidth) {
-         isPlacementCorrect = false;
+         correct = false;
       }
 
       for (let i = 0; i < state.document.blocks.length; i++) {
@@ -167,41 +174,53 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
          const dx = x2 - x1;
          const dy = y2 - y1;
+
          const colXDist = dx > 0 ? sizeX1 : sizeX2;
          const colYDist = dy > 0 ? sizeY1 : sizeY2;
 
-         const ddx = Math.abs(dx) - colXDist;
-         const ddy = Math.abs(dy) - colYDist;
+         const adx = Math.abs(dx);
+         const ady = Math.abs(dy);
 
-         if (ddx < 0 && ddy < 0) {
-            isPlacementCorrect = false;
+         if (adx < colXDist && ady < colYDist) {
+            correct = false;
             let startX = 0, startY = 0;
-
+            let miniX = 0, miniY = 0;
             if (dx > 0) {
-               startX = x1 + sizeX1 + ddx;
+               startX = x1 + adx;
             }
-            else startX = x2 + sizeX2 + ddx;
+            else {
+               startX = x2 + adx;
+            }
 
             if (dy > 0) {
-               startY = y1 + sizeY1 + ddy;
+               startY = y1 + ady;
             }
-            else startY = y2 + sizeY2 + ddy;
+            else {
+               startY = y2 + ady;
+            }
 
-            // console.log(startX, startX - ddx, startY - ddy);
-            for (let i = startX; i < startX - ddx; i++) {
-               for (let j = startY; j < startY - ddy; j++) {
-                  intersection.push({
-                     x: i,
-                     y: j
-                  });
-               }
+
+            let colWidth, colHeight;
+            if (sizeX1 - adx - sizeX2 > 0) {
+               colWidth = sizeX2;
             }
+            else colWidth = colXDist - adx;
+            if (sizeY1 - ady - sizeY2 > 0) {
+               colHeight = sizeY2;
+            }
+            else colHeight = colYDist - ady;
+            intersections.push({
+               startX,
+               width: colWidth,
+               startY,
+               height: colHeight,
+            });
             continue;
          }
       }
       return {
-         isPlacementCorrect,
-         intersection
+         correct,
+         intersections
       };
    }
 
@@ -217,7 +236,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       emitter.emit('change', block, 'start', {
          absTransform: abs,
-         placementStatus: { isPlacementCorrect: true, intersection: [] },
+         placement: { correct: true, intersections: [] },
          relTransform: { height: block.height, width: block.width, x: block.x, y: block.y },
          type
       });
@@ -225,17 +244,23 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
+      if (type === 'drag' && x === block.x && y === block.y) {
+         return;
+      }
       if (type === 'resize') {
          absTransform.height += state.document.layoutOptions.gap;
          absTransform.width += state.document.layoutOptions.gap;
       }
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
-      const placementStatus = checkIfPlacementCorrect(block, x, y, width, height);
+      if (type === 'resize' && x === block.x && y === block.y && height === block.height && width === block.width) {
+         return;
+      }
 
-      setState({ isPlacementCorrect: placementStatus.isPlacementCorrect });
+      const placement = checkPlacement(block, x, y, width, height);
+      setState({ isPlacementCorrect: placement.correct });
       emitter.emit('change', block, 'change', {
          absTransform,
-         placementStatus,
+         placement,
          relTransform: { x, y, width, height },
          type
       });
@@ -244,14 +269,14 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function onChangeEnd(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
-      const placementStatus = checkIfPlacementCorrect(block, x, y, width, height);
+      const placement = checkPlacement(block, x, y, width, height);
 
       batch(() => {
          setState({
             // editingBlock: null,
             editingType: 'select',
          });
-         if (placementStatus.isPlacementCorrect) {
+         if (placement.correct) {
             console.log('correct!');
             setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y, width, height });
             return;
@@ -262,7 +287,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       emitter.emit('change', block, 'end', {
          absTransform,
-         placementStatus,
+         placement,
          relTransform: { x, y, width, height },
          type
       });
@@ -294,7 +319,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          width: state.document.layoutOptions.mGridWidth,
          x, y
       };
-      if (checkIfPlacementCorrect(newBlockTransform, x, y)) {
+      if (checkPlacement(newBlockTransform, x, y).correct) {
          const newBlock: AnyBlock = {
             id: crypto.randomUUID(),
             type: 'text',

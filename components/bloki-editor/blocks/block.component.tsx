@@ -379,7 +379,7 @@ export function Block(props: BlockProps) {
          }}
          classList={{
             [s.dragging]: isMeDragging(),
-            [s.selected]: isMeEditing(),
+            [s.selected]: true,
             [s.resizing]: isMeResizing(),
          }}
          ondragstart={(e) => e.preventDefault()}

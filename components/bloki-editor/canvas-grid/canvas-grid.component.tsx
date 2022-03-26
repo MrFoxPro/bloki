@@ -1,6 +1,6 @@
 import s from './canvas-grid.module.scss';
 import { onCleanup, onMount } from "solid-js";
-import { Point, useEditorStore } from '../editor.store';
+import { Intersection, PlacementStatus, Point, useEditorStore } from '../editor.store';
 import { throttle } from 'lodash-es';
 
 export function BlokiCanvasGrid() {
@@ -35,20 +35,23 @@ export function BlokiCanvasGrid() {
       }
    }
 
-   function drawProjection(proj: Point[], intersection: Point[]) {
+   function drawProjection(proj: Point[], placement: PlacementStatus) {
       const { size, gap } = editor.document.layoutOptions;
-
-      // ctx.fillStyle = editor.isPlacementCorrect ? okFillColor : badFillColor;
+      const { intersections, correct } = placement;
 
       for (let i = 0; i < proj.length; i++) {
-         const x = gridSize(proj[i].x) + gap;
-         const y = gridSize(proj[i].y) + gap;
-         roundRect(x, y, size, size, 4);
-         // TODO: OPTIMIZE THIS!!!
-         if (intersection.find(p => p.x === proj[i].x && p.y === proj[i].y)) {
+         const x = proj[i].x;
+         const y = proj[i].y;
+
+         const absX = gridSize(x) + gap;
+         const absY = gridSize(y) + gap;
+         roundRect(absX, absY, size, size, 4);
+
+         if (intersections.some(sect => x >= sect.startX && (x < sect.startX + sect.width) && y >= sect.startY && y < sect.startY + sect.height)) {
             ctx.fillStyle = badFillColor;
          }
          else ctx.fillStyle = okFillColor;
+
          ctx.fill();
       }
    }
@@ -58,7 +61,7 @@ export function BlokiCanvasGrid() {
 
       let prev = [];
 
-      const changeEvent = emitter.on('change', (block, stage, { relTransform: { x, y, width, height }, placementStatus }): void => {
+      const changeEvent = emitter.on('change', (block, stage, { relTransform: { x, y, width, height }, placement: placementStatus }): void => {
          if (stage === 'end') {
             clearProjection(prev);
             prev = [];
@@ -84,7 +87,7 @@ export function BlokiCanvasGrid() {
             }
          }
 
-         drawProjection(proj, placementStatus.intersection);
+         drawProjection(proj, placementStatus);
          prev = proj;
       });
 
