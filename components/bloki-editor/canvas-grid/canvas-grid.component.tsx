@@ -37,7 +37,7 @@ export function BlokiCanvasGrid() {
 
    function drawProjection(proj: Point[], placement: PlacementStatus) {
       const { size, gap } = editor.document.layoutOptions;
-      const { intersections, correct } = placement;
+      const { intersections, outOfBorder } = placement;
 
       for (let i = 0; i < proj.length; i++) {
          const x = proj[i].x;
@@ -46,8 +46,8 @@ export function BlokiCanvasGrid() {
          const absX = gridSize(x) + gap;
          const absY = gridSize(y) + gap;
          roundRect(absX, absY, size, size, 4);
-
-         if (intersections.some(sect => x >= sect.startX && (x < sect.startX + sect.width) && y >= sect.startY && y < sect.startY + sect.height)) {
+         if (outOfBorder) ctx.fillStyle = badFillColor;
+         else if (intersections.some(sect => x >= sect.startX && (x < sect.startX + sect.width) && y >= sect.startY && y < sect.startY + sect.height)) {
             ctx.fillStyle = badFillColor;
          }
          else ctx.fillStyle = okFillColor;

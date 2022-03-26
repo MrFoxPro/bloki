@@ -68,6 +68,7 @@ export type Intersection = {
 export type PlacementStatus = {
    correct: boolean;
    intersections: Intersection[];
+   outOfBorder: boolean;
 };
 
 type ChangeEventInfo = {
@@ -146,15 +147,17 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function checkPlacement(block: BlockTransform, x: number, y: number, width = block.width, height = block.height) {
       const intersections: Intersection[] = [];
       let correct = true;
-
+      let outOfBorder = false;
       if (width > BLOCK_MAX_WIDTH || width < BLOCK_MIN_WIDTH || height > BLOCK_MAX_HEIGHT || height < BLOCK_MIN_HEIGHT) {
          correct = false;
+         outOfBorder = true;
       }
 
       // TODO: different grid sizes?
       const { fGridHeight, fGridWidth } = state.document.layoutOptions;
       if (x < 0 || y < 0 || y + height > fGridHeight || x + width > fGridWidth) {
          correct = false;
+         outOfBorder = true;
       }
 
       for (let i = 0; i < state.document.blocks.length; i++) {
@@ -200,15 +203,15 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             }
 
 
-            let colWidth, colHeight;
+            let colWidth = colXDist - adx, colHeight = colYDist - ady;
             if (sizeX1 - adx - sizeX2 > 0) {
-               colWidth = sizeX2;
+               if (dx < 0) colWidth = sizeX2 + dx;
+               else colWidth = sizeX2;
             }
-            else colWidth = colXDist - adx;
             if (sizeY1 - ady - sizeY2 > 0) {
-               colHeight = sizeY2;
+               if (dy > 0) colHeight = sizeY2;
+               else colHeight = sizeY2 + dy;
             }
-            else colHeight = colYDist - ady;
             intersections.push({
                startX,
                width: colWidth,
@@ -220,7 +223,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
       return {
          correct,
-         intersections
+         intersections,
+         outOfBorder
       };
    }
 
@@ -236,7 +240,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       emitter.emit('change', block, 'start', {
          absTransform: abs,
-         placement: { correct: true, intersections: [] },
+         placement: { correct: true, intersections: [], outOfBorder: false, },
          relTransform: { height: block.height, width: block.width, x: block.x, y: block.y },
          type
       });
