@@ -10,9 +10,9 @@
 
    // This is not working in safari ;)
    // https://caniuse.com/?search=overflow%3A%20clip
-   overflow: clip;
+   // overflow: clip;
 
-   // overflow: hidden;
+   overflow: hidden;
 
    scrollbar-width: none;
    &::-webkit-scrollbar {
@@ -22,7 +22,7 @@
       font-weight: 400;
       font-size: 16px;
    }
-   white-space: pre-wrap;
+   // white-space: pre-wrap;
 
    &::after {
       cursor: text;

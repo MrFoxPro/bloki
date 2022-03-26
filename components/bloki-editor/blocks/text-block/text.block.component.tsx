@@ -38,7 +38,7 @@ export function TextBlock(props: TextBlockProps) {
       <div
          style={{
             // 'word-break': 'break-word',
-            'white-space': 'nowrap',
+            // 'white-space': 'nowrap',
          }}
          classList={{ [s.content]: true, [s.regular]: true }}
          data-placeholder={!props.block.value ? "Type '/' for commands" : null}
