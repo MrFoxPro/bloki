@@ -187,21 +187,18 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          if (adx < colXDist && ady < colYDist) {
             correct = false;
             let startX = 0, startY = 0;
-            let miniX = 0, miniY = 0;
             if (dx > 0) {
                startX = x1 + adx;
             }
             else {
                startX = x2 + adx;
             }
-
             if (dy > 0) {
                startY = y1 + ady;
             }
             else {
                startY = y2 + ady;
             }
-
 
             let colWidth = colXDist - adx, colHeight = colYDist - ady;
             if (sizeX1 - adx - sizeX2 > 0) {
@@ -212,6 +209,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
                if (dy > 0) colHeight = sizeY2;
                else colHeight = sizeY2 + dy;
             }
+
             intersections.push({
                startX,
                width: colWidth,
