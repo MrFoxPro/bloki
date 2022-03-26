@@ -1,8 +1,8 @@
-import { ComponentProps, createComputed, createEffect, createMemo, on, splitProps, untrack } from 'solid-js';
+import { batch, ComponentProps, createComputed, createEffect, createMemo, on, splitProps, untrack } from 'solid-js';
 import measure from 'calculate-size';
 import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
-import s from './text.block.module.scss';
+import s, { content } from './text.block.module.scss';
 import { BlockTransform, Dimension } from '../../types';
 
 type TextBlockProps = {
@@ -10,14 +10,14 @@ type TextBlockProps = {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setStore, getAbsoluteSize }] = useEditorStore();
+   const [editor, { setStore, getAbsoluteSize, getRelativeSize, gridBoxSize }] = useEditorStore();
    const [local, other] = splitProps(props, ['block']);
    let contentRef: HTMLDivElement;
    let blockAbsSize: Dimension;
 
    const isEditingContent = createMemo(() => editor.editingBlock === props.block && editor.editingType === 'content');
 
-   createComputed(() => {
+   createEffect(() => {
       blockAbsSize = getAbsoluteSize(props.block.width, props.block.height);
    });
 
@@ -30,23 +30,40 @@ export function TextBlock(props: TextBlockProps) {
    createEffect(on(
       () => props.block.value,
       () => {
-         if (!contentRef) return;
-         if (!contentRef.textContent.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
+         if (!contentRef?.textContent.trimEnd() && contentRef?.lastElementChild?.tagName === 'BR') {
             contentRef.lastElementChild.remove();
          }
       }
    ));
 
    function onTextInput(e: InputEvent & { currentTarget: HTMLDivElement; }) {
-      const text = e.currentTarget.textContent;
-      const { font, fontSize, fontWeight } = e.currentTarget.style;
+      const text = contentRef.textContent;
+      const { font, fontSize, fontWeight } = getComputedStyle(contentRef);
       const textSize = measure(text, {
-         font, fontSize, fontWeight
+         font: font, fontSize, fontWeight
       });
-      if (textSize.width > blockAbsSize.width || textSize.height > blockAbsSize.height) {
-         console.log('shiet', textSize.width, blockAbsSize.width, textSize.height, blockAbsSize.height);
-      }
-      setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), 'value', text);
+      // console.log(font, fontSize, fontWeight);
+      // console.log('fake', textSize);
+      batch(() => {
+         const blockIndex = editor.document.blocks.indexOf(props.block);
+         let newWidth = props.block.width;
+         const dx = (blockAbsSize.width - textSize.width) / gridBoxSize();
+         if (dx < 0.1) {
+            newWidth += 1;
+         }
+         // if (textSize.width < blockAbsSize.width) {
+         //    newWidth -= 1;
+         // }
+         // else {
+         //    newWidth += 1;
+
+         // }
+         setStore('document', 'blocks', blockIndex, {
+            width: newWidth,
+            value: text,
+         });
+      });
+
    }
 
    return (

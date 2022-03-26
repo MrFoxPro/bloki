@@ -40,9 +40,12 @@ type EditorStoreHandles = {
    selectBlock(block: AnyBlock, type?: EditType): void;
 
    gridSize(factor: number): number;
+   gridBoxSize: Accessor<number>;
    realSize: Accessor<CalculatedSize>;
    getRelativePosition(absX: number, absY: number): Point;
    getAbsolutePosition(x: number, y: number): Point;
+   getRelativeSize(width: any, height: any, roundFunc?: (x: number) => number): Dimension;
+   getAbsoluteSize(width: number, height: number): Dimension;
 
    getAbsoluteSize(width: number, height: number): Dimension;
 
@@ -81,6 +84,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
 
    function gridSize(factor: number) {
+      if (factor <= 0) return 0;
       const size = state.document.layoutOptions.size;
       const gap = state.document.layoutOptions.gap;
       return factor * (size + gap) - gap;
@@ -107,6 +111,13 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function getAbsolutePosition(x: number, y: number) {
       return { x: x * gridBoxSize(), y: y * gridBoxSize() };
+   }
+
+   function getRelativeSize(width, height, roundFunc = Math.ceil) {
+      return {
+         width: roundFunc(width / gridBoxSize()),
+         height: roundFunc(height / gridBoxSize())
+      };
    }
 
    function getAbsoluteSize(width: number, height: number) {
@@ -204,13 +215,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       };
    }
 
-   function getRelativeSize(width, height, roundFunc = Math.ceil) {
-      return {
-         width: roundFunc(width / gridBoxSize()),
-         height: roundFunc(height / gridBoxSize())
-      };
-   }
-
    function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
       setState({ editingBlock: block, editingType: type });
 
@@ -221,7 +225,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          type
       });
    }
-
 
    function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
@@ -301,7 +304,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       const newBlockTransform: BlockTransform = {
          height: 1,
-         width: state.document.layoutOptions.mGridWidth,
+         width: 1,
          x, y
       };
       if (checkPlacement(newBlockTransform, x, y).correct) {
@@ -356,9 +359,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             selectBlock,
             gridSize,
             realSize,
+            gridBoxSize,
             getRelativePosition,
             getAbsolutePosition,
             getAbsoluteSize,
+            getRelativeSize,
 
             setStore: setState,
             emitter,
