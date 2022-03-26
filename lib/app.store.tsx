@@ -1,5 +1,4 @@
-import { debounce } from "lodash-es";
-import { createComputed, createContext, createEffect, createMemo, mergeProps, on, PropsWithChildren, useContext } from "solid-js";
+import { createComputed, createContext, createMemo, mergeProps, PropsWithChildren, useContext } from "solid-js";
 import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
 import { TestLocalApiProvider } from "./api-providers/local-api-provider";
@@ -13,6 +12,8 @@ export type AppStoreValues = {
 
    selectedWorkspace: Workspace;
    selectedDocument: BlokiDocument;
+
+   apiProvider: IApiProvider;
 };
 type AppStoreHandlers = {
    moveItem(): void;
@@ -33,6 +34,8 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
 
          selectedDocument: null,
          selectedWorkspace: null,
+
+         apiProvider: null,
       },
       {
          moveItem: () => void 0,
@@ -61,27 +64,12 @@ export function AppStoreProvider(props: AppStoreProps) {
       setStore({
          user: me,
          workspaces,
+         selectedDocument: me.selectedDocument,
+         selectedWorkspace: me.selectedWorkspace,
+         apiProvider: props.apiProvider,
          isLoading: false,
       });
       console.log('data loaded', unwrap(store));
-   });
-
-   createComputed(() => {
-      if (store.workspaces?.length) {
-         setStore({
-            selectedWorkspace: store.workspaces.find(x => x.id === store.user.selectedWorkspaceId)
-         });
-      }
-   });
-
-   createComputed(async () => {
-      if (store.selectedWorkspace) {
-         const myDocuments = await props.apiProvider.getMyDocuments();
-         console.log('my docs', myDocuments);
-         setStore({
-            selectedDocument: myDocuments.find(x => x.id === store.user.selectedDocumentId)
-         });
-      }
    });
 
    function moveItem() {
@@ -102,10 +90,6 @@ export function AppStoreProvider(props: AppStoreProps) {
          selectedDocument: document
       });
    }
-
-   const syncDocument = debounce((doc: BlokiDocument) => {
-      // props.apiProvider.updateDocument(dock)
-   }, 5 * 1000);
 
    return (
       <AppStore.Provider value={[

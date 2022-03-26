@@ -1,7 +1,7 @@
 // import { IndexeddbPersistence } from "y-indexeddb";
 import { IApiProvider } from "./api-provider.interface";
-import { BlokiDocument } from "../entities";
-import { ITestDB, testDB1 } from "../test-data/test-db";
+import { lpr1User } from "../test-data/lpr";
+import { BlokiDocument, User } from "../entities";
 
 const LS_KEY = 'bloki_data';
 
@@ -12,45 +12,57 @@ function clone<T>(obj: T) {
    else return JSON.parse(JSON.stringify(obj)) as T;
 }
 
+type LocalDB = {
+   _version: string;
+   user: User;
+};
 export class TestLocalApiProvider implements IApiProvider {
-   private db: ITestDB;
+   // provider: IndexeddbPersistence;
+
+   private db: LocalDB;
+
    constructor() {
       const str = localStorage.getItem(LS_KEY);
-      let data: ITestDB;
+      let data: LocalDB;
       try {
          data = JSON.parse(str);
          if (data?._version !== import.meta.env.VITE_GIT_COMMIT_HASH) {
-            throw new Error('Outdated version');
+            throw new Error('Outdated version of db');
          }
          this.db = data;
       }
       catch (e) {
-         console.log('Rewriting database');
-         this.db = data = clone(testDB1);
-         localStorage.clear();
-         localStorage.setItem(LS_KEY, JSON.stringify(this.db));
+         this.clearCache();
       }
    }
-   async getMyWorkspaces() {
-      const userWorkspacesIds = this.db.user_workspace_map.filter(x => x.userId === this.db.user.id).map(x => x.workspaceId);
-      return this.db.workspaces.filter(x => userWorkspacesIds.includes(x.id));
+
+   clearCache(): void {
+      console.log('Rewriting database');
+      this.db = clone({ _version: import.meta.env.VITE_GIT_COMMIT_HASH, user: lpr1User });
+      localStorage.clear();
+      localStorage.setItem(LS_KEY, JSON.stringify(this.db));
    }
-   async getMyDocuments() {
-      const myWorkspacesIds = await this.getMyWorkspaces().then((wss) => wss.map(x => x.id));
-
-      const documentIds = this.db.workspace_document_map.filter(x => myWorkspacesIds.includes(x.workspaceId)).map(x => x.documentId);
-
-      return this.db.documents.filter(x => documentIds.includes(x.id));
+   async getMyWorkspaces() {
+      const workspaces = this.db.user.workspaces;
+      return workspaces;
+   }
+   async getWorkspaceDocuments(wsId: string) {
+      const workspaces = await this.getMyWorkspaces();
+      const ws = workspaces.find(w => w.id === wsId);
+      return ws.documents;
    }
    async getMe() {
       const user = this.db.user;
       return user;
    }
    async updateDocument(doc: BlokiDocument) {
-      const ind = this.db.documents.findIndex(d => d.id === doc.id);
-      if (ind) {
-         this.db.documents[ind] = clone(doc);
+
+      // const workspaces =
+      const workspace = await this.getMyWorkspaces()
+         .then(wss => wss.filter(ws => ws.documents.find(x => x.id === doc.id)));
+
+      if (!workspace) {
+         throw new Error('There is no workspace for doucument');
       }
-      else throw new Error('No document with id ' + doc.id);
    }
 }

@@ -1,23 +1,40 @@
 import { BlokiDocument, User, Workspace } from "../entities";
 import { defaultLayotOptions } from "./layout-options";
 
+
 const middleX = (defaultLayotOptions.fGridWidth - defaultLayotOptions.mGridWidth) / 2;
 
 const emptyDoc: BlokiDocument = {
    id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
    title: 'Empty',
-   layoutOptions: {
-      ...defaultLayotOptions,
-      showGridGradient: true,
-      showResizeAreas: true,
-   },
+   layoutOptions: defaultLayotOptions,
    blocks: [],
 };
 const geometryHomeworkDoc: BlokiDocument = {
    id: '30273036-fa69-461d-8870-37a9fc5e1156',
    title: 'Geometry homework',
    layoutOptions: defaultLayotOptions,
-   blocks: []
+   blocks: [
+      {
+         id: '60f1e5a2-5996-4580-8c3c-9deaa81f6e31',
+         type: 'text',
+         value: 'Дано:',
+         x: 5,
+         y: 5,
+         height: 1,
+         width: 4,
+      },
+      {
+         id: '60f1e5a2-5996-4580-8c3c-9deaa81f6e31',
+         type: 'text',
+         value: `ABCD — параллелограмм;`,
+         x: 5,
+         y: 6,
+         height: 1,
+         width: 4,
+      },
+
+   ]
 };
 const lprPlatformDoc: BlokiDocument = {
    id: 'ba76b267-d1b6-4d18-80a0-636c794ef518',
@@ -66,26 +83,22 @@ const lprPlatformDoc: BlokiDocument = {
 const lprWorkspace1: Workspace = {
    id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
    title: 'Либертарианская партия',
-   // participants: [],
+   documents: [
+      emptyDoc,
+      geometryHomeworkDoc,
+      lprPlatformDoc,
+   ],
+   participants: [],
 };
 
 const lpr1User: User = {
    id: '709240ee-24a7-4fdd-866e-e08206dbb8aa',
    name: 'Михаил Светов',
-   selectedWorkspaceId: lprWorkspace1.id,
-   selectedDocumentId: lprPlatformDoc.id,
+   workspaces: [lprWorkspace1],
+   selectedWorkspace: lprWorkspace1,
+   selectedDocument: geometryHomeworkDoc,
 };
-
-// lprWorkspace1.participants.push(lpr1User);
-
-const documents = [
-   emptyDoc,
-   geometryHomeworkDoc,
-   lprPlatformDoc,
-];
-const users = []
 export {
    lpr1User,
-   lprPlatformDoc,
    lprWorkspace1
 };

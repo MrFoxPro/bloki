@@ -77,7 +77,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   height: realSize().mGridHeight_px,
                   margin: `0 ${(realSize().fGridWidth - realSize().mGridWidth) / 2}px`,
                   background: editor.document.layoutOptions.showGridGradient === true ? 'rgba(128, 128, 128, 0.507)' : null,
-                  cursor: editor.editingBlock ? 'initial' : 'text'
+                  cursor: editor.editingBlock ? 'initial' : 'crosshair'
                }}
                onClick={(e) => onGridClick(e, 'main')}
             />

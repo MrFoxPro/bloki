@@ -2,13 +2,15 @@ type User = {
    id: string;
    name: string;
 
-   selectedWorkspaceId?: string;
-   selectedDocumentId?: string;
+   workspaces: Workspace[];
+   selectedWorkspace?: Workspace;
+   selectedDocument?: BlokiDocument;
 };
 type Workspace = {
    id: string;
    title: string;
-   // participants: User[];
+   documents: BlokiDocument[];
+   participants: User[];
 };
 type LayoutOptions = {
    gap: number;

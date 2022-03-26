@@ -71,6 +71,13 @@ export function TestPage() {
                         }}>
                         Reset layout options
                      </button>
+                     <button
+                        onClick={() => {
+                           app.apiProvider.clearCache();
+                           location.reload();
+                        }}>
+                        Purge local database
+                     </button>
                   </div>
                </div>
                <BlokiEditor document={app.selectedDocument} />

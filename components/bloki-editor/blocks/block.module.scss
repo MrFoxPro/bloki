@@ -69,22 +69,22 @@
       &.nw {
          left: $area-offset - $area-size;
          top: $area-offset - $area-size;
-         cursor: nw-resize;
+         cursor: nwse-resize;
       }
       &.ne {
          right: $area-offset - $area-size;
          top: $area-offset - $area-size;
-         cursor: ne-resize;
+         cursor: nesw-resize;
       }
       &.se {
          right: $area-offset - $area-size;
          bottom: $area-offset - $area-size;
-         cursor: se-resize;
+         cursor: nwse-resize;
       }
       &.sw {
          left: $area-offset - $area-size;
          bottom: $area-offset - $area-size;
-         cursor: sw-resize;
+         cursor: nesw-resize;
       }
    }
    .edge {
@@ -99,7 +99,7 @@
          right: 0;
 
          height: $area-size;
-         cursor: n-resize;
+         cursor: ns-resize;
       }
       &.s {
          bottom: $area-offset;
@@ -109,7 +109,7 @@
          right: 0;
 
          height: $area-size;
-         cursor: s-resize;
+         cursor: ns-resize;
       }
       &.e {
          right: $area-offset;
@@ -120,7 +120,7 @@
          bottom: 0;
 
          width: $area-size;
-         cursor: e-resize;
+         cursor: ew-resize;
       }
       &.w {
          left: $area-offset;
@@ -131,7 +131,7 @@
          bottom: 0;
 
          width: $area-size;
-         cursor: w-resize;
+         cursor: ew-resize;
       }
    }
 }
