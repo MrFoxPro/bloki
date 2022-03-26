@@ -1,5 +1,3 @@
-import { boolean } from "yup";
-
 type User = {
    id: string;
    name: string;
@@ -10,8 +8,7 @@ type User = {
 type Workspace = {
    id: string;
    title: string;
-   participants: User[];
-   documents: BlokiDocument[];
+   // participants: User[];
 };
 type LayoutOptions = {
    gap: number;
@@ -50,7 +47,7 @@ type ImageBlock = Block & {
 type BlokiDocument = {
    id: string;
    title: string;
-   workspaceId?: string;
+   // workspaceId?: string;
    layoutOptions: LayoutOptions;
    blocks: AnyBlock[],
 };

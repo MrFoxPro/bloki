@@ -1,54 +1,56 @@
-import { IndexeddbPersistence } from "y-indexeddb";
+// import { IndexeddbPersistence } from "y-indexeddb";
 import { IApiProvider } from "./api-provider.interface";
-import { lpr1User, lprWorkspace1 } from "../test-data/lpr";
 import { BlokiDocument } from "../entities";
+import { ITestDB, testDB1 } from "../test-data/test-db";
 
-const LS_KEY = 'bloki_data_';
+const LS_KEY = 'bloki_data';
+
+function clone<T>(obj: T) {
+   if ((window as any).structuredClone) {
+      return (window as any).structuredClone(obj) as T;
+   }
+   else return JSON.parse(JSON.stringify(obj)) as T;
+}
 
 export class TestLocalApiProvider implements IApiProvider {
-   provider: IndexeddbPersistence;
-
+   private db: ITestDB;
    constructor() {
-      localStorage.clear();
-   }
-   private getOrFillWithDefault<T>(key: string, defaultData: T) {
-      const data = localStorage.getItem(LS_KEY + key);
-      let result: T;
-      if (typeof data === 'string') {
-         try {
-            result = JSON.parse(data);
-            return result;
+      const str = localStorage.getItem(LS_KEY);
+      let data: ITestDB;
+      try {
+         data = JSON.parse(str);
+         if (data?._version !== import.meta.env.VITE_GIT_COMMIT_HASH) {
+            throw new Error('Outdated version');
          }
-         catch (e) {
-            console.warn('No local data saved for key:', key);
-         }
+         this.db = data;
       }
-      localStorage.setItem(key, JSON.stringify(defaultData));
-      if ((window as any).structuredClone) {
-         return (window as any).structuredClone(defaultData) as T;
+      catch (e) {
+         console.log('Rewriting database');
+         this.db = data = clone(testDB1);
+         localStorage.clear();
+         localStorage.setItem(LS_KEY, JSON.stringify(this.db));
       }
-      else return JSON.parse(JSON.stringify(defaultData)) as T;
    }
    async getMyWorkspaces() {
-      const workspaces = this.getOrFillWithDefault('workspaces', [lprWorkspace1]);
-      return workspaces;
+      const userWorkspacesIds = this.db.user_workspace_map.filter(x => x.userId === this.db.user.id).map(x => x.workspaceId);
+      return this.db.workspaces.filter(x => userWorkspacesIds.includes(x.id));
    }
-   async getWorkspaceDocuments(wsId: string) {
-      const workspaces = await this.getMyWorkspaces();
-      const ws = workspaces.find(w => w.id === wsId);
-      return ws.documents;
+   async getMyDocuments() {
+      const myWorkspacesIds = await this.getMyWorkspaces().then((wss) => wss.map(x => x.id));
+
+      const documentIds = this.db.workspace_document_map.filter(x => myWorkspacesIds.includes(x.workspaceId)).map(x => x.documentId);
+
+      return this.db.documents.filter(x => documentIds.includes(x.id));
    }
    async getMe() {
-      const user = this.getOrFillWithDefault('user', lpr1User);
+      const user = this.db.user;
       return user;
    }
-   async updateDocument(docId: string, newDoc: BlokiDocument) {
-      // const workspaces =
-      // const doc = await this.getMyWorkspaces()
-      //    .then(wss => wss.filter(ws => ws.documents.find(x => x.id === docId)));
-      // if (!doc) {
-      //    throw new Error('No such document');
-      // }
-
+   async updateDocument(doc: BlokiDocument) {
+      const ind = this.db.documents.findIndex(d => d.id === doc.id);
+      if (ind) {
+         this.db.documents[ind] = clone(doc);
+      }
+      else throw new Error('No document with id ' + doc.id);
    }
 }

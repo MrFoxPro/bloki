@@ -66,14 +66,8 @@ const lprPlatformDoc: BlokiDocument = {
 const lprWorkspace1: Workspace = {
    id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
    title: 'Либертарианская партия',
-   documents: [
-      emptyDoc,
-      geometryHomeworkDoc,
-      lprPlatformDoc,
-   ],
-   participants: [],
+   // participants: [],
 };
-
 
 const lpr1User: User = {
    id: '709240ee-24a7-4fdd-866e-e08206dbb8aa',
@@ -82,7 +76,14 @@ const lpr1User: User = {
    selectedDocumentId: lprPlatformDoc.id,
 };
 
-lprWorkspace1.participants.push(lpr1User);
+// lprWorkspace1.participants.push(lpr1User);
+
+const documents = [
+   emptyDoc,
+   geometryHomeworkDoc,
+   lprPlatformDoc,
+];
+const users = []
 export {
    lpr1User,
    lprPlatformDoc,

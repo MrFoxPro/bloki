@@ -8,10 +8,8 @@ export interface IApiProvider {
 
    getMyWorkspaces(): Promise<Workspace[]>;
 
-   getWorkspaceDocuments(wsId: string): Promise<BlokiDocument[]>;
+   getMyDocuments(): Promise<BlokiDocument[]>;
 
-   // getMyDocuments(): Promise<BlokiDocument[]>;
-
-   updateDocument(docId: string, doc: BlokiDocument): Promise<void>;
+   updateDocument(doc: BlokiDocument): Promise<void>;
 
 }

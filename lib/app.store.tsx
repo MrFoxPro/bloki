@@ -1,3 +1,4 @@
+import { debounce } from "lodash-es";
 import { createComputed, createContext, createEffect, createMemo, mergeProps, on, PropsWithChildren, useContext } from "solid-js";
 import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
@@ -73,10 +74,12 @@ export function AppStoreProvider(props: AppStoreProps) {
       }
    });
 
-   createComputed(() => {
+   createComputed(async () => {
       if (store.selectedWorkspace) {
+         const myDocuments = await props.apiProvider.getMyDocuments();
+         console.log('my docs', myDocuments);
          setStore({
-            selectedDocument: store.selectedWorkspace.documents.find(x => x.id === store.user.selectedDocumentId)
+            selectedDocument: myDocuments.find(x => x.id === store.user.selectedDocumentId)
          });
       }
    });
@@ -99,6 +102,10 @@ export function AppStoreProvider(props: AppStoreProps) {
          selectedDocument: document
       });
    }
+
+   const syncDocument = debounce((doc: BlokiDocument) => {
+      // props.apiProvider.updateDocument(dock)
+   }, 5 * 1000);
 
    return (
       <AppStore.Provider value={[
