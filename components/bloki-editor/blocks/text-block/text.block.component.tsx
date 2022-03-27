@@ -4,11 +4,9 @@ import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './text.block.module.scss';
 import { Dimension } from '../../types';
-// import DOMPurify from 'dompurify';
+import { ContentBlockProps } from '../types';
 
-type TextBlockProps = {
-   block: TextBlockEntity;
-   onContentDimensionChange?(size: Dimension): void;
+type TextBlockProps = ContentBlockProps<TextBlockEntity> & {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {

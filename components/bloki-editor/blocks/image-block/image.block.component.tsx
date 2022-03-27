@@ -2,11 +2,9 @@ import { ComponentProps, createMemo, splitProps } from 'solid-js';
 import { ImageBlock as ImageBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './image.block.module.scss';
-import { Dimension } from '../../types';
+import { ContentBlockProps } from '../types';
 
-type ImageBlockProps = {
-   block: ImageBlockEntity;
-   onContentDimensionChange?(size: Dimension): void;
+type ImageBlockProps = ContentBlockProps<ImageBlockEntity> & {
 } & ComponentProps<'div'>;
 
 export function ImageBlock(props: ImageBlockProps) {
@@ -37,7 +35,7 @@ export function ImageBlock(props: ImageBlockProps) {
          src={props.block.src}
          class={s.content}
          onKeyDown={onKeyDown}
-         // classList={{ [s.content]: true, [s.regular]: true }}
+         classList={{ [s.changing]: props.isMeResizing || props.isMeDragging }}
          ref={imgRef}
          // onPaste={onPaste}
          {...other}

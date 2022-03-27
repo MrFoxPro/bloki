@@ -477,7 +477,9 @@ export function Block(props: BlockProps) {
             <Dynamic
                component={blockContentTypeMap[props.block.type]}
                block={props.block}
-               selected={isMeEditing()}
+               isMeDragging={isMeDragging()}
+               isMeEditing={isMeEditing()}
+               isMeResizing={isMeResizing()}
                onContentDimensionChange={onContentDimensionChange}
             />
          </div>

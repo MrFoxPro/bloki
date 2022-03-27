@@ -1,6 +1,7 @@
 // import { IndexeddbPersistence } from "y-indexeddb";
 import { IApiProvider } from "./api-provider.interface";
 import { BlokiDocument, User } from "../entities";
+// import DOMPurify from 'dompurify';
 
 const LS_KEY = 'bloki_data';
 
@@ -59,6 +60,7 @@ export class TestLocalApiProvider implements IApiProvider {
       return user;
    }
    async updateDocument(doc: BlokiDocument) {
+      // Check xss ?
 
       // const workspaces =
       const workspace = await this.getMyWorkspaces()
