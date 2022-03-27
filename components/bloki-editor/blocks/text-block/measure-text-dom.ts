@@ -40,8 +40,8 @@ export function measureText(text: string, options: Partial<Options> = {}) {
    const element = createDummyElement(text, options as Options);
 
    const size = {
-      width: element.getBoundingClientRect().width,
-      height: element.getBoundingClientRect().height,
+      width: element.offsetWidth,
+      height: element.offsetHeight,
    };
 
    destroyElement(element);

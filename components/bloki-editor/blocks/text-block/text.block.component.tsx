@@ -1,5 +1,5 @@
-import { ComponentProps, createEffect, createMemo, on, PropsWithChildren, splitProps, untrack } from 'solid-js';
-import { measureText } from './measure-text';
+import { ComponentProps, createEffect, createMemo, on, splitProps, untrack } from 'solid-js';
+import { measureText } from './measure-text-dom';
 import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './text.block.module.scss';
@@ -7,6 +7,7 @@ import { Dimension } from '../../types';
 
 type TextBlockProps = {
    block: TextBlockEntity;
+   onContentDimensionChange?(size: Dimension): void;
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
@@ -71,6 +72,8 @@ export function TextBlock(props: TextBlockProps) {
          console.log('Height:', boxHeight, 'Required:', requiredAbsHeight, 'Delta:', requiredAbsHeight - boxHeight, 'Delta blocks:', Δ);
          newHeight += Math.ceil(Δ);
       }
+      props.onContentDimensionChange && props.onContentDimensionChange({ width: newWidth, height: newHeight });
+
       setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), {
          width: newWidth,
          height: newHeight,
@@ -80,7 +83,7 @@ export function TextBlock(props: TextBlockProps) {
 
    function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Enter') {
-         e.preventDefault();
+         // e.preventDefault();
       }
    }
    return (
@@ -93,6 +96,7 @@ export function TextBlock(props: TextBlockProps) {
             // "padding-top": CONTENT_PADDING_TOP + 'px',
             // "line-height": LINE_HEIGHT + 'px',
             // "font-size": FONT_SIZE + 'px',
+            // "user-select": props.isMeResizing ? 'none' : 'initial'
          }}
          onKeyDown={onKeyDown}
          classList={{ [s.content]: true, [s.regular]: true }}

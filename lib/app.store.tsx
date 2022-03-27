@@ -1,4 +1,4 @@
-import { createComputed, createContext, createMemo, mergeProps, PropsWithChildren, useContext } from "solid-js";
+import { createComputed, createContext, createMemo, createRenderEffect, mergeProps, onMount, PropsWithChildren, useContext } from "solid-js";
 import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
 import { TestLocalApiProvider } from "./api-providers/local-api-provider";
@@ -52,13 +52,11 @@ type AppStoreProps = PropsWithChildren<{
 }>;
 
 export function AppStoreProvider(props: AppStoreProps) {
-   props = mergeProps(props, {
-      apiProvider: new TestLocalApiProvider()
-   });
 
    const [store, setStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
 
-   createComputed(async () => {
+   onMount(async () => {
+      if (!props.apiProvider) props = mergeProps(props, { apiProvider: new TestLocalApiProvider() });
       const me = await props.apiProvider.getMe();
       const workspaces = await props.apiProvider.getMyWorkspaces();
       setStore({

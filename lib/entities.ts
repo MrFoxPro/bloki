@@ -1,3 +1,5 @@
+import { TextBlock } from "@/components/bloki-editor/blocks/text-block/types";
+
 type User = {
    id: string;
    name: string;
@@ -36,10 +38,7 @@ type Block = {
    width: number;
    height: number;
 };
-type TextBlock = Block & {
-   type: 'text';
-   value: string;
-};
+
 type ImageBlock = Block & {
    type: 'image';
    src: string;
@@ -64,6 +63,5 @@ export {
    BlockType,
    TextBlock,
    ImageBlock,
-
    AnyBlock,
 };

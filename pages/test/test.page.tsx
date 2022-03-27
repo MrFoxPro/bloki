@@ -83,6 +83,6 @@ export function TestPage() {
                <BlokiEditor document={app.selectedDocument} />
             </Show>
          </div>
-      </main >
+      </main>
    );
 }

@@ -7,7 +7,7 @@ import s from './block.module.scss';
 import { Dynamic } from 'solid-js/web';
 import { TextBlock } from './text-block/text.block.component';
 import { createStore } from 'solid-js/store';
-import { Point } from '../types';
+import { Dimension, Point } from '../types';
 
 
 const blockContentTypeMap: Record<BlockType, any> = {
@@ -131,7 +131,26 @@ export function Block(props: BlockProps) {
    let pinnedDotPosition: Point;
    let capturingSide: CursorSide;
 
-   // let contentSize
+   let contentSize: Dimension = { width: props.block.width, height: props.block.height };
+
+   function onContentDimensionChange(size: Dimension) {
+      contentSize = size;
+   }
+
+   function isInside(x: number, y: number, rect: DOMRect) {
+      return x < rect.left + rect.width && x > rect.left && y < rect.top + rect.height && y > rect.top;
+   }
+
+   function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
+      const rect = e.currentTarget.getBoundingClientRect();
+
+      if (isInside(e.pageX, e.pageY, rect)) {
+         selectBlock(props.block, 'content');
+      }
+      else {
+         e.preventDefault();
+      }
+   }
 
    function onMouseMove(e: MouseEvent) {
       if (mouseInside) {
@@ -281,21 +300,6 @@ export function Block(props: BlockProps) {
       onChangeEnd(props.block, { x, y, width, height }, 'drag');
    }
 
-   function isInside(x: number, y: number, rect: DOMRect) {
-      return x < rect.left + rect.width && x > rect.left && y < rect.top + rect.height && y > rect.top;
-   }
-
-   function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
-      const rect = e.currentTarget.getBoundingClientRect();
-
-      if (isInside(e.pageX, e.pageY, rect)) {
-         selectBlock(props.block, 'content');
-      }
-      else {
-         e.preventDefault();
-      }
-   }
-
    function onHookPointerDown(e: PointerEvent, side: CursorSide) {
       relX = e.pageX;
       relY = e.pageY;
@@ -375,6 +379,8 @@ export function Block(props: BlockProps) {
       const minHeight = gridSize(1);
       if (width < minWidth) width = minWidth;
       if (height < minHeight) height = minHeight;
+
+      console.log(contentSize);
 
       // if (height < minHeight) height = minHeight;
       // if (width > maxWidth) width = maxWidth;
@@ -471,6 +477,8 @@ export function Block(props: BlockProps) {
                component={blockContentTypeMap[props.block.type]}
                block={props.block}
                selected={isMeEditing()}
+               // isMeResizing={isMeResizing()}
+               onContentDimensionChange={onContentDimensionChange}
             />
          </div>
          <Show when={isMeEditing()}>
