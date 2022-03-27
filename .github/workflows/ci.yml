@@ -50,7 +50,7 @@ jobs:
 
     - name: Collect commit messages
       run: |  
-         commits=${{join(github.event.commits.\*.message, ', ') }}  
+         commits=${{join(github.event.commits.*.message, ', ') }}  
          echo $commits  
 
     - name: Send tg message
