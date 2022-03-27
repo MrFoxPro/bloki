@@ -60,7 +60,7 @@ jobs:
          to: ${{ secrets.RECEIVER_1 }}
          message: |
             ${{ github.actor }} created commit:
-            Commit message: ${{ $commits }}
+            Commit message: ${{ env.messages }}
             
             See changes: https://bloki.app
    #  - name: Restart service
