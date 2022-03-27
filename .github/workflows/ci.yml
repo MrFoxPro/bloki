@@ -50,8 +50,8 @@ jobs:
 
     - name: Collect commit messages
       run: |  
-         commits=${{join(github.event.commits.*.message, ', ') }}  
-         echo $commits  
+         echo "messages=${{join(github.event.commits.*.message, ', ') }}" >> $GITHUB_ENV  
+         echo "${{ env.messages }}"
 
     - name: Send tg message
       uses: appleboy/telegram-action@v0.1.1
