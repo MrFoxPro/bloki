@@ -4,6 +4,7 @@ import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './text.block.module.scss';
 import { Dimension } from '../../types';
+// import DOMPurify from 'dompurify';
 
 type TextBlockProps = {
    block: TextBlockEntity;
@@ -43,6 +44,7 @@ export function TextBlock(props: TextBlockProps) {
    ));
 
    function onTextInput(e: InputEvent & { currentTarget: HTMLDivElement; }) {
+      // const text = DOMPurify.sanitize(contentRef.textContent);
       const text = contentRef.textContent;
 
       let newWidth = props.block.width, newHeight = props.block.height;
@@ -58,13 +60,14 @@ export function TextBlock(props: TextBlockProps) {
       }
 
       const boxHeight = gridSize(props.block.height) - parseInt(paddingTop);
+
       const textSize = measureText(text, {
          fontFamily,
          fontSize,
          fontWeight,
-         width: (boxWidth - parseInt(paddingLeft)) + 'px',
+         width: boxWidth + 'px',
          lineHeight,
-         wordBreak
+         // wordBreak
       });
       const requiredAbsHeight = textSize.height - editor.document.layoutOptions.gap;
       if (requiredAbsHeight > 0) {
@@ -81,11 +84,15 @@ export function TextBlock(props: TextBlockProps) {
       });
    }
 
-   function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Enter') {
-         // e.preventDefault();
-      }
-   }
+   // function onPaste(e: ClipboardEvent) {
+   //    e.preventDefault();
+   //    let data = e.clipboardData.getData('text');
+   //    if (data) {
+
+   //       props.block.value += data;
+   //    }
+   // }
+
    return (
       <div
          style={{
@@ -98,12 +105,12 @@ export function TextBlock(props: TextBlockProps) {
             // "font-size": FONT_SIZE + 'px',
             // "user-select": props.isMeResizing ? 'none' : 'initial'
          }}
-         onKeyDown={onKeyDown}
          classList={{ [s.content]: true, [s.regular]: true }}
          data-placeholder={!props.block.value ? "Type '/' for commands" : null}
          contentEditable={isEditingContent()}
          ref={contentRef}
          onInput={onTextInput}
+         // onPaste={onPaste}
          {...other}
       >{untrack(() => props.block.value)}</div>
    );

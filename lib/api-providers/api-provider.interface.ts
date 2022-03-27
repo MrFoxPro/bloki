@@ -2,6 +2,7 @@ import { BlokiDocument, User, Workspace } from "../entities";
 
 export interface IApiProvider {
 
+   init(): Promise<void>;
    syncChanges?(data: User): Promise<void>;
 
    getMe(): Promise<User>;
@@ -12,6 +13,6 @@ export interface IApiProvider {
 
    updateDocument(doc: BlokiDocument): Promise<void>;
 
-   clearCache(): void;
+   clearCache(): Promise<void>;
 
 }

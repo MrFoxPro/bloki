@@ -57,6 +57,7 @@ export function AppStoreProvider(props: AppStoreProps) {
 
    onMount(async () => {
       if (!props.apiProvider) props = mergeProps(props, { apiProvider: new TestLocalApiProvider() });
+      await props.apiProvider.init();
       const me = await props.apiProvider.getMe();
       const workspaces = await props.apiProvider.getMyWorkspaces();
       setStore({

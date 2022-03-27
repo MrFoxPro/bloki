@@ -1,6 +1,5 @@
 // import { IndexeddbPersistence } from "y-indexeddb";
 import { IApiProvider } from "./api-provider.interface";
-import { lpr1User } from "../test-data/lpr";
 import { BlokiDocument, User } from "../entities";
 
 const LS_KEY = 'bloki_data';
@@ -21,7 +20,7 @@ export class TestLocalApiProvider implements IApiProvider {
 
    private db: LocalDB;
 
-   constructor() {
+   async init() {
       const str = localStorage.getItem(LS_KEY);
       let data: LocalDB;
       try {
@@ -32,14 +31,18 @@ export class TestLocalApiProvider implements IApiProvider {
          this.db = data;
       }
       catch (e) {
-         this.clearCache();
+         await this.clearCache();
       }
    }
 
-   clearCache(): void {
+   async getRandUserData() {
+      const u: User = await import('../test-data/lpr').then(x => x.default);
+      return u;
+   }
+   async clearCache() {
       console.log('Rewriting database');
-      this.db = clone({ _version: import.meta.env.VITE_GIT_COMMIT_HASH, user: lpr1User });
       localStorage.clear();
+      this.db = clone({ _version: import.meta.env.VITE_GIT_COMMIT_HASH, user: await this.getRandUserData() });
       localStorage.setItem(LS_KEY, JSON.stringify(this.db));
    }
    async getMyWorkspaces() {

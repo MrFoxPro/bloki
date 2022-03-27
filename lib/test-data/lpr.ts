@@ -2,7 +2,6 @@ import { calculateBlockSize } from "@/components/bloki-editor/blocks/text-block"
 import { BlokiDocument, TextBlock, User, Workspace } from "../entities";
 import { defaultLayotOptions } from "./layout-options";
 
-
 const middleX = (defaultLayotOptions.fGridWidth - defaultLayotOptions.mGridWidth) / 2;
 
 const emptyDoc: BlokiDocument = {
@@ -37,7 +36,7 @@ const geometryHomeworkDoc: BlokiDocument = {
 
    ]
 };
-const lprPlatformDoc = {
+const lprPlatformDoc: BlokiDocument = {
    id: 'ba76b267-d1b6-4d18-80a0-636c794ef518',
    title: 'Наши принципы',
    layoutOptions: defaultLayotOptions,
@@ -67,14 +66,27 @@ const lprPlatformDoc = {
          id: 'c31958ba-8b43-42b1-9064-6ada72e441f4',
          type: 'text',
          value: 'Права объективны, независимы от законов и человеческих договоренностей («естественное право»).',
-         x: middleX + 5,
+         x: middleX,
          y: 6,
       },
-   ],
-} as BlokiDocument;
-
-lprPlatformDoc.blocks.forEach((block, i) => lprPlatformDoc.blocks[i] = { ...block, ...calculateBlockSize(block as TextBlock, lprPlatformDoc.layoutOptions) });
-
+      {
+         id: '7e0a7f62-7373-4d2a-b899-2d91f08496e5',
+         type: 'image',
+         src: await import('./assets/sur.jpg?inline').then(r => r.default),
+         x: middleX,
+         width: defaultLayotOptions.mGridWidth,
+         height: 30
+      }
+   ].map((block, i, arr) => {
+      block.y = i > 0 ? (arr[i - 1].y + arr[i - 1].height) : 0;
+      if (block.type === 'text') {
+         const { width, height } = calculateBlockSize(block as TextBlock, defaultLayotOptions);
+         block.width = width;
+         block.height = height;
+      }
+      return block;
+   }),
+};
 const lprWorkspace1: Workspace = {
    id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
    title: 'Либертарианская партия',
@@ -93,7 +105,4 @@ const lpr1User: User = {
    selectedWorkspace: lprWorkspace1,
    selectedDocument: lprPlatformDoc,
 };
-export {
-   lpr1User,
-   lprWorkspace1
-};
+export default lpr1User;

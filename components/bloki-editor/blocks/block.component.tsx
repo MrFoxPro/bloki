@@ -8,10 +8,11 @@ import { Dynamic } from 'solid-js/web';
 import { TextBlock } from './text-block/text.block.component';
 import { createStore } from 'solid-js/store';
 import { Dimension, Point } from '../types';
+import { ImageBlock } from './image-block/image.block.component';
 
 
 const blockContentTypeMap: Record<BlockType, any> = {
-   image: null,
+   image: ImageBlock,
    text: TextBlock,
 };
 enum DotState {
@@ -380,7 +381,7 @@ export function Block(props: BlockProps) {
       if (width < minWidth) width = minWidth;
       if (height < minHeight) height = minHeight;
 
-      console.log(contentSize);
+      // console.log(contentSize);
 
       // if (height < minHeight) height = minHeight;
       // if (width > maxWidth) width = maxWidth;
@@ -477,7 +478,6 @@ export function Block(props: BlockProps) {
                component={blockContentTypeMap[props.block.type]}
                block={props.block}
                selected={isMeEditing()}
-               // isMeResizing={isMeResizing()}
                onContentDimensionChange={onContentDimensionChange}
             />
          </div>

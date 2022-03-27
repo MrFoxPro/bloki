@@ -14,7 +14,7 @@ export function calculateBlockSize(block: TextBlock, layoutOptions: LayoutOption
       lineHeight: gridSize + 'px',
       width: layoutOptions.mGridWidth * (gridSize) - layoutOptions.gap + 'px'
    });
-   console.log(block.value, size);
+   // console.log(block.value, size);
    size.width = Math.ceil(size.width / gridSize);
    size.height = Math.ceil(size.height / gridSize);
    return size;

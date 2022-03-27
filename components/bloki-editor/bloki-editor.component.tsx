@@ -4,7 +4,13 @@ import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { BlokiCanvasGrid } from './canvas-grid/canvas-grid.component';
 import { Block } from './blocks/block.component';
-import { debounce } from 'lodash-es';
+import { throttle } from 'lodash-es';
+import { AnyBlock, TextBlock } from '@/lib/entities';
+
+
+function isTextBlock(block: AnyBlock): block is TextBlock {
+   return block.type === 'text';
+}
 
 type BlokiEditorProps = {
 
@@ -15,15 +21,22 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    const [editor, { onGridClick, realSize, selectBlock, setStore }] = useEditorStore();
 
-   const calculateBoxRect = debounce(() => {
+   const calculateBoxRect = throttle(() => {
+      if (!containerRef) return;
       const containerRect = containerRef.getBoundingClientRect();
       setStore({ containerRect });
-   }, 150);
+   }, 66);
 
    function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
          if (editor.editingType === 'content' || editor.editingType === 'select') {
             selectBlock(null);
+         }
+      }
+      if (e.key === 'Enter') {
+         if (!editor.editingType || (editor.editingType === 'content' && isTextBlock(editor.editingBlock))) {
+            console.log('enter');
+            e.preventDefault();
          }
       }
    }
@@ -42,10 +55,20 @@ function BlokiEditor(props: BlokiEditorProps) {
       calculateBoxRect();
    }));
 
-   const GRID_COLOR_CELL = '#ffae0020'
-   // const GRID_COLOR_LINES = '#ff38389c'
+   const GRID_COLOR_CELL = '#ffae0020';
+
+   async function onPaste(e: ClipboardEvent) {
+      e.preventDefault();
+      console.log('pasting', e);
+      console.log(Array.from(e.clipboardData.files));
+   }
+
    return (
-      <div class={s.wrapper} onScroll={calculateBoxRect}>
+      <div
+         class={s.wrapper}
+         onScroll={calculateBoxRect}
+         onPaste={onPaste}
+      >
          <div
             class={s.container}
             ref={containerRef}
