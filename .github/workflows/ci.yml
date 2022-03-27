@@ -50,7 +50,7 @@ jobs:
 
     - name: Collect commit messages
       run: |  
-         echo "messages=${{join(github.event.commits.*.message, ', ')}}" >> $GITHUB_ENV  
+         echo "messages=${{join(github.event.commits.*.message, '\n')}}" >> $GITHUB_ENV  
          echo "${{ env.messages }}"
 
     - name: Send tg message
@@ -60,7 +60,7 @@ jobs:
          to: ${{ secrets.RECEIVER_1 }}
          message: |
             ${{ github.actor }} created commit:
-            Commit message: ${{ env.messages }}
+            ${{ env.messages }}
             
             See changes: https://bloki.app
    #  - name: Restart service
