@@ -50,12 +50,15 @@ jobs:
 
     - name: Send tg message
       uses: appleboy/telegram-action@v0.1.1
+      run: |  
+         commits=${{join(github.event.commits.\*.message, ', ') }}  
+         echo $commits  
       with:
          token: ${{ secrets.TG_KEY }}
          to: ${{ secrets.RECEIVER_1 }}
          message: |
             ${{ github.actor }} created commit:
-            Commit message: ${{ github.event.commits[0].message }}
+            Commit message: ${{ $commits }}
             
             See changes: https://bloki.app
    #  - name: Restart service
