@@ -42,6 +42,7 @@ export function Block(props: BlockProps) {
       getAbsoluteSize,
       getAbsolutePosition,
       selectBlock,
+      gridSize,
    }] = useEditorStore();
 
    if (props.shadowed) {
@@ -127,6 +128,9 @@ export function Block(props: BlockProps) {
 
    let mouseInside = false;
 
+   let pinnedDotPosition: Point;
+   let capturingSide: CursorSide;
+
    function onMouseMove(e: MouseEvent) {
       if (mouseInside) {
          setState('dot', { state: DotState.None });
@@ -153,7 +157,6 @@ export function Block(props: BlockProps) {
          };
 
          const dist = distanceBetweenPoints(_dot, M);
-
          if (dist < minDist) {
             minDist = dist;
             dot = _dot;
@@ -176,20 +179,44 @@ export function Block(props: BlockProps) {
          dot.y = p.y;
          minDist = distanceBetweenPoints(M, dot);
       }
+      let resState = state.dot.state;
 
-      let resState: DotState;
-      if (minDist > RESIZER_LOD_ACTIVATE_OUTER_LIM) {
-         resState = DotState.None;
+      if (!isMeResizing()) {
+         if (minDist > RESIZER_LOD_ACTIVATE_OUTER_LIM) {
+            resState = DotState.None;
+         }
+         else if (minDist <= RESIZER_LOD_ACTIVATE_OUTER_LIM && minDist > RESIZER_ACTIVATE_OUTER_LIM) {
+            resState = DotState.Micro;
+         }
+         else if (minDist <= RESIZER_ACTIVATE_OUTER_LIM) {
+            resState = DotState.Full;
+         }
       }
-      else if (minDist <= RESIZER_LOD_ACTIVATE_OUTER_LIM && minDist > RESIZER_ACTIVATE_OUTER_LIM) {
-         resState = DotState.Micro;
-      }
-      else if (minDist <= RESIZER_ACTIVATE_OUTER_LIM) {
-         resState = DotState.Full;
-      }
-
       dot.x -= resState === DotState.Full ? 3 : 2;
       dot.y -= resState === DotState.Full ? 3 : 2;
+
+      if (isMeResizing()) {
+         if (!pinnedDotPosition) pinnedDotPosition = { x: dot.x, y: dot.y };
+         if (capturingSide) {
+            switch (capturingSide) {
+               case CursorSide.E:
+               case CursorSide.W:
+                  pinnedDotPosition.x = dot.x;
+                  break;
+               case CursorSide.N:
+               case CursorSide.S:
+                  pinnedDotPosition.y = dot.y;
+                  break;
+               default:
+                  pinnedDotPosition = { x: dot.x, y: dot.y };
+                  break;
+            }
+            setState('dot', {
+               ...pinnedDotPosition
+            });
+            return;
+         }
+      }
 
       setState('dot', {
          state: resState,
@@ -268,28 +295,26 @@ export function Block(props: BlockProps) {
    }
 
    function onHookPointerDown(e: PointerEvent, side: CursorSide) {
-      // e.stopPropagation();
-      // e.preventDefault();
-      // e.stopImmediatePropagation();
-
       relX = e.pageX;
       relY = e.pageY;
+
+      capturingSide = side;
 
       const dot = e.currentTarget as HTMLDivElement;
       dot.setPointerCapture(e.pointerId);
 
       dot.onpointerup = onDotPointerUp;
-      dot.onpointermove = (_e) => onHookPointerMove(_e, side);
+      dot.onpointermove = onHookPointerMove;
 
       onChangeStart(props.block, state.transform, 'resize');
    }
 
-   function onHookPointerMove(e: PointerEvent, side: CursorSide) {
+   function onHookPointerMove(e: PointerEvent) {
       if (state.dot.state === DotState.None) return;
 
       let { x, y, width, height } = state.transform;
 
-      switch (side) {
+      switch (capturingSide) {
          case CursorSide.W: {
             const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
@@ -343,10 +368,12 @@ export function Block(props: BlockProps) {
          }
 
       }
-      // const { width: minWidth, height: minHeight } = minBlockstate.transform.size;
-      // const { width: maxWidth, height: maxHeight } = maxBlockstate.transform.size;
 
-      // if (width < minWidth) width = minWidth;
+      const minWidth = gridSize(1);
+      const minHeight = gridSize(1);
+      if (width < minWidth) width = minWidth;
+      if (height < minHeight) height = minHeight;
+
       // if (height < minHeight) height = minHeight;
       // if (width > maxWidth) width = maxWidth;
       // if (height > maxHeight) height = maxHeight;
@@ -356,16 +383,18 @@ export function Block(props: BlockProps) {
 
       // if (x <> 1) height = state.transform.pos.x;
       // if (y < 1) width = state.transform.pos.y;
-      setState('transform', { x, y, width, height });
 
+      // batch here?
+      setState('transform', { x, y, width, height });
       onChange(props.block, { x, y, width, height }, 'resize');
    }
 
    function onDotPointerUp(e: PointerEvent) {
-      console.log('up!');
       const dot = e.currentTarget as HTMLDivElement;
       dot.onpointermove = null;
       dot.onpointerup = null;
+      pinnedDotPosition = null;
+      capturingSide = null;
       const { x, y, width, height } = state.transform;
       onChangeEnd(props.block, { x, y, width, height }, 'resize');
    }

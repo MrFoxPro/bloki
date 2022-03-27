@@ -1,19 +1,21 @@
-import { batch, ComponentProps, createComputed, createEffect, createMemo, on, splitProps, untrack } from 'solid-js';
-import measure from 'calculate-size';
+import { ComponentProps, createEffect, createMemo, on, splitProps, untrack } from 'solid-js';
+import { measureText } from './measure-text';
 import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
-import s, { content } from './text.block.module.scss';
-import { BlockTransform, Dimension } from '../../types';
+import s from './text.block.module.scss';
+import { Dimension } from '../../types';
 
 type TextBlockProps = {
    block: TextBlockEntity;
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setStore, getAbsoluteSize, getRelativeSize, gridBoxSize }] = useEditorStore();
+   const [editor, { setStore, getAbsoluteSize, getRelativeSize, gridSize, gridBoxSize }] = useEditorStore();
    const [local, other] = splitProps(props, ['block']);
+
    let contentRef: HTMLDivElement;
    let blockAbsSize: Dimension;
+   const CONTENT_PADDING_LEFT = 2;
 
    const isEditingContent = createMemo(() => editor.editingBlock === props.block && editor.editingType === 'content');
 
@@ -38,32 +40,22 @@ export function TextBlock(props: TextBlockProps) {
 
    function onTextInput(e: InputEvent & { currentTarget: HTMLDivElement; }) {
       const text = contentRef.textContent;
-      const { font, fontSize, fontWeight } = getComputedStyle(contentRef);
-      const textSize = measure(text, {
-         font: font, fontSize, fontWeight
-      });
-      // console.log(font, fontSize, fontWeight);
-      // console.log('fake', textSize);
-      batch(() => {
-         const blockIndex = editor.document.blocks.indexOf(props.block);
-         let newWidth = props.block.width;
-         const dx = (blockAbsSize.width - textSize.width) / gridBoxSize();
-         if (dx < 0.1) {
-            newWidth += 1;
-         }
-         // if (textSize.width < blockAbsSize.width) {
-         //    newWidth -= 1;
-         // }
-         // else {
-         //    newWidth += 1;
 
-         // }
-         setStore('document', 'blocks', blockIndex, {
-            width: newWidth,
-            value: text,
-         });
-      });
+      const { fontFamily, fontSize, fontWeight } = getComputedStyle(contentRef);
+      const textSize = measureText(text, { fontFamily, fontSize, fontWeight });
 
+      const currAbsContentWidth = gridSize(props.block.width) - CONTENT_PADDING_LEFT;
+      const requiredAbsWidth = textSize.width;
+      let newWidth = props.block.width;
+
+      const Δ = (requiredAbsWidth - currAbsContentWidth) / gridBoxSize();
+      // console.log('Current abs width', currAbsContentWidth, 'Required abs width', requiredAbsWidth, 'abs delta', requiredAbsWidth - currAbsContentWidth, 'delta blocks', Δ);
+      newWidth += Math.ceil(Δ);
+
+      setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), {
+         width: newWidth,
+         value: text,
+      });
    }
 
    return (
@@ -71,6 +63,8 @@ export function TextBlock(props: TextBlockProps) {
          style={{
             // 'word-break': 'break-word',
             // 'white-space': 'normal',
+            "padding-left": CONTENT_PADDING_LEFT + 'px',
+            "padding-top": '2px'
          }}
          classList={{ [s.content]: true, [s.regular]: true }}
          data-placeholder={!props.block.value ? "Type '/' for commands" : null}
@@ -78,8 +72,6 @@ export function TextBlock(props: TextBlockProps) {
          ref={contentRef}
          onInput={onTextInput}
          {...other}
-      >
-         {untrack(() => props.block.value)}
-      </div >
+      >{untrack(() => props.block.value)}</div>
    );
 }

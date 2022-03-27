@@ -1,12 +1,13 @@
+.regular {
+   font-weight: 400;
+   font-size: 16px;
+   font-family: Roboto;
+   color: #312f2f;
+}
 .content {
    width: 100%;
    height: 100%;
    box-sizing: border-box;
-   padding-top: 2px;
-   padding-left: 2px;
-
-   font-family: Roboto;
-   color: #312f2f;
 
    // This is not working in safari ;)
    // https://caniuse.com/?search=overflow%3A%20clip
@@ -16,10 +17,6 @@
    scrollbar-width: none;
    &::-webkit-scrollbar {
       display: none;
-   }
-   &.regular {
-      font-weight: 400;
-      font-size: 16px;
    }
 
    &::after {
