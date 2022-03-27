@@ -37,6 +37,7 @@ export default ({ mode }: ConfigEnv) => {
       build: {
          polyfillDynamicImport: false,
          sourcemap: false,
+         target: 'es2022',
          outDir: './dist',
          reportCompressedSize: true,
          minify: 'terser',
