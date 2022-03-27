@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, createMemo, on, splitProps, untrack } from 'solid-js';
+import { ComponentProps, createEffect, createMemo, on, PropsWithChildren, splitProps, untrack } from 'solid-js';
 import { measureText } from './measure-text';
 import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
@@ -10,12 +10,15 @@ type TextBlockProps = {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setStore, getAbsoluteSize, getRelativeSize, gridSize, gridBoxSize }] = useEditorStore();
+   const [editor, { setStore, getAbsoluteSize, gridSize, gridBoxSize }] = useEditorStore();
    const [local, other] = splitProps(props, ['block']);
 
    let contentRef: HTMLDivElement;
    let blockAbsSize: Dimension;
-   const CONTENT_PADDING_LEFT = 2;
+   // const CONTENT_PADDING_LEFT = 0;
+   // const CONTENT_PADDING_TOP = 0;
+   // const LINE_HEIGHT = 20;
+   // const FONT_SIZE = 16;
 
    const isEditingContent = createMemo(() => editor.editingBlock === props.block && editor.editingType === 'content');
 
@@ -41,31 +44,57 @@ export function TextBlock(props: TextBlockProps) {
    function onTextInput(e: InputEvent & { currentTarget: HTMLDivElement; }) {
       const text = contentRef.textContent;
 
-      const { fontFamily, fontSize, fontWeight } = getComputedStyle(contentRef);
-      const textSize = measureText(text, { fontFamily, fontSize, fontWeight });
+      let newWidth = props.block.width, newHeight = props.block.height;
+      const { fontFamily, fontSize, fontWeight, lineHeight, wordBreak, paddingLeft, paddingTop } = getComputedStyle(contentRef);
+      const boxWidth = gridSize(props.block.width) - parseInt(paddingLeft);
 
-      const currAbsContentWidth = gridSize(props.block.width) - CONTENT_PADDING_LEFT;
-      const requiredAbsWidth = textSize.width;
-      let newWidth = props.block.width;
+      if (props.block.width < editor.document.layoutOptions.mGridWidth) {
+         const textSize = measureText(text, { fontFamily, fontSize, fontWeight });
+         const requiredAbsWidth = textSize.width;
+         const Δ = (requiredAbsWidth - boxWidth) / gridBoxSize();
+         // console.log('Current abs width', currAbsContentWidth, 'Required abs width', requiredAbsWidth, 'abs delta', requiredAbsWidth - currAbsContentWidth, 'delta blocks', Δ);
+         newWidth += Math.ceil(Δ);
+      }
 
-      const Δ = (requiredAbsWidth - currAbsContentWidth) / gridBoxSize();
-      // console.log('Current abs width', currAbsContentWidth, 'Required abs width', requiredAbsWidth, 'abs delta', requiredAbsWidth - currAbsContentWidth, 'delta blocks', Δ);
-      newWidth += Math.ceil(Δ);
-
+      const boxHeight = gridSize(props.block.height) - parseInt(paddingTop);
+      const textSize = measureText(text, {
+         fontFamily,
+         fontSize,
+         fontWeight,
+         width: (boxWidth - parseInt(paddingLeft)) + 'px',
+         lineHeight,
+         wordBreak
+      });
+      const requiredAbsHeight = textSize.height - editor.document.layoutOptions.gap;
+      if (requiredAbsHeight > 0) {
+         const Δ = (requiredAbsHeight - boxHeight) / gridBoxSize();
+         console.log('Height:', boxHeight, 'Required:', requiredAbsHeight, 'Delta:', requiredAbsHeight - boxHeight, 'Delta blocks:', Δ);
+         newHeight += Math.ceil(Δ);
+      }
       setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), {
          width: newWidth,
+         height: newHeight,
          value: text,
       });
    }
 
+   function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter') {
+         e.preventDefault();
+      }
+   }
    return (
       <div
          style={{
             // 'word-break': 'break-word',
             // 'white-space': 'normal',
-            "padding-left": CONTENT_PADDING_LEFT + 'px',
-            "padding-top": '2px'
+
+            // "padding-left": CONTENT_PADDING_LEFT + 'px',
+            // "padding-top": CONTENT_PADDING_TOP + 'px',
+            // "line-height": LINE_HEIGHT + 'px',
+            // "font-size": FONT_SIZE + 'px',
          }}
+         onKeyDown={onKeyDown}
          classList={{ [s.content]: true, [s.regular]: true }}
          data-placeholder={!props.block.value ? "Type '/' for commands" : null}
          contentEditable={isEditingContent()}

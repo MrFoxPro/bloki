@@ -296,15 +296,15 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       let { x, y } = getRelativePosition(e.pageX - state.containerRect.x, e.pageY - state.containerRect.y);
 
+      const { mGridWidth, fGridWidth } = state.document.layoutOptions;
       if (grid === 'main') {
-         const { mGridWidth, fGridWidth } = state.document.layoutOptions;
          x = (fGridWidth - mGridWidth) / 2;
       }
       else return;
 
       const newBlockTransform: BlockTransform = {
          height: 1,
-         width: 1,
+         width: mGridWidth,
          x, y
       };
       if (checkPlacement(newBlockTransform, x, y).correct) {

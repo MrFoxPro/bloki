@@ -7,7 +7,7 @@ const middleX = (defaultLayotOptions.fGridWidth - defaultLayotOptions.mGridWidth
 const emptyDoc: BlokiDocument = {
    id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
    title: 'Empty',
-   layoutOptions: defaultLayotOptions,
+   layoutOptions: { ...defaultLayotOptions, showGridGradient: true },
    blocks: [],
 };
 const geometryHomeworkDoc: BlokiDocument = {
@@ -96,7 +96,7 @@ const lpr1User: User = {
    name: 'Михаил Светов',
    workspaces: [lprWorkspace1],
    selectedWorkspace: lprWorkspace1,
-   selectedDocument: geometryHomeworkDoc,
+   selectedDocument: lprPlatformDoc,
 };
 export {
    lpr1User,

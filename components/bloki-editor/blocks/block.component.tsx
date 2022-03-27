@@ -131,6 +131,8 @@ export function Block(props: BlockProps) {
    let pinnedDotPosition: Point;
    let capturingSide: CursorSide;
 
+   // let contentSize
+
    function onMouseMove(e: MouseEvent) {
       if (mouseInside) {
          setState('dot', { state: DotState.None });

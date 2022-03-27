@@ -42,6 +42,8 @@ function BlokiEditor(props: BlokiEditorProps) {
       calculateBoxRect();
    }));
 
+   const GRID_COLOR_CELL = '#ffae0020'
+   // const GRID_COLOR_LINES = '#ff38389c'
    return (
       <div class={s.wrapper} onScroll={calculateBoxRect}>
          <div
@@ -51,10 +53,10 @@ function BlokiEditor(props: BlokiEditorProps) {
                'background-image': editor.document.layoutOptions.showGridGradient === true ?
                   `repeating-linear-gradient(
                   0deg,
-                  #dadada60 0 ${realSize().size_px},
+                  ${GRID_COLOR_CELL} 0 ${realSize().size_px},
                   transparent 0 ${realSize().sum_px}
                ),
-               repeating-linear-gradient(90deg, #dadada60 0 ${realSize().size_px}, transparent 0 ${realSize().sum_px})`
+               repeating-linear-gradient(90deg, ${GRID_COLOR_CELL} 0 ${realSize().size_px}, transparent 0 ${realSize().sum_px})`
                   : null,
                width: realSize().fGridWidth_px,
                height: realSize().fGridHeight_px,
