@@ -3,6 +3,8 @@
    height: 100%;
    border-radius: 2px;
    backface-visibility: hidden;
+
+   transition: opacity 80ms ease;
 }
 .changing {
    // perf drop in FF.

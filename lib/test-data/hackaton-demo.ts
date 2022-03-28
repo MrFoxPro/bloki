@@ -97,8 +97,9 @@ export async function getUser() {
       }),
    };
    const lprWorkspace1: Workspace = {
+      workspaceIcon: await import('./assets/sample-workspace-icon2.png?inline').then(x => x.default),
       id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
-      title: 'Либертарианская партия',
+      title: 'Bloki workspace',
       documents: [
          emptyDoc,
          geometryHomeworkDoc,

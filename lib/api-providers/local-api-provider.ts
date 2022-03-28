@@ -41,7 +41,7 @@ export class TestLocalApiProvider implements IApiProvider {
    }
 
    async getRandUserData() {
-      const u = await import('../test-data/lpr').then(x => x.getUser());
+      const u = await import('../test-data/hackaton-demo').then(x => x.getUser());
       return u;
    }
    async clearCache() {

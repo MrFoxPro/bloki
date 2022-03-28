@@ -307,6 +307,10 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return x >= start && x < end;
    }
 
+   function addBlock() {
+
+   }
+
    function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {
       if (state.editingBlock) {
          selectBlock(null);

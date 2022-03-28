@@ -78,13 +78,15 @@
    align-items: center;
    background: #f6f9fb;
    gap: 12px;
-
+   justify-content: flex-start;
    .box {
       min-width: 24px;
       min-height: 24px;
 
-      background: #007aff;
+      // background: #007aff;
       border-radius: 6px;
+      background-size: contain;
+      background-position: center;
 
       // margin-left: 24px;
    }

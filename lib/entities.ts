@@ -13,6 +13,8 @@ type Workspace = {
    title: string;
    documents: BlokiDocument[];
    participants: User[];
+
+   workspaceIcon: string;
 };
 type LayoutOptions = {
    gap: number;

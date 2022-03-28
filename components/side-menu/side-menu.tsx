@@ -15,7 +15,12 @@ export function SideMenu(props: SideMenuProps) {
    return (
       <div class={s.sideMenu} classList={{ [props.class]: true }}>
          <div class={s.workspaceBar}>
-            <div class={s.box} />
+            <div
+               class={s.box}
+               style={{
+                  "background-image": `url(${app.selectedWorkspace?.workspaceIcon})`
+               }}
+            />
             <div class={s.title}>{app.selectedWorkspace?.title ?? 'Select workspace'}</div>
             {/* new file and search */}
          </div>

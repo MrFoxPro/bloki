@@ -57,11 +57,14 @@ function BlokiEditor(props: BlokiEditorProps) {
       window.addEventListener('resize', calculateBoxRect);
       wrapperRef.addEventListener('scroll', calculateBoxRect, { passive: true });
       window.addEventListener('keydown', onKeyDown);
+      wrapperRef.focus();
+      document.addEventListener('paste', onPaste);
 
       onCleanup(() => {
          window.removeEventListener('resize', calculateBoxRect);
          wrapperRef.removeEventListener('scroll', calculateBoxRect);
          window.removeEventListener('keydown', onKeyDown);
+         document.removeEventListener('paste', onPaste);
       });
    });
 
@@ -88,15 +91,18 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    async function onPaste(e: ClipboardEvent) {
       e.preventDefault();
-      console.log('pasting', e);
-      console.log(Array.from(e.clipboardData.files));
+      const file = Array.from(e.clipboardData.files)[0];
+      if(!file) return;
+
+      if(file.type.includes('image')) {
+
+      }
    }
 
    return (
       <>
          <div
             class={s.wrapper}
-            onPaste={onPaste}
             ref={wrapperRef}
          >
             <div
