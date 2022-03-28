@@ -1,6 +1,6 @@
 // import { IndexeddbPersistence } from "y-indexeddb";
 import { IApiProvider } from "./api-provider.interface";
-import { BlokiDocument, User } from "../entities";
+import { BlokiDocument, User, Workspace } from "../entities";
 // import DOMPurify from 'dompurify';
 
 const LS_KEY = 'bloki_data';
@@ -48,7 +48,9 @@ export class TestLocalApiProvider implements IApiProvider {
       console.log('Rewriting database');
       localStorage.clear();
       const user = await this.getRandUserData();
-      this.db = clone({ _version: import.meta.env.VITE_GIT_COMMIT_HASH, user });
+      this.db = clone({ _version: import.meta.env.VITE_GIT_COMMIT_HASH as string, user });
+      this.db.user.selectedDocument = null;
+      this.db.user.selectedWorkspace = null;
       localStorage.setItem(LS_KEY, JSON.stringify(this.db));
    }
    async getMyWorkspaces() {

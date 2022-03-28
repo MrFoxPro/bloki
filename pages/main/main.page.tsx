@@ -1,13 +1,15 @@
 import s from './main.page.module.scss';
 import { BlokiEditor } from '@/components/bloki-editor/bloki-editor.component';
-import { For, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 import { SideMenu } from '@/components/side-menu/side-menu';
 import { useAppStore } from '@/lib/app.store';
-import { defaultLayotOptions } from '@/lib/test-data/layout-options';
+import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 
 export function MainPage() {
    const [app, { setStore }] = useAppStore();
+
+   const [showToolbox, setShowToolbox] = createSignal(false);
 
    return (
       <main class={s.test}>
@@ -57,29 +59,37 @@ export function MainPage() {
                         />
                      </div>
                      <div>
-                        <label for="show-gradient">Show resize areas</label>
+                        <label for="show-resizers">Show resize areas</label>
                         <input
                            type="checkbox"
-                           name="show-gradient"
+                           name="show-resizers"
                            onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
                            checked={app.selectedDocument.layoutOptions.showResizeAreas}
                         />
                      </div>
+                     <div>
+                        <label for="show-toolbox">Show drawing toolbox</label>
+                        <input
+                           type="checkbox"
+                           name="show-toolbox"
+                           onClick={(e) => setShowToolbox(s => !s)}
+                           checked={showToolbox()}
+                        />
+                     </div>
                      <button
                         onClick={() => {
-                           setStore('selectedDocument', 'layoutOptions', defaultLayotOptions);
+                           setStore('selectedDocument', 'layoutOptions', defaultLayoutOptions);
                         }}>
                         Reset layout options
                      </button>
                      <button
-                        onClick={() => {
-                           app.apiProvider.clearCache().then(() => location.reload());
-                        }}>
+                        onClick={() => app.apiProvider.clearCache().then(() => location.reload())}
+                     >
                         Purge local database
                      </button>
                   </div>
                </div>
-               <BlokiEditor document={app.selectedDocument} />
+               <BlokiEditor document={app.selectedDocument} showDrawerToolbox={showToolbox()} />
             </Show>
          </div>
       </main>

@@ -1,20 +1,20 @@
 import { calculateBlockSize } from "@/components/bloki-editor/blocks/text-block";
 import { BlokiDocument, TextBlock, User, Workspace } from "../entities";
-import { defaultLayotOptions } from "./layout-options";
+import { defaultLayoutOptions } from "./layout-options";
 
 export async function getUser() {
-   const middleX = (defaultLayotOptions.fGridWidth - defaultLayotOptions.mGridWidth) / 2;
+   const middleX = (defaultLayoutOptions.fGridWidth - defaultLayoutOptions.mGridWidth) / 2;
 
    const emptyDoc: BlokiDocument = {
       id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
       title: 'Empty',
-      layoutOptions: { ...defaultLayotOptions, showGridGradient: true },
+      layoutOptions: { ...defaultLayoutOptions, showGridGradient: true },
       blocks: [],
    };
    const geometryHomeworkDoc: BlokiDocument = {
       id: '30273036-fa69-461d-8870-37a9fc5e1156',
       title: 'Geometry homework',
-      layoutOptions: defaultLayotOptions,
+      layoutOptions: defaultLayoutOptions,
       blocks: [
          {
             id: '60f1e5a2-5996-4580-8c3c-9deaa81f6e31',
@@ -40,7 +40,7 @@ export async function getUser() {
    const lprPlatformDoc: BlokiDocument = {
       id: 'ba76b267-d1b6-4d18-80a0-636c794ef518',
       title: 'Наши принципы',
-      layoutOptions: { ...defaultLayotOptions, fGridHeight: 150, mGridHeight: 150 },
+      layoutOptions: { ...defaultLayoutOptions, fGridHeight: 150, mGridHeight: 150 },
       blocks: [
          {
             id: '0821da0a-9eca-4c1a-8e20-ac755d4617ed',
@@ -75,7 +75,7 @@ export async function getUser() {
             type: 'image',
             src: await import('./assets/sur.jpg?inline').then(r => r.default),
             x: middleX,
-            width: defaultLayotOptions.mGridWidth,
+            width: defaultLayoutOptions.mGridWidth,
             height: 30
          },
          {
@@ -83,13 +83,13 @@ export async function getUser() {
             type: 'image',
             src: await import('./assets/cars.jpg?inline').then(r => r.default),
             x: middleX,
-            width: defaultLayotOptions.mGridWidth,
+            width: defaultLayoutOptions.mGridWidth,
             height: 14
          }
       ].map((block, i, arr) => {
          block.y = i > 0 ? (arr[i - 1].y + arr[i - 1].height) : 0;
          if (block.type === 'text') {
-            const { width, height } = calculateBlockSize(block as TextBlock, defaultLayotOptions);
+            const { width, height } = calculateBlockSize(block as TextBlock, defaultLayoutOptions);
             block.width = width;
             block.height = height;
          }

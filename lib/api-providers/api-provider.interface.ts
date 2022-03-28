@@ -12,7 +12,10 @@ export interface IApiProvider {
    // getMyDocuments(): Promise<BlokiDocument[]>;
 
    updateDocument(doc: BlokiDocument): Promise<void>;
+   // createDocument(ws: Workspace, doc: BlokiDocument): Promise<void>;
 
    clearCache(): Promise<void>;
+
+
 
 }

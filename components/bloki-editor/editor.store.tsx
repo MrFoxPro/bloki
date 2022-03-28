@@ -1,8 +1,16 @@
-import { Accessor, batch, createComputed, createContext, createMemo, PropsWithChildren, useContext } from "solid-js";
+import { Accessor, batch, createComputed, createContext, createEffect, createMemo, PropsWithChildren, useContext } from "solid-js";
+import { createNanoEvents, Emitter } from 'nanoevents';
 import { createStore, DeepReadonly, SetStoreFunction } from "solid-js/store";
 import { AnyBlock, BlokiDocument } from "@/lib/entities";
-import { createNanoEvents, Emitter } from 'nanoevents';
-import { BlockTransform, ChangeEventInfo, Dimension, EditType, Intersection, Point } from "./types";
+import {
+   BlockTransform,
+   ChangeEventInfo,
+   Dimension,
+   EditType,
+   Intersection,
+   PlacementStatus,
+   Point
+} from "./types";
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock: AnyBlock | null;
@@ -27,7 +35,6 @@ type CalculatedSize = {
    mGridWidth_px: string;
    mGridHeight_px: string;
 };
-type ChangeHandler = (block: AnyBlock, absTransform: BlockTransform, type: EditType) => void;
 
 interface EditorEvents {
    changestart(block: AnyBlock, changeInfo: ChangeEventInfo): void;
@@ -38,9 +45,7 @@ interface EditorEvents {
 
 class StaticEditorData {
    private emitter: Emitter<EditorEvents>;
-
    public containerRect: DOMRect;
-
    constructor() {
       this.emitter = createNanoEvents<EditorEvents>();
    }
@@ -48,20 +53,19 @@ class StaticEditorData {
    on<E extends keyof EditorEvents>(event: E, callback: EditorEvents[E]) {
       return this.emitter.on(event, callback);
    }
+
    emit<K extends keyof EditorEvents>(event: K, ...args: Parameters<EditorEvents[K]>) {
       return this.emitter.emit(event, ...args);
    }
 }
 
+type ChangeHandler = (block: AnyBlock, absTransform: BlockTransform, type: EditType) => void;
+
 type EditorStoreHandles = {
    onChangeStart: ChangeHandler;
    onChange: ChangeHandler;
    onChangeEnd: ChangeHandler;
-
-   onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, type: 'main' | 'foreground'): void;
-   onTextBlockClick(block: AnyBlock): void;
    selectBlock(block: AnyBlock, type?: EditType): void;
-
    gridSize(factor: number): number;
    gridBoxSize: Accessor<number>;
    realSize: Accessor<CalculatedSize>;
@@ -69,11 +73,9 @@ type EditorStoreHandles = {
    getAbsolutePosition(x: number, y: number): Point;
    getRelativeSize(width: any, height: any, roundFunc?: (x: number) => number): Dimension;
    getAbsoluteSize(width: number, height: number): Dimension;
-
-   getAbsoluteSize(width: number, height: number): Dimension;
+   checkPlacement(block: BlockTransform, x: number, y: number, width?: number, height?: number): PlacementStatus;
 
    setStore: SetStoreFunction<EditorStoreValues>;
-
    editor: StaticEditorData;
 };
 
@@ -101,7 +103,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          document: props.document
       });
    });
-
 
    const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
 
@@ -146,26 +147,18 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return { width: gridSize(width), height: gridSize(height) };
    }
 
-   const BLOCK_MIN_WIDTH = 1;
-   const BLOCK_MIN_HEIGHT = 1;
-
-   const BLOCK_MAX_WIDTH = 45;
-   const BLOCK_MAX_HEIGHT = 45;
-
-   // const minBlockSize = createMemo(() => getAbsoluteSize(1, 1));
-   // const maxBlockSize = createMemo(() => getAbsoluteSize(BLOCK_MAX_WIDTH, BLOCK_MAX_HEIGHT));
-
    function checkPlacement(block: BlockTransform, x: number, y: number, width = block.width, height = block.height) {
       const intersections: Intersection[] = [];
       let correct = true;
       let outOfBorder = false;
-      if (width > BLOCK_MAX_WIDTH || width < BLOCK_MIN_WIDTH || height > BLOCK_MAX_HEIGHT || height < BLOCK_MIN_HEIGHT) {
+      const { fGridHeight, fGridWidth, blockMinSize, blockMaxSize } = state.document.layoutOptions;
+
+      if (width > blockMaxSize.width || width < blockMinSize.width || height > blockMaxSize.height || height < blockMinSize.height) {
          correct = false;
          outOfBorder = true;
       }
 
       // TODO: different grid sizes?
-      const { fGridHeight, fGridWidth } = state.document.layoutOptions;
       if (x < 0 || y < 0 || y + height > fGridHeight || x + width > fGridWidth) {
          correct = false;
          outOfBorder = true;
@@ -300,59 +293,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       });
    }
 
-   function isInMainGrid(x: number) {
-      const { mGridWidth, fGridWidth } = state.document.layoutOptions;
-      const start = (fGridWidth - mGridWidth) / 2;
-      const end = start + mGridWidth;
-      return x >= start && x < end;
-   }
+   function createBlock(block: AnyBlock) {
 
-   function addBlock() {
-
-   }
-
-   function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {
-      if (state.editingBlock) {
-         selectBlock(null);
-         return;
-      }
-
-      let { x, y } = getRelativePosition(e.pageX - editor.containerRect.x, e.pageY - editor.containerRect.y);
-
-      const { mGridWidth, fGridWidth } = state.document.layoutOptions;
-      if (grid === 'main') {
-         x = (fGridWidth - mGridWidth) / 2;
-      }
-      else return;
-
-      const newBlockTransform: BlockTransform = {
-         height: 1,
-         width: mGridWidth,
-         x, y
-      };
-      if (checkPlacement(newBlockTransform, x, y).correct) {
-         const newBlock: AnyBlock = {
-            id: crypto.randomUUID(),
-            type: 'text',
-            ...newBlockTransform
-         };
-         setState('document', 'blocks', blocks => [...blocks, newBlock]);
-         const block = state.document.blocks.find(x => x.id === newBlock.id);
-         setState({
-            editingBlock: block,
-            editingType: 'content'
-         });
-      }
-   }
-
-   function onTextBlockClick(block: AnyBlock) {
-      if (state.editingBlock !== block) {
-         setState({
-            editingBlock: null,
-            editingType: null,
-         });
-
-      }
    }
 
    function selectBlock(selectedBlock: AnyBlock, type: EditType = 'select') {
@@ -369,6 +311,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          });
       }
    }
+   // let verticallySortedDocs: string[];
+   // createEffect(() => {
+
+   // })
+
 
    return (
       <EditorStore.Provider value={[
@@ -377,8 +324,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             onChangeStart,
             onChange,
             onChangeEnd,
-            onGridClick,
-            onTextBlockClick,
+            checkPlacement,
             selectBlock,
             gridSize,
             realSize,

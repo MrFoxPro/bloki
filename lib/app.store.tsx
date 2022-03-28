@@ -67,8 +67,8 @@ export function AppStoreProvider(props: AppStoreProps) {
       setStore({
          user: me,
          workspaces,
-         selectedDocument: me.selectedDocument,
-         selectedWorkspace: me.selectedWorkspace,
+         selectedWorkspace: me.selectedWorkspace ?? workspaces[0],
+         selectedDocument: me.selectedDocument ?? workspaces[0].documents[2],
          apiProvider: props.apiProvider,
          isLoading: false,
       });

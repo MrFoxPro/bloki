@@ -1,4 +1,5 @@
 import { TextBlock } from "@/components/bloki-editor/blocks/text-block/types";
+import { Dimension } from "@/components/bloki-editor/types";
 
 type User = {
    id: string;
@@ -28,6 +29,9 @@ type LayoutOptions = {
 
    showGridGradient: boolean;
    showResizeAreas: boolean;
+
+   blockMinSize: Dimension;
+   blockMaxSize: Dimension;
 };
 type BlockType = 'text' | 'image';
 

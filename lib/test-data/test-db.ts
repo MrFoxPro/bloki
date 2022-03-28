@@ -1,7 +1,7 @@
 import { BlokiDocument, User, Workspace } from "../entities";
-import { defaultLayotOptions } from "./layout-options";
+import { defaultLayoutOptions } from "./layout-options";
 
-const middleX = (defaultLayotOptions.fGridWidth - defaultLayotOptions.mGridWidth) / 2;
+const middleX = (defaultLayoutOptions.fGridWidth - defaultLayoutOptions.mGridWidth) / 2;
 
 export interface ITestDB {
    _version: string;
@@ -33,7 +33,7 @@ export const testDB1: ITestDB = {
          id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
          title: 'Empty',
          layoutOptions: {
-            ...defaultLayotOptions,
+            ...defaultLayoutOptions,
             showGridGradient: true,
             showResizeAreas: true,
          },
@@ -42,13 +42,13 @@ export const testDB1: ITestDB = {
       {
          id: '30273036-fa69-461d-8870-37a9fc5e1156',
          title: 'Geometry homework',
-         layoutOptions: defaultLayotOptions,
+         layoutOptions: defaultLayoutOptions,
          blocks: []
       },
       {
          id: 'ba76b267-d1b6-4d18-80a0-636c794ef518',
          title: 'Наши принципы',
-         layoutOptions: defaultLayotOptions,
+         layoutOptions: defaultLayoutOptions,
          blocks: [
             {
                id: '0821da0a-9eca-4c1a-8e20-ac755d4617ed',
