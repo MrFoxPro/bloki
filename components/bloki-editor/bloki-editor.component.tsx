@@ -69,7 +69,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    // Todo: sort vertically in createComputed and find space between blocks too.
    function findNextSpaceBelow(requiredSpace: Dimension, startFrom: Point = { x: 0, y: 0 }) {
       let start: Point;
-      const { y, height } = store.document.blocks
+      const { y, height } = unwrap(store.document).blocks
          .filter((b) => isInMainGrid(b.x) || isInMainGrid(b.x + b.width))
          .sort((a, b) => b.y + b.height - a.y - a.height)[0];
       // console.log('last vert block in main grid', lastVerticalBlockInMainGrid);
@@ -115,20 +115,18 @@ function BlokiEditor(props: BlokiEditorProps) {
             return;
          }
          const imgBase64 = await readAsDataUrl(file);
-         console.log();
-         let block: ImageBlock = {
+         const block: ImageBlock = {
             id: crypto.randomUUID(),
             type: 'image',
             src: imgBase64,
             ...transform,
          };
          setStore('document', 'blocks', blocks => blocks.concat(block));
-         block = store.document.blocks[store.document.blocks.length - 1] as ImageBlock;
          setStore({
-            editingBlock: block,
-            editingType: 'content'
+            editingBlock: store.document.blocks[store.document.blocks.length - 1],
+            editingType: 'select'
          });
-         app.apiProvider.updateDocument(app.selectedDocument);
+         await app.apiProvider.updateDocument(app.selectedDocument);
       }
    }
 

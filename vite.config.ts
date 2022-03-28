@@ -27,7 +27,7 @@ export default ({ mode }: ConfigEnv) => {
       plugins: [
          solid({
             hot: true,
-            dev: false,
+            dev: dev,
             ssr: false,
          }),
          solidSvg(),
@@ -39,7 +39,7 @@ export default ({ mode }: ConfigEnv) => {
       build: {
          polyfillDynamicImport: false,
          sourcemap: false,
-         target: 'es2022',
+         target: 'esnext',
          outDir: './dist',
          reportCompressedSize: true,
          minify: 'terser',

@@ -1,6 +1,7 @@
 // import { IndexeddbPersistence } from "y-indexeddb";
 import { IApiProvider } from "./api-provider.interface";
 import { BlokiDocument, User, Workspace } from "../entities";
+import { unwrap } from "solid-js/store";
 // import DOMPurify from 'dompurify';
 
 const LS_KEY = 'bloki_data';
@@ -73,7 +74,7 @@ export class TestLocalApiProvider implements IApiProvider {
       workspaces.forEach(ws => {
          ws.documents.forEach(d => {
             if (d.id === doc.id) {
-               originalDoc = d;
+               originalDoc = unwrap(d);
                return;
             }
          });
@@ -82,7 +83,7 @@ export class TestLocalApiProvider implements IApiProvider {
       if (!originalDoc) {
          throw new Error('Document was not found');
       }
-      originalDoc.blocks = doc.blocks;
+      originalDoc.blocks = unwrap(doc.blocks);
       await this.syncChanges(this.db.user);
    }
    async syncChanges(data: User) {

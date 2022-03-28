@@ -1,6 +1,6 @@
 import { Accessor, batch, createComputed, createContext, createEffect, createMemo, PropsWithChildren, useContext } from "solid-js";
 import { createNanoEvents, Emitter } from 'nanoevents';
-import { createStore, DeepReadonly, SetStoreFunction } from "solid-js/store";
+import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
 import { AnyBlock, BlokiDocument } from "@/lib/entities";
 import {
    BlockTransform,
