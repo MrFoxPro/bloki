@@ -233,14 +233,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       if (type === 'drag' && x === block.x && y === block.y) {
          return;
       }
-      if (type === 'resize') {
-         absTransform.height += state.document.layoutOptions.gap;
-         absTransform.width += state.document.layoutOptions.gap;
-      }
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
-      if (type === 'resize' && x === block.x && y === block.y && height === block.height && width === block.width) {
-         return;
-      }
+
+      // if (type === 'resize' && x === block.x && y === block.y && height === block.height && width === block.width) {
+      //    return;
+      // }
 
       if (type === 'content') {
 

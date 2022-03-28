@@ -1,8 +1,4 @@
 @use "sass:math";
-@import "./confg.scss";
-
-$main-grid-width: grid-size($main-grid-width-factor);
-$foreground-grid-width: grid-size($foreground-grid-width-factor);
 
 .wrapper {
    width: 100%;
@@ -20,7 +16,6 @@ $foreground-grid-width: grid-size($foreground-grid-width-factor);
    // margin-top: 20px;
 
    position: absolute;
-   inset: 0;
    margin: 0 auto;
 }
 

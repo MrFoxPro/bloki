@@ -321,11 +321,14 @@ export function Block(props: BlockProps) {
 
       let { x, y, width, height } = state.transform;
 
+      let εX = 0, εY = 0;
       switch (capturingSide) {
          case CursorSide.W: {
             const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
             x = xc;
+
+            εX = editor.document.layoutOptions.gap;
             break;
          }
          case CursorSide.E: {
@@ -336,6 +339,8 @@ export function Block(props: BlockProps) {
             const yc = e.pageY - editor.containerRect.y;
             height += y - yc;
             y = yc;
+
+            εY = editor.document.layoutOptions.gap;
             break;
          }
          case CursorSide.S: {
@@ -350,6 +355,8 @@ export function Block(props: BlockProps) {
             const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
             x = xc;
+
+            εY = editor.document.layoutOptions.gap / 2;
             break;
          }
          case CursorSide.NE: {
@@ -369,7 +376,6 @@ export function Block(props: BlockProps) {
             const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
             x = xc;
-
             height = e.pageY - state.transform.y - editor.containerRect.y;
             break;
          }
@@ -395,6 +401,9 @@ export function Block(props: BlockProps) {
 
       // batch here?
       setState('transform', { x, y, width, height });
+
+      width += εX;
+      height += εY;
       onChange(props.block, { x, y, width, height }, 'resize');
    }
 

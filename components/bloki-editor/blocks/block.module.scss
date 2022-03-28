@@ -150,7 +150,8 @@
 }
 
 .dot-wrapper {
-   // position: absolute;
+   position: absolute;
+   z-index: 5;
    .sizedot {
       width: 5px;
       height: 5px;

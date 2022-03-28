@@ -1,7 +1,7 @@
 import s from './canvas-grid.module.scss';
 import { onCleanup, onMount } from "solid-js";
 import { useEditorStore } from '../editor.store';
-import { PlacementStatus, Point } from "../types";
+import { BlockTransform, PlacementStatus, Point } from "../types";
 
 export function BlokiCanvasGrid() {
    let backlightCanvasRef: HTMLCanvasElement;
@@ -59,24 +59,26 @@ export function BlokiCanvasGrid() {
    onMount(() => {
       ctx = backlightCanvasRef.getContext('2d');
 
-      let prev = [];
+      let prevProjection = [];
 
       const unbindChangeEnd = emitter.on('changeend', () => {
-         clearProjection(prev);
-         prev = [];
+         clearProjection(prevProjection);
+         prevProjection = [];
       });
 
       const unbindChange = emitter.on('change', (_, { relTransform: { x, y, width, height }, placement: placementStatus }): void => {
-         const oldNWPoint = prev[0];
-         const oldSEPoint = prev[prev.length - 1];
-         if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
-            oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
-            return;
-         }
+         // const oldNWPoint = prevProjection[0];
+         // const oldSEPoint = prevProjection[prevProjection.length - 1];
+
+         // if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
+         //    oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
+         //    // console.log('same!');
+         //    return;
+         // }
          if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
 
-         if (prev.length) {
-            clearProjection(prev);
+         if (prevProjection.length) {
+            clearProjection(prevProjection);
          }
 
          const proj = [];
@@ -87,7 +89,7 @@ export function BlokiCanvasGrid() {
          }
 
          drawProjection(proj, placementStatus);
-         prev = proj;
+         prevProjection = proj;
       });
 
       onCleanup(() => {

@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, createRenderEffect, For, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
+import { ComponentProps, createEffect, createRenderEffect, For, on, onCleanup, Show, splitProps } from 'solid-js';
 import s from './bloki-editor.module.scss';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
@@ -43,13 +43,29 @@ function BlokiEditor(props: BlokiEditorProps) {
          }
       }
    }
+
+   //    function requirestClipboardPermissions() {
+   //       navigator.permissions.query({name:''}).then(function(result) {
+   //          report(result.state);
+   //        });
+   //    }
    createRenderEffect(() => {
+      //   requirestClipboardPermissions();
       calculateBoxRect();
       window.addEventListener('resize', calculateBoxRect);
       window.addEventListener('keydown', onKeyDown);
+
+      const unbindChangeEnd = emitter.on('changeend', (block, { placement, relTransform, type }) => {
+         if (placement.correct) {
+            console.log('should sync changes here');
+            apiProvider.updateDocument(unwrap(editor.document));
+         }
+      });
+
       onCleanup(() => {
          window.removeEventListener('resize', calculateBoxRect);
          window.removeEventListener('keydown', onKeyDown);
+         unbindChangeEnd();
       });
    });
 
@@ -59,19 +75,6 @@ function BlokiEditor(props: BlokiEditorProps) {
          calculateBoxRect();
       }
    ));
-
-   onMount(() => {
-      const unbindChangeEnd = emitter.on('changeend', (block, { placement, relTransform, type }) => {
-         if (placement.correct) {
-            console.log('should sync changes here');
-            apiProvider.updateDocument(unwrap(editor.document));
-         }
-      });
-
-      onCleanup(() => {
-         unbindChangeEnd();
-      });
-   });
    const GRID_COLOR_CELL = '#ffae0020';
 
    async function onPaste(e: ClipboardEvent) {
@@ -100,6 +103,8 @@ function BlokiEditor(props: BlokiEditorProps) {
                   : null,
                width: realSize().fGridWidth_px,
                height: realSize().fGridHeight_px,
+               top: realSize().size_px,
+               left: realSize().size_px
             }}
             onScroll={calculateBoxRect}
          >

@@ -24,7 +24,7 @@
 
    border-bottom: 1px solid #d7dcdf;
 
-   background: #f6f9fb;
+
 
    font-family: Roboto;
    font-style: normal;
@@ -76,7 +76,7 @@
    @extend .top-bar;
    display: flex;
    align-items: center;
-
+   background: #f6f9fb;
    gap: 12px;
 
    .box {

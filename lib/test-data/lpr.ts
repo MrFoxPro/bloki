@@ -77,6 +77,14 @@ export async function getUser() {
             x: middleX,
             width: defaultLayotOptions.mGridWidth,
             height: 30
+         },
+         {
+            id: '9fcc2c06-dffd-4542-a9ad-7f483c868f69',
+            type: 'image',
+            src: await import('./assets/cars.jpg?inline').then(r => r.default),
+            x: middleX,
+            width: defaultLayotOptions.mGridWidth,
+            height: 14
          }
       ].map((block, i, arr) => {
          block.y = i > 0 ? (arr[i - 1].y + arr[i - 1].height) : 0;

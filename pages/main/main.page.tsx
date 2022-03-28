@@ -1,4 +1,4 @@
-import s from './test.page.module.scss';
+import s from './main.page.module.scss';
 import { BlokiEditor } from '@/components/bloki-editor/bloki-editor.component';
 import { For, Show } from 'solid-js';
 import { SideMenu } from '@/components/side-menu/side-menu';
@@ -6,7 +6,7 @@ import { useAppStore } from '@/lib/app.store';
 import { defaultLayotOptions } from '@/lib/test-data/layout-options';
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg?raw';
 
-export function TestPage() {
+export function MainPage() {
    const [app, { setStore }] = useAppStore();
 
    return (
