@@ -55,7 +55,9 @@ type EditorStoreHandles = {
 };
 
 interface EditorEvents {
-   change: (block: AnyBlock, stage: 'start' | 'change' | 'end', changeInfo: ChangeEventInfo) => void;
+   changestart: (block: AnyBlock, changeInfo: ChangeEventInfo) => void;
+   change: (block: AnyBlock, changeInfo: ChangeEventInfo) => void;
+   changeend: (block: AnyBlock, changeInfo: ChangeEventInfo) => void;
 }
 
 const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
@@ -218,7 +220,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
       setState({ editingBlock: block, editingType: type });
 
-      emitter.emit('change', block, 'start', {
+      emitter.emit('changestart', block, {
          absTransform: abs,
          placement: { correct: true, intersections: [], outOfBorder: false, },
          relTransform: { height: block.height, width: block.width, x: block.x, y: block.y },
@@ -246,7 +248,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       const placement = checkPlacement(block, x, y, width, height);
       setState({ isPlacementCorrect: placement.correct });
-      emitter.emit('change', block, 'change', {
+      emitter.emit('change', block, {
          absTransform,
          placement,
          relTransform: { x, y, width, height },
@@ -273,7 +275,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
-      emitter.emit('change', block, 'end', {
+      emitter.emit('changeend', block, {
          absTransform,
          placement,
          relTransform: { x, y, width, height },

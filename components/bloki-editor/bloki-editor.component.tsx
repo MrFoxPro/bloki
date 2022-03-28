@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, createRenderEffect, For, on, onCleanup, Show, splitProps } from 'solid-js';
+import { ComponentProps, createEffect, createRenderEffect, For, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
 import s from './bloki-editor.module.scss';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
@@ -6,6 +6,8 @@ import { BlokiCanvasGrid } from './canvas-grid/canvas-grid.component';
 import { Block } from './blocks/block.component';
 import { throttle } from 'lodash-es';
 import { AnyBlock, TextBlock } from '@/lib/entities';
+import { useAppStore } from '@/lib/app.store';
+import { unwrap } from 'solid-js/store';
 
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
@@ -19,7 +21,8 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    let containerRef: HTMLDivElement;
 
-   const [editor, { onGridClick, realSize, selectBlock, setStore }] = useEditorStore();
+   const [app, { apiProvider }] = useAppStore();
+   const [editor, { onGridClick, realSize, selectBlock, setStore, emitter }] = useEditorStore();
 
    const calculateBoxRect = throttle(() => {
       if (!containerRef) return;
@@ -40,7 +43,6 @@ function BlokiEditor(props: BlokiEditorProps) {
          }
       }
    }
-
    createRenderEffect(() => {
       calculateBoxRect();
       window.addEventListener('resize', calculateBoxRect);
@@ -51,10 +53,25 @@ function BlokiEditor(props: BlokiEditorProps) {
       });
    });
 
-   createEffect(on(() => JSON.stringify(editor.document.layoutOptions), () => {
-      calculateBoxRect();
-   }));
+   createEffect(on(
+      () => JSON.stringify(editor.document.layoutOptions),
+      () => {
+         calculateBoxRect();
+      }
+   ));
 
+   onMount(() => {
+      const unbindChangeEnd = emitter.on('changeend', (block, { placement, relTransform, type }) => {
+         if (placement.correct) {
+            console.log('should sync changes here');
+            apiProvider.updateDocument(unwrap(editor.document));
+         }
+      });
+
+      onCleanup(() => {
+         unbindChangeEnd();
+      });
+   });
    const GRID_COLOR_CELL = '#ffae0020';
 
    async function onPaste(e: ClipboardEvent) {

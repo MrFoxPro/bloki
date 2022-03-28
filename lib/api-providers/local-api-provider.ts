@@ -26,24 +26,29 @@ export class TestLocalApiProvider implements IApiProvider {
       let data: LocalDB;
       try {
          data = JSON.parse(str);
+         if (!data) {
+            throw new Error('localStorage has worng value');
+         }
          if (data?._version !== import.meta.env.VITE_GIT_COMMIT_HASH) {
-            throw new Error('Outdated version of db');
+            throw new Error('Outdated version of db: ' + data?._version + ' Required: ' + import.meta.env.VITE_GIT_COMMIT_HASH);
          }
          this.db = data;
       }
       catch (e) {
+         console.log(e);
          await this.clearCache();
       }
    }
 
    async getRandUserData() {
-      const u: User = await import('../test-data/lpr').then(x => x.default);
+      const u = await import('../test-data/lpr').then(x => x.getUser());
       return u;
    }
    async clearCache() {
       console.log('Rewriting database');
       localStorage.clear();
-      this.db = clone({ _version: import.meta.env.VITE_GIT_COMMIT_HASH, user: await this.getRandUserData() });
+      const user = await this.getRandUserData();
+      this.db = clone({ _version: import.meta.env.VITE_GIT_COMMIT_HASH, user });
       localStorage.setItem(LS_KEY, JSON.stringify(this.db));
    }
    async getMyWorkspaces() {
@@ -61,13 +66,24 @@ export class TestLocalApiProvider implements IApiProvider {
    }
    async updateDocument(doc: BlokiDocument) {
       // Check xss ?
+      const workspaces = await this.getMyWorkspaces();
+      let originalDoc: BlokiDocument;
+      workspaces.forEach(ws => {
+         ws.documents.forEach(d => {
+            if (d.id === doc.id) {
+               originalDoc = d;
+               return;
+            }
+         });
+      });
 
-      // const workspaces =
-      const workspace = await this.getMyWorkspaces()
-         .then(wss => wss.filter(ws => ws.documents.find(x => x.id === doc.id)));
-
-      if (!workspace) {
-         throw new Error('There is no workspace for doucument');
+      if (!originalDoc) {
+         throw new Error('Document was not found');
       }
+      originalDoc.blocks = doc.blocks;
+      await this.syncChanges(this.db.user);
+   }
+   async syncChanges(data: User) {
+      localStorage.setItem(LS_KEY, JSON.stringify(this.db));
    }
 }

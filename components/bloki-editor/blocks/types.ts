@@ -1,6 +1,5 @@
 import { AnyBlock, ImageBlock } from "@/lib/entities";
 import { Dimension } from "../types";
-import { TextBlock } from "./text-block/types";
 
 export type ContentBlockProps<T = AnyBlock> = {
    block: T;
@@ -11,5 +10,6 @@ export type ContentBlockProps<T = AnyBlock> = {
    isMeResizing: boolean;
 
    onContentDimensionChange?(size: Dimension): void;
-
 };
+
+export const contentBlockProps: (keyof ContentBlockProps<AnyBlock>)[] = ['block', 'isMeDragging', 'isMeEditing', 'isMeResizing', 'onContentDimensionChange'];

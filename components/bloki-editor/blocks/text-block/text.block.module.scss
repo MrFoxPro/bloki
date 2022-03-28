@@ -15,6 +15,7 @@
    // overflow: clip;
    // overflow: hidden;
 
+   word-break: break-all;
    scrollbar-width: none;
    &::-webkit-scrollbar {
       display: none;

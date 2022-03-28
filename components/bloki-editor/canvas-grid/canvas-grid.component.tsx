@@ -61,13 +61,12 @@ export function BlokiCanvasGrid() {
 
       let prev = [];
 
-      const changeEvent = emitter.on('change', (block, stage, { relTransform: { x, y, width, height }, placement: placementStatus }): void => {
-         if (stage === 'end') {
-            clearProjection(prev);
-            prev = [];
-            return;
-         }
+      const unbindChangeEnd = emitter.on('changeend', () => {
+         clearProjection(prev);
+         prev = [];
+      });
 
+      const unbindChange = emitter.on('change', (_, { relTransform: { x, y, width, height }, placement: placementStatus }): void => {
          const oldNWPoint = prev[0];
          const oldSEPoint = prev[prev.length - 1];
          if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
@@ -92,7 +91,8 @@ export function BlokiCanvasGrid() {
       });
 
       onCleanup(() => {
-         changeEvent();
+         unbindChange();
+         unbindChangeEnd();
       });
    });
 

@@ -1,4 +1,4 @@
-import { createComputed, createContext, createMemo, createRenderEffect, mergeProps, onMount, PropsWithChildren, useContext } from "solid-js";
+import { createComputed, createContext, createMemo, createRenderEffect, createSignal, mergeProps, onMount, PropsWithChildren, useContext } from "solid-js";
 import { createStore, SetStoreFunction, unwrap } from "solid-js/store";
 import { IApiProvider } from "./api-providers/api-provider.interface";
 import { TestLocalApiProvider } from "./api-providers/local-api-provider";
@@ -23,6 +23,8 @@ type AppStoreHandlers = {
    selectDocument(document: BlokiDocument): void;
 
    setStore: SetStoreFunction<AppStoreValues>;
+
+   apiProvider: IApiProvider;
 };
 
 const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
@@ -43,6 +45,7 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
          selectWorkspace: () => void 0,
          selectDocument: () => void 0,
          setStore: () => void 0,
+         apiProvider: null,
       }
    ]
 );
@@ -55,8 +58,9 @@ export function AppStoreProvider(props: AppStoreProps) {
 
    const [store, setStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
 
-   onMount(async () => {
-      if (!props.apiProvider) props = mergeProps(props, { apiProvider: new TestLocalApiProvider() });
+   props = mergeProps(props, { apiProvider: new TestLocalApiProvider() });
+
+   createComputed(async () => {
       await props.apiProvider.init();
       const me = await props.apiProvider.getMe();
       const workspaces = await props.apiProvider.getMyWorkspaces();
@@ -99,6 +103,7 @@ export function AppStoreProvider(props: AppStoreProps) {
             setStore,
             selectWorkspace,
             selectDocument,
+            apiProvider: props.apiProvider,
          }
       ]}>
          {props.children}

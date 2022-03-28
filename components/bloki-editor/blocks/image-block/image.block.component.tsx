@@ -2,14 +2,14 @@ import { ComponentProps, createMemo, splitProps } from 'solid-js';
 import { ImageBlock as ImageBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './image.block.module.scss';
-import { ContentBlockProps } from '../types';
+import { contentBlockProps, ContentBlockProps } from '../types';
 
 type ImageBlockProps = ContentBlockProps<ImageBlockEntity> & {
-} & ComponentProps<'div'>;
+} & ComponentProps<'img'>;
 
 export function ImageBlock(props: ImageBlockProps) {
    const [editor, { setStore, getAbsoluteSize, gridSize, gridBoxSize }] = useEditorStore();
-   const [local, other] = splitProps(props, ['block', 'onContentDimensionChange']);
+   const [local, other] = splitProps(props, contentBlockProps);
 
    let imgRef: HTMLImageElement;
 

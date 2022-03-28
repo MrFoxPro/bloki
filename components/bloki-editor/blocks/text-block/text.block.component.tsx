@@ -4,14 +4,14 @@ import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './text.block.module.scss';
 import { Dimension } from '../../types';
-import { ContentBlockProps } from '../types';
+import { contentBlockProps, ContentBlockProps } from '../types';
 
 type TextBlockProps = ContentBlockProps<TextBlockEntity> & {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
    const [editor, { setStore, getAbsoluteSize, gridSize, gridBoxSize }] = useEditorStore();
-   const [local, other] = splitProps(props, ['block']);
+   const [local, other] = splitProps(props, contentBlockProps);
 
    let contentRef: HTMLDivElement;
    let blockAbsSize: Dimension;
@@ -54,7 +54,7 @@ export function TextBlock(props: TextBlockProps) {
          const requiredAbsWidth = textSize.width;
          const Δ = (requiredAbsWidth - boxWidth) / gridBoxSize();
          // console.log('Current abs width', currAbsContentWidth, 'Required abs width', requiredAbsWidth, 'abs delta', requiredAbsWidth - currAbsContentWidth, 'delta blocks', Δ);
-         newWidth += Math.ceil(Δ);
+         newWidth += Math.floor(Δ);
       }
 
       const boxHeight = gridSize(props.block.height) - parseInt(paddingTop);
@@ -65,7 +65,7 @@ export function TextBlock(props: TextBlockProps) {
          fontWeight,
          width: boxWidth + 'px',
          lineHeight,
-         // wordBreak
+         wordBreak
       });
       const requiredAbsHeight = textSize.height - editor.document.layoutOptions.gap;
       if (requiredAbsHeight > 0) {
@@ -82,14 +82,15 @@ export function TextBlock(props: TextBlockProps) {
       });
    }
 
-   // function onPaste(e: ClipboardEvent) {
-   //    e.preventDefault();
-   //    let data = e.clipboardData.getData('text');
-   //    if (data) {
+   function onPaste(e: ClipboardEvent) {
+      e.stopPropagation();
+      // e.preventDefault();
+      // let data = e.clipboardData.getData('text');
+      // if (data) {
 
-   //       props.block.value += data;
-   //    }
-   // }
+      //    props.block.value += data;
+      // }
+   }
 
    return (
       <div
@@ -108,7 +109,7 @@ export function TextBlock(props: TextBlockProps) {
          contentEditable={isEditingContent()}
          ref={contentRef}
          onInput={onTextInput}
-         // onPaste={onPaste}
+         onPaste={onPaste}
          {...other}
       >{untrack(() => props.block.value)}</div>
    );

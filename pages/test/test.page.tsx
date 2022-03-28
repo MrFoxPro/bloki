@@ -73,8 +73,7 @@ export function TestPage() {
                      </button>
                      <button
                         onClick={() => {
-                           app.apiProvider.clearCache()
-                              .then(() => location.reload());
+                           app.apiProvider.clearCache().then(() => location.reload());
                         }}>
                         Purge local database
                      </button>
