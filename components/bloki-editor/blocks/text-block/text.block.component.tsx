@@ -84,12 +84,10 @@ export function TextBlock(props: TextBlockProps) {
 
    function onPaste(e: ClipboardEvent) {
       e.stopPropagation();
-      // e.preventDefault();
-      // let data = e.clipboardData.getData('text');
-      // if (data) {
-
-      //    props.block.value += data;
-      // }
+      e.preventDefault();
+      var text = e.clipboardData.getData('text/plain');
+      document.execCommand("insertHTML", false, text);
+      onTextInput(null);
    }
 
    return (
