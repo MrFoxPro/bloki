@@ -32,6 +32,10 @@
             "./*"
          ],
       },
+      "types": [
+         "vite/client",
+         "./types.d.ts"
+      ],
       "plugins": [
          {
             "name": "typescript-plugin-css-modules",

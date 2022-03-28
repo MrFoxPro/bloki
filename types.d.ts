@@ -1,5 +1,9 @@
-/// <reference types="vite/client" />
-
+import { JSX } from "solid-js";
+import { ComponentProps } from "solid-js";
+declare module "*.svg" {
+   const content: (props: ComponentProps<'svg'>) => JSX.Element;
+   export default content;
+}
 interface ImportMetaEnv {
    [key: string]: string | boolean | undefined;
    BASE_URL: string;

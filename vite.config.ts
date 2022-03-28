@@ -3,6 +3,7 @@ import { execSync } from 'child_process';
 import { ConfigEnv, Terser, UserConfigExport } from 'vite';
 import solid from 'vite-plugin-solid';
 import viteCompression from 'vite-plugin-compression';
+import solidSvg from "vite-plugin-solid-svg";
 
 export default ({ mode }: ConfigEnv) => {
    const dev = mode === 'development';
@@ -29,6 +30,7 @@ export default ({ mode }: ConfigEnv) => {
             dev: false,
             ssr: false,
          }),
+         solidSvg(),
          viteCompression({
             disable: dev,
             filter: /\.(js|mjs|json|css|html|woff2)$/i

@@ -36,7 +36,8 @@ type BlockProps = {
    shadowed?: boolean;
 };
 export function Block(props: BlockProps) {
-   const [editor, {
+   const [store, {
+      editor,
       onChangeStart,
       onChange,
       onChangeEnd,
@@ -99,9 +100,9 @@ export function Block(props: BlockProps) {
       ];
    });
 
-   const isMeEditing = createMemo(() => editor.editingBlock === props.block);
-   const isMeDragging = createMemo(() => isMeEditing() && editor.editingType === 'drag');
-   const isMeResizing = createMemo(() => isMeEditing() && editor.editingType === 'resize');
+   const isMeEditing = createMemo(() => store.editingBlock === props.block);
+   const isMeDragging = createMemo(() => isMeEditing() && store.editingType === 'drag');
+   const isMeResizing = createMemo(() => isMeEditing() && store.editingType === 'resize');
 
    createEffect(() => {
       setState('transform', getAbsolutePosition(props.block.x, props.block.y));
@@ -328,55 +329,55 @@ export function Block(props: BlockProps) {
             width += x - xc;
             x = xc;
 
-            εX = editor.document.layoutOptions.gap;
+            εX = store.document.layoutOptions.gap;
             break;
          }
          case CursorSide.E: {
-            width = e.pageX - state.transform.x - editor.containerRect.x;
+            width = e.pageX - state.transform.x -editor.containerRect.x;
             break;
          }
          case CursorSide.N: {
-            const yc = e.pageY - editor.containerRect.y;
+            const yc = e.pageY -editor.containerRect.y;
             height += y - yc;
             y = yc;
 
-            εY = editor.document.layoutOptions.gap;
+            εY = store.document.layoutOptions.gap;
             break;
          }
          case CursorSide.S: {
-            height = e.pageY - state.transform.y - editor.containerRect.y;
+            height = e.pageY - state.transform.y -editor.containerRect.y;
             break;
          }
          case CursorSide.NW: {
-            const yc = e.pageY - editor.containerRect.y;
+            const yc = e.pageY -editor.containerRect.y;
             height += y - yc;
             y = yc;
 
-            const xc = e.pageX - editor.containerRect.x;
+            const xc = e.pageX -editor.containerRect.x;
             width += x - xc;
             x = xc;
 
-            εY = editor.document.layoutOptions.gap / 2;
+            εY = store.document.layoutOptions.gap / 2;
             break;
          }
          case CursorSide.NE: {
-            width = e.pageX - state.transform.x - editor.containerRect.x;
+            width = e.pageX - state.transform.x -editor.containerRect.x;
 
-            const yc = e.pageY - editor.containerRect.y;
+            const yc = e.pageY -editor.containerRect.y;
             height += y - yc;
             y = yc;
             break;
          }
          case CursorSide.SE: {
-            width = e.pageX - state.transform.x - editor.containerRect.x;
-            height = e.pageY - state.transform.y - editor.containerRect.y;
+            width = e.pageX - state.transform.x -editor.containerRect.x;
+            height = e.pageY - state.transform.y -editor.containerRect.y;
             break;
          }
          case CursorSide.SW: {
-            const xc = e.pageX - editor.containerRect.x;
+            const xc = e.pageX -editor.containerRect.x;
             width += x - xc;
             x = xc;
-            height = e.pageY - state.transform.y - editor.containerRect.y;
+            height = e.pageY - state.transform.y -editor.containerRect.y;
             break;
          }
 
@@ -498,7 +499,7 @@ export function Block(props: BlockProps) {
                   <div
                      class={cc([side.length === 2 ? s.vert : s.edge, s[side.toLowerCase()]])}
                      classList={{
-                        [s.showResizeAreas]: editor.document.layoutOptions.showResizeAreas
+                        [s.showResizeAreas]: store.document.layoutOptions.showResizeAreas
                      }}
                      onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
                   />

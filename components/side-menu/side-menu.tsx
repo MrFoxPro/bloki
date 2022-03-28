@@ -3,7 +3,7 @@ import { ComponentProps, For, Show } from 'solid-js';
 import { upperFirst } from 'lodash-es';
 import s from './side-menu.module.scss';
 import cc from 'classcat';
-import AddIcon from './assets/add.icon.svg?raw';
+import AddIcon from './assets/add.icon.svg';
 
 type SideMenuProps = {
 
@@ -33,7 +33,7 @@ export function SideMenu(props: SideMenuProps) {
             <div class={s.block}>
                <div class={s.name}>
                   Pages
-                  <div class={s.icon} innerHTML={AddIcon} />
+                  <AddIcon class={s.icon} />
                </div>
                <div class={s.pages}>
                   <For each={app.selectedWorkspace?.documents}>
@@ -50,7 +50,7 @@ export function SideMenu(props: SideMenuProps) {
                            </Show>
                            <div class={cc([s.icon, s.page])} />
                            <span>{doc.title}</span>
-                           <Show when={true}>
+                           <Show when={doc.id === app.selectedDocument?.id}>
                               <div class={s.dotsIcon} />
                            </Show>
                         </div>

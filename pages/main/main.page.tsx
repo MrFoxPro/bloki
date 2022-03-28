@@ -4,7 +4,7 @@ import { For, Show } from 'solid-js';
 import { SideMenu } from '@/components/side-menu/side-menu';
 import { useAppStore } from '@/lib/app.store';
 import { defaultLayotOptions } from '@/lib/test-data/layout-options';
-import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg?raw';
+import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 
 export function MainPage() {
    const [app, { setStore }] = useAppStore();
@@ -20,7 +20,7 @@ export function MainPage() {
                   <h4>{app.selectedDocument?.title}</h4>
                </div>
                <div class={s.rightBar}>
-                  <div class={s.optionsIcon} innerHTML={TripleDotsIcon} />
+                  <TripleDotsIcon class={s.optionsIcon} />
                </div>
             </div>
             <Show when={app.selectedWorkspace && app.selectedDocument}>

@@ -2,7 +2,9 @@
    width: 100%;
    height: 100%;
    border-radius: 2px;
+   backface-visibility: hidden;
 }
 .changing {
+   // perf drop in FF.
    opacity: 0.8;
 }

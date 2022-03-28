@@ -6,7 +6,7 @@ import { BlockTransform, PlacementStatus, Point } from "../types";
 export function BlokiCanvasGrid() {
    let backlightCanvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
-   const [editor, { gridSize, realSize, emitter }] = useEditorStore();
+   const [store, { gridSize, realSize, editor }] = useEditorStore();
 
    const okFillColor = 'rgba(24, 160, 251, 0.2)';
    const badFillColor = 'rgba(83, 83, 83, 0.2)';
@@ -27,7 +27,7 @@ export function BlokiCanvasGrid() {
    }
 
    function clearProjection(prev: Point[]) {
-      const { gap } = editor.document.layoutOptions;
+      const { gap } = store.document.layoutOptions;
       if (prev?.length) {
          const first = prev[0];
          const last = prev[prev.length - 1];
@@ -36,7 +36,7 @@ export function BlokiCanvasGrid() {
    }
 
    function drawProjection(proj: Point[], placement: PlacementStatus) {
-      const { size, gap } = editor.document.layoutOptions;
+      const { size, gap } = store.document.layoutOptions;
       const { intersections, outOfBorder } = placement;
 
       for (let i = 0; i < proj.length; i++) {
@@ -61,21 +61,20 @@ export function BlokiCanvasGrid() {
 
       let prevProjection = [];
 
-      const unbindChangeEnd = emitter.on('changeend', () => {
+      const unbindChangeEnd = editor.on('changeend', () => {
          clearProjection(prevProjection);
          prevProjection = [];
       });
 
-      const unbindChange = emitter.on('change', (_, { relTransform: { x, y, width, height }, placement: placementStatus }): void => {
-         // const oldNWPoint = prevProjection[0];
-         // const oldSEPoint = prevProjection[prevProjection.length - 1];
+      const unbindChange = editor.on('change', (_, { relTransform: { x, y, width, height }, placement: placementStatus }): void => {
+         const oldNWPoint = prevProjection[0];
+         const oldSEPoint = prevProjection[prevProjection.length - 1];
 
-         // if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
-         //    oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
-         //    // console.log('same!');
-         //    return;
-         // }
-         if (!editor.editingBlock || (editor.editingType !== 'drag' && editor.editingType !== 'resize')) return;
+         if (oldNWPoint?.x === x && oldNWPoint?.y === y &&
+            oldSEPoint?.x === x + width - 1 && oldSEPoint?.y === y + height - 1) {
+            return;
+         }
+         if (!store.editingBlock || (store.editingType !== 'drag' && store.editingType !== 'resize')) return;
 
          if (prevProjection.length) {
             clearProjection(prevProjection);

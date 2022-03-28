@@ -1,5 +1,5 @@
-import { Accessor, batch, createComputed, createContext, createEffect, createMemo, PropsWithChildren, useContext } from "solid-js";
-import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
+import { Accessor, batch, createComputed, createContext, createMemo, PropsWithChildren, useContext } from "solid-js";
+import { createStore, DeepReadonly, SetStoreFunction } from "solid-js/store";
 import { AnyBlock, BlokiDocument } from "@/lib/entities";
 import { createNanoEvents, Emitter } from 'nanoevents';
 import { BlockTransform, ChangeEventInfo, Dimension, EditType, Intersection, Point } from "./types";
@@ -12,8 +12,6 @@ type EditorStoreValues = DeepReadonly<{
 
    isPlacementCorrect: boolean;
    document: BlokiDocument;
-
-   containerRect?: DOMRect;
 }>;
 
 type CalculatedSize = {
@@ -30,6 +28,31 @@ type CalculatedSize = {
    mGridHeight_px: string;
 };
 type ChangeHandler = (block: AnyBlock, absTransform: BlockTransform, type: EditType) => void;
+
+interface EditorEvents {
+   changestart(block: AnyBlock, changeInfo: ChangeEventInfo): void;
+   change(block: AnyBlock, changeInfo: ChangeEventInfo): void;
+   changeend(block: AnyBlock, changeInfo: ChangeEventInfo): void;
+   containerrectchanged(rect: DOMRect): void;
+}
+
+class StaticEditorData {
+   private emitter: Emitter<EditorEvents>;
+
+   public containerRect: DOMRect;
+
+   constructor() {
+      this.emitter = createNanoEvents<EditorEvents>();
+   }
+
+   on<E extends keyof EditorEvents>(event: E, callback: EditorEvents[E]) {
+      return this.emitter.on(event, callback);
+   }
+   emit<K extends keyof EditorEvents>(event: K, ...args: Parameters<EditorEvents[K]>) {
+      return this.emitter.emit(event, ...args);
+   }
+}
+
 type EditorStoreHandles = {
    onChangeStart: ChangeHandler;
    onChange: ChangeHandler;
@@ -51,14 +74,8 @@ type EditorStoreHandles = {
 
    setStore: SetStoreFunction<EditorStoreValues>;
 
-   emitter: Emitter<EditorEvents>;
+   editor: StaticEditorData;
 };
-
-interface EditorEvents {
-   changestart: (block: AnyBlock, changeInfo: ChangeEventInfo) => void;
-   change: (block: AnyBlock, changeInfo: ChangeEventInfo) => void;
-   changeend: (block: AnyBlock, changeInfo: ChangeEventInfo) => void;
-}
 
 const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
 
@@ -67,22 +84,25 @@ type EditorStoreProviderProps = PropsWithChildren<{
 }>;
 
 export function EditorStoreProvider(props: EditorStoreProviderProps) {
-   const emitter = createNanoEvents<EditorEvents>();
+   const editor = new StaticEditorData();
+
    const [state, setState] = createStore<EditorStoreValues>(
       {
          editingBlock: null,
          editingType: null,
          selectedBlocks: [],
          isPlacementCorrect: false,
-         containerRect: null,
          document: null,
       }
    );
+
    createComputed(() => {
       setState({
          document: props.document
       });
    });
+
+
    const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
 
    function gridSize(factor: number) {
@@ -220,7 +240,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
       setState({ editingBlock: block, editingType: type });
 
-      emitter.emit('changestart', block, {
+      editor.emit('changestart', block, {
          absTransform: abs,
          placement: { correct: true, intersections: [], outOfBorder: false, },
          relTransform: { height: block.height, width: block.width, x: block.x, y: block.y },
@@ -245,7 +265,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       const placement = checkPlacement(block, x, y, width, height);
       setState({ isPlacementCorrect: placement.correct });
-      emitter.emit('change', block, {
+      editor.emit('change', block, {
          absTransform,
          placement,
          relTransform: { x, y, width, height },
@@ -272,7 +292,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
-      emitter.emit('changeend', block, {
+      editor.emit('changeend', block, {
          absTransform,
          placement,
          relTransform: { x, y, width, height },
@@ -293,7 +313,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          return;
       }
 
-      let { x, y } = getRelativePosition(e.pageX - state.containerRect.x, e.pageY - state.containerRect.y);
+      let { x, y } = getRelativePosition(e.pageX - editor.containerRect.x, e.pageY - editor.containerRect.y);
 
       const { mGridWidth, fGridWidth } = state.document.layoutOptions;
       if (grid === 'main') {
@@ -365,7 +385,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             getRelativeSize,
 
             setStore: setState,
-            emitter,
+            editor
          }
       ]}>
          {props.children}
