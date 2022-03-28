@@ -29,10 +29,10 @@ export function MainPage() {
                      <For each={[
                         ['gap', [2, 10]],
                         ['size', [4, 48]],
-                        ['mGridWidth', [5, 50]],
-                        ['mGridHeight', [10, 60]],
-                        ['fGridWidth', [32, 92]],
-                        ['fGridHeight', [10, 60]]
+                        ['mGridWidth', [5, 100]],
+                        ['mGridHeight', [10, 550]],
+                        ['fGridWidth', [32, 150]],
+                        ['fGridHeight', [10, 550]]
                      ] as const}>
                         {([p, [min, max]]) => (
                            <div class={s.control}>
