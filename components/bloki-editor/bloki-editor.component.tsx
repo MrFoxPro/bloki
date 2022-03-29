@@ -225,7 +225,6 @@ function BlokiEditor(props: BlokiEditorProps) {
                   width: realSize().fGridWidth_px,
                   height: realSize().fGridHeight_px,
                   top: realSize().size_px,
-                  left: realSize().size_px
                }}
             >
                <BlokiCanvasGrid />

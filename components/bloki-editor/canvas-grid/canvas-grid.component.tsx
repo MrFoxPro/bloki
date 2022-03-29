@@ -1,7 +1,7 @@
 import s from './canvas-grid.module.scss';
 import { onCleanup, onMount } from "solid-js";
 import { useEditorStore } from '../editor.store';
-import { BlockTransform, PlacementStatus, Point } from "../types";
+import { PlacementStatus, Point } from "../types";
 
 export function BlokiCanvasGrid() {
    let backlightCanvasRef: HTMLCanvasElement;
@@ -39,6 +39,7 @@ export function BlokiCanvasGrid() {
       const { size, gap } = store.document.layoutOptions;
       const { intersections, outOfBorder } = placement;
 
+      // Todo: optimize to one grid to increase rendering performance
       for (let i = 0; i < proj.length; i++) {
          const x = proj[i].x;
          const y = proj[i].y;

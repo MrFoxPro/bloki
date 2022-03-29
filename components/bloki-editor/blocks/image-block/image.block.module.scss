@@ -2,11 +2,18 @@
    width: 100%;
    height: 100%;
    border-radius: 2px;
-   backface-visibility: hidden;
+   // backface-visibility: hidden;
 
    transition: opacity 80ms ease;
 }
 .changing {
    // perf drop in FF.
-   opacity: 0.8;
+   opacity: 0.4;
+}
+.shadowed {
+   // color: rgba(0, 0, 0, 0.8);
+   opacity: 0.15;
+   // user-select: none;
+   // visibility: hidden;
+
 }

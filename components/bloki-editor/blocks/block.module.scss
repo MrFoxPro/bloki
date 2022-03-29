@@ -23,13 +23,6 @@
          fill: #9ca5ab;
       }
    }
-   &.shadow {
-      color: rgba(0, 0, 0, 0.2);
-      opacity: 0.5;
-      > * {
-         user-select: none;
-      }
-   }
    &.dragging {
       // border-color: #4281fa;
       cursor: grabbing;
@@ -41,10 +34,10 @@
       .sizedot {
          background: #4281fa !important;
       }
-      .vert,
-      .edge {
-         cursor: none !important;
-      }
+      // .vert,
+      // .edge {
+      //    cursor: none !important;
+      // }
    }
    .overlay {
       position: absolute;
@@ -139,7 +132,7 @@
 }
 .handy {
    position: absolute;
-   top: 3px;
+   top: 0px;
    left: -21px;
    cursor: pointer;
    transition: fill 130ms linear;

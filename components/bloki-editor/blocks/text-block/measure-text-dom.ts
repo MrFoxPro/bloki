@@ -1,3 +1,5 @@
+import s from './text.block.module.scss';
+
 interface Options {
    fontFamily: string;
    fontSize: string;
@@ -7,42 +9,35 @@ interface Options {
    wordBreak: string;
 }
 
-function createDummyElement(text: string, options: Options): HTMLElement {
-   const element = document.createElement('div');
-   const textNode = document.createTextNode(text);
+export class DOMTextMeasurer {
+   public ruler: HTMLDivElement;
 
-   element.appendChild(textNode);
+   constructor() {
+      const el = document.createElement('div');
+      el.id = 'text-measurer';
+      el.className = s.measurer;
+      el.style.position = 'fixed';
+      // el.style.visibility = 'hidden';
+      el.style.height = 'auto';
+      el.style.pointerEvents = 'none';
+      this.ruler = el;
+      document.body.appendChild(this.ruler);
+   }
 
-   Object.assign(element.style, options);
-
-   element.style.position = 'absolute';
-   element.style.visibility = 'hidden';
-   element.style.left = '-999px';
-   element.style.top = '-999px';
-   element.style.height = 'auto';
-
-   document.body.appendChild(element);
-   return element;
+   measureText(text: string, divWidth = 'auto') {
+      if (this.ruler.textContent === text && this.ruler.style.width === divWidth) {
+         const { width, height } = this.ruler.getBoundingClientRect();
+         return { width, height };
+      }
+      this.ruler.textContent = text;
+      this.ruler.style.width = divWidth;
+      const { width, height } = this.ruler.getBoundingClientRect();
+      return { width, height };
+   }
+   setOptions(options: Partial<Options> = {}) {
+      Object.assign(this.ruler.style, options);
+   }
+   dispose() {
+      document.body.removeChild(this.ruler);
+   }
 }
-
-function destroyElement(element: HTMLElement): void {
-   element.parentNode.removeChild(element);
-}
-
-export function measureText(text: string, options: Partial<Options> = {}) {
-   options.fontFamily = options.fontFamily;
-   options.fontSize = options.fontSize;
-   options.fontWeight = options.fontWeight;
-   options.lineHeight = options.lineHeight || 'normal';
-   options.width = options.width || 'auto';
-   options.wordBreak = options.wordBreak || 'normal';
-
-   const element = createDummyElement(text, options as Options);
-
-   const { width, height } = element.getBoundingClientRect();
-   destroyElement(element);
-   return {
-      width,
-      height
-   };
-};

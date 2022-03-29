@@ -70,22 +70,22 @@ export async function getUser() {
             x: middleX,
             y: 6,
          },
-         {
-            id: '7e0a7f62-7373-4d2a-b899-2d91f08496e5',
-            type: 'image',
-            src: await import('./assets/sur.jpg?inline').then(r => r.default),
-            x: middleX,
-            width: defaultLayoutOptions.mGridWidth,
-            height: 30
-         },
-         {
-            id: '9fcc2c06-dffd-4542-a9ad-7f483c868f69',
-            type: 'image',
-            src: await import('./assets/cars.jpg?inline').then(r => r.default),
-            x: middleX,
-            width: defaultLayoutOptions.mGridWidth,
-            height: 14
-         }
+         // {
+         //    id: '7e0a7f62-7373-4d2a-b899-2d91f08496e5',
+         //    type: 'image',
+         //    src: await import('./assets/sur.jpg?inline').then(r => r.default),
+         //    x: middleX,
+         //    width: defaultLayoutOptions.mGridWidth,
+         //    height: 30
+         // },
+         // {
+         //    id: '9fcc2c06-dffd-4542-a9ad-7f483c868f69',
+         //    type: 'image',
+         //    src: await import('./assets/cars.jpg?inline').then(r => r.default),
+         //    x: middleX,
+         //    width: defaultLayoutOptions.mGridWidth,
+         //    height: 14
+         // }
       ].map((block, i, arr) => {
          block.y = i > 0 ? (arr[i - 1].y + arr[i - 1].height) : 0;
          if (block.type === 'text') {

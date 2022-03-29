@@ -11,16 +11,13 @@
    height: 100%;
    box-sizing: border-box;
 
-   user-modify: read-write-plaintext-only;
-   -moz-user-modify: read-write-plaintext-only;
-   -webkit-user-modify: read-write-plaintext-only;
-
    // This is not working in safari ;)
    // https://caniuse.com/?search=overflow%3A%20clip
    // overflow: clip;
    // overflow: hidden;
+   overflow-wrap: break-word;
+   word-break: normal;
 
-   word-break: break-all;
    scrollbar-width: none;
    &::-webkit-scrollbar {
       display: none;
@@ -35,15 +32,27 @@
 
    -webkit-user-drag: none;
 
-   &::after {
-      cursor: text;
-      content: attr(data-placeholder);
-      // caret-color: rgb(55, 53, 47, 0.5);
-      color: rgb(55, 53, 47, 0.5);
-      line-height: normal;
-      font-size: 14px;
-      position: absolute;
-      top: 0;
-      left: 0;
+   &.show-placeholder {
+      &::after {
+         cursor: text;
+         content: attr(data-placeholder);
+         // caret-color: rgb(55, 53, 47, 0.5);
+         color: rgb(55, 53, 47, 0.5);
+         line-height: normal;
+         font-size: 14px;
+         position: absolute;
+         top: 0;
+         left: 0;
+         word-break: keep-all;
+         white-space: nowrap;
+         overflow-wrap: normal;
+      }
    }
+   &.shadow {
+      opacity: 0.4;
+   }
+}
+.measurer {
+   background: red;
+   z-index: 900;
 }

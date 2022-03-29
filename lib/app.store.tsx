@@ -59,7 +59,7 @@ export function AppStoreProvider(props: AppStoreProps) {
    const [store, setStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
 
    props = mergeProps(props, { apiProvider: new TestLocalApiProvider() });
-
+   const apiProvider = createMemo(() => props.apiProvider);
    createComputed(async () => {
       await props.apiProvider.init();
       const me = await props.apiProvider.getMe();
@@ -103,7 +103,7 @@ export function AppStoreProvider(props: AppStoreProps) {
             setStore,
             selectWorkspace,
             selectDocument,
-            apiProvider: props.apiProvider,
+            apiProvider: apiProvider(),
          }
       ]}>
          {props.children}

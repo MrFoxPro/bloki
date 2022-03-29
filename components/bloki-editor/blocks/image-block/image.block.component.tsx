@@ -35,7 +35,7 @@ export function ImageBlock(props: ImageBlockProps) {
          src={props.block.src}
          class={s.content}
          onKeyDown={onKeyDown}
-         classList={{ [s.changing]: props.isMeResizing || props.isMeDragging }}
+         classList={{ [s.changing]: props.isMeResizing || props.isMeDragging, [s.shadowed]: props.shadowed }}
          ref={imgRef}
          // onPaste={onPaste}
          {...other}

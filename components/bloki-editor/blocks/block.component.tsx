@@ -1,20 +1,16 @@
-import { createComputed, createEffect, createMemo, For, Match, onCleanup, Show, Switch } from 'solid-js';
 import cc from 'classcat';
-import { useEditorStore } from '../editor.store';
-import type { AnyBlock, BlockType } from '@/lib/entities';
-import s from './block.module.scss';
-
+import { createComputed, createEffect, createMemo, For, Match, onCleanup, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { TextBlock } from './text-block/text.block.component';
 import { createStore } from 'solid-js/store';
+import s from './block.module.scss';
+import { useEditorStore } from '../editor.store';
+import { TextBlock } from './text-block/text.block.component';
 import { Dimension, Point } from '../types';
 import { ImageBlock } from './image-block/image.block.component';
+import HandyIcon from './assets/handy.icon.svg';
+import type { AnyBlock, BlockType } from '@/lib/entities';
+import { isInside, distanceBetweenPoints } from '../helpers';
 
-
-const blockContentTypeMap: Record<BlockType, any> = {
-   image: ImageBlock,
-   text: TextBlock,
-};
 enum DotState {
    None,
    Micro,
@@ -30,6 +26,11 @@ enum CursorSide {
    SW = 'sw-resize',
    W = 'w-resize',
 }
+
+const blockContentTypeMap: Record<BlockType, any> = {
+   image: ImageBlock,
+   text: TextBlock,
+};
 
 type BlockProps = {
    block: AnyBlock;
@@ -52,22 +53,29 @@ export function Block(props: BlockProps) {
       const { width, height } = getAbsoluteSize(props.block.width, props.block.height);
       return (
          <div
-            classList={{ [s.block]: true, [s.shadow]: true }}
+            class={s.block}
             style={{
                width: `${width}px`,
                height: `${height}px`,
                transform: `translate(${x}px, ${y}px)`,
             }}
          >
-            <Dynamic component={blockContentTypeMap[props.block.type]} block={props.block} />
+            <Dynamic component={blockContentTypeMap[props.block.type]} block={props.block} shadowed />
          </div>
       );
    }
 
    let boxRef: HTMLDivElement | undefined;
+
    let relX = 0;
    let relY = 0;
+
    let pointerDown = false;
+   let pointerInside = false;
+
+   let capturingSide: CursorSide;
+
+   let getContentDimension: (d: Dimension) => Dimension;
 
    const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
    const RESIZER_ACTIVATE_OUTER_LIM = 30;
@@ -124,25 +132,6 @@ export function Block(props: BlockProps) {
       }
    });
 
-   function distanceBetweenPoints(p1: Point, p2: Point) {
-      return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
-   }
-
-   let mouseInside = false;
-
-   let pinnedDotPosition: Point;
-   let capturingSide: CursorSide;
-
-   let contentSize: Dimension = { width: props.block.width, height: props.block.height };
-
-   function onContentDimensionChange(size: Dimension) {
-      contentSize = size;
-   }
-
-   function isInside(x: number, y: number, rect: DOMRect) {
-      return x < rect.left + rect.width && x > rect.left && y < rect.top + rect.height && y > rect.top;
-   }
-
    function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
       const rect = e.currentTarget.getBoundingClientRect();
 
@@ -154,8 +143,8 @@ export function Block(props: BlockProps) {
       }
    }
 
-   function onMouseMove(e: MouseEvent) {
-      if (mouseInside) {
+   function onPointerMove(e: PointerEvent) {
+      if (pointerInside) {
          setState('dot', { state: DotState.None });
          return;
       }
@@ -166,7 +155,53 @@ export function Block(props: BlockProps) {
          y: e.pageY - editor.containerRect.y - state.transform.y + CURSOR_Y_OFFSET,
       };
 
-      let minDist = Number.POSITIVE_INFINITY, dot: Point, edgeIndex: number, t: number;
+      let dot: Point;
+      if (capturingSide && isMeResizing()) {
+         dot = { x: 0, y: 0 };
+         switch (capturingSide) {
+            case CursorSide.E:
+               dot.x = state.transform.width;
+               dot.y = Math.min(Math.max(0, M.y), state.transform.height);
+               break;
+            case CursorSide.W:
+               dot.x = 0;
+               dot.y = Math.min(Math.max(0, M.y), state.transform.height);
+               break;
+            case CursorSide.N:
+               dot.y = 0;
+               dot.x = Math.min(Math.max(0, M.x), state.transform.width);
+               break;
+            case CursorSide.S:
+               dot.y = state.transform.height;
+               dot.x = Math.min(Math.max(0, M.x), state.transform.width);
+               break;
+            case CursorSide.NW:
+               dot.x = 0;
+               dot.y = 0;
+               break;
+            case CursorSide.NE:
+               dot.x = state.transform.width;
+               dot.y = 0;
+               break;
+            case CursorSide.SW:
+               dot.x = 0;
+               dot.y = state.transform.height;
+               break;
+            case CursorSide.SE:
+               dot.x = state.transform.width;
+               dot.y = state.transform.height;
+               break;
+         }
+         dot.x -= 3;
+         dot.y -= 3;
+         setState('dot', {
+            state: DotState.Full,
+            ...dot
+         });
+         return;
+      }
+
+      let minDist = Number.POSITIVE_INFINITY, edgeIndex: number, t: number;
 
       for (let i = 0; i < 4; i++) {
          const p1 = relPoints[!i ? 3 : i - 1];
@@ -215,31 +250,8 @@ export function Block(props: BlockProps) {
             resState = DotState.Full;
          }
       }
-      dot.x -= resState === DotState.Full ? 3 : 2;
-      dot.y -= resState === DotState.Full ? 3 : 2;
-
-      if (isMeResizing()) {
-         if (!pinnedDotPosition) pinnedDotPosition = { x: dot.x, y: dot.y };
-         if (capturingSide) {
-            switch (capturingSide) {
-               case CursorSide.E:
-               case CursorSide.W:
-                  pinnedDotPosition.x = dot.x;
-                  break;
-               case CursorSide.N:
-               case CursorSide.S:
-                  pinnedDotPosition.y = dot.y;
-                  break;
-               default:
-                  pinnedDotPosition = { x: dot.x, y: dot.y };
-                  break;
-            }
-            setState('dot', {
-               ...pinnedDotPosition
-            });
-            return;
-         }
-      }
+      dot.x -= (resState === DotState.Full ? 3 : 2);
+      dot.y -= (resState === DotState.Full ? 3 : 2);
 
       setState('dot', {
          state: resState,
@@ -250,16 +262,16 @@ export function Block(props: BlockProps) {
 
    createEffect(() => {
       if (isMeEditing()) {
-         window.addEventListener('mousemove', onMouseMove);
+         window.addEventListener('pointermove', onPointerMove);
       }
       else {
          setState('dot', 'state', DotState.None);
-         window.removeEventListener('mousemove', onMouseMove);
+         window.removeEventListener('pointermove', onPointerMove);
       }
    });
 
    onCleanup(() => {
-      window.removeEventListener('mousemove', onmousemove);
+      window.removeEventListener('pointermove', onPointerMove);
    });
 
    function onBoxPointerDown(e: PointerEvent, btn = 0) {
@@ -310,7 +322,6 @@ export function Block(props: BlockProps) {
 
       const dot = e.currentTarget as HTMLDivElement;
       dot.setPointerCapture(e.pointerId);
-
       dot.onpointerup = onDotPointerUp;
       dot.onpointermove = onHookPointerMove;
 
@@ -333,11 +344,11 @@ export function Block(props: BlockProps) {
             break;
          }
          case CursorSide.E: {
-            width = e.pageX - state.transform.x -editor.containerRect.x;
+            width = e.pageX - state.transform.x - editor.containerRect.x;
             break;
          }
          case CursorSide.N: {
-            const yc = e.pageY -editor.containerRect.y;
+            const yc = e.pageY - editor.containerRect.y;
             height += y - yc;
             y = yc;
 
@@ -345,60 +356,69 @@ export function Block(props: BlockProps) {
             break;
          }
          case CursorSide.S: {
-            height = e.pageY - state.transform.y -editor.containerRect.y;
+            height = e.pageY - state.transform.y - editor.containerRect.y;
             break;
          }
          case CursorSide.NW: {
-            const yc = e.pageY -editor.containerRect.y;
+            const yc = e.pageY - editor.containerRect.y;
             height += y - yc;
             y = yc;
 
-            const xc = e.pageX -editor.containerRect.x;
+            const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
             x = xc;
 
-            εY = store.document.layoutOptions.gap / 2;
+            εY = store.document.layoutOptions.gap;
+            εX = store.document.layoutOptions.gap;
             break;
          }
          case CursorSide.NE: {
-            width = e.pageX - state.transform.x -editor.containerRect.x;
+            width = e.pageX - state.transform.x - editor.containerRect.x;
 
-            const yc = e.pageY -editor.containerRect.y;
+            const yc = e.pageY - editor.containerRect.y;
             height += y - yc;
             y = yc;
             break;
          }
          case CursorSide.SE: {
-            width = e.pageX - state.transform.x -editor.containerRect.x;
-            height = e.pageY - state.transform.y -editor.containerRect.y;
+            width = e.pageX - state.transform.x - editor.containerRect.x;
+            height = e.pageY - state.transform.y - editor.containerRect.y;
             break;
          }
          case CursorSide.SW: {
-            const xc = e.pageX -editor.containerRect.x;
+            const xc = e.pageX - editor.containerRect.x;
             width += x - xc;
             x = xc;
-            height = e.pageY - state.transform.y -editor.containerRect.y;
+            height = e.pageY - state.transform.y - editor.containerRect.y;
             break;
          }
+      }
 
+      const contentDimension = getContentDimension({ width, height });
+      if (contentDimension.width > width) {
+         if ([CursorSide.W, CursorSide.NW, CursorSide.SW].includes(capturingSide)) {
+            x = state.transform.x;
+         }
+         width = contentDimension.width;
+      }
+      if (contentDimension.height > height) {
+         if ([CursorSide.N, CursorSide.NW, CursorSide.NE].includes(capturingSide)) {
+            y = state.transform.y;
+         }
+         height = contentDimension.height;
       }
 
       const minWidth = gridSize(1);
       const minHeight = gridSize(1);
-      if (width < minWidth) width = minWidth;
-      if (height < minHeight) height = minHeight;
 
-      // console.log(contentSize);
-
-      // if (height < minHeight) height = minHeight;
-      // if (width > maxWidth) width = maxWidth;
-      // if (height > maxHeight) height = maxHeight;
-
-      // if (x < 1) x = state.transform.pos.x;
-      // if (y < 1) y = state.transform.pos.y;
-
-      // if (x <> 1) height = state.transform.pos.x;
-      // if (y < 1) width = state.transform.pos.y;
+      if (width < minWidth) {
+         width = minWidth;
+         x = state.transform.x;
+      }
+      if (height < minHeight) {
+         height = minHeight;
+         y = state.transform.y;
+      }
 
       // batch here?
       setState('transform', { x, y, width, height });
@@ -410,9 +430,9 @@ export function Block(props: BlockProps) {
 
    function onDotPointerUp(e: PointerEvent) {
       const dot = e.currentTarget as HTMLDivElement;
+      dot.releasePointerCapture(e.pointerId);
       dot.onpointermove = null;
       dot.onpointerup = null;
-      pinnedDotPosition = null;
       capturingSide = null;
       const { x, y, width, height } = state.transform;
       onChangeEnd(props.block, { x, y, width, height }, 'resize');
@@ -435,20 +455,10 @@ export function Block(props: BlockProps) {
          ondrop={(e) => e.preventDefault()}
          draggable={false}
       >
-         <svg
+         <HandyIcon
             class={s.handy}
-            width="10"
-            height="18"
-            viewBox="0 0 10 18"
             onPointerDown={(e) => onBoxPointerDown(e, 0)}
-         >
-            <path d="M1.5 3.5C2.32843 3.5 3 2.82843 3 2C3 1.17157 2.32843 0.5 1.5 0.5C0.671573 0.5 0 1.17157 0 2C0 2.82843 0.671573 3.5 1.5 3.5Z" />
-            <path d="M8.5 3.5C9.32843 3.5 10 2.82843 10 2C10 1.17157 9.32843 0.5 8.5 0.5C7.67157 0.5 7 1.17157 7 2C7 2.82843 7.67157 3.5 8.5 3.5Z" />
-            <path d="M1.5 10.5C2.32843 10.5 3 9.82843 3 9C3 8.17157 2.32843 7.5 1.5 7.5C0.671573 7.5 0 8.17157 0 9C0 9.82843 0.671573 10.5 1.5 10.5Z" />
-            <path d="M8.5 10.5C9.32843 10.5 10 9.82843 10 9C10 8.17157 9.32843 7.5 8.5 7.5C7.67157 7.5 7 8.17157 7 9C7 9.82843 7.67157 10.5 8.5 10.5Z" />
-            <path d="M1.5 17.5C2.32843 17.5 3 16.8284 3 16C3 15.1716 2.32843 14.5 1.5 14.5C0.671573 14.5 0 15.1716 0 16C0 16.8284 0.671573 17.5 1.5 17.5Z" />
-            <path d="M8.5 17.5C9.32843 17.5 10 16.8284 10 16C10 15.1716 9.32843 14.5 8.5 14.5C7.67157 14.5 7 15.1716 7 16C7 16.8284 7.67157 17.5 8.5 17.5Z" />
-         </svg>
+         />
          <Show when={state.dot.state !== DotState.None}>
             <div
                class={s.dotWrapper}
@@ -472,10 +482,10 @@ export function Block(props: BlockProps) {
             class={s.overlay}
             ref={boxRef}
             onPointerEnter={() => {
-               mouseInside = true;
+               pointerInside = true;
             }}
             onPointerLeave={() => {
-               mouseInside = false;
+               pointerInside = false;
                if (pointerDown && isMeEditing() && !isMeDragging()) {
                   selectBlock(props.block, 'select');
                }
@@ -490,7 +500,8 @@ export function Block(props: BlockProps) {
                isMeDragging={isMeDragging()}
                isMeEditing={isMeEditing()}
                isMeResizing={isMeResizing()}
-               onContentDimensionChange={onContentDimensionChange}
+               localTransform={state.transform}
+               setGetContentDimension={(f) => getContentDimension = f}
             />
          </div>
          <Show when={isMeEditing()}>
