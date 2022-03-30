@@ -1,14 +1,21 @@
 import { useAppStore } from '@/lib/app.store';
-import { ComponentProps, For, Show } from 'solid-js';
+import { ComponentProps, For, mergeProps, Show } from 'solid-js';
 import s from './side-menu.module.scss';
 import cc from 'classcat';
 import AddIcon from './assets/add.icon.svg';
 
-type SideMenuProps = {
+const items = ['search', 'settings', 'trash'] as const;
 
+type SideMenuProps = {
+   activeItems: (typeof items)[any][];
+   disabledItems: (typeof items)[any][];
+   onItemClick(item: typeof items[any]): void;
 } & ComponentProps<'div'>;
 
 export function SideMenu(props: SideMenuProps) {
+   props = mergeProps({
+      onItemClick: () => void 0
+   }, props);
    const [app, { setStore }] = useAppStore();
 
    return (
@@ -25,9 +32,16 @@ export function SideMenu(props: SideMenuProps) {
          </div>
          <div class={s.menus}>
             <div class={cc([s.block, s.controls])}>
-               <For each={['search', 'settings', 'trash'] as const}>
+               <For each={items}>
                   {(item) => (
-                     <div classList={{ [s.item]: true }}>
+                     <div
+                        classList={{
+                           [s.item]: true,
+                           [s.itemHighlighed]: props.activeItems.includes(item),
+                           [s.itemDisabled]: props.disabledItems.includes(item),
+                        }}
+                        onClick={() => props.onItemClick(item)}
+                     >
                         <div classList={{ [s.icon]: true, [s[item]]: true }} />
                         <span>{item}</span>
                      </div>

@@ -151,6 +151,13 @@
       text-transform: capitalize;
    }
 }
+.item-disabled {
+   color: #d3d3d3;
+   pointer-events: none;
+   //  > .icon {
+
+   //  }
+}
 .block {
    width: 100%;
    .name {

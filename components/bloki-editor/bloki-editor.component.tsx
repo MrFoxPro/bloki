@@ -19,6 +19,7 @@ function isTextBlock(block: AnyBlock): block is TextBlock {
 
 type BlokiEditorProps = {
    showDrawerToolbox?: boolean;
+   showMeta?: boolean;
 };
 function BlokiEditor(props: BlokiEditorProps) {
    let containerRef: HTMLDivElement;
@@ -263,10 +264,12 @@ function BlokiEditor(props: BlokiEditorProps) {
                </Show>
             </div>
          </div>
-         <div class={s.controls}>
-            <div class={s.control}>Block id: [{store.editingBlock?.id}]</div>
-            <div class={s.control}>Editing type: [{store.editingType}]</div>
-         </div>
+         <Show when={props.showMeta}>
+            <div class={s.controls}>
+               <div class={s.control}>Block id: [{store.editingBlock?.id}]</div>
+               <div class={s.control}>Editing type: [{store.editingType}]</div>
+            </div>
+         </Show>
          <Show when={props.showDrawerToolbox}>
             <DrawerToolbox />
          </Show>
