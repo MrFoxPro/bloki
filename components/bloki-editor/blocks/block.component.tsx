@@ -394,21 +394,21 @@ export function Block(props: BlockProps) {
             break;
          }
       }
-
-      const contentDimension = getContentDimension({ width, height });
-      if (contentDimension.width > width) {
-         if ([CursorSide.W, CursorSide.NW, CursorSide.SW].includes(capturingSide)) {
-            x = state.transform.x;
+      if (getContentDimension) {
+         const contentDimension = getContentDimension({ width, height });
+         if (contentDimension.width > width) {
+            if ([CursorSide.W, CursorSide.NW, CursorSide.SW].includes(capturingSide)) {
+               x = state.transform.x;
+            }
+            width = contentDimension.width;
          }
-         width = contentDimension.width;
-      }
-      if (contentDimension.height > height) {
-         if ([CursorSide.N, CursorSide.NW, CursorSide.NE].includes(capturingSide)) {
-            y = state.transform.y;
+         if (contentDimension.height > height) {
+            if ([CursorSide.N, CursorSide.NW, CursorSide.NE].includes(capturingSide)) {
+               y = state.transform.y;
+            }
+            height = contentDimension.height;
          }
-         height = contentDimension.height;
       }
-
       const minWidth = gridSize(1);
       const minHeight = gridSize(1);
 

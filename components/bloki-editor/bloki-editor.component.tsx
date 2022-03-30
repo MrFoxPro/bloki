@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, createSignal, For, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
+import { ComponentProps, createEffect, For, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
 import s from './bloki-editor.module.scss';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
@@ -11,7 +11,7 @@ import { DrawerToolbox } from '@/components/drawer/toolbox/toolbox.component';
 import { BlockTransform, Dimension, Point } from './types';
 import { getImgDimension, readAsDataUrl } from './helpers';
 import { TextBlockFontFamily, TextTypes } from './blocks/text-block/types';
-
+import DomPurify from 'dompurify';
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
    return block.type === 'text';
@@ -93,51 +93,110 @@ function BlokiEditor(props: BlokiEditorProps) {
       editor.emit('maingridcursormoved', null, true);
    }
 
+   const getAsString = (item: DataTransferItem) => new Promise<string>((res, rej) => {
+      item.getAsString((value) => {
+         res(value);
+      });
+   });
+   function htmlToElement(html: string) {
+      var template = document.createElement('template');
+      html = html.trim(); // Never return a text node of whitespace as the result
+      template.innerHTML = html;
+      return template.content.firstChild;
+   }
+
+
    async function onPaste(e: ClipboardEvent) {
       e.preventDefault();
-      console.log(e);
-      const file = Array.from(e.clipboardData.files)[0];
-      if (!file) return;
+      // const file = Array.from(e.clipboardData.files)[0];
+      const item = Array.from(e.clipboardData.items)[0];
 
-      if (file.type.includes('image')) {
-
-         const dimension = await getImgDimension(URL.createObjectURL(file));
-         const ratio = dimension.width / dimension.height;
-         const { fGridWidth, mGridWidth, blockMaxSize } = store.document.layoutOptions;
-         let width = mGridWidth;
-         let height = Math.ceil(width / ratio);
-         console.log('calculated image dimension', dimension, 'relative', width, height);
-
-         if (height > blockMaxSize.height) {
-            height = blockMaxSize.height;
-            width = Math.ceil(ratio * height);
-         }
-         const x = (fGridWidth - mGridWidth) / 2;
-         const y = findNextSpaceBelow(null);
-         const transform: BlockTransform = {
-            width, height,
-            x, y,
-         };
-         console.log(x, y, width, height);
-         const { correct } = checkPlacement(transform, x, y);
-         if (!correct) {
-            alert('Not enough space to place block in layout =(');
-            return;
-         }
-         const imgBase64 = await readAsDataUrl(file);
-         const block: ImageBlock = {
-            id: crypto.randomUUID(),
-            type: 'image',
-            src: imgBase64,
-            ...transform,
-         };
-         setStore('document', 'blocks', blocks => blocks.concat(block));
-         setStore({
-            editingBlock: store.document.blocks[store.document.blocks.length - 1],
-            editingType: 'select'
-         });
-         await app.apiProvider.updateDocument(app.selectedDocument);
+      if (!item || item.type !== 'text/html') {
+         alert('We are allowing only images pasted from other internet sources!');
+         return;
       }
+      const str = await getAsString(item).then(str => DomPurify.sanitize(str));
+      const imgSrc = str.match(/<img [^>]*src="[^"]*"[^>]*>/gm)
+         .map(x => x.replace(/.*src="([^"]*)".*/, '$1'))[0];
+
+      if (!imgSrc?.includes('http')) {
+         alert('We are allowing only images pasted from other internet sources!');
+         return;
+      }
+      const { fGridWidth, mGridWidth } = store.document.layoutOptions;
+      let dimension: Dimension;
+      if (imgSrc.includes('svg')) {
+         dimension = { width: mGridWidth, height: mGridWidth };
+      }
+      else dimension = await getImgDimension(imgSrc);
+      const ratio = dimension.width / dimension.height;
+      let width = mGridWidth;
+      let height = Math.ceil(width / ratio);
+      const x = (fGridWidth - mGridWidth) / 2;
+      const y = findNextSpaceBelow(null);
+      const transform: BlockTransform = {
+         width, height,
+         x, y,
+      };
+      const { correct } = checkPlacement(transform, x, y);
+      if (!correct) {
+         alert('Not enough space to place block in layout =(');
+         return;
+      }
+      const block: ImageBlock = {
+         id: crypto.randomUUID(),
+         type: 'image',
+         src: imgSrc,
+         ...transform,
+      };
+      setStore('document', 'blocks', blocks => blocks.concat(block));
+      setStore({
+         editingBlock: store.document.blocks[store.document.blocks.length - 1],
+         editingType: 'select'
+      });
+      await app.apiProvider.updateDocument(app.selectedDocument);
+
+      // console.log(img.src);
+      // if (file?.type.includes('image')) {
+      //    const objUrl = URL.createObjectURL(file);
+      //    const dimension = await getImgDimension(objUrl);
+      //    URL.revokeObjectURL(objUrl);
+      //    const ratio = dimension.width / dimension.height;
+      //    const { fGridWidth, mGridWidth, blockMaxSize } = store.document.layoutOptions;
+      //    let width = mGridWidth;
+      //    let height = Math.ceil(width / ratio);
+      //    console.log('calculated image dimension', dimension, 'relative', width, height);
+
+      //    if (height > blockMaxSize.height) {
+      //       height = blockMaxSize.height;
+      //       width = Math.ceil(ratio * height);
+      //    }
+      //    const x = (fGridWidth - mGridWidth) / 2;
+      //    const y = findNextSpaceBelow(null);
+      //    const transform: BlockTransform = {
+      //       width, height,
+      //       x, y,
+      //    };
+      //    console.log(x, y, width, height);
+      //    const { correct } = checkPlacement(transform, x, y);
+      //    if (!correct) {
+      //       alert('Not enough space to place block in layout =(');
+      //       return;
+      //    }
+      //    const imgBase64 = await readAsDataUrl(file);
+      //    const block: ImageBlock = {
+      //       id: crypto.randomUUID(),
+      //       type: 'image',
+      //       src: imgBase64,
+      //       ...transform,
+      //    };
+      //    setStore('document', 'blocks', blocks => blocks.concat(block));
+      //    setStore({
+      //       editingBlock: store.document.blocks[store.document.blocks.length - 1],
+      //       editingType: 'select'
+      //    });
+      //    await app.apiProvider.updateDocument(app.selectedDocument);
+      // }
    }
 
    function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {

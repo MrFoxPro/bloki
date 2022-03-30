@@ -36,19 +36,22 @@
    justify-content: space-between;
    padding: 0 20px;
    box-sizing: border-box;
+
    .left-bar {
       // width: 190px;
       display: flex;
       align-items: center;
 
-      > .arrow {
+      >.arrow {
          margin-left: 10px;
          cursor: pointer;
       }
-      > h4 {
+
+      >h4 {
          margin-left: 15px;
       }
    }
+
    .right-bar {
       width: 100px;
       display: flex;
@@ -56,13 +59,15 @@
       align-items: center;
       flex-direction: row-reverse;
       cursor: pointer;
+
       .options-icon {
          // width: 24px;
          // height: 24px;
          display: flex;
          justify-content: center;
          align-items: center;
-         > svg {
+
+         >svg {
             width: 24px;
             height: 24px;
             stroke: #2c3e50 !important;
@@ -70,6 +75,7 @@
       }
    }
 }
+
 .workspace-bar {
    @extend .top-bar;
    display: flex;
@@ -77,6 +83,7 @@
    background: #f6f9fb;
    gap: 12px;
    justify-content: flex-start;
+
    .box {
       min-width: 24px;
       min-height: 24px;
@@ -88,6 +95,7 @@
 
       // margin-left: 24px;
    }
+
    .title {
       font-family: Inter;
       font-style: normal;
@@ -95,8 +103,10 @@
       font-size: 18px;
       color: #312f2f;
    }
+
    margin-bottom: 15px;
 }
+
 .menus {
    width: 207px;
    // margin: 0 auto;
@@ -111,9 +121,11 @@
    .icon.search {
       background-image: url(./assets/search.icon.svg);
    }
+
    .icon.settings {
       background-image: url(./assets/settings.icon.svg);
    }
+
    .icon.trash {
       background-image: url(./assets/delete.icon.svg);
    }
@@ -123,6 +135,7 @@
    background-color: #edf2f4;
    border-radius: 6px;
 }
+
 .item {
    box-sizing: border-box;
 
@@ -138,19 +151,22 @@
    &:hover {
       @extend .item-highlighed;
    }
-   > .icon {
+
+   >.icon {
       width: 15px;
       height: 15px;
       background-position: center;
       background-repeat: no-repeat;
       background-size: contain;
    }
-   > span {
+
+   >span {
       margin-left: 8px;
       font-weight: 500;
       text-transform: capitalize;
    }
 }
+
 .item-disabled {
    color: #d3d3d3;
    pointer-events: none;
@@ -158,8 +174,10 @@
 
    //  }
 }
+
 .block {
    width: 100%;
+
    .name {
       font-family: Inter;
       font-style: normal;
@@ -171,6 +189,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+
       .icon {
          width: 24px;
          height: 24px;
@@ -178,28 +197,33 @@
          justify-content: center;
          align-items: center;
          cursor: pointer;
-         > svg {
+
+         >svg {
             width: 16px;
             height: 16px;
             stroke: #9ca5ab !important;
          }
-         &:hover > svg {
+
+         &:hover>svg {
             stroke: #4281fa !important;
             fill: #4281fa !important;
          }
       }
    }
 }
+
 .pages {
    .page {
-      > span {
+      >span {
          font-weight: 400;
       }
-      > .icon {
+
+      >.icon {
          &.page {
             background-image: url(./assets/page.icon.svg);
             margin-left: 3px;
          }
+
          &.arrow {
             background-image: url(./assets/arrow-menu.icon.svg);
             width: 10px;
@@ -207,8 +231,10 @@
             margin-left: 3px;
          }
       }
+
       position: relative;
-      > .dotsIcon {
+
+      >.dotsIcon {
          width: 22px;
          height: 22px;
          background-image: url(./assets/triple-dots.icon.svg);
@@ -217,10 +243,12 @@
          border-radius: 4px;
          position: absolute;
          right: 3px;
+
          &:hover {
             background-color: #d7dcdf;
          }
       }
+
       // &.item-highlighed {
       //    padding-left: #{3 + 15 + 8 + 5}px;
       //    background-image: url(./assets/page.icon.svg), url(./assets/arrow.icon.svg);

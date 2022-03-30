@@ -1,10 +1,32 @@
 import { calculateBlockSize } from "@/components/bloki-editor/blocks/text-block";
+import { TextBlockFontFamily, TextTypes } from "@/components/bloki-editor/blocks/text-block/types";
 import { BlokiDocument, TextBlock, User, Workspace } from "../entities";
 import { defaultLayoutOptions } from "./layout-options";
 
 export async function getUser() {
    const middleX = (defaultLayoutOptions.fGridWidth - defaultLayoutOptions.mGridWidth) / 2;
 
+   // const tutorialDoc: BlokiDocument = {
+   //    id: '98e9eb4a-a2d8-479f-beaa-7aaddd632772',
+   //    title: 'Intro',
+   //    blocks: [
+   //       {
+   //          id: 'af110e09-2cf0-4d7a-8867-aa9b4238227d',
+   //          type: 'text',
+   //          x: middleX,
+   //          y: 0,
+   //          height: 1,
+   //          fontFamily: TextBlockFontFamily.Inter,
+   //          textType: TextTypes.
+   //       }
+   //       {
+   //          id: '00c604f1-0aa8-41d8-9d25-9006e3305320',
+   //          x: middleX,
+   //          y: 0,
+   //       }
+   //    ],
+   //    layoutOptions: { ...defaultLayoutOptions },
+   // };
    const emptyDoc: BlokiDocument = {
       id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
       title: 'Empty',

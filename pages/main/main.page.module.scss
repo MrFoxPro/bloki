@@ -6,6 +6,7 @@
    display: flex;
    overflow: hidden;
 }
+
 .workspace {
    height: 100%;
    flex: 1;
@@ -13,11 +14,12 @@
    flex-direction: column;
    position: relative;
 
-   > div:nth-child(1) {
+   >div:nth-child(1) {
       // border-left: 1px solid #d7dcdf;
       display: flex;
       align-items: center;
       gap: 15px;
+
       // padding-left: 24px;
       .arrow {
          width: 15px;
@@ -30,16 +32,19 @@
             background-image: url("@/components/side-menu/assets/arrow.icon.svg");
             transform: rotate(180deg);
          }
+
          &:nth-child(2) {
             background-image: url("@/components/side-menu/assets/arrow.icon.svg");
          }
       }
+
       h4 {
          font-weight: 500;
          font-size: 16px;
       }
    }
 }
+
 .settings {
    box-sizing: border-box;
    padding: 14px;
@@ -68,7 +73,8 @@
       justify-content: center;
       align-items: flex-start;
       font-family: monospace;
-      > input {
+
+      >input {
          width: 150px;
       }
    }
