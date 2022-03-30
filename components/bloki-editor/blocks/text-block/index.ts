@@ -8,7 +8,7 @@ export function calculateBlockSize(block: TextBlock, layoutOptions: LayoutOption
    const gridSize = layoutOptions.size + layoutOptions.gap;
    const measurer = new DOMTextMeasurer();
    measurer.setOptions({
-      fontFamily: block.fontFamily ?? TextBlockFontFamily.Roboto,
+      fontFamily: block.fontFamily ?? TextBlockFontFamily.Inter,
       fontSize: block.textType.fontSize + 'px',
       fontWeight: block.textType.fontWeight + 'px',
       lineHeight: gridSize + 'px',

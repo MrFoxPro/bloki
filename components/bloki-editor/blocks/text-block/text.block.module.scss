@@ -1,6 +1,6 @@
 .regular {
    font-weight: 400;
-   font-family: Roboto;
+   font-family: Inter;
    color: #312f2f;
    font-size: 16px;
    line-height: 20px;
@@ -53,6 +53,7 @@
    }
 }
 .measurer {
-   background: red;
+   // background: red;
+   visibility: hidden;
    z-index: 900;
 }

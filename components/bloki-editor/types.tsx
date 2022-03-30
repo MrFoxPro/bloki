@@ -4,16 +4,11 @@ export type EditType = 'drag' | 'resize' | 'select' | 'content';
 
 export type BlockTransform = Point & Dimension;
 
-export type Intersection = {
-   startX: number;
-   width: number;
-   startY: number;
-   height: number;
-};
 export type PlacementStatus = {
    correct: boolean;
-   intersections: Intersection[];
+   intersections: BlockTransform[];
    outOfBorder: boolean;
+   affected: BlockTransform[];
 };
 export type ChangeEventInfo = {
    type: EditType;

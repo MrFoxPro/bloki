@@ -8,7 +8,8 @@ export const TextTypes = {
 } as const;
 
 export enum TextBlockFontFamily {
-   Roboto = 'Roboto'
+   Roboto = 'Roboto',
+   Inter = 'Inter'
 }
 
 export type TextBlock = Block & {

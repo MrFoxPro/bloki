@@ -8,7 +8,7 @@
    background: #f6f9fb;
    height: 100%;
 
-   font-family: "Roboto";
+   font-family: Inter;
    font-style: normal;
    font-weight: 400;
    font-size: 14px;
@@ -24,9 +24,7 @@
 
    border-bottom: 1px solid #d7dcdf;
 
-
-
-   font-family: Roboto;
+   font-family: Inter;
    font-style: normal;
    font-weight: 500;
    font-size: 14px;
@@ -91,7 +89,7 @@
       // margin-left: 24px;
    }
    .title {
-      font-family: Roboto;
+      font-family: Inter;
       font-style: normal;
       font-weight: 500;
       font-size: 18px;
@@ -150,12 +148,13 @@
    > span {
       margin-left: 8px;
       font-weight: 500;
+      text-transform: capitalize;
    }
 }
 .block {
    width: 100%;
    .name {
-      font-family: "Roboto";
+      font-family: Inter;
       font-style: normal;
       font-weight: 600;
       font-size: 12px;

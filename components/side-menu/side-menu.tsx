@@ -1,6 +1,5 @@
 import { useAppStore } from '@/lib/app.store';
 import { ComponentProps, For, Show } from 'solid-js';
-import { upperFirst } from 'lodash-es';
 import s from './side-menu.module.scss';
 import cc from 'classcat';
 import AddIcon from './assets/add.icon.svg';
@@ -30,7 +29,7 @@ export function SideMenu(props: SideMenuProps) {
                   {(item) => (
                      <div classList={{ [s.item]: true }}>
                         <div classList={{ [s.icon]: true, [s[item]]: true }} />
-                        <span>{upperFirst(item)}</span>
+                        <span>{item}</span>
                      </div>
                   )}
                </For>

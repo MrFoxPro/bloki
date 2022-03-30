@@ -7,7 +7,6 @@ import {
    ChangeEventInfo,
    Dimension,
    EditType,
-   Intersection,
    PlacementStatus,
    Point
 } from "./types";
@@ -17,7 +16,7 @@ type EditorStoreValues = DeepReadonly<{
    editingType: EditType | null;
 
    selectedBlocks: AnyBlock[];
-
+   overflowedBlocks: AnyBlock[];
    isPlacementCorrect: boolean;
    document: BlokiDocument;
 }>;
@@ -93,6 +92,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          editingBlock: null,
          editingType: null,
          selectedBlocks: [],
+         overflowedBlocks: [],
          isPlacementCorrect: false,
          document: null,
       }
@@ -147,10 +147,12 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return { width: gridSize(width), height: gridSize(height) };
    }
 
-   function checkPlacement(block: BlockTransform, x: number, y: number, width = block.width, height = block.height) {
-      const intersections: Intersection[] = [];
+   function checkPlacement(block: BlockTransform, x: number, y: number, width = block.width, height = block.height): PlacementStatus {
+      const intersections: BlockTransform[] = [];
+      const affected: BlockTransform[] = [];
       let correct = true;
       let outOfBorder = false;
+
       const { fGridHeight, fGridWidth, blockMinSize, blockMaxSize } = state.document.layoutOptions;
 
       if (width > blockMaxSize.width || width < blockMinSize.width || height > blockMaxSize.height || height < blockMinSize.height) {
@@ -190,6 +192,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
          if (adx < colXDist && ady < colYDist) {
             correct = false;
+            affected.push(sBlock);
             let startX = 0, startY = 0;
             if (dx > 0) {
                startX = x1 + adx;
@@ -215,9 +218,9 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             }
 
             intersections.push({
-               startX,
+               x: startX,
                width: colWidth,
-               startY,
+               y: startY,
                height: colHeight,
             });
             continue;
@@ -226,7 +229,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return {
          correct,
          intersections,
-         outOfBorder
+         outOfBorder,
+         affected
       };
    }
 
@@ -235,7 +239,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       editor.emit('changestart', block, {
          absTransform: abs,
-         placement: { correct: true, intersections: [], outOfBorder: false, },
+         placement: { correct: true, intersections: [], outOfBorder: false, affected: [] },
          relTransform: { height: block.height, width: block.width, x: block.x, y: block.y },
          type
       });
