@@ -18,18 +18,12 @@
    overflow-wrap: break-word;
    word-break: normal;
 
-   scrollbar-width: none;
-   &::-webkit-scrollbar {
-      display: none;
-   }
+   // CHROME HACK
+   backface-visibility: hidden;
 
    &:focus {
       outline: 0;
    }
-
-   // CHROME HACK
-   backface-visibility: hidden;
-
    -webkit-user-drag: none;
 
    &.show-placeholder {
@@ -49,7 +43,10 @@
       }
    }
    &.shadow {
-      opacity: 0.4;
+      color: #e0e0e0;
+   }
+   &.overflowing {
+      color: #c5c9d2;
    }
 }
 .measurer {

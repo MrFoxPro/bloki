@@ -150,7 +150,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function checkPlacement(block: BlockTransform, x = block.x, y = block.y, width = block.width, height = block.height): PlacementStatus {
       const intersections: BlockTransform[] = [];
-      const affected: BlockTransform[] = [];
+      const affected: AnyBlock[] = [];
       let correct = true;
       let outOfBorder = false;
 
@@ -169,7 +169,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       for (let i = 0; i < state.document.blocks.length; i++) {
          const sBlock = state.document.blocks[i];
-         if (!sBlock) console.warn('wut');
          if (sBlock === block) continue;
 
          const x1 = x;
@@ -194,37 +193,19 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          if (adx < colXDist && ady < colYDist) {
             correct = false;
             affected.push(sBlock);
-            let startX = 0, startY = 0;
-            if (dx > 0) {
-               startX = x1 + adx;
-            }
-            else {
-               startX = x2 + adx;
-            }
-            if (dy > 0) {
-               startY = y1 + ady;
-            }
-            else {
-               startY = y2 + ady;
-            }
+            const startX = Math.max(x1, x2);
+            const startY = Math.max(y1, y2);
 
-            let colWidth = colXDist - adx, colHeight = colYDist - ady;
-            if (sizeX1 - adx - sizeX2 > 0) {
-               if (dx < 0) colWidth = sizeX2 + dx;
-               else colWidth = sizeX2;
-            }
-            if (sizeY1 - ady - sizeY2 > 0) {
-               if (dy > 0) colHeight = sizeY2;
-               else colHeight = sizeY2 + dy;
-            }
+            const xEnd = Math.min(x1 + sizeX1, x2 + sizeX2);
+            const yEnd = Math.min(y1 + sizeY1, y2 + sizeY2);
 
             intersections.push({
                x: startX,
-               width: colWidth,
+               width: xEnd - startX,
                y: startY,
-               height: colHeight,
+               height: yEnd - startY,
             });
-            continue;
+            // continue;
          }
       }
       return {
@@ -262,7 +243,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
 
       const placement = checkPlacement(block, x, y, width, height);
-      setState({ isPlacementCorrect: placement.correct });
+      setState({ isPlacementCorrect: placement.correct, overflowedBlocks: placement.affected });
       editor.emit('change', block, {
          absTransform,
          placement,
@@ -280,7 +261,10 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          setState({
             // editingBlock: null,
             editingType: 'select',
+            isPlacementCorrect: true,
+            overflowedBlocks: [],
          });
+
          if (placement.correct) {
             console.log('correct!');
             setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y, width, height });
@@ -316,11 +300,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          });
       }
    }
+
    // let verticallySortedDocs: string[];
    // createEffect(() => {
 
    // })
-
 
    return (
       <EditorStore.Provider value={[

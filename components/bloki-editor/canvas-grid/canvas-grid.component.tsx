@@ -1,13 +1,13 @@
 import s from './canvas-grid.module.scss';
 import { onCleanup, onMount } from "solid-js";
 import { useEditorStore } from '../editor.store';
-import { BlockTransform, PlacementStatus, Point } from "../types";
-import { unwrap } from 'solid-js/store';
+import { BlockTransform, PlacementStatus } from "../types";
+import { isInsideRect } from '../helpers';
 
 const fillColors = {
-   free: '#D1ECFE',
-   intersection: '#B1B1B1',
-   affected: '#DDDDDD'
+   free: '#EDF3FF',
+   intersection: '#D8DEE9',
+   affected: '#F4F4F4'
 } as const;
 
 type CachedPlacement = Pick<PlacementStatus, 'intersections' | 'affected'> & { block: BlockTransform; };
@@ -17,7 +17,7 @@ export function BlokiCanvasGrid() {
    let ctx: CanvasRenderingContext2D;
    const [store, { gridSize, realSize, editor }] = useEditorStore();
 
-   function roundRect(x: number, y: number, width: number, height: number, radius: number) {
+   function roundRect(x: number, y: number, width: number, height: number, radius: number = 4) {
       if (width < 2 * radius) radius = width / 2;
       if (height < 2 * radius) radius = height / 2;
       ctx.beginPath();
@@ -30,7 +30,6 @@ export function BlokiCanvasGrid() {
    }
 
    function clearProjection({ affected, block }: CachedPlacement) {
-      const { gap } = store.document.layoutOptions;
       if (block) {
          clearGrid(block);
       }
@@ -52,6 +51,7 @@ export function BlokiCanvasGrid() {
       // Todo: optimize to one grid to increase rendering performance
       for (let i = 0; i < intersections.length; i++) {
          const { x, y, width, height } = intersections[i];
+
          for (let i = x; i < x + width; i++) {
             for (let j = y; j < y + height; j++) {
                const absX = gridSize(i);
@@ -59,11 +59,10 @@ export function BlokiCanvasGrid() {
                roundRect(absX + gap, absY + gap, size, size, 4);
 
                if (outOfBorder) ctx.fillStyle = fillColors.intersection;
-               else if (intersections.some(sect => x >= sect.x && (x < sect.x + sect.width) && y >= sect.y && y < sect.y + sect.height)) {
+               else if (intersections.some(sect => isInsideRect(x, y, sect))) {
                   ctx.fillStyle = fillColors.intersection;
                }
                else ctx.fillStyle = fillColors.free;
-
                ctx.fill();
             }
          }
@@ -100,12 +99,11 @@ export function BlokiCanvasGrid() {
          block: null,
       };
 
-      const unbindChangeEnd = editor.on('changeend', () => {
+      const unbindChangeEnd = editor.on('changeend', function () {
          clearProjection(prevPlacement);
       });
 
-      const unbindChange = editor.on('change', (_, { placement, relTransform }) => {
-
+      const unbindChange = editor.on('change', function (_, { placement, relTransform }) {
          const old = prevPlacement.block;
          if (old &&
             old.x + old.width === relTransform.x + relTransform.width &&
@@ -124,7 +122,7 @@ export function BlokiCanvasGrid() {
       });
 
       let prevTransform: BlockTransform = null;
-      const unbindGridMouseMove = editor.on('maingridcursormoved', (transform, isOut) => {
+      const unbindGridMouseMove = editor.on('maingridcursormoved', function (transform, isOut) {
          prevTransform && clearGrid(prevTransform);
          if (isOut) {
             prevTransform = null;

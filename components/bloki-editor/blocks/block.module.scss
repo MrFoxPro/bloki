@@ -1,5 +1,4 @@
 .draggable {
-   position: absolute;
    // causes some artifacts in chrome. possibly cause of overlay or outline
    will-change: transform;
 }
@@ -9,6 +8,7 @@
    outline: 1px solid transparent;
    // border: 1px solid transparent;
    border-radius: 2px;
+   position: absolute;
 
    &:hover {
       .handy {
@@ -24,7 +24,7 @@
       }
    }
    &.dragging {
-      // border-color: #4281fa;
+      // background: rgba(201, 64, 64, 0.637);
       cursor: grabbing;
       .handy {
          fill: #7597ff;
@@ -34,10 +34,6 @@
       .sizedot {
          background: #4281fa !important;
       }
-      // .vert,
-      // .edge {
-      //    cursor: none !important;
-      // }
    }
    .overlay {
       position: absolute;
@@ -50,10 +46,6 @@
    .edge,
    .vert {
       position: absolute;
-      // pointer-events: none;
-      // &.active {
-      //    pointer-events: initial;
-      // }
    }
    .vert {
       width: $area-size - $area-offset;

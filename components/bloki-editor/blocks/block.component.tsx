@@ -9,7 +9,7 @@ import { Dimension, Point } from '../types';
 import { ImageBlock } from './image-block/image.block.component';
 import HandyIcon from './assets/handy.icon.svg';
 import type { AnyBlock, BlockType } from '@/lib/entities';
-import { isInside, distanceBetweenPoints } from '../helpers';
+import { isInsideRect, distanceBetweenPoints } from '../helpers';
 
 enum DotState {
    None,
@@ -111,6 +111,7 @@ export function Block(props: BlockProps) {
    const isMeEditing = createMemo(() => store.editingBlock === props.block);
    const isMeDragging = createMemo(() => isMeEditing() && store.editingType === 'drag');
    const isMeResizing = createMemo(() => isMeEditing() && store.editingType === 'resize');
+   const isMeOverflowing = createMemo(() => store.overflowedBlocks.includes(props.block));
 
    createEffect(() => {
       setState('transform', getAbsolutePosition(props.block.x, props.block.y));
@@ -135,7 +136,7 @@ export function Block(props: BlockProps) {
    function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
       const rect = e.currentTarget.getBoundingClientRect();
 
-      if (isInside(e.pageX, e.pageY, rect)) {
+      if (isInsideRect(e.pageX, e.pageY, rect)) {
          selectBlock(props.block, 'content');
       }
       else {
@@ -500,6 +501,7 @@ export function Block(props: BlockProps) {
                isMeDragging={isMeDragging()}
                isMeEditing={isMeEditing()}
                isMeResizing={isMeResizing()}
+               isMeOverflowing={isMeOverflowing()}
                localTransform={state.transform}
                setGetContentDimension={(f) => getContentDimension = f}
             />

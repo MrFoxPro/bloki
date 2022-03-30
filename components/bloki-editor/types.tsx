@@ -1,3 +1,5 @@
+import { AnyBlock } from "@/lib/entities";
+
 export type Point = { x: number, y: number; };
 export type Dimension = { width: number, height: number; };
 export type EditType = 'drag' | 'resize' | 'select' | 'content';
@@ -8,7 +10,7 @@ export type PlacementStatus = {
    correct: boolean;
    intersections: BlockTransform[];
    outOfBorder: boolean;
-   affected: BlockTransform[];
+   affected: AnyBlock[];
 };
 export type ChangeEventInfo = {
    type: EditType;

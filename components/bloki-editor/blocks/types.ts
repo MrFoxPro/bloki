@@ -7,6 +7,7 @@ export type ContentBlockProps<T = AnyBlock> = {
    isMeEditing: boolean;
    isMeDragging: boolean;
    isMeResizing: boolean;
+   isMeOverflowing: boolean;
    setGetContentDimension(f: (transform: Dimension) => Dimension): void;
 
    shadowed?: boolean;

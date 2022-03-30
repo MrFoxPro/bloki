@@ -121,7 +121,8 @@ export function TextBlock(props: TextBlockProps) {
          classList={{
             [s.content]: true,
             [s.regular]: true,
-            [s.showPlaceholder]: !props.block.value && props.localTransform.width / gridSize(1) > 7
+            [s.showPlaceholder]: !props.block.value && props.localTransform.width / gridSize(1) > 7,
+            [s.overflowing]: props.isMeOverflowing
          }}
          data-placeholder={"Type '/' for commands"}
          contentEditable={isEditingContent()}
