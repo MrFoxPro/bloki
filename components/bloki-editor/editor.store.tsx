@@ -40,6 +40,7 @@ interface EditorEvents {
    change(block: AnyBlock, changeInfo: ChangeEventInfo): void;
    changeend(block: AnyBlock, changeInfo: ChangeEventInfo): void;
    containerrectchanged(rect: DOMRect): void;
+   maingridcursormoved(block: BlockTransform, isOut: boolean): void;
 }
 
 class StaticEditorData {
@@ -72,7 +73,7 @@ type EditorStoreHandles = {
    getAbsolutePosition(x: number, y: number): Point;
    getRelativeSize(width: any, height: any, roundFunc?: (x: number) => number): Dimension;
    getAbsoluteSize(width: number, height: number): Dimension;
-   checkPlacement(block: BlockTransform, x: number, y: number, width?: number, height?: number): PlacementStatus;
+   checkPlacement(block: BlockTransform, x?: number, y?: number, width?: number, height?: number): PlacementStatus;
 
    setStore: SetStoreFunction<EditorStoreValues>;
    editor: StaticEditorData;
@@ -147,7 +148,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return { width: gridSize(width), height: gridSize(height) };
    }
 
-   function checkPlacement(block: BlockTransform, x: number, y: number, width = block.width, height = block.height): PlacementStatus {
+   function checkPlacement(block: BlockTransform, x = block.x, y = block.y, width = block.width, height = block.height): PlacementStatus {
       const intersections: BlockTransform[] = [];
       const affected: BlockTransform[] = [];
       let correct = true;
@@ -298,7 +299,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    }
 
    function createBlock(block: AnyBlock) {
-
+      throw {};
    }
 
    function selectBlock(selectedBlock: AnyBlock, type: EditType = 'select') {

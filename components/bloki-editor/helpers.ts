@@ -21,3 +21,12 @@ export function distanceBetweenPoints(p1: Point, p2: Point) {
 export function isInside(x: number, y: number, rect: DOMRect) {
    return x < rect.left + rect.width && x > rect.left && y < rect.top + rect.height && y > rect.top;
 }
+
+export function readAsDataUrl(b: Blob) {
+   return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = (e) => reject(reader.error);
+      reader.readAsDataURL(b);
+   });
+}

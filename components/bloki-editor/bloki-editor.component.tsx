@@ -9,7 +9,8 @@ import { useAppStore } from '@/lib/app.store';
 import { unwrap } from 'solid-js/store';
 import { DrawerToolbox } from '@/components/drawer/toolbox/toolbox.component';
 import { BlockTransform, Dimension, Point } from './types';
-import { getImgDimension } from './helpers';
+import { getImgDimension, readAsDataUrl } from './helpers';
+import { TextBlockFontFamily, TextTypes } from './blocks/text-block/types';
 
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
@@ -31,7 +32,6 @@ function BlokiEditor(props: BlokiEditorProps) {
          selectBlock,
          setStore,
          getRelativePosition,
-         getRelativeSize,
          checkPlacement
       }
    ] = useEditorStore();
@@ -75,14 +75,23 @@ function BlokiEditor(props: BlokiEditorProps) {
       // console.log('last vert block in main grid', lastVerticalBlockInMainGrid);
       return y + height;
    }
-   function readAsDataUrl(b: Blob) {
-      return new Promise<string>((resolve, reject) => {
-         const reader = new FileReader();
-         reader.onloadend = () => resolve(reader.result as string);
-         reader.onerror = (e) => reject(reader.error);
-         reader.readAsDataURL(b);
-      });
+
+   function onMainGridMouseMove(e: MouseEvent) {
+      if (store.editingType) return;
+      const { y } = getRelativePosition(e.pageX - editor.containerRect.x, e.pageY - editor.containerRect.y);
+      const { mGridWidth, fGridWidth } = store.document.layoutOptions;
+      const x = (fGridWidth - mGridWidth) / 2;
+      const block = { x, y, width: mGridWidth, height: 1 };
+      const { correct } = checkPlacement(block);
+      if (correct) {
+         editor.emit('maingridcursormoved', block, false);
+      }
    }
+
+   function onMainGridMouseOut(e: MouseEvent) {
+      editor.emit('maingridcursormoved', null, true);
+   }
+
    async function onPaste(e: ClipboardEvent) {
       e.preventDefault();
       console.log(e);
@@ -93,7 +102,7 @@ function BlokiEditor(props: BlokiEditorProps) {
 
          const dimension = await getImgDimension(URL.createObjectURL(file));
          const ratio = dimension.width / dimension.height;
-         const { fGridWidth, mGridWidth, blockMaxSize, blockMinSize } = store.document.layoutOptions;
+         const { fGridWidth, mGridWidth, blockMaxSize } = store.document.layoutOptions;
          let width = mGridWidth;
          let height = Math.ceil(width / ratio);
          console.log('calculated image dimension', dimension, 'relative', width, height);
@@ -154,22 +163,17 @@ function BlokiEditor(props: BlokiEditorProps) {
             id: crypto.randomUUID(),
             type: 'text',
             value: '',
+            fontFamily: TextBlockFontFamily.Inter,
+            textType: TextTypes.Regular,
             ...newBlockTransform,
          };
          setStore('document', 'blocks', blocks => blocks.concat(block));
-         block = store.document.blocks[store.document.blocks.length - 1];
          setStore({
-            editingBlock: block,
+            editingBlock: store.document.blocks[store.document.blocks.length - 1],
             editingType: 'content'
          });
       }
    }
-
-   //    function requirestClipboardPermissions() {
-   //       navigator.permissions.query({name:''}).then(function(result) {
-   //          report(result.state);
-   //        });
-   //    }
 
    onMount(() => {
       calculateBoxRect();
@@ -246,6 +250,8 @@ function BlokiEditor(props: BlokiEditorProps) {
                      cursor: store.editingBlock ? 'initial' : 'cell'
                   }}
                   onClick={(e) => onGridClick(e, 'main')}
+                  onMouseMove={onMainGridMouseMove}
+                  onMouseOut={onMainGridMouseOut}
                />
                <For each={store.document.blocks}>
                   {(block) => (
