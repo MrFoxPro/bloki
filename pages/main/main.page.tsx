@@ -14,7 +14,7 @@ export function MainPage() {
       toolbox: false,
       settings: true,
       search: true,
-      gridType: 'dom'
+      gridType: 'canvas'
    });
 
    function DocumentSettings() {
@@ -74,7 +74,7 @@ export function MainPage() {
                      Grid rendering method
                   </div>
                   <div class={s.methods}>
-                     <div class={s.method}>
+                     <div>
                         <input
                            type="radio"
                            id="canvasMethod"
@@ -83,7 +83,7 @@ export function MainPage() {
                         />
                         <label for="canvasMethod">Canvas</label>
                      </div>
-                     <div class={s.method}>
+                     <div>
                         <input
                            type="radio"
                            id="domMethod"
