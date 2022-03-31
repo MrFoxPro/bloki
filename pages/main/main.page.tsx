@@ -6,7 +6,6 @@ import { useAppStore } from '@/lib/app.store';
 import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 import { createStore } from 'solid-js/store';
-import { upperFirst } from '@/lib/helpers';
 
 export function MainPage() {
    const [app, { setStore }] = useAppStore();
@@ -15,6 +14,7 @@ export function MainPage() {
       toolbox: false,
       settings: true,
       search: true,
+      gridType: 'dom'
    });
 
    function DocumentSettings() {
@@ -42,32 +42,57 @@ export function MainPage() {
                      </div>
                   )}
                </For>
-               <div>
-                  <label for="show-gradient">Show grid</label>
+               <div class={s.check}>
                   <input
                      type="checkbox"
                      name="show-gradient"
                      onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
                      checked={app.selectedDocument.layoutOptions.showGridGradient}
                   />
+                  <label for="show-gradient">Show grid</label>
                </div>
-               <div>
-                  <label for="show-resizers">Show resize areas</label>
+               <div class={s.check}>
                   <input
                      type="checkbox"
                      name="show-resizers"
                      onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
                      checked={app.selectedDocument.layoutOptions.showResizeAreas}
                   />
+                  <label for="show-resizers">Show resize areas</label>
                </div>
-               <div>
-                  <label for="show-toolbox">Show drawing toolbox</label>
+               <div class={s.check}>
                   <input
                      type="checkbox"
                      name="show-toolbox"
-                     onClick={_ => setState('settings', s => !s)}
+                     onClick={_ => setState('toolbox', s => !s)}
                      checked={state.toolbox}
                   />
+                  <label for="show-toolbox">Show drawing toolbox</label>
+               </div>
+               <div class={s.gridType}>
+                  <div>
+                     Grid rendering method
+                  </div>
+                  <div class={s.methods}>
+                     <div class={s.method}>
+                        <input
+                           type="radio"
+                           id="canvasMethod"
+                           checked={state.gridType === 'canvas'}
+                           onInput={() => setState({ gridType: 'canvas' })}
+                        />
+                        <label for="canvasMethod">Canvas</label>
+                     </div>
+                     <div class={s.method}>
+                        <input
+                           type="radio"
+                           id="domMethod"
+                           checked={state.gridType === 'dom'}
+                           onInput={() => setState({ gridType: 'dom' })}
+                        />
+                        <label for="domMethod">DOM</label>
+                     </div>
+                  </div>
                </div>
                <button
                   onClick={() => {
@@ -111,9 +136,10 @@ export function MainPage() {
                   document={app.selectedDocument}
                   showDrawerToolbox={state.toolbox}
                   showMeta={state.settings}
+                  gridType={state.gridType}
                />
             </Show>
          </div>
       </main>
    );
-}
+};

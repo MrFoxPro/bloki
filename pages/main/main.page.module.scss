@@ -78,4 +78,32 @@
          width: 150px;
       }
    }
+
+   .check {
+      display: flex;
+      align-items: center;
+
+      >input {
+         margin-left: 0;
+      }
+   }
+
+   .grid-type {
+      // background: #d7dcdf;
+      margin-top: 15px;
+      margin-bottom: 15px;
+
+      .methods {
+         display: flex;
+         align-items: center;
+         justify-content: space-around;
+         >input {
+            margin: 0;
+         }
+         >label {
+            margin-top: 2px;
+            text-align: center;
+         }
+      }
+   }
 }

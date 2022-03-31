@@ -1,8 +1,7 @@
-import { ComponentProps, createEffect, For, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
+import { ComponentProps, createEffect, For, Match, mergeProps, on, onCleanup, onMount, Show, splitProps, Switch } from 'solid-js';
 import s from './bloki-editor.module.scss';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
-import { BlokiCanvasGrid } from './canvas-grid/canvas-grid.component';
 import { Block } from './blocks/block.component';
 import { AnyBlock, ImageBlock, TextBlock } from '@/lib/entities';
 import { useAppStore } from '@/lib/app.store';
@@ -12,6 +11,7 @@ import { BlockTransform, Dimension, Point } from './types';
 import { getImgDimension, readAsDataUrl } from './helpers';
 import { TextBlockFontFamily, TextTypes } from './blocks/text-block/types';
 import DomPurify from 'dompurify';
+import { BacklightDrawer } from './backlight/BacklightDrawer';
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
    return block.type === 'text';
@@ -20,8 +20,12 @@ function isTextBlock(block: AnyBlock): block is TextBlock {
 type BlokiEditorProps = {
    showDrawerToolbox?: boolean;
    showMeta?: boolean;
+   gridType?: 'dom' | 'canvas';
 };
 function BlokiEditor(props: BlokiEditorProps) {
+   props = mergeProps({
+      gridType: 'dom'
+   }, props);
    let containerRef: HTMLDivElement;
    let wrapperRef: HTMLDivElement;
    const [app, { apiProvider }] = useAppStore();
@@ -38,6 +42,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    ] = useEditorStore();
 
    const GRID_COLOR_CELL = '#ffae0020';
+
 
    function calculateBoxRect() {
       if (!containerRef) return;
@@ -267,7 +272,6 @@ function BlokiEditor(props: BlokiEditorProps) {
    });
 
    createEffect(on(() => JSON.stringify(store.document.layoutOptions), calculateBoxRect));
-
    return (
       <>
          <div
@@ -291,7 +295,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   top: realSize().size_px,
                }}
             >
-               <BlokiCanvasGrid />
+               <BacklightDrawer type={props.gridType} />
                <div
                   class={cc([s.grid, s.foregroundGrid])}
                   style={{
