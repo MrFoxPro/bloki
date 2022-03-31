@@ -3,6 +3,7 @@ import { ComponentProps, For, mergeProps, Show } from 'solid-js';
 import s from './side-menu.module.scss';
 import cc from 'classcat';
 import AddIcon from './assets/add.icon.svg';
+import { useI18n } from '@solid-primitives/i18n';
 
 const items = ['search', 'settings', 'trash'] as const;
 
@@ -16,6 +17,9 @@ export function SideMenu(props: SideMenuProps) {
    props = mergeProps({
       onItemClick: () => void 0
    }, props);
+
+   const [t] = useI18n();
+
    const [app, { setStore }] = useAppStore();
 
    return (
@@ -28,7 +32,6 @@ export function SideMenu(props: SideMenuProps) {
                }}
             />
             <div class={s.title}>{app.selectedWorkspace?.title ?? 'Select workspace'}</div>
-            {/* new file and search */}
          </div>
          <div class={s.menus}>
             <div class={cc([s.block, s.controls])}>
@@ -43,14 +46,14 @@ export function SideMenu(props: SideMenuProps) {
                         onClick={() => props.onItemClick(item)}
                      >
                         <div classList={{ [s.icon]: true, [s[item]]: true }} />
-                        <span>{item}</span>
+                        <span>{t(`menu.items.${item}`)}</span>
                      </div>
                   )}
                </For>
             </div>
             <div class={s.block}>
                <div class={s.name}>
-                  Pages
+                  {t('menu.label.pages')}
                   <AddIcon class={s.icon} />
                </div>
                <div class={s.pages}>

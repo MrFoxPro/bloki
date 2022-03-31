@@ -1,0 +1,43 @@
+{
+  "menu": {
+    "label": {
+      "pages": "Страницы"
+    },
+    "items": {
+      "search": "Поиск",
+      "settings": "Настройки",
+      "trash": "Корзина"
+    }
+  },
+  "settings": {
+    "document": {
+      "grid-gradient": "Градиент",
+      "resize-areas": "Области захвата",
+      "toolbox": "Инструменты рисования",
+      "purge-db": "Сбросить локальную базу",
+      "reset-layout": "Сбросить настройки лейаута"
+    },
+    "system": {
+      "render-method": {
+        "canvas": "Canvas",
+        "title": "Grid rendering method",
+        "dom": "DOM"
+      },
+      "modal": {
+        "menu": {
+          "title": "Настройки пользователя",
+          "general": "Основные",
+          "item": {
+            "layout": "Разметка",
+            "language": "Язык"
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "layout": {
+      "not-enough-space": "Недостаточно места на макете"
+    }
+  }
+}

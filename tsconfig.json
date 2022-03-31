@@ -7,6 +7,7 @@
       "module": "ESNext",
       "moduleResolution": "node",
       "emitDecoratorMetadata": true,
+      "resolveJsonModule": true,
       // Typechecking
       "noImplicitAny": false,
       "strictNullChecks": false,
@@ -34,7 +35,7 @@
       },
       "types": [
          "vite/client",
-         "./types.d.ts"
+         // "./types.d.ts"
       ],
       "plugins": [
          {

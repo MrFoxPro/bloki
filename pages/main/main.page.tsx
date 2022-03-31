@@ -1,21 +1,30 @@
 import s from './main.page.module.scss';
 import { BlokiEditor } from '@/components/bloki-editor/bloki-editor.component';
-import { For, Show } from 'solid-js';
+import { createEffect, For, Show } from 'solid-js';
 import { SideMenu } from '@/components/side-menu/side-menu';
 import { useAppStore } from '@/lib/app.store';
 import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 import { createStore } from 'solid-js/store';
+import { useI18n } from '@solid-primitives/i18n';
+import { AccountSettings } from '@/components/account-settings/account-settings.component';
+import { useModal } from '@/components/modal/modal';
 
 export function MainPage() {
+   const [t] = useI18n();
    const [app, { setStore }] = useAppStore();
 
    const [state, setState] = createStore({
       toolbox: false,
-      settings: true,
+      docSettings: true,
+      accSettings: true,
       search: true,
       gridType: 'canvas'
    });
+
+   const [, showAccountModal] = useModal(AccountSettings, true);
+
+   createEffect(() => showAccountModal(state.accSettings));
 
    function DocumentSettings() {
       return (
@@ -49,7 +58,7 @@ export function MainPage() {
                      onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
                      checked={app.selectedDocument.layoutOptions.showGridGradient}
                   />
-                  <label for="show-gradient">Show grid</label>
+                  <label for="show-gradient">{t('settings.document.grid-gradient')}</label>
                </div>
                <div class={s.check}>
                   <input
@@ -58,7 +67,7 @@ export function MainPage() {
                      onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
                      checked={app.selectedDocument.layoutOptions.showResizeAreas}
                   />
-                  <label for="show-resizers">Show resize areas</label>
+                  <label for="show-resizers">{t('settings.document.resize-areas')}</label>
                </div>
                <div class={s.check}>
                   <input
@@ -67,11 +76,11 @@ export function MainPage() {
                      onClick={_ => setState('toolbox', s => !s)}
                      checked={state.toolbox}
                   />
-                  <label for="show-toolbox">Show drawing toolbox</label>
+                  <label for="show-toolbox">{t('settings.document.toolbox')}</label>
                </div>
                <div class={s.gridType}>
                   <div>
-                     Grid rendering method
+                     {t("settings.system.render-method.title")}
                   </div>
                   <div class={s.methods}>
                      <div>
@@ -81,7 +90,7 @@ export function MainPage() {
                            checked={state.gridType === 'canvas'}
                            onInput={() => setState({ gridType: 'canvas' })}
                         />
-                        <label for="canvasMethod">Canvas</label>
+                        <label for="canvasMethod">{t('settings.system.render-method.canvas')}</label>
                      </div>
                      <div>
                         <input
@@ -90,7 +99,7 @@ export function MainPage() {
                            checked={state.gridType === 'dom'}
                            onInput={() => setState({ gridType: 'dom' })}
                         />
-                        <label for="domMethod">DOM</label>
+                        <label for="domMethod">{t("settings.system.render-method.dom")}</label>
                      </div>
                   </div>
                </div>
@@ -98,12 +107,12 @@ export function MainPage() {
                   onClick={() => {
                      setStore('selectedDocument', 'layoutOptions', defaultLayoutOptions);
                   }}>
-                  Reset layout options
+                  {t('settings.document.reset-layout')}
                </button>
                <button
                   onClick={() => app.apiProvider.clearCache().then(() => location.reload())}
                >
-                  Purge local database
+                  {t('settings.document.purge-db')}
                </button>
             </div>
          </div>
@@ -115,7 +124,11 @@ export function MainPage() {
          <SideMenu
             activeItems={Object.keys(state).filter(k => state[k] === true)}
             disabledItems={['trash']}
-            onItemClick={(item) => setState(item, s => !s)}
+            onItemClick={(item) => {
+               if (['search', 'settings'].includes(item)) {
+                  showAccountModal(s => !s);
+               }
+            }}
          />
          <div class={s.workspace}>
             <div class={s.topBar}>
@@ -125,17 +138,17 @@ export function MainPage() {
                   <h4>{app.selectedDocument?.title}</h4>
                </div>
                <div class={s.rightBar}>
-                  <TripleDotsIcon class={s.optionsIcon} />
+                  <TripleDotsIcon class={s.optionsIcon} onClick={() => setState('docSettings', s => !s)} />
                </div>
             </div>
             <Show when={app.selectedWorkspace && app.selectedDocument}>
-               <Show when={state.settings}>
+               <Show when={state.docSettings}>
                   <DocumentSettings />
                </Show>
                <BlokiEditor
                   document={app.selectedDocument}
                   showDrawerToolbox={state.toolbox}
-                  showMeta={state.settings}
+                  showMeta={state.docSettings}
                   gridType={state.gridType}
                />
             </Show>

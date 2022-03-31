@@ -1,0 +1,42 @@
+{
+  "settings": {
+    "document": {
+      "toolbox": "Zeichenwerkzeugleiste anzeigen",
+      "grid-gradient": "Gradient",
+      "resize-areas": "Bereiche erfassen",
+      "purge-db": "Lokale Datenbank zurücksetzen",
+      "reset-layout": "Layouteinstellungen zurücksetzen"
+    },
+    "system": {
+      "render-method": {
+        "canvas": "Canvas",
+        "dom": "DOM"
+      },
+      "modal": {
+        "menu": {
+          "title": "Kontoeinstellungen",
+          "general": "Allgemein",
+          "item": {
+            "layout": "Layout",
+            "language": "Sprache"
+          }
+        }
+      }
+    }
+  },
+  "menu": {
+    "label": {
+      "pages": "Seiten"
+    },
+    "items": {
+      "settings": "Einstellungen",
+      "search": "Suche",
+      "trash": "Müll"
+    }
+  },
+  "errors": {
+    "layout": {
+      "not-enough-space": "Nicht genug Platz auf dem Layout"
+    }
+  }
+}

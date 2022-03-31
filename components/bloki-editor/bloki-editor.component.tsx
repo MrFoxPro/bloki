@@ -12,6 +12,7 @@ import { getImgDimension, readAsDataUrl } from './helpers';
 import { TextBlockFontFamily, TextTypes } from './blocks/text-block/types';
 import DomPurify from 'dompurify';
 import { BacklightDrawer } from './backlight/BacklightDrawer';
+import { useI18n } from '@solid-primitives/i18n';
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
    return block.type === 'text';
@@ -29,6 +30,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    let containerRef: HTMLDivElement;
    let wrapperRef: HTMLDivElement;
    const [app, { apiProvider }] = useAppStore();
+   const [t] = useI18n();
    const [
       store,
       {
@@ -145,7 +147,7 @@ function BlokiEditor(props: BlokiEditorProps) {
       };
       const { correct } = checkPlacement(transform, x, y);
       if (!correct) {
-         alert('Not enough space to place block in layout =(');
+         alert(t("errors.layout.not-enough-space"));
          return;
       }
       const block: ImageBlock = {

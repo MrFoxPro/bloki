@@ -14,6 +14,8 @@ export type AppStoreValues = {
    selectedDocument: BlokiDocument;
 
    apiProvider: IApiProvider;
+
+   locale: 'en' | 'ru' | 'de';
 };
 type AppStoreHandlers = {
    moveItem(): void;
@@ -38,6 +40,7 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
          selectedWorkspace: null,
 
          apiProvider: null,
+         locale: 'en'
       },
       {
          moveItem: () => void 0,
