@@ -21,7 +21,7 @@ export function MainPage() {
          trash: false,
       },
       toolbox: false,
-      docSettings: true,
+      docSettings: false,
 
       gridType: 'canvas'
    });
