@@ -1,42 +1,57 @@
-import { ComponentProps, createEffect, createMemo, on, onMount, splitProps, untrack } from 'solid-js';
+import { ComponentProps, createComputed, createEffect, createMemo, on, onMount, splitProps, untrack } from 'solid-js';
 import cc from 'classcat';
 import { TextBlock as TextBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './text.block.module.scss';
 import { Dimension } from '../../types';
 import { contentBlockProps, ContentBlockProps } from '../types';
-import { DOMTextMeasurer } from './measure-text-dom';
+import { TextBlockFontFamily, TextTypes } from './types';
+import { getTextBlockSize, measurer } from './helpers';
+import { useI18n } from '@solid-primitives/i18n';
 
-const textMeasurer = new DOMTextMeasurer();
 
 type TextBlockProps = ContentBlockProps<TextBlockEntity> & {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setStore, gridSize, gridBoxSize }] = useEditorStore();
+   const [editor, { setStore, gridSize, checkPlacement }] = useEditorStore();
    const [local, other] = splitProps(props, contentBlockProps);
 
    if (props.shadowed) {
+      const textSettings = TextTypes[props.block.textType];
       return (
          <div
-            class={cc([s.content, s.regular, s.shadow])}
+            class={cc([s.content, s.shadow])}
+            style={{
+               "font-family": props.block.fontFamily ?? TextBlockFontFamily.Inter,
+               "font-size": textSettings.fontSize + 'px',
+               "font-weight": textSettings.fontWeight,
+               "line-height": textSettings.lineHeight + 'px',
+            }}
             {...other}
-         >{untrack(() => props.block.value)}</div>
+         >
+            {untrack(() => props.block.value)}
+         </div>
       );
    }
+
+   const [t] = useI18n();
 
    let contentRef: HTMLDivElement;
    let minTextWidth = 0;
    let textHeightAtMinWidth = 0;
 
+   createComputed(() => {
+      minTextWidth = gridSize(5);
+   });
    const isEditingContent = createMemo(() => editor.editingBlock === props.block && editor.editingType === 'content');
 
    createEffect(() => {
       if (isEditingContent()) {
          contentRef.focus();
-         const { fontFamily, fontSize, fontWeight, lineHeight, wordBreak } = getComputedStyle(contentRef);
-         textMeasurer.setOptions({ fontFamily, fontSize, fontWeight, lineHeight, wordBreak });
-         textMeasurer.ruler.textContent = props.block.value;
+         // const { fontFamily, fontSize, fontWeight, lineHeight, wordBreak } = getComputedStyle(contentRef);
+         // textMeasurer.setOptions({ fontFamily, fontSize, fontWeight, lineHeight, wordBreak });
+         // textMeasurer.ruler.textContent = props.block.value;
       }
    });
 
@@ -47,7 +62,7 @@ export function TextBlock(props: TextBlockProps) {
          if (!contentRef.textContent.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
             contentRef.lastElementChild.remove();
          }
-         const minimals = textMeasurer.measureText(props.block.value, 'min-content');
+         const minimals = measurer.measureText(props.block.value, 'min-content', 'min-content');
          minTextWidth = minimals.width;
          textHeightAtMinWidth = minimals.height;
       }
@@ -60,7 +75,7 @@ export function TextBlock(props: TextBlockProps) {
          return transform;
       }
       const widthPx = transform.width + 'px';
-      const dimension = textMeasurer.measureText(props.block.value, widthPx);
+      const dimension = measurer.measureText(props.block.value, widthPx);
       return dimension;
    }
 
@@ -68,28 +83,64 @@ export function TextBlock(props: TextBlockProps) {
       props.setGetContentDimension && props.setGetContentDimension(getContentDimension);
    });
 
-   function onTextInput(e: InputEvent & { currentTarget: HTMLDivElement; }) {
-      const text = contentRef.textContent;
-      let newWidth = props.block.width, newHeight = props.block.height;
-      const { paddingLeft, paddingTop } = getComputedStyle(contentRef);
-      const boxWidth = gridSize(props.block.width) - parseInt(paddingLeft);
+   let alignToMainGrid = true;
+   function onTextInput(e: Event, pasteContent: string = null) {
+      console.log('on input');
+      // check if key is affecting content?
+      const text = contentRef.textContent + (pasteContent || '');
 
-      if (props.block.width < editor.document.layoutOptions.mGridWidth) {
-         const textSize = textMeasurer.measureText(text, 'auto');
-         const requiredAbsWidth = textSize.width;
-         const Δ = (requiredAbsWidth - boxWidth) / gridBoxSize();
-         // console.log('Current abs width', currAbsContentWidth, 'Required abs width', requiredAbsWidth, 'abs delta', requiredAbsWidth - currAbsContentWidth, 'delta blocks', Δ);
-         newWidth += Math.floor(Δ);
+      if (text === '' && props.block.width >= editor.document.layoutOptions.mGridWidth) {
+         setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), {
+            width: editor.document.layoutOptions.mGridWidth,
+            height: 1,
+            value: text,
+         });
+         alignToMainGrid = true;
+         return;
       }
 
-      const boxHeight = gridSize(props.block.height) - parseInt(paddingTop);
+      let maxWidth = props.block.width;
 
-      const textSize = textMeasurer.measureText(text, boxWidth + 'px');
-      const requiredAbsHeight = textSize.height - editor.document.layoutOptions.gap;
-      if (requiredAbsHeight > 0) {
-         const Δ = (requiredAbsHeight - boxHeight) / gridBoxSize();
-         console.log('Height:', boxHeight, 'Required:', requiredAbsHeight, 'Delta:', requiredAbsHeight - boxHeight, 'Delta blocks:', Δ);
-         newHeight += Math.ceil(Δ);
+      const boundSize = getTextBlockSize(props.block, text, editor.document.layoutOptions, maxWidth);
+
+      let newWidth = boundSize.width;
+      if (props.block.width === editor.document.layoutOptions.mGridWidth) {
+         newWidth = editor.document.layoutOptions.mGridWidth;
+      }
+      let newHeight = boundSize.height;
+
+      const { correct } = checkPlacement(props.block, props.block.x, props.block.y, newWidth, newHeight);
+      if (!correct) {
+         e.preventDefault();
+         console.log('cant type more');
+         return;
+      }
+      if (pasteContent) {
+         document.execCommand("insertHTML", false, pasteContent);
+      }
+      setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), {
+         width: newWidth,
+         height: newHeight,
+         value: text,
+      });
+   }
+   function onKeyDown(e: KeyboardEvent) {
+      const text = contentRef.textContent;
+      let maxWidth = props.block.width;
+
+      const boundSize = getTextBlockSize(props.block, text, editor.document.layoutOptions, maxWidth);
+
+      let newWidth = boundSize.width;
+      if (props.block.width === editor.document.layoutOptions.mGridWidth) {
+         newWidth = editor.document.layoutOptions.mGridWidth;
+      }
+      let newHeight = boundSize.height;
+
+      const { correct } = checkPlacement(props.block, props.block.x, props.block.y, newWidth, newHeight);
+      if (!correct) {
+         e.preventDefault();
+         console.log('cant type more');
+         return false;
       }
 
       setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), {
@@ -99,35 +150,46 @@ export function TextBlock(props: TextBlockProps) {
       });
    }
 
+   // createEffect(on(
+   //    () => props.block.width,
+   //    (prev, curr) => {
+   //       if (prev === editor.document.layoutOptions.mGridWidth && curr !== editor.document.layoutOptions.mGridWidth) {
+   //          alignToMainGrid = false;
+   //       }
+   //       else alignToMainGrid = true;
+   //    })
+   // );
+
    function onPaste(e: ClipboardEvent) {
       e.stopPropagation();
       e.preventDefault();
       var text = e.clipboardData.getData('text/plain');
-      document.execCommand("insertHTML", false, text);
-      onTextInput(null);
+      onTextInput(e, text);
+      return false;
    }
+   const textSettings = createMemo(() => TextTypes[props.block.textType]);
+
    return (
       <div
+         class={s.content}
          style={{
             // 'word-break': 'break-word',
             // 'white-space': 'normal',
-
-            // "padding-left": CONTENT_PADDING_LEFT + 'px',
-            // "padding-top": CONTENT_PADDING_TOP + 'px',
-            // "line-height": LINE_HEIGHT + 'px',
-            // "font-size": FONT_SIZE + 'px',
-            // "user-select": props.isMeResizing ? 'none' : 'initial'
+            "font-family": props.block.fontFamily ?? TextBlockFontFamily.Inter,
+            "font-size": textSettings().fontSize + 'px',
+            "font-weight": textSettings().fontWeight,
+            "line-height": textSettings().lineHeight + 'px',
+            "color": textSettings().color ?? 'initial',
          }}
          classList={{
-            [s.content]: true,
-            [s.regular]: true,
             [s.showPlaceholder]: !props.block.value && props.localTransform.width / gridSize(1) > 7,
             [s.overflowing]: props.isMeOverflowing
          }}
-         data-placeholder={"Type '/' for commands"}
+         data-placeholder={t("blocks.text.placeholder")}
          contentEditable={isEditingContent()}
          ref={contentRef}
          onInput={onTextInput}
+         // onKeyDown={onKeyDown}
          onPaste={onPaste}
          {...other}
       >{untrack(() => props.block.value)}</div>

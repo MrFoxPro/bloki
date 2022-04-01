@@ -84,7 +84,6 @@ export function Block(props: BlockProps) {
    const CURSOR_Y_OFFSET = -1;
 
    let relPoints: Point[];
-
    const [state, setState] = createStore({
       fixed: false,
       transform: {
@@ -441,6 +440,7 @@ export function Block(props: BlockProps) {
 
    return (
       <div
+         title={`width: ${props.block.width} height: ${props.block.height}`}
          class={cc([s.block, s.draggable])}
          style={{
             transform: `translate(${state.transform.x}px, ${state.transform.y}px)`,

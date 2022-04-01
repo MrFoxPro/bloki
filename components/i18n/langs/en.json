@@ -5,7 +5,8 @@
       "grid-gradient": "Gradient",
       "resize-areas": "Capture areas",
       "purge-db": "Reset local database",
-      "reset-layout": "Reset layout settings"
+      "reset-layout": "Reset layout settings",
+      "log-calculated-sizes": "Log calculated sizes"
     },
     "system": {
       "render-method": {
@@ -48,6 +49,11 @@
       "en": "English",
       "ru": "Russian",
       "de": "Deutsch"
+    }
+  },
+  "blocks": {
+    "text": {
+      "placeholder": "Type '/' for commands"
     }
   }
 }

@@ -5,7 +5,8 @@
       "grid-gradient": "Gradient",
       "resize-areas": "Bereiche erfassen",
       "purge-db": "Lokale Datenbank zurücksetzen",
-      "reset-layout": "Layouteinstellungen zurücksetzen"
+      "reset-layout": "Layouteinstellungen zurücksetzen",
+      "log-calculated-sizes": "Berechnete Größen protokollieren"
     },
     "system": {
       "render-method": {
@@ -48,6 +49,11 @@
       "en": "English",
       "ru": "Russian",
       "de": "Deutsch"
+    }
+  },
+  "blocks": {
+    "text": {
+      "placeholder": "Geben Sie '/' für Befehle ein"
     }
   }
 }

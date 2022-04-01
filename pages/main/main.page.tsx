@@ -11,6 +11,9 @@ import { useModalStore } from '@/components/modal/modal';
 
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 import { Toolbox } from './toolbox/toolbox.component';
+import { getTextBlockSize } from '@/components/bloki-editor/blocks/text-block/helpers';
+import { TextBlock } from '@/lib/entities';
+import { isTextBlock } from '@/components/bloki-editor/blocks/text-block/types';
 
 export function MainPage() {
    const [t] = useI18n();
@@ -73,6 +76,13 @@ function DocumentSettings() {
    const [t] = useI18n();
    const [app, { setStore }] = useAppStore();
 
+   function logCalculatedSizes() {
+      app.selectedDocument.blocks.forEach(block => {
+         if (isTextBlock(block)) {
+            getTextBlockSize(block, block.value, app.selectedDocument.layoutOptions);
+         }
+      });
+   }
    return (
       <div class={s.settings}>
          <div class={s.control}>
@@ -112,8 +122,8 @@ function DocumentSettings() {
                   name="show-resizers"
                   onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
                   checked={app.selectedDocument.layoutOptions.showResizeAreas}
-               />import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
-
+               />
+               <label for="show-resizers">{t('settings.document.resize-areas')}</label>
             </div>
             <div class={s.gridType}>
                <div>
@@ -140,9 +150,17 @@ function DocumentSettings() {
                {t('settings.document.reset-layout')}
             </button>
             <button
+               style={{
+                  color: 'red'
+               }}
                onClick={() => app.apiProvider.clearCache().then(() => location.reload())}
             >
                {t('settings.document.purge-db')}
+            </button>
+            <button
+               onClick={logCalculatedSizes}
+            >
+               {t('settings.document.log-calculated-sizes')}
             </button>
          </div>
       </div>

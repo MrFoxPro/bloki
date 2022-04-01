@@ -1,10 +1,7 @@
-.regular {
-   font-weight: 400;
-   font-family: Inter;
-   color: #312f2f;
-   font-size: 16px;
-   line-height: 20px;
+.blocked-text {
+   overflow-wrap: break-word;
 }
+
 .content {
    display: block;
    width: 100%;
@@ -15,8 +12,8 @@
    // https://caniuse.com/?search=overflow%3A%20clip
    // overflow: clip;
    // overflow: hidden;
-   overflow-wrap: break-word;
-   word-break: normal;
+
+   @extend .blocked-text;
 
    // CHROME HACK
    backface-visibility: hidden;
@@ -24,6 +21,7 @@
    &:focus {
       outline: 0;
    }
+
    -webkit-user-drag: none;
 
    &.show-placeholder {
@@ -42,15 +40,19 @@
          overflow-wrap: normal;
       }
    }
+
    &.shadow {
       color: #e0e0e0;
    }
+
    &.overflowing {
       color: #c5c9d2;
    }
 }
+
 .measurer {
-   // background: red;
-   visibility: hidden;
+   position: fixed;
+   background: red;
    z-index: 900;
+   @extend .blocked-text;
 }

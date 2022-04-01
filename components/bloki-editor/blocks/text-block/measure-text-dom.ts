@@ -14,28 +14,23 @@ export class DOMTextMeasurer {
 
    constructor() {
       const el = document.createElement('div');
-      el.id = 'text-measurer';
       el.className = s.measurer;
-      el.style.position = 'fixed';
-      // el.style.visibility = 'hidden';
       el.style.height = 'auto';
-      el.style.pointerEvents = 'none';
+      el.style.visibility = import.meta.env.PROD ? 'hidden' : 'unset';
       this.ruler = el;
       document.body.appendChild(this.ruler);
    }
 
-   measureText(text: string, divWidth = 'auto') {
-      if (this.ruler.textContent === text && this.ruler.style.width === divWidth) {
-         const { width, height } = this.ruler.getBoundingClientRect();
-         return { width, height };
-      }
+   measureText(text: string, maxWidth = 'auto', width = 'auto') {
       this.ruler.textContent = text;
-      this.ruler.style.width = divWidth;
-      const { width, height } = this.ruler.getBoundingClientRect();
-      return { width, height };
+      this.ruler.style.maxWidth = maxWidth;
+      this.ruler.style.width = width;
+      return this.ruler.getBoundingClientRect();
    }
    setOptions(options: Partial<Options> = {}) {
-      Object.assign(this.ruler.style, options);
+      Object.keys(options).forEach(key => {
+         this.ruler.style[key] = options[key];
+      });
    }
    dispose() {
       document.body.removeChild(this.ruler);

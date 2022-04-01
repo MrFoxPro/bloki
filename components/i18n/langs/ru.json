@@ -15,7 +15,8 @@
       "resize-areas": "Области захвата",
       "toolbox": "Инструменты рисования",
       "purge-db": "Сбросить локальную базу",
-      "reset-layout": "Сбросить настройки лейаута"
+      "reset-layout": "Сбросить настройки лейаута",
+      "log-calculated-sizes": "Журнал рассчитанных размеров"
     },
     "system": {
       "render-method": {
@@ -48,6 +49,11 @@
       "en": "English",
       "ru": "Russian",
       "de": "Deutsch"
+    }
+  },
+  "blocks": {
+    "text": {
+      "placeholder": "Введите '/' для команд"
     }
   }
 }

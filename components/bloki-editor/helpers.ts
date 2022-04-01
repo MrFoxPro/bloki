@@ -1,5 +1,11 @@
 import { LayoutOptions } from "@/lib/entities";
+import { GridInfo } from "./blocks/text-block/helpers";
 import { BlockTransform, Dimension, Point } from "./types";
+
+export function calcGridSize(factor: number, size: number, gap: number) {
+   if (factor <= 0) return 0;
+   return factor * (size + gap) - gap;
+}
 
 export function getImgDimension(dataURL: string): Promise<Dimension> {
    return new Promise(resolve => {

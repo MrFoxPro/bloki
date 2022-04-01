@@ -26,7 +26,7 @@ export default ({ mode }: ConfigEnv) => {
       },
       plugins: [
          solid({
-            hot: dev,
+            hot: false,
             dev: dev,
             ssr: false,
          }),

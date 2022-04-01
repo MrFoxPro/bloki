@@ -8,9 +8,9 @@ import { useAppStore } from '@/lib/app.store';
 import { unwrap } from 'solid-js/store';
 import { BlockTransform, Dimension, Point } from './types';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
-import { TextBlockFontFamily, TextTypes } from './blocks/text-block/types';
+import { TextBlockFontFamily, TextType, TextTypes } from './blocks/text-block/types';
 import DomPurify from 'dompurify';
-import { BacklightDrawer } from './backlight/BacklightDrawer';
+import { BacklightDrawer } from './backlight/backlight-drawer.component';
 import { useI18n } from '@solid-primitives/i18n';
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
@@ -42,7 +42,6 @@ function BlokiEditor(props: BlokiEditorProps) {
    ] = useEditorStore();
 
    const GRID_COLOR_CELL = '#ffae0020';
-
 
    function calculateBoxRect() {
       if (!containerRef) return;
@@ -97,6 +96,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    function onMainGridMouseOut(e: MouseEvent) {
       editor.emit('maingridcursormoved', null, true);
    }
+   const pasteError = () => alert('We are allowing only images pasted from other internet sources!');
 
    async function onPaste(e: ClipboardEvent) {
       e.preventDefault();
@@ -104,15 +104,18 @@ function BlokiEditor(props: BlokiEditorProps) {
       const item = Array.from(e.clipboardData.items)[0];
 
       if (!item || item.type !== 'text/html') {
-         alert('We are allowing only images pasted from other internet sources!');
+         pasteError();
          return;
       }
       const str = await getAsString(item).then(str => DomPurify.sanitize(str));
+      if (!str) {
+         pasteError();
+      }
       const imgSrc = str.match(/<img [^>]*src="[^"]*"[^>]*>/gm)
          .map(x => x.replace(/.*src="([^"]*)".*/, '$1'))[0];
 
       if (!imgSrc?.includes('http')) {
-         alert('We are allowing only images pasted from other internet sources!');
+         pasteError();
          return;
       }
       const { fGridWidth, mGridWidth } = store.document.layoutOptions;
@@ -209,7 +212,7 @@ function BlokiEditor(props: BlokiEditorProps) {
             type: 'text',
             value: '',
             fontFamily: TextBlockFontFamily.Inter,
-            textType: TextTypes.Regular,
+            textType: TextType.Regular,
             ...newBlockTransform,
          };
          setStore('document', 'blocks', blocks => blocks.concat(block));

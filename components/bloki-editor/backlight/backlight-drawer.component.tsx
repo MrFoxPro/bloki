@@ -62,13 +62,13 @@ export function BacklightDrawer(props: BacklightDrawerProps) {
       });
 
       const unbindChange = editor.on('change', function (_, { placement, relTransform }) {
-         const old = prevPlacement.block;
-         if (old &&
-            old.x + old.width === relTransform.x + relTransform.width &&
-            old.y + old.height === relTransform.y + relTransform.height) {
-            // Skip unwanted updates
-            return;
-         }
+         // const old = prevPlacement.block;
+         // if (old &&
+         //    old.x + old.width === relTransform.x + relTransform.width &&
+         //    old.y + old.height === relTransform.y + relTransform.height) {
+         //    // Skip unwanted updates
+         //    return;
+         // }
          if (!store.editingBlock || (store.editingType !== 'drag' && store.editingType !== 'resize')) return;
 
          clearProjection(prevPlacement);
