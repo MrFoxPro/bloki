@@ -1,52 +1,40 @@
-import { createSignal, Show, useContext, createContext, createEffect, JSX } from "solid-js";
+import { Show, useContext, createContext, JSX, createMemo, Accessor } from "solid-js";
 import { createStore } from "solid-js/store";
 import s from './modal.module.scss';
 
-const ModalContext = createContext([
-   {
-      modalComponent: null as () => JSX.Element,
-      blur: false as boolean,
-   },
-   (com: () => JSX.Element, b?: boolean) => void 0
-] as const);
+const ModalContext = createContext<(el: any, useBlur: any) => readonly [Accessor<boolean>, (visible: boolean, blur?: any) => void]>();
 
-const useModalStore = () => useContext(ModalContext);
+export const useModalStore = () => useContext(ModalContext);
 
 export const ModalStoreProvider = (props) => {
    const [store, setStore] = createStore({
-      modalComponent: null,
+      modal: null,
       blur: false
    });
-   const setModal = (modalComponent, blur) => setStore({ modalComponent, blur });
-   const context = [store.modalComponent, setModal] as const;
+
+   const useModal = (el: () => JSX.Element, useBlur = true) => {
+      const isVisible = createMemo(() => !!store.modal)
+
+      const setVisible = (visible: boolean, blur = useBlur) => {
+         if (visible) setStore({ blur, modal: el });
+         else setStore({ blur: false, modal: null });
+      };
+      return [isVisible, setVisible] as const;
+   };
+
+   // const context = useModal;
+
    return (
-      <ModalContext.Provider value={context}>
+      <ModalContext.Provider value={useModal}>
          {props.children}
-         <Show when={store.blur && store.modalComponent}>
-            <div class={s.blur} />
+         <Show when={store.blur && store.modal}>
+            <div class={s.blur} onClick={() => setStore({ modal: null, blur: false })} />
          </Show>
-         <Show when={store.modalComponent}>
-            {store.modalComponent}
+         <Show when={store.modal}>
+            <div class={s.modal}>
+               {store.modal}
+            </div>
          </Show>
       </ModalContext.Provider>
    );
 };
-
-export const useModal = (el, blur = false) => {
-   const [show, setShow] = createSignal(false);
-   const [, setModal] = useModalStore();
-
-   const component = () => (
-      <div class={s.modal}>{el()}</div>
-   );
-
-   createEffect(() => {
-      if (show()) setModal(component, blur);
-      else setModal(null, blur);
-   });
-   return [
-      component,
-      setShow
-   ] as const;
-};
-

@@ -20,7 +20,7 @@
     "system": {
       "render-method": {
         "canvas": "Canvas",
-        "title": "Grid rendering method",
+        "title": "Метод рендера задней подсветки",
         "dom": "DOM"
       },
       "modal": {
@@ -31,6 +31,9 @@
             "layout": "Разметка",
             "language": "Язык"
           }
+        },
+        "language": {
+          "select-language": "Выбрать язык"
         }
       }
     }

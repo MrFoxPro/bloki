@@ -9,7 +9,6 @@ specifiers:
   classcat: ^5.0.3
   dompurify: ^2.3.6
   js-cookie: ^3.0.1
-  json5: ^2.2.1
   nanoevents: ^6.0.2
   sass: ^1.49.10
   solid-app-router: 0.3.2
@@ -29,7 +28,6 @@ dependencies:
   classcat: 5.0.3
   dompurify: 2.3.6
   js-cookie: 3.0.1
-  json5: 2.2.1
   nanoevents: 6.0.2
   solid-app-router: 0.3.2_solid-js@1.3.13
   solid-js: 1.3.13
@@ -1207,6 +1205,7 @@ packages:
     resolution: {integrity: sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==}
     engines: {node: '>=6'}
     hasBin: true
+    dev: true
 
   /jsonfile/6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}

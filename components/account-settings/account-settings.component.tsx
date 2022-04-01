@@ -9,15 +9,20 @@ import { Dynamic } from 'solid-js/web';
 
 export function AccountSettings() {
    const [app, { setStore }] = useAppStore();
-   const [t, { locale, dict }] = useI18n();
+   const [t] = useI18n();
 
-   const [selectedItem, setSelectedItem] = createSignal<'layout' | 'language'>('layout');
+   const [selectedItem, setSelectedItem] = createSignal<'layout' | 'language'>('language');
 
    const LanguageSettings = () => {
       return (
          <select name="lang"
-            onChange={(e) => setStore('locale', e.currentTarget.value)}
-            value={app.locale}>
+            onChange={(e) => {
+               if (e.currentTarget.selectedIndex === 0) return;
+               setStore('locale', supportedLangs[e.currentTarget.selectedIndex - 1]);
+            }}
+            value={app.locale}
+         >
+            <option>{t('settings.system.modal.language.select-language')}</option>
             <For each={supportedLangs}>
                {lang => (<option value={lang}>{lang}</option>)}
             </For>
@@ -28,6 +33,7 @@ export function AccountSettings() {
    const settingsMap = {
       language: LanguageSettings
    };
+
    return (
       <div class={s.accountSettings}>
          <div class={s.menu}>

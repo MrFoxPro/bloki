@@ -8,8 +8,8 @@ import { useI18n } from '@solid-primitives/i18n';
 const items = ['search', 'settings', 'trash'] as const;
 
 type SideMenuProps = {
-   activeItems: (typeof items)[any][];
-   disabledItems: (typeof items)[any][];
+   activeItems: ((typeof items)[any] | string)[];
+   disabledItems: ((typeof items) | string)[any][];
    onItemClick(item: typeof items[any]): void;
 } & ComponentProps<'div'>;
 

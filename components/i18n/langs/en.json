@@ -10,7 +10,8 @@
     "system": {
       "render-method": {
         "canvas": "Canvas",
-        "dom": "DOM"
+        "dom": "DOM",
+        "title": "Grid rendering method"
       },
       "modal": {
         "menu": {
@@ -20,6 +21,9 @@
             "layout": "Layout",
             "language": "Language"
           }
+        },
+        "language": {
+          "select-language": "Select language"
         }
       }
     }

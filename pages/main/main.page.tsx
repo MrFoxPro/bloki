@@ -8,23 +8,30 @@ import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 import { createStore } from 'solid-js/store';
 import { useI18n } from '@solid-primitives/i18n';
 import { AccountSettings } from '@/components/account-settings/account-settings.component';
-import { useModal } from '@/components/modal/modal';
+import { useModalStore } from '@/components/modal/modal';
 
 export function MainPage() {
    const [t] = useI18n();
    const [app, { setStore }] = useAppStore();
 
    const [state, setState] = createStore({
+      menu: {
+         settings: false,
+         search: true,
+         trash: false,
+      },
       toolbox: false,
       docSettings: true,
-      accSettings: true,
-      search: true,
+
       gridType: 'canvas'
    });
 
-   const [, showAccountModal] = useModal(AccountSettings, true);
+   const useModal = useModalStore();
 
-   createEffect(() => showAccountModal(state.accSettings));
+   const [sysSettingsVisible, setSysSettingsVisible] = useModal(AccountSettings, true);
+
+   createEffect(() => setSysSettingsVisible(state.menu.settings));
+   createEffect(() => setState('menu', 'settings', sysSettingsVisible()));
 
    function DocumentSettings() {
       return (
@@ -122,12 +129,10 @@ export function MainPage() {
    return (
       <main class={s.test}>
          <SideMenu
-            activeItems={Object.keys(state).filter(k => state[k] === true)}
+            activeItems={Object.keys(state.menu).filter(i => state.menu[i] === true)}
             disabledItems={['trash']}
             onItemClick={(item) => {
-               if (['search', 'settings'].includes(item)) {
-                  showAccountModal(s => !s);
-               }
+               setState('menu', item, s => !s);
             }}
          />
          <div class={s.workspace}>
