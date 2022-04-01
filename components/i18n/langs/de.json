@@ -42,5 +42,12 @@
     "layout": {
       "not-enough-space": "Nicht genug Platz auf dem Layout"
     }
+  },
+  "system": {
+    "language": {
+      "en": "English",
+      "ru": "Russian",
+      "de": "Deutsch"
+    }
   }
 }

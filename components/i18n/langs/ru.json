@@ -42,5 +42,12 @@
     "layout": {
       "not-enough-space": "Недостаточно места на макете"
     }
+  },
+  "system": {
+    "language": {
+      "en": "English",
+      "ru": "Russian",
+      "de": "Deutsch"
+    }
   }
 }

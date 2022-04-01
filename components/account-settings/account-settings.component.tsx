@@ -18,13 +18,13 @@ export function AccountSettings() {
          <select name="lang"
             onChange={(e) => {
                if (e.currentTarget.selectedIndex === 0) return;
+               console.log('selected lang', supportedLangs[e.currentTarget.selectedIndex - 1]);
                setStore('locale', supportedLangs[e.currentTarget.selectedIndex - 1]);
             }}
-            value={app.locale}
          >
             <option>{t('settings.system.modal.language.select-language')}</option>
-            <For each={supportedLangs}>
-               {lang => (<option value={lang}>{lang}</option>)}
+            <For each={/*@once*/supportedLangs}>
+               {lang => (<option value={lang} selected={app.locale === lang}>{t(`system.language.${lang}`)}</option>)}
             </For>
          </select>
       );

@@ -40,7 +40,7 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
          selectedWorkspace: null,
 
          apiProvider: null,
-         locale: 'en'
+         locale: null
       },
       {
          moveItem: () => void 0,

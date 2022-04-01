@@ -42,5 +42,12 @@
     "layout": {
       "not-enough-space": "Not enough space to place block in layout =("
     }
+  },
+  "system": {
+    "language": {
+      "en": "English",
+      "ru": "Russian",
+      "de": "Deutsch"
+    }
   }
 }
