@@ -1,5 +1,5 @@
-import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
 import s from './bloki-editor.module.scss';
+import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
@@ -7,7 +7,7 @@ import { AnyBlock, ImageBlock, TextBlock } from '@/lib/entities';
 import { useAppStore } from '@/lib/app.store';
 import { unwrap } from 'solid-js/store';
 import { BlockTransform, Dimension, Point } from './types';
-import { getGoodImageRelativeSize, getImgDimension } from './helpers';
+import { getAsString, getGoodImageRelativeSize } from './helpers';
 import { TextBlockFontFamily, TextTypes } from './blocks/text-block/types';
 import DomPurify from 'dompurify';
 import { BacklightDrawer } from './backlight/BacklightDrawer';
@@ -97,19 +97,6 @@ function BlokiEditor(props: BlokiEditorProps) {
    function onMainGridMouseOut(e: MouseEvent) {
       editor.emit('maingridcursormoved', null, true);
    }
-
-   const getAsString = (item: DataTransferItem) => new Promise<string>((res, rej) => {
-      item.getAsString((value) => {
-         res(value);
-      });
-   });
-   function htmlToElement(html: string) {
-      var template = document.createElement('template');
-      html = html.trim(); // Never return a text node of whitespace as the result
-      template.innerHTML = html;
-      return template.content.firstChild;
-   }
-
 
    async function onPaste(e: ClipboardEvent) {
       e.preventDefault();

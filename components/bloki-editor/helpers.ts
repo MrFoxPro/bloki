@@ -43,3 +43,9 @@ export async function getGoodImageRelativeSize(imgSrc: string, options: LayoutOp
    const height = Math.ceil(width / ratio);
    return { width, height };
 }
+
+export const getAsString = (item: DataTransferItem) => new Promise<string>((res, rej) => {
+   item.getAsString((value) => {
+      res(value);
+   });
+});

@@ -99,8 +99,8 @@ export async function getUser() {
             type: 'image',
             src: 'https://www.solidjs.com/assets/logo.123b04bc.svg',
             x: middleX,
-            width: defaultLayoutOptions.mGridWidth,
-            height: 30
+            width: 15,
+            height: 15
          },
          {
             id: '9fcc2c06-dffd-4542-a9ad-7f483c868f69',
