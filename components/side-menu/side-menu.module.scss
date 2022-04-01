@@ -5,7 +5,6 @@
    flex-direction: column;
    align-items: stretch;
 
-   background: #f6f9fb;
    height: 100%;
 
    font-family: Inter;
@@ -16,13 +15,13 @@
 
    color: #51575e;
 
-   border-right: 1px solid #d7dcdf;
+   border-right: 1px solid #EDF2F4;
 }
 
 .top-bar {
    height: 50px;
 
-   border-bottom: 1px solid #d7dcdf;
+   border-bottom: 1px solid #EDF2F4;
 
    font-family: Inter;
    font-style: normal;
@@ -80,7 +79,6 @@
    @extend .top-bar;
    display: flex;
    align-items: center;
-   background: #f6f9fb;
    gap: 12px;
    justify-content: flex-start;
 
@@ -88,20 +86,17 @@
       min-width: 24px;
       min-height: 24px;
 
-      // background: #007aff;
       border-radius: 6px;
       background-size: contain;
       background-position: center;
-
-      // margin-left: 24px;
    }
 
    .title {
       font-family: Inter;
       font-style: normal;
-      font-weight: 500;
+      font-weight: 700;
       font-size: 18px;
-      color: #312f2f;
+      color: #312F2F;
    }
 
    margin-bottom: 15px;
@@ -109,7 +104,6 @@
 
 .menus {
    width: 207px;
-   // margin: 0 auto;
    margin-left: #{24 - 3}px;
    display: flex;
    flex-direction: column;
@@ -132,7 +126,7 @@
 }
 
 .item-highlighed {
-   background-color: #edf2f4;
+   background: #F6F9FB;
    border-radius: 6px;
 }
 
@@ -170,9 +164,6 @@
 .item-disabled {
    color: #d3d3d3;
    pointer-events: none;
-   //  > .icon {
-
-   //  }
 }
 
 .block {
@@ -245,7 +236,7 @@
          right: 3px;
 
          &:hover {
-            background-color: #d7dcdf;
+            background-color: #EDF2F4;
          }
       }
 

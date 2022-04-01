@@ -16,12 +16,10 @@
    position: relative;
 
    >div:nth-child(1) {
-      // border-left: 1px solid #d7dcdf;
       display: flex;
       align-items: center;
       gap: 15px;
 
-      // padding-left: 24px;
       .arrow {
          width: 15px;
          height: 15px;
@@ -40,8 +38,13 @@
       }
 
       h4 {
+         font-family: Inter;
+         font-style: normal;
          font-weight: 500;
-         font-size: 16px;
+         font-size: 14px;
+         line-height: 16px;
+
+         color: #312F2F;
       }
    }
 }
@@ -61,7 +64,7 @@
    z-index: 100;
 
    background: #ffffff;
-   border: 1px solid #d7dcdf;
+   border: 1px solid #EDF2F4;
    box-sizing: border-box;
    box-shadow: 0px 54px 103px rgba(0, 0, 0, 0.03), 0px 22.5599px 43.0309px rgba(0, 0, 0, 0.0215656),
       0px 12.0616px 23.0064px rgba(0, 0, 0, 0.0178832), 0px 6.76164px 12.8972px rgba(0, 0, 0, 0.015),
@@ -90,7 +93,6 @@
    }
 
    .grid-type {
-      // background: #d7dcdf;
       margin-top: 15px;
       margin-bottom: 15px;
 
@@ -98,9 +100,11 @@
          display: flex;
          align-items: center;
          justify-content: space-around;
+
          >input {
             margin: 0;
          }
+
          >label {
             margin-top: 2px;
             text-align: center;

@@ -1,29 +1,22 @@
 .toolbox {
-   position: absolute;
-   width: 684px;
-   height: 46px;
+   // height: 100%;
 
    z-index: 35;
-   bottom: 26px;
-   left: 0;
-   right: 0;
-   margin: auto;
 
    display: flex;
    align-items: center;
    flex-direction: row;
    justify-content: space-around;
-   gap: 30px;
-   box-sizing: content-box;
+   gap: 12px;
    padding: 0 12px;
 
-   background: #ffffff;
-   border: 1px solid #d7dcdf;
-   box-shadow: 0px 54px 103px rgba(0, 0, 0, 0.03), 0px 22.5599px 43.0309px rgba(0, 0, 0, 0.0215656),
-      0px 12.0616px 23.0064px rgba(0, 0, 0, 0.0178832), 0px 6.76164px 12.8972px rgba(0, 0, 0, 0.015),
-      0px 3.59106px 6.84961px rgba(0, 0, 0, 0.0121168), 0px 1.49432px 2.85027px rgba(0, 0, 0, 0.00843437);
-   border-radius: 8px;
+   > svg {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+   }
 }
+
 .figures,
 .tools,
 .pickers {
@@ -32,18 +25,21 @@
    align-items: center;
    justify-content: center;
    gap: 12px;
-   > svg {
+
+   >svg {
       cursor: pointer;
    }
 }
+
 .vr {
    border: 2px solid #d7dcdf;
    height: 36px;
    width: 0px;
 }
+
 .picker {
-   width: 36px;
-   height: 36px;
+   width: 24px;
+   height: 24px;
 
    border: 2px solid #d7dcdf;
    box-sizing: border-box;
@@ -52,11 +48,14 @@
    &.active {
       border-color: #4281fa;
    }
+
    display: flex;
    justify-content: center;
    align-items: center;
+
    .eyedrop {
       border-radius: 50%;
    }
+
    cursor: copy;
 }

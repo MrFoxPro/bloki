@@ -16,6 +16,7 @@ export type AppStoreValues = {
    apiProvider: IApiProvider;
 
    locale: 'en' | 'ru' | 'de';
+   gridRenderMethod: 'canvas' | 'dom';
 };
 type AppStoreHandlers = {
    moveItem(): void;
@@ -40,7 +41,9 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
          selectedWorkspace: null,
 
          apiProvider: null,
-         locale: null
+
+         locale: null,
+         gridRenderMethod: 'canvas',
       },
       {
          moveItem: () => void 0,

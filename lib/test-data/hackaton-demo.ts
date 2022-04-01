@@ -1,5 +1,6 @@
 import { calculateBlockSize } from "@/components/bloki-editor/blocks/text-block";
 import { TextBlockFontFamily, TextTypes } from "@/components/bloki-editor/blocks/text-block/types";
+import { getGoodImageRelativeSize } from "@/components/bloki-editor/helpers";
 import { BlokiDocument, TextBlock, User, Workspace } from "../entities";
 import { defaultLayoutOptions } from "./layout-options";
 
@@ -59,6 +60,7 @@ export async function getUser() {
 
       ]
    };
+   const gridSize = defaultLayoutOptions.size + defaultLayoutOptions.gap;
    const lprPlatformDoc: BlokiDocument = {
       id: 'ba76b267-d1b6-4d18-80a0-636c794ef518',
       title: 'Наши принципы',
@@ -92,22 +94,22 @@ export async function getUser() {
             x: middleX,
             y: 6,
          },
-         // {
-         //    id: '7e0a7f62-7373-4d2a-b899-2d91f08496e5',
-         //    type: 'image',
-         //    src: await import('./assets/sur.jpg?inline').then(r => r.default),
-         //    x: middleX,
-         //    width: defaultLayoutOptions.mGridWidth,
-         //    height: 30
-         // },
-         // {
-         //    id: '9fcc2c06-dffd-4542-a9ad-7f483c868f69',
-         //    type: 'image',
-         //    src: await import('./assets/cars.jpg?inline').then(r => r.default),
-         //    x: middleX,
-         //    width: defaultLayoutOptions.mGridWidth,
-         //    height: 14
-         // }
+         {
+            id: '7e0a7f62-7373-4d2a-b899-2d91f08496e5',
+            type: 'image',
+            src: 'https://www.solidjs.com/assets/logo.123b04bc.svg',
+            x: middleX,
+            width: defaultLayoutOptions.mGridWidth,
+            height: 30
+         },
+         {
+            id: '9fcc2c06-dffd-4542-a9ad-7f483c868f69',
+            type: 'image',
+            src: `https://cataas.com/cat?width=${defaultLayoutOptions.mGridWidth * gridSize}&height=${gridSize * 20}`,
+            x: middleX,
+            width: defaultLayoutOptions.mGridWidth,
+            height: 20
+         }
       ].map((block, i, arr) => {
          block.y = i > 0 ? (arr[i - 1].y + arr[i - 1].height) : 0;
          if (block.type === 'text') {

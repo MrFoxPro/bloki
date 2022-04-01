@@ -1,3 +1,4 @@
+import { LayoutOptions } from "@/lib/entities";
 import { BlockTransform, Dimension, Point } from "./types";
 
 export function getImgDimension(dataURL: string): Promise<Dimension> {
@@ -29,4 +30,16 @@ export function readAsDataUrl(b: Blob) {
       reader.onerror = (e) => reject(reader.error);
       reader.readAsDataURL(b);
    });
+}
+
+export async function getGoodImageRelativeSize(imgSrc: string, options: LayoutOptions) {
+   let dimension: Dimension;
+   if (imgSrc.includes('svg')) {
+      dimension = { width: options.mGridWidth, height: options.mGridWidth };
+   }
+   else dimension = await getImgDimension(imgSrc);
+   const ratio = dimension.width / dimension.height;
+   const width = options.mGridWidth;
+   const height = Math.ceil(width / ratio);
+   return { width, height };
 }

@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, For, Match, mergeProps, on, onCleanup, onMount, Show, splitProps, Switch } from 'solid-js';
+import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
 import s from './bloki-editor.module.scss';
 import cc from 'classcat';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
@@ -6,9 +6,8 @@ import { Block } from './blocks/block.component';
 import { AnyBlock, ImageBlock, TextBlock } from '@/lib/entities';
 import { useAppStore } from '@/lib/app.store';
 import { unwrap } from 'solid-js/store';
-import { DrawerToolbox } from '@/components/drawer/toolbox/toolbox.component';
 import { BlockTransform, Dimension, Point } from './types';
-import { getImgDimension, readAsDataUrl } from './helpers';
+import { getGoodImageRelativeSize, getImgDimension } from './helpers';
 import { TextBlockFontFamily, TextTypes } from './blocks/text-block/types';
 import DomPurify from 'dompurify';
 import { BacklightDrawer } from './backlight/BacklightDrawer';
@@ -19,7 +18,6 @@ function isTextBlock(block: AnyBlock): block is TextBlock {
 }
 
 type BlokiEditorProps = {
-   showDrawerToolbox?: boolean;
    showMeta?: boolean;
    gridType?: 'dom' | 'canvas';
 };
@@ -131,14 +129,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          return;
       }
       const { fGridWidth, mGridWidth } = store.document.layoutOptions;
-      let dimension: Dimension;
-      if (imgSrc.includes('svg')) {
-         dimension = { width: mGridWidth, height: mGridWidth };
-      }
-      else dimension = await getImgDimension(imgSrc);
-      const ratio = dimension.width / dimension.height;
-      let width = mGridWidth;
-      let height = Math.ceil(width / ratio);
+      const { width, height } = await getGoodImageRelativeSize(imgSrc, store.document.layoutOptions);
       const x = (fGridWidth - mGridWidth) / 2;
       const y = findNextSpaceBelow(null);
       const transform: BlockTransform = {
@@ -334,9 +325,6 @@ function BlokiEditor(props: BlokiEditorProps) {
                <div class={s.control}>Block id: [{store.editingBlock?.id}]</div>
                <div class={s.control}>Editing type: [{store.editingType}]</div>
             </div>
-         </Show>
-         <Show when={props.showDrawerToolbox}>
-            <DrawerToolbox />
          </Show>
       </>
    );
