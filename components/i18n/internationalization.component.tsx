@@ -40,9 +40,10 @@ export function Internationalization(props: InternationalizationProps) {
          console.log('loading new locale', app.locale);
          const newDict = await langs[app.locale]();
          add(app.locale, newDict);
-         Cookies.set('locale', app.locale, { sameSite: 'strict' });
-         locale(app.locale);
       }
+      if (!app.locale) return;
+      Cookies.set('locale', app.locale, { sameSite: 'strict' });
+      locale(app.locale);
    });
 
    return (
