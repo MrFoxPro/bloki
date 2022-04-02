@@ -20,6 +20,14 @@ export function getImgDimension(dataURL: string): Promise<Dimension> {
    });
 }
 
+export const getImageOrFallback = (src: string) => {
+   return new Promise<string>((resolve, reject) => {
+     const img = new Image();
+     img.src = src;
+     img.onload = () => resolve(src);
+     img.onerror = () => reject();
+   });
+ };
 export function distanceBetweenPoints(p1: Point, p2: Point) {
    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
 }
@@ -38,6 +46,9 @@ export function readAsDataUrl(b: Blob) {
 }
 
 export async function getGoodImageRelativeSize(imgSrc: string, options: LayoutOptions) {
+   if (!imgSrc) {
+      return { width: options.mGridWidth, height: options.mGridWidth * 2 / 3 };
+   }
    let dimension: Dimension;
    if (imgSrc.includes('svg')) {
       dimension = { width: options.mGridWidth, height: options.mGridWidth };

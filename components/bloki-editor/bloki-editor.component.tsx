@@ -7,9 +7,9 @@ import { useAppStore } from '@/lib/app.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
-import { AnyBlock, BlockTransform, Dimension, EditType, ImageBlock, isTextBlock, Point, TextBlock } from './types';
+import { AnyBlock, BlockTransform, BlockType, Dimension, EditType, isTextBlock, Point } from './types';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
-import { TextBlockFontFamily, TextType } from './blocks/text-block/types';
+import { TextBlockFontFamily } from './blocks/text-block/types';
 import { BacklightDrawer } from './backlight/backlight-drawer.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 
@@ -129,7 +129,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          return;
       }
       createBlock({
-         type: 'image',
+         type: BlockType.Image,
          src: imgSrc,
          ...transform,
       }, 'select');
@@ -157,10 +157,9 @@ function BlokiEditor(props: BlokiEditorProps) {
 
       if (checkPlacement(newBlockTransform, x, y).correct) {
          createBlock({
-            type: 'text',
+            type: BlockType.Regular,
             value: '',
             fontFamily: TextBlockFontFamily.Inter,
-            textType: TextType.Regular,
             ...newBlockTransform,
          }, 'content');
       }
@@ -181,14 +180,14 @@ function BlokiEditor(props: BlokiEditorProps) {
 
       window.addEventListener('resize', calculateBoxRect);
       window.addEventListener('keydown', onKeyDown);
-      document.addEventListener('paste', onPaste);
+      wrapperRef.addEventListener('paste', onPaste);
 
       onCleanup(() => {
          wrapperRef.removeEventListener('scroll', calculateBoxRect);
 
          window.removeEventListener('resize', calculateBoxRect);
          window.removeEventListener('keydown', onKeyDown);
-         document.removeEventListener('paste', onPaste);
+         wrapperRef.removeEventListener('paste', onPaste);
       });
 
    });

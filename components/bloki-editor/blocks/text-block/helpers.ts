@@ -1,24 +1,23 @@
 import { LayoutOptions } from "@/lib/entities";
 import { calcGridSize } from "../../helpers";
-import { Dimension } from "../../types";
+import { BlockType, Dimension } from "../../types";
 import { DOMTextMeasurer } from "./measure-text-dom";
-import { TextBlockFontFamily, TextBlockStyle, TextType, TextTypes } from "./types";
+import { TextBlockFontFamily, TextTypes } from "./types";
 
 export const measurer = new DOMTextMeasurer();
 const HeightMargins = {
-   [TextType.H1]: 1,
+   [BlockType.H1]: 1,
 };
 
 export type GridInfo = Pick<LayoutOptions, 'gap' | 'size'>;
 
-export function getTextBlockSize(
-   { textType, fontFamily }: TextBlockStyle,
+export function getTextBlockSize(blockTextType: BlockType, fontFamily: TextBlockFontFamily,
    text: string, { size, gap }: GridInfo,
    maxRelWidth?: number,
    overflowWrap: 'anywhere' | 'break-word' = 'break-word'): Dimension & { isOneLine: boolean; } {
    const gridSize = size + gap;
 
-   const settings = TextTypes[textType];
+   const settings = TextTypes[blockTextType];
 
    let isOneLine: boolean;
 
@@ -43,7 +42,7 @@ export function getTextBlockSize(
 
    widthRel = Math.ceil(width / gridSize);
 
-   if (HeightMargins[textType]) heightRel += HeightMargins[textType];
+   if (HeightMargins[blockTextType]) heightRel += HeightMargins[blockTextType];
 
    // console.log(text, TextType[textType], width + 'px', height + 'px', widthRel, heightRel, 'is one line?', isOneLine);
 

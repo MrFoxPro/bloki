@@ -59,7 +59,31 @@
       "item": {
         "transform": "Verwandeln",
         "duplicate": "Duplikat",
-        "delete": "Löschen"
+        "delete": "Löschen",
+        "text": {
+          "title": "Name",
+          "regular": "Text",
+          "header1": "Überschrift 1",
+          "header2": "Überschrift 2",
+          "description": "Beschreibung",
+          "header3": "Überschrift 3"
+        },
+        "attachment": {
+          "image": "Bild"
+        }
+      },
+      "header": {
+        "types": "Blocktypen",
+        "actions": "Aktionen"
+      }
+    },
+    "attachments": {
+      "image": {
+        "mock": {
+          "ask": "Wählen Sie eine Datei aus",
+          "or-drag": "Oder ziehen Sie es in diesen Bereich",
+          "or-link": "Oder fügen Sie den Link zur Datei ein"
+        }
       }
     }
   }

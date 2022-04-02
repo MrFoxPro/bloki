@@ -20,7 +20,7 @@ export function TextBlock(props: TextBlockProps) {
    const [local, other] = splitProps(props, []);
 
    if (shadowed) {
-      const textSettings = TextTypes[block.textType];
+      const textSettings = TextTypes[block.type];
       return (
          <div
             class={cc([s.content, s.shadow])}
@@ -43,16 +43,29 @@ export function TextBlock(props: TextBlockProps) {
    let minTextWidth = 0;
    let textHeightAtMinWidth = 0;
 
+   const isEditingContent = createMemo(() => editor.editingBlock === block && editor.editingType === 'content');
+
    createComputed(() => {
       minTextWidth = gridSize(5);
    });
-   const isEditingContent = createMemo(() => editor.editingBlock === block && editor.editingType === 'content');
 
    createEffect(() => {
       if (isEditingContent()) {
          contentRef.focus();
       }
    });
+
+   createEffect(on(
+      () => block,
+      () => {
+         const size = getTextBlockSize(block.type, block.fontFamily, block.value, editor.document.layoutOptions, block.width, 'break-word');
+         setStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+            width: size.width,
+            height: size.height,
+         });
+
+      })
+   );
 
    createEffect(on(
       () => block.value,
@@ -85,8 +98,6 @@ export function TextBlock(props: TextBlockProps) {
       blockData.getContentDimension = getContentDimension;
    });
 
-   let alignToMainGrid = true;
-
    function onTextInput(e: Event, pasteContent: string = null) {
       console.log('on input');
       const mGridWidth = editor.document.layoutOptions.mGridWidth;
@@ -94,8 +105,7 @@ export function TextBlock(props: TextBlockProps) {
       const text = contentRef.textContent + (pasteContent || '');
 
       if (text === '' && block.width >= mGridWidth) {
-         // const height = Math.ceil(TextTypes[block.textType].lineHeight / );
-         const boundSize = getTextBlockSize(block, text, editor.document.layoutOptions);
+         const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions);
 
          setStore('document', 'blocks', editor.document.blocks.indexOf(block), {
             width: mGridWidth,
@@ -109,7 +119,7 @@ export function TextBlock(props: TextBlockProps) {
       let maxWidth = block.width;
       if (maxWidth < mGridWidth) maxWidth = mGridWidth;
 
-      const boundSize = getTextBlockSize(block, text, editor.document.layoutOptions, maxWidth, 'break-word');
+      const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions, maxWidth, 'break-word');
 
       let newWidth = boundSize.width;
       if (block.width === mGridWidth) {
@@ -138,7 +148,7 @@ export function TextBlock(props: TextBlockProps) {
       const text = contentRef.textContent;
       let maxWidth = block.width;
 
-      const boundSize = getTextBlockSize(block, text, editor.document.layoutOptions, maxWidth);
+      const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions, maxWidth);
 
       let newWidth = boundSize.width;
       if (block.width === editor.document.layoutOptions.mGridWidth) {
@@ -160,16 +170,6 @@ export function TextBlock(props: TextBlockProps) {
       });
    }
 
-   // createEffect(on(
-   //    () => block.width,
-   //    (prev, curr) => {
-   //       if (prev === editor.document.layoutOptions.mGridWidth && curr !== editor.document.layoutOptions.mGridWidth) {
-   //          alignToMainGrid = false;
-   //       }
-   //       else alignToMainGrid = true;
-   //    })
-   // );
-
    function onPaste(e: ClipboardEvent) {
       e.stopPropagation();
       e.preventDefault();
@@ -177,7 +177,7 @@ export function TextBlock(props: TextBlockProps) {
       onTextInput(e, text);
       return false;
    }
-   const textSettings = createMemo(() => TextTypes[block.textType]);
+   const textSettings = createMemo(() => TextTypes[block.type]);
 
    return (
       <div

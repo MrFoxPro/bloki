@@ -1,19 +1,118 @@
-.content {
+.img-block {
    width: 100%;
    height: 100%;
    border-radius: 2px;
-   // backface-visibility: hidden;
-
+   backface-visibility: hidden;
    transition: opacity 80ms ease;
-}
-.changing {
-   // perf drop in FF.
-   opacity: 0.4;
-}
-.shadowed {
-   // color: rgba(0, 0, 0, 0.8);
-   opacity: 0.15;
-   // user-select: none;
-   // visibility: hidden;
+   position: relative;
 
+   &.changing {
+      // perf drop in FF.
+      opacity: 0.4;
+   }
+
+   &.shadowed {
+      opacity: 0.15;
+   }
+
+   .mock {
+      width: inherit;
+      height: inherit;
+      background: #F6F9FB;
+      display: flex;
+      padding: 18px 28px;
+      box-sizing: border-box;
+
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: center;
+
+      font-family: Inter;
+
+      .dnd {
+         position: relative;
+         width: 100%;
+         height: 192px;
+
+         border: 2px dashed #D7DCDF;
+         box-sizing: border-box;
+         border-radius: 8px;
+
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         gap: 8px;
+
+         padding: 20px;
+
+         .pic {
+            background: url(./assets/image.image.png) center;
+            width: 85px;
+            height: 85px;
+         }
+
+         .ask {
+            font-style: normal;
+            font-weight: 700;
+            font-size: 24px;
+            color: #312F2F;
+         }
+
+         .orDrop {
+            font-weight: 400;
+            font-size: 16px;
+
+            color: #D7DCDF;
+         }
+
+         .hidden-input-file {
+            position: absolute;
+            inset: 0;
+            width: inherit;
+            height: inherit;
+            opacity: 0;
+            cursor: pointer;
+         }
+      }
+
+      .input-block {
+         width: inherit;
+         display: flex;
+         flex-direction: column;
+         gap: 5px;
+
+         .name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #312F2F;
+         }
+
+         .link {
+            background: #EDF2F4;
+            border: 1px solid #D7DCDF;
+            box-sizing: border-box;
+            border-radius: 8px;
+            width: inherit;
+            height: 40px;
+            color: #312F2F;
+            font-size: 16px;
+
+            &::placeholder {
+               color: #a3a6a8;
+               font-family: 'Roboto';
+               font-style: normal;
+               font-weight: 400;
+               font-size: 16px;
+               line-height: 19px;
+            }
+         }
+      }
+   }
+
+   >img {
+      width: inherit;
+      height: inherit;
+      border-radius: 2px;
+   }
 }

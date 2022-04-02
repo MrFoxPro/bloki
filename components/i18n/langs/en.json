@@ -59,7 +59,31 @@
       "item": {
         "transform": "Transform",
         "duplicate": "Duplicate",
-        "delete": "Delete"
+        "delete": "Delete",
+        "text": {
+          "title": "Title",
+          "regular": "Text",
+          "header1": "Heading 1",
+          "header2": "Heading 2",
+          "description": "Description",
+          "header3": "Heading 3"
+        },
+        "attachment": {
+          "image": "Picture"
+        }
+      },
+      "header": {
+        "types": "Block types",
+        "actions": "Actions"
+      }
+    },
+    "attachments": {
+      "image": {
+        "mock": {
+          "ask": "Select a file",
+          "or-drag": "Or drag to this area",
+          "or-link": "Or paste the link to the file"
+        }
       }
     }
   }

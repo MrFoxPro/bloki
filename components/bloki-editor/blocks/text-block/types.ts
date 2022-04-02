@@ -1,11 +1,5 @@
-export enum TextType {
-   Title,
-   Regular,
-   H1,
-   H2,
-   H3,
-   Description,
-}
+import { BlockType } from "../../types";
+
 type TextSetting = {
    fontSize: number;
    fontWeight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
@@ -13,45 +7,41 @@ type TextSetting = {
    color?: string;
 };
 
-export const TextTypes: { [key in TextType]: TextSetting } = {
-   [TextType.Title]: {
+export const TextTypes = {
+   [BlockType.Title]: {
       fontSize: 40,
       fontWeight: 700,
       lineHeight: 58,
    },
-   [TextType.Regular]: {
+   [BlockType.Regular]: {
       fontSize: 16,
       fontWeight: 400,
       lineHeight: 20,
    },
-   [TextType.H1]: {
+   [BlockType.H1]: {
       fontSize: 30,
       fontWeight: 700,
       lineHeight: 51,
    },
-   [TextType.H2]: {
+   [BlockType.H2]: {
       fontSize: 24,
       fontWeight: 600,
       lineHeight: 19,
    },
-   [TextType.H3]: {
+   [BlockType.H3]: {
       fontSize: 20,
       fontWeight: 600,
       lineHeight: 18,
    },
-   [TextType.Description]: {
+   [BlockType.Description]: {
       fontSize: 14,
       fontWeight: 400,
       lineHeight: 21,
       color: '#9CA5AB'
    }
-};
+} as const;
+
 export enum TextBlockFontFamily {
    Roboto = 'Roboto',
    Inter = 'Inter'
 }
-
-export type TextBlockStyle = {
-   textType: TextType;
-   fontFamily?: TextBlockFontFamily;
-};

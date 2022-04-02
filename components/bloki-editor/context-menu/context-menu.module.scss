@@ -1,4 +1,4 @@
-@use '@/assets/styles/framework.module.scss';
+@use '@/assets/styles/framework.scss';
 
 
 .ctx-menu {
@@ -6,7 +6,6 @@
    z-index: 35;
 
    width: 196px;
-   height: 100px;
 
    background: #FFFFFF;
    border: 1px solid #D7DCDF;
@@ -14,12 +13,16 @@
    box-shadow: 0px 54px 103px rgba(0, 0, 0, 0.03), 0px 22.5599px 43.0309px rgba(0, 0, 0, 0.0215656), 0px 12.0616px 23.0064px rgba(0, 0, 0, 0.0178832), 0px 6.76164px 12.8972px rgba(0, 0, 0, 0.015), 0px 3.59106px 6.84961px rgba(0, 0, 0, 0.0121168), 0px 1.49432px 2.85027px rgba(0, 0, 0, 0.00843437);
    border-radius: 8px;
 
+   .name {
+      padding-left: 3px;
+      margin-bottom: 4px;
+   }
+
    .items {
       display: flex;
       flex-direction: column;
 
       justify-content: space-evenly;
-      align-items: center;
       padding: 5px;
       box-sizing: border-box;
 

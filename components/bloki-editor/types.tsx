@@ -1,4 +1,4 @@
-import { TextBlockStyle } from "./blocks/text-block/types";
+import { TextBlockFontFamily } from "./blocks/text-block/types";
 
 type Point = { x: number, y: number; };
 type Dimension = { width: number, height: number; };
@@ -13,7 +13,16 @@ type PlacementStatus = {
    affected: AnyBlock[];
 };
 
-type BlockType = 'text' | 'image';
+enum BlockType {
+   Title,
+   Regular,
+   H1,
+   H2,
+   H3,
+   Description,
+
+   Image,
+}
 
 type Block = {
    id: string;
@@ -26,21 +35,24 @@ type Block = {
 };
 
 type ImageBlock = Block & {
-   type: 'image';
    src: string;
    width: number;
    height: number;
 };
 
 type TextBlock = Block & {
-   type: 'text';
    value: string;
-} & TextBlockStyle;
+   fontFamily: TextBlockFontFamily;
+};
 
 type AnyBlock = Block | TextBlock | ImageBlock;
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
-   return block.type === 'text';
+   return block?.type < 6;
+}
+
+function isImageBlock(block: AnyBlock): block is ImageBlock {
+   return block?.type === BlockType.Image;
 }
 
 export {
@@ -55,6 +67,7 @@ export {
    BlockType,
 
    ImageBlock,
+   isImageBlock,
 
    TextBlock,
    isTextBlock,

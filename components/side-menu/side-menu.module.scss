@@ -1,4 +1,4 @@
-@use '@/assets/styles/framework.module.scss';
+@use '@/assets/styles/framework.scss';
 
 .side-menu {
    width: 250px;
@@ -115,39 +115,6 @@
 }
 .block {
    width: 100%;
-
-   .name {
-      font-family: Inter;
-      font-style: normal;
-      font-weight: 600;
-      font-size: 12px;
-      color: #9ca5ab;
-      margin-bottom: 8px;
-
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .icon {
-         width: 24px;
-         height: 24px;
-         display: flex;
-         justify-content: center;
-         align-items: center;
-         cursor: pointer;
-
-         >svg {
-            width: 16px;
-            height: 16px;
-            stroke: #9ca5ab !important;
-         }
-
-         &:hover>svg {
-            stroke: #4281fa !important;
-            fill: #4281fa !important;
-         }
-      }
-   }
 }
 
 .pages {

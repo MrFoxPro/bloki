@@ -1,17 +1,25 @@
 import cc from 'classcat';
-import { ComponentProps, For, Show, splitProps } from 'solid-js';
+import { batch, ComponentProps, For, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import s from './block.module.scss';
 import { useEditorStore } from '../editor.store';
 import { TextBlock } from './text-block/text.block.component';
 import { ImageBlock } from './image-block/image.block.component';
 import HandyIcon from './assets/handy.icon.svg';
-import type { BlockType } from '../types';
+import { BlockType } from '../types';
 import { BlockStoreProvider, CursorSide, DotState, useBlockStore } from './block.store';
 
 const blockContentTypeMap: Record<BlockType, any> = {
-   image: ImageBlock,
-   text: TextBlock,
+   [BlockType.Image]: ImageBlock,
+
+   [BlockType.Description]: TextBlock,
+   [BlockType.Regular]: TextBlock,
+   [BlockType.H1]: TextBlock,
+   [BlockType.H2]: TextBlock,
+   [BlockType.H3]: TextBlock,
+   [BlockType.Title]: TextBlock,
+
+
 };
 
 function Block() {
@@ -54,9 +62,11 @@ function Block() {
    function onHandyContextMenu(e: MouseEvent) {
       e.preventDefault();
 
-      selectBlock(block);
-      setStore({
-         showContextMenu: true
+      batch(() => {
+         selectBlock(block);
+         setStore({
+            showContextMenu: true
+         });
       });
    }
 
@@ -77,7 +87,6 @@ function Block() {
          ondragstart={(e) => e.preventDefault()}
          ondrop={(e) => e.preventDefault()}
          draggable={false}
-         onFocusOut={() => console.log('blur')}
       >
          <HandyIcon
             class={s.handy}
