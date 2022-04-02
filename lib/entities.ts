@@ -1,5 +1,4 @@
-import { TextBlock } from "@/components/bloki-editor/blocks/text-block/types";
-import { Dimension } from "@/components/bloki-editor/types";
+import { AnyBlock, Dimension } from "@/components/bloki-editor/types";
 
 type User = {
    id: string;
@@ -33,24 +32,7 @@ type LayoutOptions = {
    blockMinSize: Dimension;
    blockMaxSize: Dimension;
 };
-type BlockType = 'text' | 'image';
 
-type Block = {
-   id: string;
-   type: BlockType;
-
-   x: number;
-   y: number;
-   width: number;
-   height: number;
-};
-
-type ImageBlock = Block & {
-   type: 'image';
-   src: string;
-   width: number;
-   height: number;
-};
 type BlokiDocument = {
    id: string;
    title: string;
@@ -58,16 +40,10 @@ type BlokiDocument = {
    layoutOptions: LayoutOptions;
    blocks: AnyBlock[],
 };
-type AnyBlock = Block | TextBlock | ImageBlock;
 
 export {
    User,
    Workspace,
    LayoutOptions,
    BlokiDocument,
-   Block,
-   BlockType,
-   TextBlock,
-   ImageBlock,
-   AnyBlock,
 };

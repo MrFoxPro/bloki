@@ -6,9 +6,8 @@ import { useEditorStore } from '../editor.store';
 import { TextBlock } from './text-block/text.block.component';
 import { ImageBlock } from './image-block/image.block.component';
 import HandyIcon from './assets/handy.icon.svg';
-import type { BlockType } from '@/lib/entities';
-import { BlockStoreProvider, useBlockStore } from './block.store';
-import { DotState, CursorSide } from './types';
+import type { BlockType } from '../types';
+import { BlockStoreProvider, CursorSide, DotState, useBlockStore } from './block.store';
 
 const blockContentTypeMap: Record<BlockType, any> = {
    image: ImageBlock,
@@ -50,8 +49,6 @@ function Block() {
          </div>
       );
    }
-
-   const [] = createBlockContextMenu();
 
    function onHandyContextMenu(e: MouseEvent) {
       e.preventDefault();

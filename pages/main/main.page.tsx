@@ -1,18 +1,20 @@
 import s from './main.page.module.scss';
-import { BlokiEditor } from '@/components/bloki-editor/bloki-editor.component';
-import { createEffect, For, Show } from 'solid-js';
-import { SideMenu } from '@/components/side-menu/side-menu';
-import { useAppStore } from '@/lib/app.store';
-import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
+import { createEffect, For, lazy, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { useI18n } from '@solid-primitives/i18n';
-import { AccountSettings } from '@/components/account-settings/account-settings.component';
+import { useAppStore } from '@/lib/app.store';
 import { useModalStore } from '@/components/modal/modal';
+import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
+
+const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));
+const SideMenu = lazy(() => import('@/components/side-menu/side-menu.component'));
+const AccountSettings = lazy(() => import('@/components/account-settings/account-settings.component'));
+import { Toolbox } from './toolbox/toolbox.component';
 
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
-import { Toolbox } from './toolbox/toolbox.component';
+
 import { getTextBlockSize } from '@/components/bloki-editor/blocks/text-block/helpers';
-import { isTextBlock } from '@/components/bloki-editor/blocks/text-block/types';
+import { isTextBlock } from '@/components/bloki-editor/types';
 
 export function MainPage() {
    const [t] = useI18n();

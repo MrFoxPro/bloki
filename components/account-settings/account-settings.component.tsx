@@ -44,7 +44,7 @@ export function AccountSettings() {
                <div class={s.title}>{t('settings.system.modal.menu.general')}</div>
                <div
                   class={s.item}
-                  classList={{ [s.itemHighlighed]: selectedItem() === 'layout' }}
+                  classList={{ [s.highlighted]: selectedItem() === 'layout' }}
                   onClick={() => setSelectedItem('layout')}
                >
                   <LayoutIcon />
@@ -52,7 +52,7 @@ export function AccountSettings() {
                </div>
                <div
                   class={s.item}
-                  classList={{ [s.itemHighlighed]: selectedItem() === 'language' }}
+                  classList={{ [s.highlighted]: selectedItem() === 'language' }}
                   onClick={() => setSelectedItem('language')}
                >
                   <LanguageIcon />
@@ -70,3 +70,4 @@ export function AccountSettings() {
       </div>
    );
 }
+export default AccountSettings;

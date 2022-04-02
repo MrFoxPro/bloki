@@ -54,6 +54,13 @@
   "blocks": {
     "text": {
       "placeholder": "Geben Sie '/' für Befehle ein"
+    },
+    "ctx-menu": {
+      "item": {
+        "transform": "Verwandeln",
+        "duplicate": "Duplikat",
+        "delete": "Löschen"
+      }
     }
   }
 }

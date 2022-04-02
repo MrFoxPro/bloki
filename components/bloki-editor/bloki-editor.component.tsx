@@ -1,21 +1,17 @@
-import s from './bloki-editor.module.scss';
-import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
+import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps, Suspense } from 'solid-js';
+import { unwrap } from 'solid-js/store';
 import cc from 'classcat';
+import DomPurify from 'dompurify';
+import s from './bloki-editor.module.scss';
+import { useAppStore } from '@/lib/app.store';
+import { useI18n } from '@solid-primitives/i18n';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
-import { AnyBlock, ImageBlock, TextBlock } from '@/lib/entities';
-import { useAppStore } from '@/lib/app.store';
-import { unwrap } from 'solid-js/store';
-import { BlockTransform, Dimension, Point } from './types';
+import { AnyBlock, BlockTransform, Dimension, EditType, ImageBlock, isTextBlock, Point, TextBlock } from './types';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
-import { TextBlockFontFamily, TextType, TextTypes } from './blocks/text-block/types';
-import DomPurify from 'dompurify';
+import { TextBlockFontFamily, TextType } from './blocks/text-block/types';
 import { BacklightDrawer } from './backlight/backlight-drawer.component';
-import { useI18n } from '@solid-primitives/i18n';
-
-function isTextBlock(block: AnyBlock): block is TextBlock {
-   return block.type === 'text';
-}
+import { BlockContextMenu } from './context-menu/context-menu.component';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
@@ -96,6 +92,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    function onMainGridMouseOut(e: MouseEvent) {
       editor.emit('maingridcursormoved', null, true);
    }
+
    const pasteError = () => alert('We are allowing only images pasted from other internet sources!');
 
    async function onPaste(e: ClipboardEvent) {
@@ -131,60 +128,12 @@ function BlokiEditor(props: BlokiEditorProps) {
          alert(t("errors.layout.not-enough-space"));
          return;
       }
-      const block: ImageBlock = {
-         id: crypto.randomUUID(),
+      createBlock({
          type: 'image',
          src: imgSrc,
          ...transform,
-      };
-      setStore('document', 'blocks', blocks => blocks.concat(block));
-      setStore({
-         editingBlock: store.document.blocks[store.document.blocks.length - 1],
-         editingType: 'select'
-      });
+      }, 'select');
       await app.apiProvider.updateDocument(app.selectedDocument);
-
-      // console.log(img.src);
-      // if (file?.type.includes('image')) {
-      //    const objUrl = URL.createObjectURL(file);
-      //    const dimension = await getImgDimension(objUrl);
-      //    URL.revokeObjectURL(objUrl);
-      //    const ratio = dimension.width / dimension.height;
-      //    const { fGridWidth, mGridWidth, blockMaxSize } = store.document.layoutOptions;
-      //    let width = mGridWidth;
-      //    let height = Math.ceil(width / ratio);
-      //    console.log('calculated image dimension', dimension, 'relative', width, height);
-
-      //    if (height > blockMaxSize.height) {
-      //       height = blockMaxSize.height;
-      //       width = Math.ceil(ratio * height);
-      //    }
-      //    const x = (fGridWidth - mGridWidth) / 2;
-      //    const y = findNextSpaceBelow(null);
-      //    const transform: BlockTransform = {
-      //       width, height,
-      //       x, y,
-      //    };
-      //    console.log(x, y, width, height);
-      //    const { correct } = checkPlacement(transform, x, y);
-      //    if (!correct) {
-      //       alert('Not enough space to place block in layout =(');
-      //       return;
-      //    }
-      //    const imgBase64 = await readAsDataUrl(file);
-      //    const block: ImageBlock = {
-      //       id: crypto.randomUUID(),
-      //       type: 'image',
-      //       src: imgBase64,
-      //       ...transform,
-      //    };
-      //    setStore('document', 'blocks', blocks => blocks.concat(block));
-      //    setStore({
-      //       editingBlock: store.document.blocks[store.document.blocks.length - 1],
-      //       editingType: 'select'
-      //    });
-      //    await app.apiProvider.updateDocument(app.selectedDocument);
-      // }
    }
 
    function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {
@@ -207,22 +156,25 @@ function BlokiEditor(props: BlokiEditorProps) {
       };
 
       if (checkPlacement(newBlockTransform, x, y).correct) {
-         let block: TextBlock = {
-            id: crypto.randomUUID(),
+         createBlock({
             type: 'text',
             value: '',
             fontFamily: TextBlockFontFamily.Inter,
             textType: TextType.Regular,
             ...newBlockTransform,
-         };
-         setStore('document', 'blocks', blocks => blocks.concat(block));
-         setStore({
-            editingBlock: store.document.blocks[store.document.blocks.length - 1],
-            editingType: 'content'
-         });
+         }, 'content');
       }
    }
+   function createBlock(block: Partial<AnyBlock>, editingType: EditType = 'content', id = crypto.randomUUID()) {
+      block.id = id;
 
+      setStore('document', 'blocks', blocks => blocks.concat(block as AnyBlock));
+      const createdBlock = store.document.blocks[store.document.blocks.length - 1];
+      setStore({
+         editingBlock: createdBlock,
+      });
+      return createdBlock;
+   }
    onMount(() => {
       calculateBoxRect();
       wrapperRef.addEventListener('scroll', calculateBoxRect, { passive: true });
@@ -255,6 +207,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    });
 
    createEffect(on(() => JSON.stringify(store.document.layoutOptions), calculateBoxRect));
+
    return (
       <>
          <div
@@ -308,6 +261,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                <Show when={store.editingType === 'drag'}>
                   <Block block={store.editingBlock} shadowed />
                </Show>
+               <BlockContextMenu blockToShow={store.editingBlock} />
             </div>
          </div>
          <Show when={props.showMeta}>
@@ -324,12 +278,15 @@ type WrappedEditorProps = Omit<ComponentProps<typeof EditorStoreProvider>, 'chil
 const WrappedEditor = (props: WrappedEditorProps) => {
    const [storeProps, compProps] = splitProps(props, ['document']);
    return (
-      <EditorStoreProvider {...storeProps}>
-         <BlokiEditor {...compProps} />
-      </EditorStoreProvider>
+      <Suspense>
+         <EditorStoreProvider {...storeProps}>
+            <BlokiEditor {...compProps} />
+         </EditorStoreProvider>
+      </Suspense>
    );
 };
 
 export {
    WrappedEditor as BlokiEditor
 };
+export default WrappedEditor;

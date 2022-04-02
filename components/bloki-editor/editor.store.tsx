@@ -1,15 +1,15 @@
-import { Accessor, batch, createComputed, createContext, createEffect, createMemo, PropsWithChildren, useContext } from "solid-js";
+import { Accessor, batch, createComputed, createContext, createMemo, PropsWithChildren, useContext } from "solid-js";
 import { createNanoEvents, Emitter } from 'nanoevents';
-import { createStore, DeepReadonly, SetStoreFunction, unwrap } from "solid-js/store";
-import { AnyBlock, BlokiDocument } from "@/lib/entities";
+import { createStore, DeepReadonly, SetStoreFunction } from "solid-js/store";
 import {
+   AnyBlock,
    BlockTransform,
-   ChangeEventInfo,
    Dimension,
    EditType,
    PlacementStatus,
    Point
 } from "./types";
+import { BlokiDocument } from "@/lib/entities";
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock: AnyBlock | null;
@@ -33,6 +33,13 @@ type CalculatedSize = {
    fGridHeight_px: string;
    mGridWidth_px: string;
    mGridHeight_px: string;
+};
+
+type ChangeEventInfo = {
+   type: EditType;
+   absTransform: BlockTransform;
+   relTransform: BlockTransform;
+   placement: PlacementStatus;
 };
 
 interface EditorEvents {

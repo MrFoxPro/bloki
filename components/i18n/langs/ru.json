@@ -54,6 +54,13 @@
   "blocks": {
     "text": {
       "placeholder": "Введите '/' для команд"
+    },
+    "ctx-menu": {
+      "item": {
+        "transform": "Преобразовать",
+        "duplicate": "Дублировать",
+        "delete": "Удалить"
+      }
     }
   }
 }

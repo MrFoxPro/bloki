@@ -1,5 +1,4 @@
 import { LayoutOptions } from "@/lib/entities";
-import { GridInfo } from "./blocks/text-block/helpers";
 import { BlockTransform, Dimension, Point } from "./types";
 
 export function calcGridSize(factor: number, size: number, gap: number) {

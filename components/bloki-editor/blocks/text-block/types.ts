@@ -1,6 +1,3 @@
-import { AnyBlock, Block } from "@/lib/entities";
-
-
 export enum TextType {
    Title,
    Regular,
@@ -49,9 +46,6 @@ export const TextTypes: { [key in TextType]: TextSetting } = {
       color: '#9CA5AB'
    }
 };
-
-
-
 export enum TextBlockFontFamily {
    Roboto = 'Roboto',
    Inter = 'Inter'
@@ -61,11 +55,3 @@ export type TextBlockStyle = {
    textType: TextType;
    fontFamily?: TextBlockFontFamily;
 };
-export type TextBlock = Block & {
-   type: 'text';
-   value: string;
-} & TextBlockStyle;
-
-export function isTextBlock(block: AnyBlock): block is TextBlock {
-   return (block as TextBlock).type === 'text';
-}

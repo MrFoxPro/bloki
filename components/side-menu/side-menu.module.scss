@@ -1,3 +1,5 @@
+@use '@/assets/styles/framework.module.scss';
+
 .side-menu {
    width: 250px;
    min-width: 250px;
@@ -111,62 +113,6 @@
    align-items: center;
    gap: 38px;
 }
-
-.controls {
-   .icon.search {
-      background-image: url(./assets/search.icon.svg);
-   }
-
-   .icon.settings {
-      background-image: url(./assets/settings.icon.svg);
-   }
-
-   .icon.trash {
-      background-image: url(./assets/delete.icon.svg);
-   }
-}
-
-.item-highlighed {
-   background: #F6F9FB;
-   border-radius: 6px;
-}
-
-.item {
-   box-sizing: border-box;
-
-   display: flex;
-   align-items: center;
-   padding-left: 3px;
-
-   height: 28px;
-   width: 207px;
-
-   cursor: pointer;
-
-   &:hover {
-      @extend .item-highlighed;
-   }
-
-   >.icon {
-      width: 15px;
-      height: 15px;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: contain;
-   }
-
-   >span {
-      margin-left: 8px;
-      font-weight: 500;
-      text-transform: capitalize;
-   }
-}
-
-.item-disabled {
-   color: #d3d3d3;
-   pointer-events: none;
-}
-
 .block {
    width: 100%;
 

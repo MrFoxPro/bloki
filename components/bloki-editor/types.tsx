@@ -1,20 +1,63 @@
-import { AnyBlock } from "@/lib/entities";
+import { TextBlockStyle } from "./blocks/text-block/types";
 
-export type Point = { x: number, y: number; };
-export type Dimension = { width: number, height: number; };
-export type EditType = 'drag' | 'resize' | 'select' | 'content';
+type Point = { x: number, y: number; };
+type Dimension = { width: number, height: number; };
+type EditType = 'drag' | 'resize' | 'select' | 'content';
 
-export type BlockTransform = Point & Dimension;
+type BlockTransform = Point & Dimension;
 
-export type PlacementStatus = {
+type PlacementStatus = {
    correct: boolean;
    intersections: BlockTransform[];
    outOfBorder: boolean;
    affected: AnyBlock[];
 };
-export type ChangeEventInfo = {
-   type: EditType;
-   absTransform: BlockTransform;
-   relTransform: BlockTransform;
-   placement: PlacementStatus;
+
+type BlockType = 'text' | 'image';
+
+type Block = {
+   id: string;
+   type: BlockType;
+
+   x: number;
+   y: number;
+   width: number;
+   height: number;
+};
+
+type ImageBlock = Block & {
+   type: 'image';
+   src: string;
+   width: number;
+   height: number;
+};
+
+type TextBlock = Block & {
+   type: 'text';
+   value: string;
+} & TextBlockStyle;
+
+type AnyBlock = Block | TextBlock | ImageBlock;
+
+function isTextBlock(block: AnyBlock): block is TextBlock {
+   return block.type === 'text';
+}
+
+export {
+   Point,
+   Dimension,
+   BlockTransform,
+
+   PlacementStatus,
+   EditType,
+
+   Block,
+   BlockType,
+
+   ImageBlock,
+
+   TextBlock,
+   isTextBlock,
+
+   AnyBlock
 };

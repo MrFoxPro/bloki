@@ -1,4 +1,4 @@
-@import '@/components/side-menu/side-menu.module.scss';
+@use '@/assets/styles/framework.module.scss';
 
 .account-settings {
    background: #FFFFFF;
@@ -48,6 +48,10 @@
             line-height: 16px;
             padding-left: 0;
             color: #51575E;
+
+            &.highlighted {
+               background-color: #EDF2F4;
+            }
          }
       }
    }

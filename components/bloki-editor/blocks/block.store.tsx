@@ -1,16 +1,30 @@
-import { AnyBlock } from "@/lib/entities";
 import { Accessor, createComputed, createContext, createEffect, createMemo, onCleanup, PropsWithChildren, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useEditorStore } from "../editor.store";
 import { isInsideRect, distanceBetweenPoints } from "../helpers";
-import { Dimension, Point } from "../types";
-import { CursorSide, DotState } from "./types";
+import { AnyBlock, Dimension, Point } from "../types";
 
 const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
 const RESIZER_ACTIVATE_OUTER_LIM = 30;
 
 const CURSOR_X_OFFSET = 0;
 const CURSOR_Y_OFFSET = -1;
+
+export enum DotState {
+   None,
+   Micro,
+   Full
+}
+export enum CursorSide {
+   NW = 'nw-resize',
+   N = 'n-resize',
+   NE = 'ne-resize',
+   E = 'e-resize',
+   SE = 'se-resize',
+   S = 's-resize',
+   SW = 'sw-resize',
+   W = 'w-resize',
+}
 
 class BlockData {
    boxRef: HTMLDivElement | undefined;

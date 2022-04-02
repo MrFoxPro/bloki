@@ -54,6 +54,13 @@
   "blocks": {
     "text": {
       "placeholder": "Type '/' for commands"
+    },
+    "ctx-menu": {
+      "item": {
+        "transform": "Transform",
+        "duplicate": "Duplicate",
+        "delete": "Delete"
+      }
     }
   }
 }

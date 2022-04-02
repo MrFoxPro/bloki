@@ -1,11 +1,20 @@
 import { useAppStore } from '@/lib/app.store';
-import { ComponentProps, For, mergeProps, Show } from 'solid-js';
+import { ComponentProps, createComponent, For, mergeProps, Show } from 'solid-js';
 import s from './side-menu.module.scss';
 import cc from 'classcat';
-import AddIcon from './assets/add.icon.svg';
 import { useI18n } from '@solid-primitives/i18n';
 
+import AddIcon from './assets/add.icon.svg';
+import SearchIcon from './assets/search.icon.svg';
+import SettingsIcon from './assets/settings.icon.svg';
+import TrashIcon from './assets/trash.icon.svg';
+
 const items = ['search', 'settings', 'trash'] as const;
+const itemIconDict = {
+   search: SearchIcon,
+   settings: SettingsIcon,
+   trash: TrashIcon
+} as const;
 
 type SideMenuProps = {
    activeItems: ((typeof items)[any] | string)[];
@@ -40,12 +49,12 @@ export function SideMenu(props: SideMenuProps) {
                      <div
                         classList={{
                            [s.item]: true,
-                           [s.itemHighlighed]: props.activeItems.includes(item),
-                           [s.itemDisabled]: props.disabledItems.includes(item),
+                           [s.highlighted]: props.activeItems.includes(item),
+                           [s.disabled]: props.disabledItems.includes(item),
                         }}
                         onClick={() => props.onItemClick(item)}
                      >
-                        <div classList={{ [s.icon]: true, [s[item]]: true }} />
+                        {createComponent(itemIconDict[item], { class: s.icon })}
                         <span>{t(`menu.items.${item}`)}</span>
                      </div>
                   )}
@@ -62,7 +71,7 @@ export function SideMenu(props: SideMenuProps) {
                         <div
                            class={cc([s.page, s.item])}
                            classList={{
-                              [s.itemHighlighed]: doc.id === app.selectedDocument?.id
+                              [s.highlighted]: doc.id === app.selectedDocument?.id
                            }}
                            onClick={() => setStore({ selectedDocument: doc })}
                         >
@@ -83,3 +92,5 @@ export function SideMenu(props: SideMenuProps) {
       </div>
    );
 }
+
+export default SideMenu;

@@ -1,6 +1,5 @@
 import { ComponentProps, splitProps } from 'solid-js';
-import { ImageBlock as ImageBlockEntity } from '@/lib/entities';
-import { useEditorStore } from '../../editor.store';
+import { ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types';
 import s from './image.block.module.scss';
 import { useBlockStore } from '../block.store';
 
