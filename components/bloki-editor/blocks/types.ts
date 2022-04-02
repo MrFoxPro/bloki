@@ -1,26 +1,25 @@
-import { AnyBlock, ImageBlock } from "@/lib/entities";
-import { BlockTransform, Dimension } from "../types";
+export enum DotState {
+   None,
+   Micro,
+   Full
+}
+export enum CursorSide {
+   NW = 'nw-resize',
+   N = 'n-resize',
+   NE = 'ne-resize',
+   E = 'e-resize',
+   SE = 'se-resize',
+   S = 's-resize',
+   SW = 'sw-resize',
+   W = 'w-resize',
+}
 
-export type ContentBlockProps<T = AnyBlock> = {
-   block: T;
-
-   isMeEditing: boolean;
-   isMeDragging: boolean;
-   isMeResizing: boolean;
-   isMeOverflowing: boolean;
-   setGetContentDimension(f: (transform: Dimension) => Dimension): void;
-
-   shadowed?: boolean;
-   localTransform: BlockTransform;
-
-};
-
-export const contentBlockProps: (keyof ContentBlockProps<AnyBlock>)[] = [
-   'block',
-   'isMeDragging',
-   'isMeEditing',
-   'isMeResizing',
-   'setGetContentDimension',
-   'shadowed',
-   'localTransform'
-];
+// export const contentBlockProps: (keyof ContentBlockProps<AnyBlock>)[] = [
+//    'block',
+//    'isMeDragging',
+//    'isMeEditing',
+//    'isMeResizing',
+//    'setGetContentDimension',
+//    'shadowed',
+//    'localTransform'
+// ];

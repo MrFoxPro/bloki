@@ -1,19 +1,17 @@
-import { ComponentProps, createMemo, splitProps } from 'solid-js';
+import { ComponentProps, splitProps } from 'solid-js';
 import { ImageBlock as ImageBlockEntity } from '@/lib/entities';
 import { useEditorStore } from '../../editor.store';
 import s from './image.block.module.scss';
-import { contentBlockProps, ContentBlockProps } from '../types';
+import { useBlockStore } from '../block.store';
 
-type ImageBlockProps = ContentBlockProps<ImageBlockEntity> & {
+type ImageBlockProps = {
 } & ComponentProps<'img'>;
 
 export function ImageBlock(props: ImageBlockProps) {
-   const [editor, { setStore, getAbsoluteSize, gridSize, gridBoxSize }] = useEditorStore();
-   const [local, other] = splitProps(props, contentBlockProps);
+   const [, { shadowed, block, isMeResizing, isMeDragging }] = useBlockStore<ImageBlockEntity>();
+   const [local, other] = splitProps(props, []);
 
    let imgRef: HTMLImageElement;
-
-   const isEditingContent = createMemo(() => editor.editingBlock === props.block && editor.editingType === 'content');
 
    function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Enter') {
@@ -32,10 +30,10 @@ export function ImageBlock(props: ImageBlockProps) {
 
    return (
       <img
-         src={props.block.src}
+         src={block.src}
          class={s.content}
          onKeyDown={onKeyDown}
-         classList={{ [s.changing]: props.isMeResizing || props.isMeDragging, [s.shadowed]: props.shadowed }}
+         classList={{ [s.changing]: isMeResizing() || isMeDragging(), [s.shadowed]: shadowed }}
          ref={imgRef}
          // onPaste={onPaste}
          {...other}

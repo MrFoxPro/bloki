@@ -15,26 +15,32 @@
          fill: #9ca5ab;
       }
    }
+
    &.selected {
       outline-color: #4281fa;
       // border-color: #4281fa;
       z-index: 25;
+
       .handy {
          fill: #9ca5ab;
       }
    }
+
    &.dragging {
       // background: rgba(201, 64, 64, 0.637);
       cursor: grabbing;
+
       .handy {
          fill: #7597ff;
       }
    }
+
    &.resizing {
       .sizedot {
          background: #4281fa !important;
       }
    }
+
    .overlay {
       position: absolute;
       inset: 0px;
@@ -42,42 +48,51 @@
 
    $area-size: 14px;
    $area-offset: -14px;
+
    // I'm too lazy to make array and iterate here
    .edge,
    .vert {
       position: absolute;
    }
+
    .vert {
       width: $area-size - $area-offset;
       height: $area-size - $area-offset;
+
       &.show-resize-areas {
          background: rgba(255, 0, 0, 0.212);
       }
+
       &.nw {
          left: $area-offset - $area-size;
          top: $area-offset - $area-size;
          cursor: nwse-resize;
       }
+
       &.ne {
          right: $area-offset - $area-size;
          top: $area-offset - $area-size;
          cursor: nesw-resize;
       }
+
       &.se {
          right: $area-offset - $area-size;
          bottom: $area-offset - $area-size;
          cursor: nwse-resize;
       }
+
       &.sw {
          left: $area-offset - $area-size;
          bottom: $area-offset - $area-size;
          cursor: nesw-resize;
       }
    }
+
    .edge {
       &.show-resize-areas {
          background: rgba(0, 0, 255, 0.199);
       }
+
       &.n {
          top: $area-offset;
          // right: $area-size;
@@ -88,6 +103,7 @@
          height: $area-size;
          cursor: ns-resize;
       }
+
       &.s {
          bottom: $area-offset;
          // right: $area-size;
@@ -98,6 +114,7 @@
          height: $area-size;
          cursor: ns-resize;
       }
+
       &.e {
          right: $area-offset;
 
@@ -109,6 +126,7 @@
          width: $area-size;
          cursor: ew-resize;
       }
+
       &.w {
          left: $area-offset;
 
@@ -122,6 +140,7 @@
       }
    }
 }
+
 .handy {
    position: absolute;
    top: 0px;
@@ -129,6 +148,7 @@
    cursor: pointer;
    transition: fill 130ms linear;
    fill: transparent;
+
    &:hover {
       fill: #18a0fb !important;
    }
@@ -137,6 +157,7 @@
 .dot-wrapper {
    position: absolute;
    z-index: 5;
+
    .sizedot {
       width: 5px;
       height: 5px;
@@ -147,10 +168,22 @@
       transform-origin: center;
       transition: transform 100ms linear;
       pointer-events: none;
+
       &.expand {
          background: white;
          outline-color: #4281fa;
          // border-color: #4281fa;
       }
    }
+}
+
+.ctxmenu {
+   width: 196px;
+   height: 100px;
+
+   background: #FFFFFF;
+   border: 1px solid #D7DCDF;
+   box-sizing: border-box;
+   box-shadow: 0px 54px 103px rgba(0, 0, 0, 0.03), 0px 22.5599px 43.0309px rgba(0, 0, 0, 0.0215656), 0px 12.0616px 23.0064px rgba(0, 0, 0, 0.0178832), 0px 6.76164px 12.8972px rgba(0, 0, 0, 0.015), 0px 3.59106px 6.84961px rgba(0, 0, 0, 0.0121168), 0px 1.49432px 2.85027px rgba(0, 0, 0, 0.00843437);
+   border-radius: 8px;
 }

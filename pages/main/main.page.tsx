@@ -12,7 +12,6 @@ import { useModalStore } from '@/components/modal/modal';
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 import { Toolbox } from './toolbox/toolbox.component';
 import { getTextBlockSize } from '@/components/bloki-editor/blocks/text-block/helpers';
-import { TextBlock } from '@/lib/entities';
 import { isTextBlock } from '@/components/bloki-editor/blocks/text-block/types';
 
 export function MainPage() {
@@ -29,9 +28,9 @@ export function MainPage() {
       docSettings: false,
    });
 
-   const useModal = useModalStore();
+   const createModal = useModalStore();
 
-   const [sysSettingsVisible, setSysSettingsVisible] = useModal(AccountSettings, true);
+   const [sysSettingsVisible, setSysSettingsVisible] = createModal(AccountSettings, true);
 
    createEffect(() => setSysSettingsVisible(state.menu.settings));
    createEffect(() => setState('menu', 'settings', sysSettingsVisible()));

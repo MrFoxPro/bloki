@@ -12,8 +12,8 @@ export const ModalStoreProvider = (props) => {
       blur: false
    });
 
-   const useModal = (el: () => JSX.Element, useBlur = true) => {
-      const isVisible = createMemo(() => !!store.modal)
+   const createModal = (el: () => JSX.Element, useBlur = true) => {
+      const isVisible = createMemo(() => !!store.modal);
 
       const setVisible = (visible: boolean, blur = useBlur) => {
          if (visible) setStore({ blur, modal: el });
@@ -22,10 +22,9 @@ export const ModalStoreProvider = (props) => {
       return [isVisible, setVisible] as const;
    };
 
-   // const context = useModal;
 
    return (
-      <ModalContext.Provider value={useModal}>
+      <ModalContext.Provider value={createModal}>
          {props.children}
          <Show when={store.blur && store.modal}>
             <div class={s.blur} onClick={() => setStore({ modal: null, blur: false })} />
