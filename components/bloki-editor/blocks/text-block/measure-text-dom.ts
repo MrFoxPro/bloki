@@ -6,7 +6,7 @@ interface Options {
    fontWeight: string;
    lineHeight: string;
    width: string;
-   wordBreak: string;
+   overflowWrap: string;
 }
 
 export class DOMTextMeasurer {

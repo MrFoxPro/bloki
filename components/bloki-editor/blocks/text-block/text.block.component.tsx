@@ -62,6 +62,9 @@ export function TextBlock(props: TextBlockProps) {
          if (!contentRef.textContent.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
             contentRef.lastElementChild.remove();
          }
+         measurer.setOptions({
+            overflowWrap: 'break-all'
+         });
          const minimals = measurer.measureText(props.block.value, 'min-content', 'min-content');
          minTextWidth = minimals.width;
          textHeightAtMinWidth = minimals.height;
@@ -84,15 +87,20 @@ export function TextBlock(props: TextBlockProps) {
    });
 
    let alignToMainGrid = true;
+
    function onTextInput(e: Event, pasteContent: string = null) {
       console.log('on input');
+      const mGridWidth = editor.document.layoutOptions.mGridWidth;
       // check if key is affecting content?
       const text = contentRef.textContent + (pasteContent || '');
 
-      if (text === '' && props.block.width >= editor.document.layoutOptions.mGridWidth) {
+      if (text === '' && props.block.width >= mGridWidth) {
+         // const height = Math.ceil(TextTypes[props.block.textType].lineHeight / );
+         const boundSize = getTextBlockSize(props.block, text, editor.document.layoutOptions);
+
          setStore('document', 'blocks', editor.document.blocks.indexOf(props.block), {
-            width: editor.document.layoutOptions.mGridWidth,
-            height: 1,
+            width: mGridWidth,
+            height: boundSize.height,
             value: text,
          });
          alignToMainGrid = true;
@@ -100,14 +108,16 @@ export function TextBlock(props: TextBlockProps) {
       }
 
       let maxWidth = props.block.width;
+      if (maxWidth < mGridWidth) maxWidth = mGridWidth;
 
-      const boundSize = getTextBlockSize(props.block, text, editor.document.layoutOptions, maxWidth);
+      const boundSize = getTextBlockSize(props.block, text, editor.document.layoutOptions, maxWidth, 'break-word');
 
       let newWidth = boundSize.width;
-      if (props.block.width === editor.document.layoutOptions.mGridWidth) {
-         newWidth = editor.document.layoutOptions.mGridWidth;
+      if (props.block.width === mGridWidth) {
+         newWidth = mGridWidth;
       }
       let newHeight = boundSize.height;
+      if (props.block.height > newHeight) newHeight = props.block.height;
 
       const { correct } = checkPlacement(props.block, props.block.x, props.block.y, newWidth, newHeight);
       if (!correct) {
@@ -124,6 +134,7 @@ export function TextBlock(props: TextBlockProps) {
          value: text,
       });
    }
+
    function onKeyDown(e: KeyboardEvent) {
       const text = contentRef.textContent;
       let maxWidth = props.block.width;

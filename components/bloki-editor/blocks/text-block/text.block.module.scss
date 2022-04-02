@@ -52,7 +52,9 @@
 
 .measurer {
    position: fixed;
-   background: red;
+   background: rgba(169, 70, 70, 0.528);
    z-index: 900;
+   bottom: 0;
+   pointer-events: none;
    @extend .blocked-text;
 }

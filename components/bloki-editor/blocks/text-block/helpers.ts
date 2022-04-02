@@ -6,12 +6,16 @@ import { TextBlockFontFamily, TextBlockStyle, TextType, TextTypes } from "./type
 
 export const measurer = new DOMTextMeasurer();
 const HeightMargins = {
-   [TextType.H1]: 1
+   [TextType.H1]: 1,
 };
 
 export type GridInfo = Pick<LayoutOptions, 'gap' | 'size'>;
 
-export function getTextBlockSize({ textType, fontFamily }: TextBlockStyle, text: string, { size, gap }: GridInfo, maxRelWidth?: number): Dimension & { isOneLine: boolean; } {
+export function getTextBlockSize(
+   { textType, fontFamily }: TextBlockStyle,
+   text: string, { size, gap }: GridInfo,
+   maxRelWidth?: number,
+   overflowWrap: 'anywhere' | 'break-word' = 'break-word'): Dimension & { isOneLine: boolean; } {
    const gridSize = size + gap;
 
    const settings = TextTypes[textType];
@@ -23,6 +27,7 @@ export function getTextBlockSize({ textType, fontFamily }: TextBlockStyle, text:
       fontSize: settings.fontSize + 'px',
       fontWeight: settings.fontWeight.toString(),
       lineHeight: settings.lineHeight + 'px',
+      overflowWrap
    });
    let maxAbsWidth = maxRelWidth ? calcGridSize(maxRelWidth, size, gap) + 'px' : 'auto';
    let { width, height } = measurer.measureText(text, maxAbsWidth);
