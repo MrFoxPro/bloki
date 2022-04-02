@@ -1,4 +1,4 @@
-import { createMemo, Show } from "solid-js";
+import { createEffect, createMemo, onCleanup, onMount, Show } from "solid-js";
 import cc from 'classcat';
 import s from './context-menu.module.scss';
 
@@ -7,25 +7,41 @@ import DuplicateIcon from './assets/duplicate.icon.svg';
 import TransformIcon from './assets/transform.icon.svg';
 
 import { useI18n } from '@solid-primitives/i18n';
-import { AnyBlock } from "../types";
 import { useEditorStore } from "../editor.store";
 
 type BlockContextMenuProps = {
-   blockToShow?: AnyBlock;
 };
 
 export function BlockContextMenu(props: BlockContextMenuProps) {
    const [t] = useI18n();
-   const [store, { getAbsolutePosition }] = useEditorStore();
+   const [store, { setStore, getAbsolutePosition, deleteBlock }] = useEditorStore();
+   const pos = createMemo(() => getAbsolutePosition(store.editingBlock?.x ?? 0, store.editingBlock?.y ?? 0));
 
-   const pos = createMemo(() => props.blockToShow && getAbsolutePosition(props.blockToShow.x, props.blockToShow.y));
+   function hideMe() {
+      setStore({
+         showContextMenu: false
+      });
+   }
+
+   createEffect(() => {
+      if (store.editingType != null) {
+         hideMe();
+      }
+   });
+
+   onMount(() => {
+      document.addEventListener('click', hideMe);
+      onCleanup(() => document.removeEventListener('click', hideMe));
+   });
+
    return (
-      <Show when={props.blockToShow}>
+      <Show when={store.showContextMenu && store.editingBlock}>
          <div
             class={s.ctxMenu}
             style={{
                transform: `translate(calc(${pos().x}px - 100% - 30px), ${pos().y}px)`
             }}
+            onFocusOut={() => console.log('ctx menu blur')}
          >
             <div class={s.items}>
                <div class={s.item}>
@@ -37,8 +53,10 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
                   <span>{t('blocks.ctx-menu.item.duplicate')}</span>
                </div>
                <div
-                  onClick={() => { }}
                   class={cc([s.item, s.delete])}
+                  onClick={() => {
+                     deleteBlock(store.editingBlock);
+                  }}
                >
                   <DeleteIcon />
                   <span>{t('blocks.ctx-menu.item.delete')}</span>

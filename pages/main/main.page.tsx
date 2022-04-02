@@ -38,7 +38,7 @@ export function MainPage() {
    createEffect(() => setState('menu', 'settings', sysSettingsVisible()));
 
    return (
-      <main class={s.test}>
+      <main class={s.main}>
          <SideMenu
             activeItems={Object.keys(state.menu).filter(i => state.menu[i] === true)}
             disabledItems={['trash']}
@@ -49,8 +49,6 @@ export function MainPage() {
          <div class={s.workspace}>
             <div class={s.topBar}>
                <div class={s.leftBar}>
-                  {/* <div class={s.arrow} />
-                  <div class={s.arrow} /> */}
                   <Toolbox />
                </div>
                <h4>{app.selectedDocument?.title}</h4>

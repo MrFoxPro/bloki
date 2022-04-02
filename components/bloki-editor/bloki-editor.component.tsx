@@ -261,7 +261,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                <Show when={store.editingType === 'drag'}>
                   <Block block={store.editingBlock} shadowed />
                </Show>
-               <BlockContextMenu blockToShow={store.editingBlock} />
+               <BlockContextMenu />
             </div>
          </div>
          <Show when={props.showMeta}>

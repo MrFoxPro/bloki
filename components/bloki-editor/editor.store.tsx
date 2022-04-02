@@ -19,6 +19,8 @@ type EditorStoreValues = DeepReadonly<{
    overflowedBlocks: AnyBlock[];
    isPlacementCorrect: boolean;
    document: BlokiDocument;
+
+   showContextMenu: boolean;
 }>;
 
 type CalculatedSize = {
@@ -72,7 +74,6 @@ type EditorStoreHandles = {
    onChangeStart: ChangeHandler;
    onChange: ChangeHandler;
    onChangeEnd: ChangeHandler;
-   selectBlock(block: AnyBlock, type?: EditType): void;
    gridSize(factor: number): number;
    gridBoxSize: Accessor<number>;
    realSize: Accessor<CalculatedSize>;
@@ -81,6 +82,9 @@ type EditorStoreHandles = {
    getRelativeSize(width: any, height: any, roundFunc?: (x: number) => number): Dimension;
    getAbsoluteSize(width: number, height: number): Dimension;
    checkPlacement(block: BlockTransform, x?: number, y?: number, width?: number, height?: number): PlacementStatus;
+
+   selectBlock(block: AnyBlock, type?: EditType): void;
+   deleteBlock(block: AnyBlock): void;
 
    setStore: SetStoreFunction<EditorStoreValues>;
    editor: StaticEditorData;
@@ -100,6 +104,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          editingBlock: null,
          editingType: null,
          selectedBlocks: [],
+         showContextMenu: false,
          overflowedBlocks: [],
          isPlacementCorrect: false,
          document: null,
@@ -289,10 +294,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       });
    }
 
-   function createBlock(block: AnyBlock) {
-      throw {};
-   }
-
    function selectBlock(selectedBlock: AnyBlock, type: EditType = 'select') {
       if (selectedBlock) {
          setState({
@@ -306,6 +307,15 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             editingType: null,
          });
       }
+   }
+   function deleteBlock(block: AnyBlock) {
+      if (state.editingBlock === block) {
+         setState({
+            editingBlock: null,
+            editingType: null
+         });
+      }
+      setState('document', 'blocks', blocks => blocks.filter(b => b.id !== block.id));
    }
 
    // let verticallySortedDocs: string[];
@@ -321,7 +331,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             onChange,
             onChangeEnd,
             checkPlacement,
-            selectBlock,
             gridSize,
             realSize,
             gridBoxSize,
@@ -329,6 +338,9 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             getAbsolutePosition,
             getAbsoluteSize,
             getRelativeSize,
+
+            selectBlock,
+            deleteBlock,
 
             setStore: setState,
             editor

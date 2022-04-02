@@ -64,12 +64,16 @@ type BlockContextHandlers<B extends AnyBlock = AnyBlock> = {
       currentTarget: HTMLDivElement;
    }) => void;
    onPointerMove: (e: PointerEvent) => void;
+
    onBoxPointerDown: (e: PointerEvent, btn?: number) => void;
    onBoxPointerMove: (e: PointerEvent) => void;
    onBoxPointerUp: (e: PointerEvent) => void;
+
    onHookPointerDown: (e: PointerEvent, side: CursorSide) => void;
    onHookPointerMove: (e: PointerEvent) => void;
+
    onDotPointerUp: (e: PointerEvent) => void;
+
    blockData: BlockData;
 
    block: B;

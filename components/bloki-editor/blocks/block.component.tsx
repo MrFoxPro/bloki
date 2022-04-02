@@ -17,6 +17,7 @@ const blockContentTypeMap: Record<BlockType, any> = {
 function Block() {
    const [store, {
       selectBlock,
+      setStore
    }] = useEditorStore();
 
    const [state, {
@@ -53,6 +54,10 @@ function Block() {
    function onHandyContextMenu(e: MouseEvent) {
       e.preventDefault();
 
+      selectBlock(block);
+      setStore({
+         showContextMenu: true
+      });
    }
 
    return (
@@ -72,6 +77,7 @@ function Block() {
          ondragstart={(e) => e.preventDefault()}
          ondrop={(e) => e.preventDefault()}
          draggable={false}
+         onFocusOut={() => console.log('blur')}
       >
          <HandyIcon
             class={s.handy}
