@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, Match, splitProps, Switch } from 'solid-js';
+import { ComponentProps, createEffect, Match, on, splitProps, Switch } from 'solid-js';
 import { ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types';
 import s from './image.block.module.scss';
 import { useBlockStore } from '../block.store';
@@ -6,15 +6,50 @@ import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from '../../editor.store';
 import { getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
 import throttle from 'lodash.throttle';
+import cc from 'classcat';
 
 type ImageBlockProps = {
 } & ComponentProps<'img'>;
 
 export function ImageBlock(props: ImageBlockProps) {
    const [t] = useI18n();
-   const [editorStore, { setStore }] = useEditorStore();
-   const [, { shadowed, block, isMeResizing, isMeDragging }] = useBlockStore<ImageBlockEntity>();
    const [local, other] = splitProps(props, []);
+
+   const [, { shadowed, block, isMeResizing, isMeDragging }] = useBlockStore<ImageBlockEntity>();
+   if (shadowed) {
+      return (
+         <div class={cc([s.shadowed, s.imgBlock])}>
+            <Switch>
+               <Match when={block.src}>
+                  <img
+                     src={block.src}
+                     {...other}
+                  />
+               </Match>
+               <Match when={!block.src}>
+                  <div class={s.mock}>
+                     <div class={s.dnd}>
+                        <div class={s.pic} />
+                        <div class={s.ask}>{t('blocks.attachments.image.mock.ask')}</div>
+                        <div class={s.orDrop}>{t('blocks.attachments.image.mock.or-drag')}</div>
+                     </div>
+                     <div class={s.inputBlock}>
+                        <div class={s.name}>
+                           {t('blocks.attachments.image.mock.or-link')}
+                        </div>
+                        <input
+                           type="url"
+                           class={s.link}
+                           placeholder={"https://cstor.nn2.ru/forum/data/forum/files/2014-12/108480959-9743143_original-1-.jpg"}
+                        />
+                     </div>
+                  </div>
+               </Match>
+            </Switch>
+         </div>
+      );
+   }
+   const [editorStore, { setStore }] = useEditorStore();
 
    let imgRef: HTMLImageElement;
 
@@ -23,22 +58,26 @@ export function ImageBlock(props: ImageBlockProps) {
          // e.preventDefault();
       }
    }
-   createEffect(async () => {
-      if (!block.src) {
-         setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
-            width: editorStore.document.layoutOptions.mGridWidth,
-            height: 18
-         });
-      }
-      else {
-         const { width, height } = await getImgDimension(block.src);
-         setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
-            width: editorStore.document.layoutOptions.mGridWidth,
-            height: Math.ceil(editorStore.document.layoutOptions.mGridWidth * (height / width))
-         });
-      }
-   });
-   async function onFileChoose(e: InputEvent & { currentTarget: HTMLInputElement; }) {
+   // createEffect(() => console.log(block.src))
+   createEffect(on(
+      () => block.src,
+      async () => {
+         if (!block.src) {
+            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
+               width: editorStore.document.layoutOptions.mGridWidth,
+               height: 18
+            });
+         }
+         else {
+            const { width, height } = await getImgDimension(block.src);
+            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
+               width: editorStore.document.layoutOptions.mGridWidth,
+               height: Math.ceil(editorStore.document.layoutOptions.mGridWidth * (height / width))
+            });
+         }
+      })
+   );
+   async function onFileChoose(e: Event & { currentTarget: HTMLInputElement; }) {
       const file = e.currentTarget.files[0];
       const base64 = await readAsDataUrl(file);
       setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
@@ -63,7 +102,7 @@ export function ImageBlock(props: ImageBlockProps) {
 
    const onPaste = throttle((e: ClipboardEvent) => {
       const text = e.clipboardData.getData('text/html');
-      console.log(e.clipboardData.types)
+      console.log(e.clipboardData.types);
       tryToSetUrlImage(text);
    }, 1000);
 

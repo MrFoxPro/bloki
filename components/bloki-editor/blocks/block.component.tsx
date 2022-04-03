@@ -18,8 +18,6 @@ const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.H2]: TextBlock,
    [BlockType.H3]: TextBlock,
    [BlockType.Title]: TextBlock,
-
-
 };
 
 function Block() {

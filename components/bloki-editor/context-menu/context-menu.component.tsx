@@ -4,7 +4,6 @@ import s from './context-menu.module.scss';
 
 import DeleteIcon from './assets/delete.icon.svg';
 import DuplicateIcon from './assets/duplicate.icon.svg';
-import TransformIcon from './assets/transform.icon.svg';
 
 import TitleIcon from './assets/title.icon.svg';
 import RegularIcon from './assets/regular.icon.svg';
@@ -69,7 +68,10 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
             <div class={s.items}>
                <div class={s.name}>{t('blocks.ctx-menu.header.types')}</div>
                {/*@once*/items.map(([type, icon, name]) => (
-                  <div class={s.item} onClick={(e) => onChangeBlockClick(e, type)}>
+                  <div
+                     class={s.item}
+                     classList={{ [s.highlighted]: store.editingBlock.type === type }}
+                     onClick={(e) => onChangeBlockClick(e, type)}>
                      {icon}
                      <span>{t(name)}</span>
                   </div>
@@ -77,10 +79,6 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
             </div>
             <div class={s.items}>
                <div class={s.name}>{t('blocks.ctx-menu.header.actions')}</div>
-               <div class={s.item}>
-                  <TransformIcon />
-                  <span>{t('blocks.ctx-menu.item.transform')}</span>
-               </div>
                <div class={s.item}>
                   <DuplicateIcon />
                   <span>{t('blocks.ctx-menu.item.duplicate')}</span>

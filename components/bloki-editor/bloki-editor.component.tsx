@@ -12,6 +12,7 @@ import { getAsString, getGoodImageRelativeSize } from './helpers';
 import { TextBlockFontFamily } from './blocks/text-block/types';
 import { BacklightDrawer } from './backlight/backlight-drawer.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
+import { Drawer } from './drawer/drawer.component';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
@@ -33,7 +34,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          selectBlock,
          setStore,
          getRelativePosition,
-         checkPlacement
+         checkPlacement,
       }
    ] = useEditorStore();
 
@@ -261,6 +262,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   <Block block={store.editingBlock} shadowed />
                </Show>
                <BlockContextMenu />
+               <Drawer />
             </div>
          </div>
          <Show when={props.showMeta}>

@@ -12,8 +12,8 @@ import {
 import { BlokiDocument } from "@/lib/entities";
 
 type EditorStoreValues = DeepReadonly<{
-   editingBlock: AnyBlock | null;
-   editingType: EditType | null;
+   editingBlock?: AnyBlock;
+   editingType?: EditType;
 
    selectedBlocks: AnyBlock[];
    overflowedBlocks: AnyBlock[];
@@ -278,7 +278,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          });
 
          if (placement.correct) {
-            console.log('correct!');
             setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y, width, height });
             return;
          }

@@ -112,7 +112,6 @@ export function TextBlock(props: TextBlockProps) {
             height: boundSize.height,
             value: text,
          });
-         alignToMainGrid = true;
          return;
       }
 
