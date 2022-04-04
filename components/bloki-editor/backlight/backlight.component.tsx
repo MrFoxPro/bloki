@@ -9,7 +9,7 @@ import { CellState } from "./shared";
 type BacklightDrawerProps = {
    type: 'canvas' | 'dom';
 };
-export function BacklightDrawer(props: BacklightDrawerProps) {
+export function Backlight(props: BacklightDrawerProps) {
    const [store, { staticEditorData: editor }] = useEditorStore();
 
    const implMap = {

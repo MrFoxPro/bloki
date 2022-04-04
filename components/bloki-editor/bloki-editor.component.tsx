@@ -9,7 +9,7 @@ import { Block } from './blocks/block.component';
 import { AnyBlock, BlockTransform, BlockType, Dimension, EditType, Instrument, isTextBlock, Point } from './types';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
 import { TextBlockFontFamily } from './blocks/text-block/types';
-import { BacklightDrawer } from './backlight/backlight-drawer.component';
+import { Backlight } from './backlight/backlight.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer.component';
 import Toolbox from './toolbox/toolbox.component';
@@ -252,7 +252,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                      )}
                   </For>
                </div>  */}
-               <BacklightDrawer type={props.gridType} />
+               <Backlight type={props.gridType} />
                <div
                   class={cc([s.grid, s.foregroundGrid])}
                   style={{

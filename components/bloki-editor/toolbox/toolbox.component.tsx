@@ -76,13 +76,14 @@ export function Toolbox() {
          </For>
          <Show when={showInstrSettings()}>
             <div class={s.configurator}>
+               {drawerStore.strokeWidth}
                <input
                   type="range"
                   min={2}
                   max={20}
                   step={0.5}
                   value={drawerStore.drawingColor}
-                  onChange={(e) => setDrawerStore({
+                  onInput={(e) => setDrawerStore({
                      strokeWidth: e.currentTarget.valueAsNumber
                   })}
                />
