@@ -1,3 +1,4 @@
+// TODO: Precalculate every char size in script?
 import s from './text.block.module.scss';
 
 interface Options {

@@ -22,7 +22,6 @@ export function Drawer() {
 
       store.document.drawings.forEach((drawing) => {
          if (drawing.type === DrawingType.Marker) {
-            let prev = { x: 0, y: 0 };
             ctx.beginPath();
             ctx.lineWidth = drawing.strokeWidth;
             ctx.lineCap = 'round';
@@ -33,7 +32,6 @@ export function Drawer() {
                }
                ctx.lineTo(p.x, p.y);
                ctx.stroke();
-               prev = p;
             });
          }
       });
