@@ -58,6 +58,7 @@ export function Backlight(props: BacklightDrawerProps) {
          if (prevRelTransform) {
             clearProjection(prevRelTransform, prevPlacement);
             prevPlacement = null;
+            prevRelTransform = null;
          }
       });
 
@@ -74,7 +75,7 @@ export function Backlight(props: BacklightDrawerProps) {
             // Skip unwanted updates
             return;
          }
-         if (prevPlacement) {
+         if (prevRelTransform && prevPlacement) {
             clearProjection(prevRelTransform, prevPlacement);
          }
          drawProjection(relTransform, placement);

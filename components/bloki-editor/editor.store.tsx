@@ -246,9 +246,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
-      if (type === 'drag' && x === block.x && y === block.y) {
-         return;
-      }
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
 
       // if (type === 'resize' && x === block.x && y === block.y && height === block.height && width === block.width) {
