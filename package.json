@@ -26,6 +26,7 @@
     "vite-plugin-solid-svg": "^0.2.0"
   },
   "dependencies": {
+    "@solid-primitives/date": "^1.1.0",
     "@solid-primitives/i18n": "^1.0.9",
     "class-transformer": "^0.5.1",
     "classcat": "^5.0.3",

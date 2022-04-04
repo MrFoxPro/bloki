@@ -25,7 +25,7 @@ type AppStoreHandlers = {
    selectWorkspace(workspace: Workspace): void;
    selectDocument(document: BlokiDocument): void;
 
-   setStore: SetStoreFunction<AppStoreValues>;
+   setAppStore: SetStoreFunction<AppStoreValues>;
 
    apiProvider: IApiProvider;
 };
@@ -50,7 +50,7 @@ const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
          deleteItem: () => void 0,
          selectWorkspace: () => void 0,
          selectDocument: () => void 0,
-         setStore: () => void 0,
+         setAppStore: () => void 0,
          apiProvider: null,
       }
    ]
@@ -106,7 +106,7 @@ export function AppStoreProvider(props: AppStoreProps) {
          {
             moveItem,
             deleteItem,
-            setStore,
+            setAppStore: setStore,
             selectWorkspace,
             selectDocument,
             apiProvider: apiProvider(),

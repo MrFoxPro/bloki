@@ -23,17 +23,17 @@ type BlockContextMenuProps = {
 
 export function BlockContextMenu(props: BlockContextMenuProps) {
    const [t] = useI18n();
-   const [store, { setStore, getAbsolutePosition, deleteBlock }] = useEditorStore();
+   const [store, { setEditorStore, getAbsolutePosition, deleteBlock }] = useEditorStore();
    const pos = createMemo(() => getAbsolutePosition(store.editingBlock?.x ?? 0, store.editingBlock?.y ?? 0));
 
    function hideMe() {
-      setStore({
+      setEditorStore({
          showContextMenu: false
       });
    }
 
    function onChangeBlockClick(e: MouseEvent, type: BlockType) {
-      setStore('document', 'blocks', store.document.blocks.indexOf(store.editingBlock), 'type', type);
+      setEditorStore('document', 'blocks', store.document.blocks.indexOf(store.editingBlock), 'type', type);
    }
 
    createEffect(() => {

@@ -2,7 +2,7 @@
   "settings": {
     "document": {
       "toolbox": "Zeichenwerkzeugleiste anzeigen",
-      "grid-gradient": "Gradient",
+      "grid-gradient": "Netz",
       "resize-areas": "Bereiche erfassen",
       "purge-db": "Lokale Datenbank zurücksetzen",
       "reset-layout": "Layouteinstellungen zurücksetzen",

@@ -51,7 +51,7 @@ export function ImageBlock(props: ImageBlockProps) {
          </div>
       );
    }
-   const [editorStore, { setStore }] = useEditorStore();
+   const [editorStore, { setEditorStore }] = useEditorStore();
 
    let imgRef: HTMLImageElement;
 
@@ -92,7 +92,7 @@ export function ImageBlock(props: ImageBlockProps) {
       () => block.src,
       async () => {
          if (!block.src) {
-            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), defaultRelDimension);
+            setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), defaultRelDimension);
             dimension.width = gridSize(defaultRelDimension.width);
             dimension.height = gridSize(defaultRelDimension.height);
          }
@@ -105,7 +105,7 @@ export function ImageBlock(props: ImageBlockProps) {
             };
             dimension.width = gridSize(relSize.width);
             dimension.height = gridSize(relSize.height);
-            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), relSize);
+            setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), relSize);
          }
       })
    );
@@ -113,7 +113,7 @@ export function ImageBlock(props: ImageBlockProps) {
    async function onFileChoose(e: Event & { currentTarget: HTMLInputElement; }) {
       const file = e.currentTarget.files[0];
       const base64 = await readAsDataUrl(file);
-      setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
+      setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
          src: base64
       });
    }
@@ -122,7 +122,7 @@ export function ImageBlock(props: ImageBlockProps) {
       if (!imgSrc) return;
       try {
          const imgPath = await getImageOrFallback(imgSrc);
-         setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
+         setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
             src: imgPath,
          });
       }

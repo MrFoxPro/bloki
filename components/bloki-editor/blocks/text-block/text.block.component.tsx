@@ -8,14 +8,13 @@ import { TextBlockFontFamily, TextTypes } from './types';
 import { getTextBlockSize, measurer } from './helpers';
 import { useI18n } from '@solid-primitives/i18n';
 import { useBlockStore } from '../block.store';
-import { unwrap } from 'solid-js/store';
 
 
 type TextBlockProps = {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setStore, gridSize, checkPlacement }] = useEditorStore();
+   const [editor, { setEditorStore, gridSize, checkPlacement }] = useEditorStore();
    const [blockStore, { isMeOverflowing, shadowed, block, blockData }] = useBlockStore<TextBlockEntity>();
 
    const [local, other] = splitProps(props, []);
@@ -61,7 +60,7 @@ export function TextBlock(props: TextBlockProps) {
       (prev, curr) => {
          if (!curr) return;
          const size = getTextBlockSize(block.type, block.fontFamily, block.value, editor.document.layoutOptions, block.width, 'break-word');
-         setStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+         setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
             width: size.width,
             height: size.height,
          });
@@ -108,7 +107,7 @@ export function TextBlock(props: TextBlockProps) {
       if (text === '' && block.width >= mGridWidth) {
          const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions);
 
-         setStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+         setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
             width: mGridWidth,
             height: boundSize.height,
             value: text,
@@ -137,7 +136,7 @@ export function TextBlock(props: TextBlockProps) {
       if (pasteContent) {
          document.execCommand("insertHTML", false, pasteContent);
       }
-      setStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+      setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
          width: newWidth,
          height: newHeight,
          value: text,
@@ -163,7 +162,7 @@ export function TextBlock(props: TextBlockProps) {
          return false;
       }
 
-      setStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+      setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
          width: newWidth,
          height: newHeight,
          value: text,

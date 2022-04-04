@@ -14,7 +14,7 @@ export const supportedLangs = Object.keys(langs) as (keyof typeof langs)[];
 type InternationalizationProps = PropsWithChildren<{}>;
 
 export function Internationalization(props: InternationalizationProps) {
-   const [app, { setStore }] = useAppStore();
+   const [app, { setAppStore }] = useAppStore();
 
    const getInitialLocale = () => {
       let locale = Cookies.get('locale');
@@ -31,7 +31,7 @@ export function Internationalization(props: InternationalizationProps) {
       return 'en';
    };
 
-   setStore('locale', getInitialLocale());
+   setAppStore('locale', getInitialLocale());
 
    const i18n = createI18nContext({}, app.locale);
    const [, { add, locale, dict }] = i18n;

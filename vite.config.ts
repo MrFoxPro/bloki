@@ -46,7 +46,9 @@ export default ({ mode }: ConfigEnv) => {
          terserOptions: {
             compress: true,
             ecma: 2020,
-            sourceMap: false
+            sourceMap: false,
+            keep_classnames: true,
+            safari10: false,
          },
       },
       css: {

@@ -8,7 +8,7 @@ type DrawerContextValues = {
    readonly strokeWidth: number;
 };
 type DrawerContextHandlers = {
-   setStore: SetStoreFunction<DrawerContextValues>;
+   setDrawerStore: SetStoreFunction<DrawerContextValues>;
 };
 
 const DrawerContext = createContext<[DrawerContextValues, DrawerContextHandlers]>([
@@ -18,7 +18,7 @@ const DrawerContext = createContext<[DrawerContextValues, DrawerContextHandlers]
       strokeWidth: 5,
    },
    {
-      setStore: () => void 0,
+      setDrawerStore: () => void 0,
    }
 ]);
 
@@ -27,8 +27,8 @@ type DrawerStoreProviderProps = PropsWithChildren<{
 
 }>;
 export function DrawerStoreProvider(props: DrawerStoreProviderProps) {
-   const [store, setStore] = createStore(DrawerContext.defaultValue[0]);
-   return <DrawerContext.Provider value={[store, { setStore }]}>{props.children}</DrawerContext.Provider>;
+   const [store, setDrawerStore] = createStore(DrawerContext.defaultValue[0]);
+   return <DrawerContext.Provider value={[store, { setDrawerStore }]}>{props.children}</DrawerContext.Provider>;
 }
 
 export const useDrawerStore = () => useContext(DrawerContext);

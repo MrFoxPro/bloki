@@ -84,16 +84,25 @@ enum DrawingColor {
 }
 
 class Drawing {
+   public drawingTypeName: string;
    public color: DrawingColor;
    public strokeWidth: number;
 };
+
 class MarkerDrawing extends Drawing {
-   points: Point[];
+   drawingTypeName = MarkerDrawing.prototype.constructor.name;
+   points: Point[] = [];
 }
 class CircleDrawing extends Drawing {
+   drawingTypeName = CircleDrawing.prototype.constructor.name;
    center: Point;
    radius: number;
 }
+// Javascript pain.
+export const drawingTypeNamesToType = {
+   [MarkerDrawing.prototype.constructor.name]: MarkerDrawing,
+   [CircleDrawing.prototype.constructor.name]: CircleDrawing,
+} as const;
 
 export {
    Point,

@@ -8,7 +8,7 @@ import { supportedLangs } from '../i18n/internationalization.component';
 import { Dynamic } from 'solid-js/web';
 
 export function AccountSettings() {
-   const [app, { setStore }] = useAppStore();
+   const [app, { setAppStore }] = useAppStore();
    const [t] = useI18n();
 
    const [selectedItem, setSelectedItem] = createSignal<'layout' | 'language'>('language');
@@ -19,7 +19,7 @@ export function AccountSettings() {
             onChange={(e) => {
                if (e.currentTarget.selectedIndex === 0) return;
                console.log('selected lang', supportedLangs[e.currentTarget.selectedIndex - 1]);
-               setStore('locale', supportedLangs[e.currentTarget.selectedIndex - 1]);
+               setAppStore('locale', supportedLangs[e.currentTarget.selectedIndex - 1]);
             }}
          >
             <option>{t('settings.system.modal.language.select-language')}</option>

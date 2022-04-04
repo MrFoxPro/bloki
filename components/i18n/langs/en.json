@@ -2,7 +2,7 @@
   "settings": {
     "document": {
       "toolbox": "Drawing toolbar",
-      "grid-gradient": "Gradient",
+      "grid-gradient": "Grid",
       "resize-areas": "Capture areas",
       "purge-db": "Reset local database",
       "reset-layout": "Reset layout settings",

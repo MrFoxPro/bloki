@@ -8,7 +8,7 @@ import { isTextBlock } from '@/components/bloki-editor/types';
 
 export function DocumentSettings() {
    const [t] = useI18n();
-   const [app, { setStore }] = useAppStore();
+   const [app, { setAppStore }] = useAppStore();
 
    function logCalculatedSizes() {
       app.selectedDocument.blocks.forEach(block => {
@@ -37,7 +37,7 @@ export function DocumentSettings() {
                         min={min}
                         max={max}
                         value={app.selectedDocument.layoutOptions[p]}
-                        oninput={(e) => setStore('selectedDocument', 'layoutOptions', p, e.currentTarget.valueAsNumber)} />
+                        oninput={(e) => setAppStore('selectedDocument', 'layoutOptions', p, e.currentTarget.valueAsNumber)} />
                   </div>
                )}
             </For>
@@ -45,7 +45,7 @@ export function DocumentSettings() {
                <input
                   type="checkbox"
                   name="show-gradient"
-                  onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
+                  onClick={(e) => setAppStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
                   checked={app.selectedDocument.layoutOptions.showGridGradient} />
                <label for="show-gradient">{t('settings.document.grid-gradient')}</label>
             </div>
@@ -53,7 +53,7 @@ export function DocumentSettings() {
                <input
                   type="checkbox"
                   name="show-resizers"
-                  onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
+                  onClick={(e) => setAppStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
                   checked={app.selectedDocument.layoutOptions.showResizeAreas} />
                <label for="show-resizers">{t('settings.document.resize-areas')}</label>
             </div>
@@ -68,7 +68,7 @@ export function DocumentSettings() {
                            type="radio"
                            id={type + 'method'}
                            checked={app.gridRenderMethod === type}
-                           onInput={() => setStore({ gridRenderMethod: type })} />
+                           onInput={() => setAppStore({ gridRenderMethod: type })} />
                         <label for={type + 'method'}>{t(`settings.system.render-method.${type}`)}</label>
                      </div>
                   ))}
@@ -76,7 +76,7 @@ export function DocumentSettings() {
             </div>
             <button
                onClick={() => {
-                  setStore('selectedDocument', 'layoutOptions', defaultLayoutOptions);
+                  setAppStore('selectedDocument', 'layoutOptions', defaultLayoutOptions);
                }}>
                {t('settings.document.reset-layout')}
             </button>

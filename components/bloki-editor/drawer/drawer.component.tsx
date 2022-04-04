@@ -1,5 +1,5 @@
 import s from './drawer.module.scss';
-import { createComputed, createEffect, onMount } from 'solid-js';
+import { createComputed, createEffect, on, onCleanup, onMount } from 'solid-js';
 import { plainToInstance } from 'class-transformer';
 import { useEditorStore } from '../editor.store';
 import { Drawing, DrawingColor, DrawingType, Instrument, MarkerDrawing, Point } from '../types';
@@ -16,8 +16,8 @@ export function Drawer() {
       y: 0,
    };
 
-   const [editorStore, { realSize, editor, setStore: setEditorStore }] = useEditorStore();
-   const [drawerStore, { setStore: setDrawerStore }] = useDrawerStore();
+   const [editorStore, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
+   const [drawerStore] = useDrawerStore();
 
    const [, app] = useAppStore();
 
@@ -31,21 +31,32 @@ export function Drawer() {
       ctx = canvasRef.getContext('2d');
    });
 
-   createEffect(() => {
-      editorStore.document.drawings.forEach((drawing) => {
-         if (drawing instanceof MarkerDrawing) {
-            ctx.beginPath();
-            ctx.lineWidth = drawing.strokeWidth;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = drawing.color;
-            (drawing as MarkerDrawing).points.forEach((p, i, arr) => {
-               if (i > 0) {
-                  drawMarker(arr[i - 1], p);
-               }
-            });
-         }
-      });
-   });
+   function applyDrawing(context: CanvasRenderingContext2D, drawing: Drawing) {
+      if (drawing instanceof MarkerDrawing) {
+         context.lineWidth = drawing.strokeWidth;
+         context.strokeStyle = drawing.color;
+         context.lineJoin = 'round';
+         context.lineCap = 'round';
+      }
+   }
+
+   createEffect(on(
+      () => editorStore.document,
+      () => {
+         editorStore.document.drawings.forEach((drawing) => {
+            if (drawing instanceof MarkerDrawing) {
+               applyDrawing(ctx, drawing);
+               ctx.beginPath();
+               drawing.points.forEach((p, i, arr) => {
+                  if (i > 0) {
+                     drawMarker(arr[i - 1], p);
+                  }
+               });
+            }
+         });
+      })
+   );
+
    function drawMarker(prev: Point, curr: Point) {
       ctx.moveTo(prev.x, prev.y);
       ctx.lineTo(curr.x, curr.y);
@@ -57,24 +68,24 @@ export function Drawer() {
       isMouseDown = true;
       switch (drawerStore.instrument) {
          case Instrument.Marker:
-            currentDrawing = plainToInstance(MarkerDrawing, {
-               color: DrawingColor.Red,
-               strokeWidth: 5,
-               points: []
-            });
+            currentDrawing = new MarkerDrawing();
+            currentDrawing.color = drawerStore.drawingColor;
+            currentDrawing.strokeWidth = drawerStore.strokeWidth;
             break;
+         case Instrument.Lastik:
+            // const drawingsToDelete = editorStore.document.drawings.find(drawing => {
+            //    if(drawing instanceof MarkerDrawing) {
+            //       return drawing.points.some(p => p.)
+            //    }
+            // })
          default:
             break;
       }
-      currentDrawing.color = drawerStore.drawingColor;
-      currentDrawing.strokeWidth = drawerStore.strokeWidth;
-      lastPos.x = e.pageX - editor.containerRect.x;
-      lastPos.y = e.pageY - editor.containerRect.y;
+      if (!currentDrawing) return;
 
-      ctx.beginPath();
-      ctx.lineWidth = currentDrawing.strokeWidth;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = currentDrawing.color;
+      lastPos.x = e.pageX - staticEditorData.containerRect.x;
+      lastPos.y = e.pageY - staticEditorData.containerRect.y;
+      applyDrawing(ctx, currentDrawing);
    }
 
    function onDraw(e: PointerEvent) {
@@ -82,16 +93,15 @@ export function Drawer() {
       if (!isMouseDown) return;
 
       if (currentDrawing instanceof MarkerDrawing) {
-
          const point = {
-            x: e.pageX - editor.containerRect.x,
-            y: e.pageY - editor.containerRect.y
+            x: e.pageX - staticEditorData.containerRect.x,
+            y: e.pageY - staticEditorData.containerRect.y
          };
+         ctx.beginPath();
          drawMarker(lastPos, point);
          lastPos = point;
          currentDrawing.points.push({ ...lastPos });
       }
-      // else
    }
 
    function onDrawEnd(e: PointerEvent) {

@@ -11,7 +11,7 @@
   },
   "settings": {
     "document": {
-      "grid-gradient": "Градиент",
+      "grid-gradient": "Сетка",
       "resize-areas": "Области захвата",
       "toolbox": "Инструменты рисования",
       "purge-db": "Сбросить локальную базу",

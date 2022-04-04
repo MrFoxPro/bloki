@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps, Suspense } from 'solid-js';
+import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import cc from 'classcat';
 import s from './bloki-editor.module.scss';
@@ -6,7 +6,7 @@ import { useAppStore } from '@/lib/app.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
-import { AnyBlock, BlockTransform, BlockType, Dimension, EditType, isTextBlock, Point } from './types';
+import { AnyBlock, BlockTransform, BlockType, Dimension, EditType, Instrument, isTextBlock, Point } from './types';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
 import { TextBlockFontFamily } from './blocks/text-block/types';
 import { BacklightDrawer } from './backlight/backlight-drawer.component';
@@ -14,7 +14,7 @@ import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer.component';
 import Toolbox from './toolbox/toolbox.component';
 import { Portal } from 'solid-js/web';
-import { DrawerStoreProvider } from './drawer.store';
+import { DrawerStoreProvider, useDrawerStore } from './drawer.store';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
@@ -23,8 +23,9 @@ type BlokiEditorProps = {
 };
 function BlokiEditor(props: BlokiEditorProps) {
    props = mergeProps({
-      gridType: 'dom'
+      gridType: 'canvas'
    }, props);
+
    let containerRef: HTMLDivElement;
    let wrapperRef: HTMLDivElement;
    const [app, { apiProvider }] = useAppStore();
@@ -32,14 +33,15 @@ function BlokiEditor(props: BlokiEditorProps) {
    const [
       store,
       {
-         editor,
+         staticEditorData: editor,
          realSize,
          selectBlock,
-         setStore,
+         setEditorStore,
          getRelativePosition,
          checkPlacement,
       }
    ] = useEditorStore();
+   const [drawerStore] = useDrawerStore();
 
    const GRID_COLOR_CELL = '#ffae0020';
 
@@ -158,7 +160,6 @@ function BlokiEditor(props: BlokiEditorProps) {
          width: mGridWidth,
          x, y
       };
-      console.log(newBlockTransform);
       if (checkPlacement(newBlockTransform, x, y).correct) {
          createBlock({
             type: BlockType.Regular,
@@ -171,9 +172,9 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    function createBlock(block: Partial<AnyBlock>, editingType: EditType = 'content', id = crypto.randomUUID()) {
       block.id = id;
-      setStore('document', 'blocks', blocks => blocks.concat(block as AnyBlock));
+      setEditorStore('document', 'blocks', blocks => blocks.concat(block as AnyBlock));
       const createdBlock = store.document.blocks[store.document.blocks.length - 1];
-      setStore({
+      setEditorStore({
          editingBlock: createdBlock,
          editingType,
       });
@@ -233,6 +234,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   width: realSize().fGridWidth_px,
                   height: realSize().fGridHeight_px,
                   top: realSize().size_px,
+                  'user-select': drawerStore.instrument !== Instrument.Cursor ? 'none' : 'initial'
                }}
             >
                {/* For scroll snap, but not working properly in ff */}
@@ -297,13 +299,11 @@ type WrappedEditorProps = Omit<ComponentProps<typeof EditorStoreProvider>, 'chil
 const WrappedEditor = (props: WrappedEditorProps) => {
    const [storeProps, compProps] = splitProps(props, ['document', 'instrument']);
    return (
-      <Suspense>
+      <DrawerStoreProvider>
          <EditorStoreProvider {...storeProps}>
-            <DrawerStoreProvider>
-               <BlokiEditor {...compProps} />
-            </DrawerStoreProvider>
+            <BlokiEditor {...compProps} />
          </EditorStoreProvider>
-      </Suspense>
+      </DrawerStoreProvider>
    );
 };
 

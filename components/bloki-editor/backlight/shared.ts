@@ -1,7 +1,5 @@
 import { JSX } from "solid-js";
-import { PlacementStatus, BlockTransform, Point } from "../types";
-
-export type CachedPlacement = Pick<PlacementStatus, 'intersections' | 'affected'> & { block: BlockTransform; };
+import { BlockTransform } from "../types";
 
 export enum CellState {
    None,
@@ -11,7 +9,7 @@ export enum CellState {
 }
 
 export interface IGridImpl {
-   component: JSX.Element;
+   component: () => JSX.Element;
    drawArea(transform: BlockTransform, fillState: CellState | ((x: number, y: number) => CellState));
    clearArea(transform: BlockTransform);
 }

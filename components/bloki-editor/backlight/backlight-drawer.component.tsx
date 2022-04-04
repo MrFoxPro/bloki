@@ -4,13 +4,13 @@ import { isInsideRect } from "../helpers";
 import { BlockTransform, PlacementStatus } from "../types";
 import { BlokiCanvasGrid } from "./canvas-grid/canvas-grid.component";
 import { BlokiDomGrid } from "./dom-grid/dom-grid.component";
-import { CachedPlacement, CellState } from "./shared";
+import { CellState } from "./shared";
 
 type BacklightDrawerProps = {
    type: 'canvas' | 'dom';
 };
 export function BacklightDrawer(props: BacklightDrawerProps) {
-   const [store, { editor }] = useEditorStore();
+   const [store, { staticEditorData: editor }] = useEditorStore();
 
    const implMap = {
       canvas: BlokiCanvasGrid(),
@@ -21,19 +21,19 @@ export function BacklightDrawer(props: BacklightDrawerProps) {
 
    const comp = createMemo(() => impl().component);
 
-   function clearProjection({ affected, block }: CachedPlacement) {
-      if (block) {
-         impl().clearArea(block);
+   function clearProjection(target: BlockTransform, { affected }: PlacementStatus) {
+      if (target) {
+         impl().clearArea(target);
       }
       for (let i = 0; i < affected.length; i++) {
          impl().clearArea(affected[i]);
       }
    }
 
-   function drawProjection(block: BlockTransform, placement: PlacementStatus) {
+   function drawProjection(target: BlockTransform, placement: PlacementStatus) {
       const { intersections, outOfBorder, affected } = placement;
 
-      impl().drawArea(block, CellState.Free);
+      impl().drawArea(target, CellState.Free);
 
       for (let i = 0; i < affected.length; i++) {
          impl().drawArea(affected[i], CellState.Affected);
@@ -51,32 +51,36 @@ export function BacklightDrawer(props: BacklightDrawerProps) {
    }
 
    onMount(() => {
-      const prevPlacement: CachedPlacement = {
-         intersections: [],
-         affected: [],
-         block: null,
-      };
+      let prevPlacement: PlacementStatus = null;
+      let prevRelTransform: BlockTransform = null;
 
       const unbindChangeEnd = editor.on('changeend', function () {
-         clearProjection(prevPlacement);
+         if (prevRelTransform) {
+            clearProjection(prevRelTransform, prevPlacement);
+            prevPlacement = null;
+         }
       });
 
+      // It's very cpu ineffective to use createEffect(on()) here
+      // IDK how to implement performant solution here
       const unbindChange = editor.on('change', function (_, { placement, relTransform }) {
-         // const old = prevPlacement.block;
-         // if (old &&
-         //    old.x + old.width === relTransform.x + relTransform.width &&
-         //    old.y + old.height === relTransform.y + relTransform.height) {
-         //    // Skip unwanted updates
-         //    return;
-         // }
          if (!store.editingBlock || (store.editingType !== 'drag' && store.editingType !== 'resize')) return;
-
-         clearProjection(prevPlacement);
+         if (prevRelTransform &&
+            prevRelTransform.x === relTransform.x &&
+            prevRelTransform.y === relTransform.y &&
+            prevRelTransform.height === relTransform.height &&
+            prevRelTransform.width === relTransform.width
+         ) {
+            // Skip unwanted updates
+            return;
+         }
+         if (prevPlacement) {
+            clearProjection(prevRelTransform, prevPlacement);
+         }
          drawProjection(relTransform, placement);
 
-         prevPlacement.affected = placement.affected;
-         prevPlacement.intersections = placement.intersections;
-         prevPlacement.block = relTransform;
+         prevPlacement = placement;
+         prevRelTransform = relTransform;
       });
 
       let prevTransform: BlockTransform = null;

@@ -11,14 +11,16 @@ const DocumentSettings = lazy(() => import('./doc-settings/doc-settings.componen
 const AccountSettings = lazy(() => import('@/components/account-settings/account-settings.component'));
 
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
+import { createCountdownFromNow } from '@solid-primitives/date';
 
 // import { createToolbox } from '../../components/bloki-editor/toolbox/toolbox.component';
 
 export function MainPage() {
    const [t] = useI18n();
-   const [app, { setStore }] = useAppStore();
+   const [app, { setAppStore }] = useAppStore();
    let toolboxMountRef: HTMLDivElement;
 
+   const fiveMin = 5 * 60 * 1000
    const [state, setState] = createStore({
       menu: {
          settings: false,
@@ -27,6 +29,7 @@ export function MainPage() {
       },
       toolbox: false,
       docSettings: false,
+      timeToRefresh: new Date(Date.now() + fiveMin)
    });
 
    const createModal = useModalStore();
@@ -36,6 +39,8 @@ export function MainPage() {
 
    createEffect(() => setSysSettingsVisible(state.menu.settings));
    createEffect(() => setState('menu', 'settings', sysSettingsVisible()));
+
+   const [countdown] = createCountdownFromNow(state.timeToRefresh, 1000);
 
    return (
       <main class={s.main}>
@@ -51,7 +56,7 @@ export function MainPage() {
                <div class={s.leftBar} ref={toolboxMountRef}>
                   {/* Toolbox can be here */}
                </div>
-               <h4>{app.selectedDocument?.title}</h4>
+               <h4>{app.selectedDocument?.title} {countdown.minutes}:{countdown.seconds}</h4>
                <div class={s.rightBar}>
                   <TripleDotsIcon class={s.optionsIcon} onClick={() => setState('docSettings', s => !s)} />
                </div>

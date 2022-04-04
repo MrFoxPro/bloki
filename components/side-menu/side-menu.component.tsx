@@ -29,7 +29,7 @@ export function SideMenu(props: SideMenuProps) {
 
    const [t] = useI18n();
 
-   const [app, { setStore }] = useAppStore();
+   const [app, { setAppStore }] = useAppStore();
 
    return (
       <div class={s.sideMenu} classList={{ [props.class]: true }}>
@@ -73,7 +73,7 @@ export function SideMenu(props: SideMenuProps) {
                            classList={{
                               [s.highlighted]: doc.id === app.selectedDocument?.id
                            }}
-                           onClick={() => setStore({ selectedDocument: doc })}
+                           onClick={() => setAppStore({ selectedDocument: doc })}
                         >
                            <Show when={true}>
                               <div class={cc([s.icon, s.arrow])} />

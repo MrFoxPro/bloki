@@ -29,7 +29,7 @@ export function BlokiDomGrid(): IGridImpl {
    return {
       drawArea,
       clearArea: (rect) => drawArea(rect, CellState.None),
-      component: (
+      component: () => (
          <div
             class={s.domGrid}
             style={{

@@ -87,8 +87,8 @@ type EditorStoreHandles = {
    selectBlock(block: AnyBlock, type?: EditType): void;
    deleteBlock(block: AnyBlock): void;
 
-   setStore: SetStoreFunction<EditorStoreValues>;
-   editor: StaticEditorData;
+   setEditorStore: SetStoreFunction<EditorStoreValues>;
+   staticEditorData: StaticEditorData;
 };
 
 const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
@@ -103,7 +103,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       instrument: Instrument.Cursor
    }, props);
 
-   const editor = new StaticEditorData();
+   const staticEditorData = new StaticEditorData();
 
    const [state, setState] = createStore<EditorStoreValues>(
       {
@@ -127,9 +127,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function gridSize(factor: number) {
       if (factor <= 0) return 0;
-      const size = state.document.layoutOptions.size;
-      const gap = state.document.layoutOptions.gap;
-      return factor * (size + gap) - gap;
+      return factor * (state.document.layoutOptions.size + state.document.layoutOptions.gap) - state.document.layoutOptions.gap;
    }
 
    const realSize = createMemo(() => {
@@ -237,10 +235,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
       setState({ editingBlock: block, editingType: type });
 
-      editor.emit('changestart', block, {
+      const relTransform = { height: block.height, width: block.width, x: block.x, y: block.y };
+      staticEditorData.emit('changestart', block, {
          absTransform: abs,
          placement: { correct: true, intersections: [], outOfBorder: false, affected: [] },
-         relTransform: { height: block.height, width: block.width, x: block.x, y: block.y },
+         relTransform,
          type
       });
    }
@@ -262,7 +261,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       const placement = checkPlacement(block, x, y, width, height);
       setState({ isPlacementCorrect: placement.correct, overflowedBlocks: placement.affected });
-      editor.emit('change', block, {
+      staticEditorData.emit('change', block, {
          absTransform,
          placement,
          relTransform: { x, y, width, height },
@@ -291,7 +290,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
-      editor.emit('changeend', block, {
+      staticEditorData.emit('changeend', block, {
          absTransform,
          placement,
          relTransform: { x, y, width, height },
@@ -347,8 +346,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             selectBlock,
             deleteBlock,
 
-            setStore: setState,
-            editor
+            setEditorStore: setState,
+            staticEditorData
          }
       ]}>
          {props.children}

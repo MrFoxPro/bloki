@@ -23,14 +23,15 @@ export function BlokiCanvasGrid(): IGridImpl {
       ctx.closePath();
    }
 
+   // TODO: draw it by one path for optimization
    return {
       drawArea: (transform, cellState) => {
          const { x, y, width, height } = transform;
          const { gap, size } = store.document.layoutOptions;
 
          for (let i = x; i < x + width; i++) {
+            const absX = gridSize(i);
             for (let j = y; j < y + height; j++) {
-               const absX = gridSize(i);
                const absY = gridSize(j);
                roundRect(absX + gap, absY + gap, size, size, 4);
                if (typeof cellState === 'function') ctx.fillStyle = FillColors[cellState(x, y)];
@@ -44,7 +45,7 @@ export function BlokiCanvasGrid(): IGridImpl {
          const { x, y, width, height } = transform;
          ctx.clearRect(gridSize(x) + gap, gridSize(y) + gap, gridSize(width + 1), gridSize(height + 1));
       },
-      component: (
+      component: () => (
          <canvas
             class={s.backlight}
             ref={backlightCanvasRef}

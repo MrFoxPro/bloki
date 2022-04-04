@@ -1,5 +1,6 @@
 import { Accessor, createComputed, createContext, createEffect, createMemo, onCleanup, PropsWithChildren, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
+import { useDrawerStore } from "../drawer.store";
 import { useEditorStore } from "../editor.store";
 import { isInsideRect, distanceBetweenPoints } from "../helpers";
 import { AnyBlock, Dimension, Instrument, Point } from "../types";
@@ -91,7 +92,7 @@ type BlockStoreProviderProps = PropsWithChildren<{
 export function BlockStoreProvider(props: BlockStoreProviderProps) {
    const blockData = new BlockData();
    const [store, {
-      editor,
+      staticEditorData,
       onChangeStart,
       onChange,
       onChangeEnd,
@@ -100,6 +101,8 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       selectBlock,
       gridSize,
    }] = useEditorStore();
+
+   const [drawerStore] = useDrawerStore();
 
    const [state, setState] = createStore<BlockContextValues>({
       transform: {
@@ -174,15 +177,15 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    }
 
    function onPointerMove(e: PointerEvent) {
-      if (blockData.pointerInside || store.instrument !== Instrument.Cursor) {
+      if (blockData.pointerInside || drawerStore.instrument !== Instrument.Cursor) {
          setState('dot', { state: DotState.None });
          return;
       }
 
       // Current mouse point
       const M: Point = {
-         x: e.pageX - editor.containerRect.x - state.transform.x + CURSOR_X_OFFSET,
-         y: e.pageY - editor.containerRect.y - state.transform.y + CURSOR_Y_OFFSET,
+         x: e.pageX - staticEditorData.containerRect.x - state.transform.x + CURSOR_X_OFFSET,
+         y: e.pageY - staticEditorData.containerRect.y - state.transform.y + CURSOR_Y_OFFSET,
       };
 
       let dot: Point;
@@ -310,8 +313,8 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    }
 
    function onBoxPointerMove(e: PointerEvent) {
-      const x = e.pageX - blockData.relX - editor.containerRect.x;
-      const y = e.pageY - blockData.relY - editor.containerRect.y;
+      const x = e.pageX - blockData.relX - staticEditorData.containerRect.x;
+      const y = e.pageY - blockData.relY - staticEditorData.containerRect.y;
       if (x !== state.transform.x || y !== state.transform.y) {
          setState('transform', { x, y });
          const { width, height } = state.transform;
@@ -349,9 +352,10 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       let { x, y, width, height } = state.transform;
 
       let εX = 0, εY = 0;
+      const { containerRect } = staticEditorData;
       switch (blockData.capturingSide) {
          case CursorSide.W: {
-            const xc = e.pageX - editor.containerRect.x;
+            const xc = e.pageX -containerRect.x;
             width += x - xc;
             x = xc;
 
@@ -359,11 +363,11 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             break;
          }
          case CursorSide.E: {
-            width = e.pageX - state.transform.x - editor.containerRect.x;
+            width = e.pageX - state.transform.x -containerRect.x;
             break;
          }
          case CursorSide.N: {
-            const yc = e.pageY - editor.containerRect.y;
+            const yc = e.pageY -containerRect.y;
             height += y - yc;
             y = yc;
 
@@ -371,15 +375,15 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             break;
          }
          case CursorSide.S: {
-            height = e.pageY - state.transform.y - editor.containerRect.y;
+            height = e.pageY - state.transform.y -containerRect.y;
             break;
          }
          case CursorSide.NW: {
-            const yc = e.pageY - editor.containerRect.y;
+            const yc = e.pageY -containerRect.y;
             height += y - yc;
             y = yc;
 
-            const xc = e.pageX - editor.containerRect.x;
+            const xc = e.pageX -containerRect.x;
             width += x - xc;
             x = xc;
 
@@ -388,23 +392,23 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             break;
          }
          case CursorSide.NE: {
-            width = e.pageX - state.transform.x - editor.containerRect.x;
+            width = e.pageX - state.transform.x -containerRect.x;
 
-            const yc = e.pageY - editor.containerRect.y;
+            const yc = e.pageY -containerRect.y;
             height += y - yc;
             y = yc;
             break;
          }
          case CursorSide.SE: {
-            width = e.pageX - state.transform.x - editor.containerRect.x;
-            height = e.pageY - state.transform.y - editor.containerRect.y;
+            width = e.pageX - state.transform.x -containerRect.x;
+            height = e.pageY - state.transform.y -containerRect.y;
             break;
          }
          case CursorSide.SW: {
-            const xc = e.pageX - editor.containerRect.x;
+            const xc = e.pageX -containerRect.x;
             width += x - xc;
             x = xc;
-            height = e.pageY - state.transform.y - editor.containerRect.y;
+            height = e.pageY - state.transform.y -containerRect.y;
             break;
          }
       }

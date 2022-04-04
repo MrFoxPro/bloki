@@ -23,10 +23,10 @@ const blockContentTypeMap: Record<BlockType, any> = {
 function Block() {
    const [store, {
       selectBlock,
-      setStore
+      setEditorStore
    }] = useEditorStore();
 
-   const [state, {
+   const [blockState, {
       block,
       shadowed,
       blockData,
@@ -42,7 +42,7 @@ function Block() {
    }] = useBlockStore();
 
    if (shadowed) {
-      const { x, y, width, height } = state.transform;
+      const { x, y, width, height } = blockState.transform;
       return (
          <div
             class={s.block}
@@ -60,7 +60,7 @@ function Block() {
    function onHandyContextMenu(e: MouseEvent) {
       e.preventDefault();
       selectBlock(block);
-      setStore({
+      setEditorStore({
          showContextMenu: true
       });
    }
@@ -70,9 +70,9 @@ function Block() {
          title={`width: ${block.width} height: ${block.height}`}
          class={cc([s.block, s.draggable])}
          style={{
-            transform: `translate(${state.transform.x}px, ${state.transform.y}px)`,
-            width: `${state.transform.width}px`,
-            height: `${state.transform.height}px`,
+            transform: `translate(${blockState.transform.x}px, ${blockState.transform.y}px)`,
+            width: `${blockState.transform.width}px`,
+            height: `${blockState.transform.height}px`,
          }}
          classList={{
             [s.dragging]: isMeDragging(),
@@ -88,20 +88,20 @@ function Block() {
             onPointerDown={(e) => onBoxPointerDown(e, 0)}
             onContextMenu={onHandyContextMenu}
          />
-         <Show when={state.dot.state !== DotState.None}>
+         <Show when={blockState.dot.state !== DotState.None}>
             <div
                class={s.dotWrapper}
                style={{
-                  transform: `translate(${state.dot.x}px, ${state.dot.y}px)`,
+                  transform: `translate(${blockState.dot.x}px, ${blockState.dot.y}px)`,
                }}
             >
                <div
                   class={s.sizedot}
                   classList={{
-                     [s.expand]: state.dot.state === DotState.Full,
+                     [s.expand]: blockState.dot.state === DotState.Full,
                   }}
                   style={{
-                     transform: `scale(${state.dot.state === DotState.Full ? 2.2 : 1})`,
+                     transform: `scale(${blockState.dot.state === DotState.Full ? 2.2 : 1})`,
                   }}
                />
             </div>
