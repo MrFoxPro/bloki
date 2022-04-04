@@ -1,24 +1,23 @@
 import s from './main.page.module.scss';
-import { createEffect, For, lazy, Show } from 'solid-js';
+import { createEffect, lazy, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { useI18n } from '@solid-primitives/i18n';
 import { useAppStore } from '@/lib/app.store';
 import { useModalStore } from '@/components/modal/modal';
-import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
 
 const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));
 const SideMenu = lazy(() => import('@/components/side-menu/side-menu.component'));
+const DocumentSettings = lazy(() => import('./doc-settings/doc-settings.component'));
 const AccountSettings = lazy(() => import('@/components/account-settings/account-settings.component'));
 
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 
-import { getTextBlockSize } from '@/components/bloki-editor/blocks/text-block/helpers';
-import { isTextBlock } from '@/components/bloki-editor/types';
-import { createToolbox } from './toolbox/toolbox.component';
+// import { createToolbox } from '../../components/bloki-editor/toolbox/toolbox.component';
 
 export function MainPage() {
    const [t] = useI18n();
    const [app, { setStore }] = useAppStore();
+   let toolboxMountRef: HTMLDivElement;
 
    const [state, setState] = createStore({
       menu: {
@@ -33,7 +32,7 @@ export function MainPage() {
    const createModal = useModalStore();
 
    const [sysSettingsVisible, setSysSettingsVisible] = createModal(AccountSettings, true);
-   const [Toolbox, instrument] = createToolbox();
+   // const [Toolbox, toolboxState] = createToolbox();
 
    createEffect(() => setSysSettingsVisible(state.menu.settings));
    createEffect(() => setState('menu', 'settings', sysSettingsVisible()));
@@ -49,8 +48,8 @@ export function MainPage() {
          />
          <div class={s.workspace}>
             <div class={s.topBar}>
-               <div class={s.leftBar}>
-                  <Toolbox />
+               <div class={s.leftBar} ref={toolboxMountRef}>
+                  {/* Toolbox can be here */}
                </div>
                <h4>{app.selectedDocument?.title}</h4>
                <div class={s.rightBar}>
@@ -58,112 +57,18 @@ export function MainPage() {
                </div>
             </div>
             <Show when={app.selectedWorkspace && app.selectedDocument}>
-               <Show when={state.docSettings}>
-                  <DocumentSettings />
-               </Show>
                <BlokiEditor
                   document={app.selectedDocument}
                   showMeta={state.docSettings}
                   gridType={app.gridRenderMethod}
-                  instrument={instrument()}
+                  toolboxMountRef={toolboxMountRef}
                />
             </Show>
          </div>
+         <Show when={app.selectedDocument && state.docSettings}>
+            <DocumentSettings />
+         </Show>
       </main>
    );
 };
 
-function DocumentSettings() {
-   const [t] = useI18n();
-   const [app, { setStore }] = useAppStore();
-
-   function logCalculatedSizes() {
-      app.selectedDocument.blocks.forEach(block => {
-         if (isTextBlock(block)) {
-            getTextBlockSize(block.type, block.fontFamily, block.value, app.selectedDocument.layoutOptions);
-         }
-      });
-   }
-   return (
-      <div class={s.settings}>
-         <div class={s.control}>
-            <For each={[
-               ['gap', [2, 10]],
-               ['size', [4, 48]],
-               ['mGridWidth', [5, 100]],
-               ['mGridHeight', [10, 550]],
-               ['fGridWidth', [32, 150]],
-               ['fGridHeight', [10, 550]]
-            ] as const}>
-               {([p, [min, max]]) => (
-                  <div class={s.control}>
-                     <span>{p} [{app.selectedDocument.layoutOptions[p]}]</span>
-                     <input
-                        type="range"
-                        min={min}
-                        max={max}
-                        value={app.selectedDocument.layoutOptions[p]}
-                        oninput={(e) => setStore('selectedDocument', 'layoutOptions', p, e.currentTarget.valueAsNumber)}
-                     />
-                  </div>
-               )}
-            </For>
-            <div class={s.check}>
-               <input
-                  type="checkbox"
-                  name="show-gradient"
-                  onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
-                  checked={app.selectedDocument.layoutOptions.showGridGradient}
-               />
-               <label for="show-gradient">{t('settings.document.grid-gradient')}</label>
-            </div>
-            <div class={s.check}>
-               <input
-                  type="checkbox"
-                  name="show-resizers"
-                  onClick={(e) => setStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
-                  checked={app.selectedDocument.layoutOptions.showResizeAreas}
-               />
-               <label for="show-resizers">{t('settings.document.resize-areas')}</label>
-            </div>
-            <div class={s.gridType}>
-               <div>
-                  {t("settings.system.render-method.title")}
-               </div>
-               <div class={s.methods}>
-                  {(['canvas', 'dom'] as const).map((type) => (
-                     <div>
-                        <input
-                           type="radio"
-                           id={type + 'method'}
-                           checked={app.gridRenderMethod === type}
-                           onInput={() => setStore({ gridRenderMethod: type })}
-                        />
-                        <label for={type + 'method'}>{t(`settings.system.render-method.${type}`)}</label>
-                     </div>
-                  ))}
-               </div>
-            </div>
-            <button
-               onClick={() => {
-                  setStore('selectedDocument', 'layoutOptions', defaultLayoutOptions);
-               }}>
-               {t('settings.document.reset-layout')}
-            </button>
-            <button
-               style={{
-                  color: 'red'
-               }}
-               onClick={() => app.apiProvider.clearCache().then(() => location.reload())}
-            >
-               {t('settings.document.purge-db')}
-            </button>
-            <button
-               onClick={logCalculatedSizes}
-            >
-               {t('settings.document.log-calculated-sizes')}
-            </button>
-         </div>
-      </div>
-   );
-}

@@ -1,10 +1,10 @@
-import { ComponentProps, createComputed, createEffect, createMemo, Match, on, splitProps, Switch } from 'solid-js';
+import { ComponentProps, createComputed, createEffect, Match, on, splitProps, Switch } from 'solid-js';
 import { Dimension, ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types';
 import s from './image.block.module.scss';
 import { useBlockStore } from '../block.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from '../../editor.store';
-import { calcGridSize, getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
+import { getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
 import throttle from 'lodash.throttle';
 import cc from 'classcat';
 
@@ -135,20 +135,12 @@ export function ImageBlock(props: ImageBlockProps) {
       tryToSetUrlImage(e.currentTarget.value);
    }, 1000);
 
-   const onPaste = throttle((e: ClipboardEvent) => {
-      const text = e.clipboardData.getData('text/html');
-      console.log(e.clipboardData.types);
-      tryToSetUrlImage(text);
-   }, 1000);
+   // const onPaste = throttle((e: ClipboardEvent) => {
+   //    const text = e.clipboardData.getData('text/html');
+   //    console.log(e.clipboardData.types);
+   //    tryToSetUrlImage(text);
+   // }, 1000);
 
-   // function onPaste(e: ClipboardEvent) {
-   //    e.preventDefault();
-   //    let data = e.clipboardData.getData('text');
-   //    if (data) {
-
-   //       props.block.value += data;
-   //    }
-   // }
 
    return (
       <div
@@ -189,11 +181,11 @@ export function ImageBlock(props: ImageBlockProps) {
                         class={s.link}
                         placeholder={"https://cstor.nn2.ru/forum/data/forum/files/2014-12/108480959-9743143_original-1-.jpg"}
                         onInput={onUrlInput}
-                        onPaste={(e) => {
-                           e.stopImmediatePropagation();
-                           e.stopPropagation();
-                           onPaste(e);
-                        }}
+                        // onPaste={(e) => {
+                        //    e.stopImmediatePropagation();
+                        //    e.stopPropagation();
+                        //    // onPaste(e);
+                        // }}
                      />
                   </div>
                </div>

@@ -1,7 +1,6 @@
 import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps, Suspense } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import cc from 'classcat';
-import DomPurify from 'dompurify';
 import s from './bloki-editor.module.scss';
 import { useAppStore } from '@/lib/app.store';
 import { useI18n } from '@solid-primitives/i18n';
@@ -13,10 +12,14 @@ import { TextBlockFontFamily } from './blocks/text-block/types';
 import { BacklightDrawer } from './backlight/backlight-drawer.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer.component';
+import Toolbox from './toolbox/toolbox.component';
+import { Portal } from 'solid-js/web';
+import { DrawerStoreProvider } from './drawer.store';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
    gridType?: 'dom' | 'canvas';
+   toolboxMountRef: HTMLElement;
 };
 function BlokiEditor(props: BlokiEditorProps) {
    props = mergeProps({
@@ -105,7 +108,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          pasteError();
          return;
       }
-      const str = await getAsString(item).then(str => DomPurify.sanitize(str));
+      const str = await getAsString(item);
       if (!str) {
          pasteError();
       }
@@ -283,12 +286,9 @@ function BlokiEditor(props: BlokiEditorProps) {
                <Drawer />
             </div>
          </div>
-         <Show when={props.showMeta}>
-            <div class={s.controls}>
-               <div class={s.control}>Block id: [{store.editingBlock?.id}]</div>
-               <div class={s.control}>Editing type: [{store.editingType}]</div>
-            </div>
-         </Show>
+         <Portal mount={props.toolboxMountRef}>
+            <Toolbox />
+         </Portal>
       </>
    );
 }
@@ -299,7 +299,9 @@ const WrappedEditor = (props: WrappedEditorProps) => {
    return (
       <Suspense>
          <EditorStoreProvider {...storeProps}>
-            <BlokiEditor {...compProps} />
+            <DrawerStoreProvider>
+               <BlokiEditor {...compProps} />
+            </DrawerStoreProvider>
          </EditorStoreProvider>
       </Suspense>
    );

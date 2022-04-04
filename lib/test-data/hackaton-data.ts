@@ -94,7 +94,7 @@ export async function getUser() {
       blocks: [],
       drawings: [],
    };
-   const lprWorkspace1: Workspace = {
+   const hackWorkspace: Workspace = {
       workspaceIcon: await import('./assets/sample-workspace-icon2.png?inline').then(x => x.default),
       id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
       title: 'Bloki workspace',
@@ -108,8 +108,8 @@ export async function getUser() {
    const lpr1User: User = {
       id: '709240ee-24a7-4fdd-866e-e08206dbb8aa',
       name: 'Михаил Светов',
-      workspaces: [lprWorkspace1],
-      selectedWorkspace: lprWorkspace1,
+      workspaces: [hackWorkspace],
+      selectedWorkspace: hackWorkspace,
       selectedDocument: tutorialDoc,
    };
    return lpr1User;

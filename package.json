@@ -27,8 +27,8 @@
   },
   "dependencies": {
     "@solid-primitives/i18n": "^1.0.9",
+    "class-transformer": "^0.5.1",
     "classcat": "^5.0.3",
-    "dompurify": "^2.3.6",
     "js-cookie": "^3.0.1",
     "lodash.throttle": "^4.1.1",
     "nanoevents": "^6.0.2",

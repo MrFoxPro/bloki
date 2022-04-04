@@ -2,6 +2,8 @@
 import { IApiProvider } from "./api-provider.interface";
 import { BlokiDocument, User, Workspace } from "../entities";
 import { unwrap } from "solid-js/store";
+import { plainToInstance } from 'class-transformer';
+import { MarkerDrawing } from "@/components/bloki-editor/types";
 // import DOMPurify from 'dompurify';
 
 const LS_KEY = 'bloki_data';
@@ -33,6 +35,11 @@ export class TestLocalApiProvider implements IApiProvider {
          if (data?._version !== import.meta.env.VITE_GIT_COMMIT_HASH) {
             throw new Error('Outdated version of db: ' + data?._version + ' Required: ' + import.meta.env.VITE_GIT_COMMIT_HASH);
          }
+         data.user.workspaces.forEach(ws => {
+            ws.documents.forEach((doc, i) => {
+               ws.documents[i].drawings = ws.documents[i].drawings.map(d => plainToInstance(MarkerDrawing, d));
+            });
+         });
          this.db = data;
       }
       catch (e) {

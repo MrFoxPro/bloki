@@ -76,24 +76,22 @@ enum DrawingType {
 enum DrawingColor {
    Red = '#c0392b',
    Blue = '#4281FA',
-   Green = '#4DE56F'
+   Green = '#4DE56F',
+   Purple = '#D949FD',
+   Cyan = '#79EFFF',
 }
 
-type Drawing = {
-   type: DrawingType;
-   color: DrawingColor;
-   strokeWidth: number;
+class Drawing {
+   public color: DrawingColor;
+   public strokeWidth: number;
 };
-
-type MarkerDrawing = Drawing & {
+class MarkerDrawing extends Drawing {
    points: Point[];
-};
-type CircleDrawing = Drawing & {
+}
+class CircleDrawing extends Drawing {
    center: Point;
    radius: number;
-};
-
-type AnyDrawing = MarkerDrawing | CircleDrawing;
+}
 
 export {
    Point,

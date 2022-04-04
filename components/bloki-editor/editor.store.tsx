@@ -5,7 +5,6 @@ import {
    AnyBlock,
    BlockTransform,
    Dimension,
-   DrawingColor,
    EditType,
    Instrument,
    PlacementStatus,
@@ -23,9 +22,6 @@ type EditorStoreValues = DeepReadonly<{
    document: BlokiDocument;
 
    showContextMenu: boolean;
-
-   instrument: Instrument;
-   drawingColor: DrawingColor;
 }>;
 
 type CalculatedSize = {
@@ -118,8 +114,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          overflowedBlocks: [],
          isPlacementCorrect: false,
          document: null,
-         instrument: props.instrument,
-         drawingColor: DrawingColor.Blue,
       }
    );
 
@@ -127,18 +121,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       setState({
          document: props.document
       });
-   });
-
-   createComputed(() => {
-      setState({
-         instrument: props.instrument
-      });
-   });
-
-   createComputed(() => {
-      if (state.instrument !== Instrument.Cursor) {
-         setState({ editingBlock: null, editingType: null });
-      }
    });
 
    const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
