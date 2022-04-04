@@ -1,11 +1,13 @@
-import { Accessor, batch, createComputed, createContext, createMemo, PropsWithChildren, useContext } from "solid-js";
+import { Accessor, batch, createComputed, createContext, createMemo, mergeProps, PropsWithChildren, useContext } from "solid-js";
 import { createNanoEvents, Emitter } from 'nanoevents';
 import { createStore, DeepReadonly, SetStoreFunction } from "solid-js/store";
 import {
    AnyBlock,
    BlockTransform,
    Dimension,
+   DrawingColor,
    EditType,
+   Instrument,
    PlacementStatus,
    Point
 } from "./types";
@@ -21,6 +23,9 @@ type EditorStoreValues = DeepReadonly<{
    document: BlokiDocument;
 
    showContextMenu: boolean;
+
+   instrument: Instrument;
+   drawingColor: DrawingColor;
 }>;
 
 type CalculatedSize = {
@@ -94,9 +99,14 @@ const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
 
 type EditorStoreProviderProps = PropsWithChildren<{
    document: BlokiDocument;
+   instrument?: Instrument;
 }>;
 
 export function EditorStoreProvider(props: EditorStoreProviderProps) {
+   props = mergeProps({
+      instrument: Instrument.Cursor
+   }, props);
+
    const editor = new StaticEditorData();
 
    const [state, setState] = createStore<EditorStoreValues>(
@@ -108,6 +118,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          overflowedBlocks: [],
          isPlacementCorrect: false,
          document: null,
+         instrument: props.instrument,
+         drawingColor: DrawingColor.Blue,
       }
    );
 
@@ -115,6 +127,18 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       setState({
          document: props.document
       });
+   });
+
+   createComputed(() => {
+      setState({
+         instrument: props.instrument
+      });
+   });
+
+   createComputed(() => {
+      if (state.instrument !== Instrument.Cursor) {
+         setState({ editingBlock: null, editingType: null });
+      }
    });
 
    const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);

@@ -8,6 +8,7 @@ import { TextBlockFontFamily, TextTypes } from './types';
 import { getTextBlockSize, measurer } from './helpers';
 import { useI18n } from '@solid-primitives/i18n';
 import { useBlockStore } from '../block.store';
+import { unwrap } from 'solid-js/store';
 
 
 type TextBlockProps = {
@@ -56,14 +57,14 @@ export function TextBlock(props: TextBlockProps) {
    });
 
    createEffect(on(
-      () => block,
-      () => {
+      () => block.type,
+      (prev, curr) => {
+         if (!curr) return;
          const size = getTextBlockSize(block.type, block.fontFamily, block.value, editor.document.layoutOptions, block.width, 'break-word');
          setStore('document', 'blocks', editor.document.blocks.indexOf(block), {
             width: size.width,
             height: size.height,
          });
-
       })
    );
 

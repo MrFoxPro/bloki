@@ -155,7 +155,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          width: mGridWidth,
          x, y
       };
-
+      console.log(newBlockTransform);
       if (checkPlacement(newBlockTransform, x, y).correct) {
          createBlock({
             type: BlockType.Regular,
@@ -165,13 +165,14 @@ function BlokiEditor(props: BlokiEditorProps) {
          }, 'content');
       }
    }
+
    function createBlock(block: Partial<AnyBlock>, editingType: EditType = 'content', id = crypto.randomUUID()) {
       block.id = id;
-
       setStore('document', 'blocks', blocks => blocks.concat(block as AnyBlock));
       const createdBlock = store.document.blocks[store.document.blocks.length - 1];
       setStore({
          editingBlock: createdBlock,
+         editingType,
       });
       return createdBlock;
    }
@@ -231,6 +232,21 @@ function BlokiEditor(props: BlokiEditorProps) {
                   top: realSize().size_px,
                }}
             >
+               {/* For scroll snap, but not working properly in ff */}
+               {/*
+                <div class={s.zones}>
+                  <For each={new Array(3).fill(null)}>
+                     {() => (
+                        <div
+                           class={s.zone}
+                           style={{
+                              width: realSize().mGridWidth_px,
+                              height: realSize().fGridHeight_px
+                           }}
+                        />
+                     )}
+                  </For>
+               </div>  */}
                <BacklightDrawer type={props.gridType} />
                <div
                   class={cc([s.grid, s.foregroundGrid])}
@@ -239,6 +255,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                      height: realSize().fGridHeight_px,
                   }}
                   onClick={(e) => onGridClick(e, 'foreground')}
+                  onContextMenu={(e) => e.preventDefault()}
                />
                <div
                   class={cc([s.grid, s.mainGrid])}
@@ -252,6 +269,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   onClick={(e) => onGridClick(e, 'main')}
                   onMouseMove={onMainGridMouseMove}
                   onMouseOut={onMainGridMouseOut}
+                  onContextMenu={(e) => e.preventDefault()}
                />
                <For each={store.document.blocks}>
                   {(block) => (
@@ -277,7 +295,7 @@ function BlokiEditor(props: BlokiEditorProps) {
 
 type WrappedEditorProps = Omit<ComponentProps<typeof EditorStoreProvider>, 'children'> & ComponentProps<typeof BlokiEditor>;
 const WrappedEditor = (props: WrappedEditorProps) => {
-   const [storeProps, compProps] = splitProps(props, ['document']);
+   const [storeProps, compProps] = splitProps(props, ['document', 'instrument']);
    return (
       <Suspense>
          <EditorStoreProvider {...storeProps}>

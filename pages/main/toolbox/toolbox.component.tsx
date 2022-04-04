@@ -1,4 +1,7 @@
 import s from './toolbox.module.scss';
+import { Instrument } from '@/components/bloki-editor/types';
+import { createComponent, createSignal, For } from 'solid-js';
+import { SVGIcon } from '@/components/svg-icon/svg-icon.component';
 
 import ArrowIcon from './assets/arrow.icon.svg';
 import RectIcon from './assets/rect.icon.svg';
@@ -10,22 +13,35 @@ import PenIcon from './assets/pen.icon.svg';
 import FlomasterIcon from './assets/flomaster.icon.svg';
 import EraserIcon from './assets/eraser.icon.svg';
 
-export function Toolbox() {
-   return (
-      <div class={s.toolbox}>
-         <ArrowIcon />
-         <RectIcon />
-         <TriangleIcon />
-         <CircleIcon />
-         <CursorIcon />
-         <PencilIcon />
-         <PenIcon />
-         <FlomasterIcon />
-         <EraserIcon />
 
+const instruments = [
+   [Instrument.Circle, CircleIcon],
+   [Instrument.Triangle, TriangleIcon],
+   [Instrument.Rect, RectIcon],
+   [Instrument.Cursor, CursorIcon],
+   [Instrument.Marker, FlomasterIcon],
+   [Instrument.Lastik, EraserIcon]
+] as const;
+
+export const createToolbox = () => {
+   const [instr, selectInstr] = createSignal(Instrument.Cursor);
+   const component = () => (
+      <div class={s.toolbox}>
+         <For each={instruments}>
+            {([type, icon]) => (
+               <SVGIcon
+                  classList={{
+                     [s.active]: type === instr()
+                  }}
+                  component={icon}
+                  onClick={() => selectInstr(type)}
+               />
+            )}
+         </For>
       </div>
    );
-}
+   return [component, instr] as const;
+};
 
 function ColorPickers() {
    return (

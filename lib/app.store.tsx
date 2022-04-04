@@ -66,7 +66,7 @@ export function AppStoreProvider(props: AppStoreProps) {
 
    props = mergeProps(props, { apiProvider: new TestLocalApiProvider() });
    const apiProvider = createMemo(() => props.apiProvider);
-   createComputed(async () => {
+   onMount(async () => {
       await props.apiProvider.init();
       const me = await props.apiProvider.getMe();
       const workspaces = await props.apiProvider.getMyWorkspaces();

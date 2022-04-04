@@ -6,6 +6,17 @@ type EditType = 'drag' | 'resize' | 'select' | 'content';
 
 type BlockTransform = Point & Dimension;
 
+enum Instrument {
+   Cursor,
+   Pencil,
+   Pen,
+   Marker,
+   Lastik,
+   Circle,
+   Triangle,
+   Rect
+}
+
 type PlacementStatus = {
    correct: boolean;
    intersections: BlockTransform[];
@@ -55,6 +66,35 @@ function isImageBlock(block: AnyBlock): block is ImageBlock {
    return block?.type === BlockType.Image;
 }
 
+// unify with Instrument?
+enum DrawingType {
+   Marker,
+   Circle,
+   Lastik
+}
+
+enum DrawingColor {
+   Red = '#c0392b',
+   Blue = '#4281FA',
+   Green = '#4DE56F'
+}
+
+type Drawing = {
+   type: DrawingType;
+   color: DrawingColor;
+   strokeWidth: number;
+};
+
+type MarkerDrawing = Drawing & {
+   points: Point[];
+};
+type CircleDrawing = Drawing & {
+   center: Point;
+   radius: number;
+};
+
+type AnyDrawing = MarkerDrawing | CircleDrawing;
+
 export {
    Point,
    Dimension,
@@ -72,5 +112,13 @@ export {
    TextBlock,
    isTextBlock,
 
-   AnyBlock
+   AnyBlock,
+
+   Instrument,
+   Drawing,
+   DrawingType,
+   DrawingColor,
+
+   MarkerDrawing,
+   CircleDrawing,
 };

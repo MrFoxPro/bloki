@@ -1,27 +1,14 @@
 import { LayoutOptions } from "../entities";
 
-export const DEFAULT_CELL_SIZE_PX = 16;
-export const DEFAULT_CELL_GAP_PX = 4;
-// in figma it is 26
-export const DEFAULT_MAIN_GRID_WIDTH_FACTOR = 26;
-export const DEFAULT_FOREGROUND_GRID_WIDTH_FACTOR = 3 * DEFAULT_MAIN_GRID_WIDTH_FACTOR + 2;
-export const DEFAULT_GRID_HEIGHT_FACTOR = 45;
-
-// const BLOCK_MIN_WIDTH = 1;
-// const BLOCK_MIN_HEIGHT = 1;
-
-// const BLOCK_MAX_WIDTH = 45;
-// const BLOCK_MAX_HEIGHT = 45;
-
 export const defaultLayoutOptions: LayoutOptions = {
-   fGridWidth: DEFAULT_FOREGROUND_GRID_WIDTH_FACTOR,
-   fGridHeight: DEFAULT_GRID_HEIGHT_FACTOR,
+   fGridWidth: 3 * 26 + 2,
+   fGridHeight: 45,
 
-   mGridHeight: DEFAULT_GRID_HEIGHT_FACTOR,
-   mGridWidth: DEFAULT_MAIN_GRID_WIDTH_FACTOR,
+   mGridHeight: 45,
+   mGridWidth: 26,
 
-   gap: DEFAULT_CELL_GAP_PX,
-   size: DEFAULT_CELL_SIZE_PX,
+   gap: 4,
+   size: 16,
 
    blockMinSize: {
       width: 1,

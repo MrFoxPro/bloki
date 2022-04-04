@@ -1,4 +1,4 @@
-import { AnyBlock, Dimension } from "@/components/bloki-editor/types";
+import { AnyBlock, Dimension, Drawing } from "@/components/bloki-editor/types";
 
 type User = {
    id: string;
@@ -36,9 +36,10 @@ type LayoutOptions = {
 type BlokiDocument = {
    id: string;
    title: string;
-   // workspaceId?: string;
+
    layoutOptions: LayoutOptions;
-   blocks: AnyBlock[],
+   blocks: AnyBlock[];
+   drawings: Drawing[];
 };
 
 export {

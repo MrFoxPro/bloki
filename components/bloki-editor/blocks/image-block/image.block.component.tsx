@@ -1,10 +1,10 @@
-import { ComponentProps, createEffect, Match, on, splitProps, Switch } from 'solid-js';
-import { ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types';
+import { ComponentProps, createComputed, createEffect, createMemo, Match, on, splitProps, Switch } from 'solid-js';
+import { Dimension, ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types';
 import s from './image.block.module.scss';
 import { useBlockStore } from '../block.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from '../../editor.store';
-import { getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
+import { calcGridSize, getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
 import throttle from 'lodash.throttle';
 import cc from 'classcat';
 
@@ -15,7 +15,9 @@ export function ImageBlock(props: ImageBlockProps) {
    const [t] = useI18n();
    const [local, other] = splitProps(props, []);
 
-   const [, { shadowed, block, isMeResizing, isMeDragging }] = useBlockStore<ImageBlockEntity>();
+   const [, { gridSize }] = useEditorStore();
+   const [, { shadowed, block, isMeResizing, isMeDragging, blockData }] = useBlockStore<ImageBlockEntity>();
+
    if (shadowed) {
       return (
          <div class={cc([s.shadowed, s.imgBlock])}>
@@ -58,25 +60,56 @@ export function ImageBlock(props: ImageBlockProps) {
          // e.preventDefault();
       }
    }
-   // createEffect(() => console.log(block.src))
+
+   const dimension: Dimension = {
+      width: gridSize(block.width),
+      height: gridSize(block.height)
+   };
+   const currRatio = () => dimension.width / dimension.height;
+
+   const defaultRelDimension: Dimension = {
+      width: editorStore.document.layoutOptions.mGridWidth,
+      height: 16,
+   };
+
+   function getContentDimension(transform: Dimension) {
+      if (!block.src) {
+         return {
+            width: gridSize(defaultRelDimension.width),
+            height: gridSize(defaultRelDimension.height),
+         };
+      }
+      return {
+         width: transform.width,
+         height: Math.round(transform.height / currRatio())
+      };
+   }
+   createComputed(() => {
+      blockData.getContentDimension = getContentDimension;
+   });
+
    createEffect(on(
       () => block.src,
       async () => {
          if (!block.src) {
-            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
-               width: editorStore.document.layoutOptions.mGridWidth,
-               height: 18
-            });
+            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), defaultRelDimension);
+            dimension.width = gridSize(defaultRelDimension.width);
+            dimension.height = gridSize(defaultRelDimension.height);
          }
          else {
             const { width, height } = await getImgDimension(block.src);
-            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
+            const ratio = height / width;
+            const relSize = {
                width: editorStore.document.layoutOptions.mGridWidth,
-               height: Math.ceil(editorStore.document.layoutOptions.mGridWidth * (height / width))
-            });
+               height: Math.ceil(editorStore.document.layoutOptions.mGridWidth * ratio)
+            };
+            dimension.width = gridSize(relSize.width);
+            dimension.height = gridSize(relSize.height);
+            setStore('document', 'blocks', editorStore.document.blocks.indexOf(block), relSize);
          }
       })
    );
+
    async function onFileChoose(e: Event & { currentTarget: HTMLInputElement; }) {
       const file = e.currentTarget.files[0];
       const base64 = await readAsDataUrl(file);
@@ -84,6 +117,7 @@ export function ImageBlock(props: ImageBlockProps) {
          src: base64
       });
    }
+
    async function tryToSetUrlImage(imgSrc: string) {
       if (!imgSrc) return;
       try {
@@ -96,6 +130,7 @@ export function ImageBlock(props: ImageBlockProps) {
          alert('Wrong image url!');
       }
    }
+
    const onUrlInput = throttle((e: InputEvent & { currentTarget: HTMLInputElement; }) => {
       tryToSetUrlImage(e.currentTarget.value);
    }, 1000);

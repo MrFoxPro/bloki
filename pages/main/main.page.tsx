@@ -9,12 +9,12 @@ import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
 const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));
 const SideMenu = lazy(() => import('@/components/side-menu/side-menu.component'));
 const AccountSettings = lazy(() => import('@/components/account-settings/account-settings.component'));
-import { Toolbox } from './toolbox/toolbox.component';
 
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 
 import { getTextBlockSize } from '@/components/bloki-editor/blocks/text-block/helpers';
 import { isTextBlock } from '@/components/bloki-editor/types';
+import { createToolbox } from './toolbox/toolbox.component';
 
 export function MainPage() {
    const [t] = useI18n();
@@ -33,6 +33,7 @@ export function MainPage() {
    const createModal = useModalStore();
 
    const [sysSettingsVisible, setSysSettingsVisible] = createModal(AccountSettings, true);
+   const [Toolbox, instrument] = createToolbox();
 
    createEffect(() => setSysSettingsVisible(state.menu.settings));
    createEffect(() => setState('menu', 'settings', sysSettingsVisible()));
@@ -64,6 +65,7 @@ export function MainPage() {
                   document={app.selectedDocument}
                   showMeta={state.docSettings}
                   gridType={app.gridRenderMethod}
+                  instrument={instrument()}
                />
             </Show>
          </div>
@@ -78,7 +80,7 @@ function DocumentSettings() {
    function logCalculatedSizes() {
       app.selectedDocument.blocks.forEach(block => {
          if (isTextBlock(block)) {
-            getTextBlockSize(block, block.value, app.selectedDocument.layoutOptions);
+            getTextBlockSize(block.type, block.fontFamily, block.value, app.selectedDocument.layoutOptions);
          }
       });
    }

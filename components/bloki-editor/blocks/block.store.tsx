@@ -2,7 +2,7 @@ import { Accessor, createComputed, createContext, createEffect, createMemo, onCl
 import { createStore } from "solid-js/store";
 import { useEditorStore } from "../editor.store";
 import { isInsideRect, distanceBetweenPoints } from "../helpers";
-import { AnyBlock, Dimension, Point } from "../types";
+import { AnyBlock, Dimension, Instrument, Point } from "../types";
 
 const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
 const RESIZER_ACTIVATE_OUTER_LIM = 30;
@@ -174,7 +174,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    }
 
    function onPointerMove(e: PointerEvent) {
-      if (blockData.pointerInside) {
+      if (blockData.pointerInside || store.instrument !== Instrument.Cursor) {
          setState('dot', { state: DotState.None });
          return;
       }
@@ -408,6 +408,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             break;
          }
       }
+      // TODO: just calculate minContentRatio?
       if (blockData.getContentDimension) {
          const contentDimension = blockData.getContentDimension({ width, height });
          if (contentDimension.width > width) {

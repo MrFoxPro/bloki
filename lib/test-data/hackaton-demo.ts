@@ -1,6 +1,5 @@
 import { getTextBlockSize } from "@/components/bloki-editor/blocks/text-block/helpers";
-import { getGoodImageRelativeSize } from "@/components/bloki-editor/helpers";
-import { AnyBlock, BlockType, isImageBlock, isTextBlock } from "@/components/bloki-editor/types";
+import { AnyBlock, BlockType, isTextBlock } from "@/components/bloki-editor/types";
 import { BlokiDocument, User, Workspace } from "../entities";
 import { defaultLayoutOptions } from "./layout-options";
 
@@ -70,13 +69,15 @@ export async function getUser() {
          }
          return block;
       }),
-      layoutOptions: { ...defaultLayoutOptions, fGridHeight: 160 },
+      drawings: [],
+      layoutOptions: { ...defaultLayoutOptions, fGridHeight: 160, mGridHeight: 160 },
    };
    const emptyDoc: BlokiDocument = {
       id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
       title: 'Empty',
       layoutOptions: { ...defaultLayoutOptions, showGridGradient: true },
       blocks: [],
+      drawings: [],
    };
    const lprPlatformDoc: BlokiDocument = {
       id: 'ba76b267-d1b6-4d18-80a0-636c794ef518',
@@ -135,6 +136,7 @@ export async function getUser() {
          }
          return block;
       }),
+      drawings: [],
    };
    const lprWorkspace1: Workspace = {
       workspaceIcon: await import('./assets/sample-workspace-icon2.png?inline').then(x => x.default),

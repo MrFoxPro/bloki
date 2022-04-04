@@ -59,12 +59,9 @@ function Block() {
 
    function onHandyContextMenu(e: MouseEvent) {
       e.preventDefault();
-
-      batch(() => {
-         selectBlock(block);
-         setStore({
-            showContextMenu: true
-         });
+      selectBlock(block);
+      setStore({
+         showContextMenu: true
       });
    }
 
