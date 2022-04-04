@@ -74,13 +74,13 @@ enum DrawingType {
 }
 
 enum DrawingColor {
-   Red = '#c0392b',
+   Red = '#FA6342',
    Blue = '#4281FA',
    Green = '#4DE56F',
    Purple = '#D949FD',
    Cyan = '#79EFFF',
-   Lightblue = '#4281FA',
    Yellow = '#FAD242',
+   Grey = '#312F2F',
 }
 
 class Drawing {

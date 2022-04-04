@@ -35,7 +35,7 @@ export function Toolbox() {
          setShowInstrSettings(false);
          return;
       }
-      setShowInstrSettings(type !== Instrument.Cursor);
+      setShowInstrSettings(type !== Instrument.Cursor && type !== Instrument.Lastik);
       setStore({ instrument: type });
    }
 
