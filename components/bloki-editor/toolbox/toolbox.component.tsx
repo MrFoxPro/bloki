@@ -6,7 +6,7 @@ import RectIcon from './assets/rect.icon.svg';
 import TriangleIcon from './assets/triangle.icon.svg';
 import CircleIcon from './assets/circle.icon.svg';
 import CursorIcon from './assets/cursor.icon.svg';
-import FlomasterIcon from './assets/flomaster.icon.svg';
+import PencilIcon from './assets/pencil.icon.svg';
 import EraserIcon from './assets/eraser.icon.svg';
 import { useDrawerStore } from '../drawer.store';
 import { useEditorStore } from '../editor.store';
@@ -19,7 +19,7 @@ const instruments = [
    [Instrument.Triangle, TriangleIcon],
    [Instrument.Rect, RectIcon],
    [Instrument.Cursor, CursorIcon],
-   [Instrument.Marker, FlomasterIcon],
+   [Instrument.Marker, PencilIcon],
    [Instrument.Lastik, EraserIcon]
 ] as const;
 
