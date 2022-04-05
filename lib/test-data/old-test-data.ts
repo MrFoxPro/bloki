@@ -1,5 +1,5 @@
 import { getTextBlockSize } from "@/components/bloki-editor/blocks/text-block/helpers";
-import { AnyBlock, BlockType, isTextBlock } from "@/components/bloki-editor/types";
+import { BlockType, AnyBlock, isTextBlock } from "@/components/bloki-editor/types/blocks";
 import { BlokiDocument, User, Workspace } from "../entities";
 import { defaultLayoutOptions } from "./layout-options";
 

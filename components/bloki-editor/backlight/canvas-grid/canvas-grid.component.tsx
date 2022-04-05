@@ -1,6 +1,6 @@
 import s from './canvas-grid.module.scss';
 import { useEditorStore } from '../../editor.store';
-import { BlockTransform } from "../../types";
+import { BlockTransform } from "../../types/blocks";
 import { FillColors, IGridImpl, } from '../shared';
 import { onMount } from 'solid-js';
 

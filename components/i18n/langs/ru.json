@@ -16,7 +16,8 @@
       "toolbox": "Инструменты рисования",
       "purge-db": "Сбросить локальную базу",
       "reset-layout": "Сбросить настройки лейаута",
-      "log-calculated-sizes": "Журнал рассчитанных размеров"
+      "log-calculated-sizes": "Журнал рассчитанных размеров",
+      "prod-non-active": "Недоступно в продакшене"
     },
     "system": {
       "render-method": {
@@ -85,6 +86,11 @@
           "or-link": "Или вставте ссылку на файл"
         }
       }
+    }
+  },
+  "toolbox": {
+    "configurator": {
+      "stroke-width": "Ширина полоски"
     }
   }
 }

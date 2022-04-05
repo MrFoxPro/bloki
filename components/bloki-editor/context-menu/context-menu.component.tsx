@@ -16,7 +16,7 @@ import ImageIcon from './assets/image.icon.svg';
 
 import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from "../editor.store";
-import { BlockType } from "../types";
+import { BlockType } from "../types/blocks";
 
 type BlockContextMenuProps = {
 };

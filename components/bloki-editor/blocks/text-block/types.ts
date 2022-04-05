@@ -1,6 +1,6 @@
-import { BlockType } from "../../types";
+import { BlockType } from "../../types/blocks";
 
-type TextSetting = {
+export type TextSetting = {
    fontSize: number;
    fontWeight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
    lineHeight: number;

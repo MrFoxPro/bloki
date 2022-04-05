@@ -1,5 +1,5 @@
 import { ComponentProps, createComputed, createEffect, Match, on, splitProps, Switch } from 'solid-js';
-import { Dimension, ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types';
+import { Dimension, ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types/blocks';
 import s from './image.block.module.scss';
 import { useBlockStore } from '../block.store';
 import { useI18n } from '@solid-primitives/i18n';

@@ -3,7 +3,8 @@ import { createStore } from "solid-js/store";
 import { useDrawerStore } from "../drawer.store";
 import { useEditorStore } from "../editor.store";
 import { isInsideRect, distanceBetweenPoints } from "../helpers";
-import { AnyBlock, Dimension, Instrument, Point } from "../types";
+import { AnyBlock, Dimension, Point } from "../types/blocks";
+import { Instrument } from "../types/editor";
 
 const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
 const RESIZER_ACTIVATE_OUTER_LIM = 30;
@@ -355,7 +356,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       const { containerRect } = staticEditorData;
       switch (blockData.capturingSide) {
          case CursorSide.W: {
-            const xc = e.pageX -containerRect.x;
+            const xc = e.pageX - containerRect.x;
             width += x - xc;
             x = xc;
 
@@ -363,11 +364,11 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             break;
          }
          case CursorSide.E: {
-            width = e.pageX - state.transform.x -containerRect.x;
+            width = e.pageX - state.transform.x - containerRect.x;
             break;
          }
          case CursorSide.N: {
-            const yc = e.pageY -containerRect.y;
+            const yc = e.pageY - containerRect.y;
             height += y - yc;
             y = yc;
 
@@ -375,15 +376,15 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             break;
          }
          case CursorSide.S: {
-            height = e.pageY - state.transform.y -containerRect.y;
+            height = e.pageY - state.transform.y - containerRect.y;
             break;
          }
          case CursorSide.NW: {
-            const yc = e.pageY -containerRect.y;
+            const yc = e.pageY - containerRect.y;
             height += y - yc;
             y = yc;
 
-            const xc = e.pageX -containerRect.x;
+            const xc = e.pageX - containerRect.x;
             width += x - xc;
             x = xc;
 
@@ -392,23 +393,23 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             break;
          }
          case CursorSide.NE: {
-            width = e.pageX - state.transform.x -containerRect.x;
+            width = e.pageX - state.transform.x - containerRect.x;
 
-            const yc = e.pageY -containerRect.y;
+            const yc = e.pageY - containerRect.y;
             height += y - yc;
             y = yc;
             break;
          }
          case CursorSide.SE: {
-            width = e.pageX - state.transform.x -containerRect.x;
-            height = e.pageY - state.transform.y -containerRect.y;
+            width = e.pageX - state.transform.x - containerRect.x;
+            height = e.pageY - state.transform.y - containerRect.y;
             break;
          }
          case CursorSide.SW: {
-            const xc = e.pageX -containerRect.x;
+            const xc = e.pageX - containerRect.x;
             width += x - xc;
             x = xc;
-            height = e.pageY - state.transform.y -containerRect.y;
+            height = e.pageY - state.transform.y - containerRect.y;
             break;
          }
       }

@@ -24,7 +24,7 @@ export function MainPage() {
    const [state, setState] = createStore({
       menu: {
          settings: false,
-         search: true,
+         search: false,
          trash: false,
       },
       toolbox: false,
@@ -46,7 +46,7 @@ export function MainPage() {
       <main class={s.main}>
          <SideMenu
             activeItems={Object.keys(state.menu).filter(i => state.menu[i] === true)}
-            disabledItems={['trash']}
+            disabledItems={['trash', 'search']}
             onItemClick={(item) => {
                setState('menu', item, s => !s);
             }}

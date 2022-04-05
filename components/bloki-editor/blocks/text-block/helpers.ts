@@ -1,6 +1,6 @@
 import { LayoutOptions } from "@/lib/entities";
 import { calcGridSize } from "../../helpers";
-import { BlockType, Dimension } from "../../types";
+import { BlockType, Dimension } from "../../types/blocks";
 import { DOMTextMeasurer } from "./measure-text-dom";
 import { TextBlockFontFamily, TextTypes } from "./types";
 

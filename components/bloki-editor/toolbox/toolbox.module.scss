@@ -42,7 +42,10 @@
       flex-direction: column;
       gap: 18px;
 
-      input.stroke-width {}
+      .stroke-width {
+         display: flex;
+         flex-direction: column;
+      }
 
       .colors {
          display: flex;

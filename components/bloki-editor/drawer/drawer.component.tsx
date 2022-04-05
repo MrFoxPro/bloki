@@ -1,11 +1,13 @@
 import s from './drawer.module.scss';
 import { createComputed, createEffect, on, onCleanup, onMount } from 'solid-js';
-import { plainToInstance } from 'class-transformer';
 import { useEditorStore } from '../editor.store';
-import { Drawing, DrawingColor, DrawingType, Instrument, MarkerDrawing, Point } from '../types';
 import { useAppStore } from '@/lib/app.store';
 import { useDrawerStore } from '../drawer.store';
+import { Point } from '../types/blocks';
+import { Drawing, LastikDrawing, MarkerDrawing } from '../types/drawings';
+import { Instrument } from '../types/editor';
 
+// TODO: Refactor this!!!
 export function Drawer() {
    let canvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
@@ -33,6 +35,14 @@ export function Drawer() {
 
    function applyDrawing(context: CanvasRenderingContext2D, drawing: Drawing) {
       if (drawing instanceof MarkerDrawing) {
+         context.globalCompositeOperation = 'source-over';
+         context.lineWidth = drawing.strokeWidth;
+         context.strokeStyle = drawing.color;
+         context.lineJoin = 'round';
+         context.lineCap = 'round';
+      }
+      else if (drawing instanceof LastikDrawing) {
+         context.globalCompositeOperation = 'destination-out';
          context.lineWidth = drawing.strokeWidth;
          context.strokeStyle = drawing.color;
          context.lineJoin = 'round';
@@ -54,6 +64,19 @@ export function Drawer() {
                });
             }
          });
+         editorStore.document.drawings.forEach((drawing) => {
+            if (drawing instanceof LastikDrawing) {
+               console.log('applying lastik')
+               applyDrawing(ctx, drawing);
+               ctx.beginPath();
+               drawing.points.forEach((p, i, arr) => {
+                  if (i > 0) {
+                     drawMarker(arr[i - 1], p);
+                  }
+               });
+            }
+         });
+
       })
    );
 
@@ -73,11 +96,8 @@ export function Drawer() {
             currentDrawing.strokeWidth = drawerStore.strokeWidth;
             break;
          case Instrument.Lastik:
-            // const drawingsToDelete = editorStore.document.drawings.find(drawing => {
-            //    if(drawing instanceof MarkerDrawing) {
-            //       return drawing.points.some(p => p.)
-            //    }
-            // })
+            currentDrawing = new LastikDrawing();
+            currentDrawing.strokeWidth = drawerStore.strokeWidth;
          default:
             break;
       }
@@ -92,11 +112,17 @@ export function Drawer() {
       if (e.buttons !== 1) return;
       if (!isMouseDown) return;
 
+      const point = {
+         x: e.pageX - staticEditorData.containerRect.x,
+         y: e.pageY - staticEditorData.containerRect.y
+      };
       if (currentDrawing instanceof MarkerDrawing) {
-         const point = {
-            x: e.pageX - staticEditorData.containerRect.x,
-            y: e.pageY - staticEditorData.containerRect.y
-         };
+         ctx.beginPath();
+         drawMarker(lastPos, point);
+         lastPos = point;
+         currentDrawing.points.push({ ...lastPos });
+      }
+      else if (currentDrawing instanceof LastikDrawing) {
          ctx.beginPath();
          drawMarker(lastPos, point);
          lastPos = point;

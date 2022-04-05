@@ -1,5 +1,5 @@
 import { JSX } from "solid-js";
-import { BlockTransform } from "../types";
+import { BlockTransform } from "../types/blocks";
 
 export enum CellState {
    None,

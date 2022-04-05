@@ -1,9 +1,9 @@
 import { ComponentProps, createComputed, createEffect, createMemo, on, onMount, splitProps, untrack } from 'solid-js';
 import cc from 'classcat';
-import { TextBlock as TextBlockEntity } from '../../types';
+import { TextBlock as TextBlockEntity } from '../../types/blocks';
 import { useEditorStore } from '../../editor.store';
 import s from './text.block.module.scss';
-import { Dimension } from '../../types';
+import { Dimension } from '../../types/blocks';
 import { TextBlockFontFamily, TextTypes } from './types';
 import { getTextBlockSize, measurer } from './helpers';
 import { useI18n } from '@solid-primitives/i18n';

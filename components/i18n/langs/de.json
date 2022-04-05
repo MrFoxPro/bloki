@@ -6,7 +6,8 @@
       "resize-areas": "Bereiche erfassen",
       "purge-db": "Lokale Datenbank zurücksetzen",
       "reset-layout": "Layouteinstellungen zurücksetzen",
-      "log-calculated-sizes": "Berechnete Größen protokollieren"
+      "log-calculated-sizes": "Berechnete Größen protokollieren",
+      "prod-non-active": "In der Produktion nicht verfügbar"
     },
     "system": {
       "render-method": {
@@ -85,6 +86,11 @@
           "or-link": "Oder fügen Sie den Link zur Datei ein"
         }
       }
+    }
+  },
+  "toolbox": {
+    "configurator": {
+      "stroke-width": "Streifenbreite"
     }
   }
 }

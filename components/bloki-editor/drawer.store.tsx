@@ -1,6 +1,7 @@
 import { createContext, PropsWithChildren, useContext } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
-import { DrawingColor, Instrument } from "./types";
+import { DrawingColor } from "./types/drawings";
+import { Instrument } from "./types/editor";
 
 type DrawerContextValues = {
    readonly instrument: Instrument;

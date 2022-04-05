@@ -1,7 +1,7 @@
 import { createMemo, onCleanup, onMount } from "solid-js";
 import { useEditorStore } from "../editor.store";
 import { isInsideRect } from "../helpers";
-import { BlockTransform, PlacementStatus } from "../types";
+import { BlockTransform, PlacementStatus } from "../types/blocks";
 import { BlokiCanvasGrid } from "./canvas-grid/canvas-grid.component";
 import { BlokiDomGrid } from "./dom-grid/dom-grid.component";
 import { CellState } from "./shared";

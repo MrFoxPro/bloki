@@ -5,12 +5,11 @@ import {
    AnyBlock,
    BlockTransform,
    Dimension,
-   EditType,
-   Instrument,
    PlacementStatus,
    Point
-} from "./types";
+} from "./types/blocks";
 import { BlokiDocument } from "@/lib/entities";
+import { EditType, Instrument } from "./types/editor";
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock?: AnyBlock;

@@ -1,5 +1,4 @@
 import s from './toolbox.module.scss';
-import { DrawingColor, Instrument } from '@/components/bloki-editor/types';
 import { createRenderEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 import { SVGIcon } from '@/components/svg-icon/svg-icon.component';
 
@@ -11,6 +10,9 @@ import FlomasterIcon from './assets/flomaster.icon.svg';
 import EraserIcon from './assets/eraser.icon.svg';
 import { useDrawerStore } from '../drawer.store';
 import { useEditorStore } from '../editor.store';
+import { useI18n } from '@solid-primitives/i18n';
+import { DrawingColor } from '../types/drawings';
+import { Instrument } from '../types/editor';
 
 const instruments = [
    [Instrument.Circle, CircleIcon],
@@ -22,6 +24,7 @@ const instruments = [
 ] as const;
 
 export function Toolbox() {
+   const [t] = useI18n();
    const [drawerStore, { setDrawerStore }] = useDrawerStore();
    const [editorStore, { setEditorStore }] = useEditorStore();
 
@@ -30,9 +33,8 @@ export function Toolbox() {
    function onClick(type: Instrument) {
       if (showInstrSettings()) {
          setShowInstrSettings(false);
-         return;
       }
-      setShowInstrSettings(type !== Instrument.Cursor && type !== Instrument.Lastik);
+      setShowInstrSettings(type !== Instrument.Cursor);
       setDrawerStore({ instrument: type });
    }
 
@@ -76,28 +78,32 @@ export function Toolbox() {
          </For>
          <Show when={showInstrSettings()}>
             <div class={s.configurator}>
-               {drawerStore.strokeWidth}
-               <input
-                  type="range"
-                  min={2}
-                  max={20}
-                  step={0.5}
-                  value={drawerStore.drawingColor}
-                  onInput={(e) => setDrawerStore({
-                     strokeWidth: e.currentTarget.valueAsNumber
-                  })}
-               />
-               <div class={s.colors}>
-                  {Object.values(DrawingColor).map(color =>
-                     <div
-                        class={s.color}
-                        style={{
-                           background: color
-                        }}
-                        onClick={() => setDrawerStore({ drawingColor: color })}
-                     />
-                  )}
+               <div class={s.strokeWidth}>
+                  <label>{t('toolbox.configurator.stroke-width')}: {drawerStore.strokeWidth}</label>
+                  <input
+                     type="range"
+                     min={2}
+                     max={20}
+                     step={0.5}
+                     value={drawerStore.strokeWidth}
+                     onInput={(e) => setDrawerStore({
+                        strokeWidth: e.currentTarget.valueAsNumber
+                     })}
+                  />
                </div>
+               <Show when={drawerStore.instrument !== Instrument.Lastik}>
+                  <div class={s.colors}>
+                     {Object.values(DrawingColor).map(color =>
+                        <div
+                           class={s.color}
+                           style={{
+                              background: color
+                           }}
+                           onClick={() => setDrawerStore({ drawingColor: color })}
+                        />
+                     )}
+                  </div>
+               </Show>
             </div>
          </Show>
       </div>

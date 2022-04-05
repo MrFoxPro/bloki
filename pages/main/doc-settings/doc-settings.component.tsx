@@ -4,7 +4,7 @@ import { useI18n } from '@solid-primitives/i18n';
 import { useAppStore } from '@/lib/app.store';
 import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
 import { getTextBlockSize } from '@/components/bloki-editor/blocks/text-block/helpers';
-import { isTextBlock } from '@/components/bloki-editor/types';
+import { isTextBlock } from '@/components/bloki-editor/types/blocks';
 
 export function DocumentSettings() {
    const [t] = useI18n();
@@ -33,11 +33,17 @@ export function DocumentSettings() {
                   <div class={s.control}>
                      <span>{p} [{app.selectedDocument.layoutOptions[p]}]</span>
                      <input
+                        disabled={import.meta.env.PROD}
+                        title={import.meta.env.PROD ? t('settings.document.prod-non-active') : undefined}
                         type="range"
                         min={min}
                         max={max}
                         value={app.selectedDocument.layoutOptions[p]}
-                        oninput={(e) => setAppStore('selectedDocument', 'layoutOptions', p, e.currentTarget.valueAsNumber)} />
+                        oninput={(e) => {
+                           if (import.meta.env.PROD) return;
+                           setAppStore('selectedDocument', 'layoutOptions', p, e.currentTarget.valueAsNumber);
+                        }}
+                     />
                   </div>
                )}
             </For>
@@ -75,7 +81,9 @@ export function DocumentSettings() {
                </div>
             </div>
             <button
+               disabled={import.meta.env.PROD}
                onClick={() => {
+                  if (import.meta.env.PROD) return;
                   setAppStore('selectedDocument', 'layoutOptions', defaultLayoutOptions);
                }}>
                {t('settings.document.reset-layout')}

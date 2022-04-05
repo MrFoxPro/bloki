@@ -6,7 +6,7 @@ import { useAppStore } from '@/lib/app.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
-import { AnyBlock, BlockTransform, BlockType, Dimension, EditType, Instrument, isTextBlock, Point } from './types';
+import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
 import { TextBlockFontFamily } from './blocks/text-block/types';
 import { Backlight } from './backlight/backlight.component';
@@ -15,6 +15,7 @@ import { Drawer } from './drawer/drawer.component';
 import Toolbox from './toolbox/toolbox.component';
 import { Portal } from 'solid-js/web';
 import { DrawerStoreProvider, useDrawerStore } from './drawer.store';
+import { EditType, Instrument } from './types/editor';
 
 type BlokiEditorProps = {
    showMeta?: boolean;

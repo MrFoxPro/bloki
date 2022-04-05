@@ -3,7 +3,7 @@ import { IApiProvider } from "./api-provider.interface";
 import { BlokiDocument, User, Workspace } from "../entities";
 import { unwrap } from "solid-js/store";
 import { plainToInstance } from 'class-transformer';
-import { drawingTypeNamesToType, MarkerDrawing } from "@/components/bloki-editor/types";
+import { drawingTypeNamesToType } from "@/components/bloki-editor/types/drawings";
 // import DOMPurify from 'dompurify';
 
 const LS_KEY = 'bloki_data';
@@ -52,7 +52,7 @@ export class TestLocalApiProvider implements IApiProvider {
    }
 
    async getRandUserData() {
-      const u = await import('../test-data/hackaton-data').then(x => x.getUser());
+      const u = await import('../test-data/hackaton-data').then(x => x.default);
       return u;
    }
    async clearCache() {

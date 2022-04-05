@@ -6,7 +6,8 @@
       "resize-areas": "Capture areas",
       "purge-db": "Reset local database",
       "reset-layout": "Reset layout settings",
-      "log-calculated-sizes": "Log calculated sizes"
+      "log-calculated-sizes": "Log calculated sizes",
+      "prod-non-active": "Not available in production"
     },
     "system": {
       "render-method": {
@@ -85,6 +86,11 @@
           "or-link": "Or paste the link to the file"
         }
       }
+    }
+  },
+  "toolbox": {
+    "configurator": {
+      "stroke-width": "Stoke width"
     }
   }
 }
