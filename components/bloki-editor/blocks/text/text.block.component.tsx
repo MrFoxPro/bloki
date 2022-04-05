@@ -188,7 +188,7 @@ export function TextBlock(props: TextBlockProps) {
             "font-size": textSettings().fontSize + 'px',
             "font-weight": textSettings().fontWeight,
             "line-height": textSettings().lineHeight + 'px',
-            "color": textSettings().color ?? 'initial',
+            "color": block.color ?? textSettings().color ?? 'initial',
          }}
          classList={{
             [s.showPlaceholder]: !block.value && blockStore.transform.width / gridSize(1) > 7,

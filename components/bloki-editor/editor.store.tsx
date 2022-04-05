@@ -22,7 +22,6 @@ type EditorStoreValues = DeepReadonly<{
 
    showContextMenu: boolean;
 
-   tempBg?: string;
 }>;
 
 type CalculatedSize = {

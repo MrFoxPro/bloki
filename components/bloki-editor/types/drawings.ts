@@ -17,9 +17,13 @@ enum DrawingColor {
    Grey = '#312F2F',
 }
 
+class BlokiWhiteboard {
+   public blobUrl: string;
+   public drawings: Drawing[] = [];
+}
 class Drawing {
    public drawingTypeName: string;
-   public color: DrawingColor;
+   public color: DrawingColor | string;
    public strokeWidth: number;
 };
 
@@ -50,6 +54,7 @@ const drawingTypeNamesToType = {
 } as const;
 
 export {
+   BlokiWhiteboard,
    Drawing,
    DrawingType,
    DrawingColor,

@@ -96,7 +96,7 @@ export function ImageBlock(props: ImageBlockProps) {
             dimension.width = gridSize(defaultRelDimension.width);
             dimension.height = gridSize(defaultRelDimension.height);
          }
-         else {
+         else if(!block.width || !block.height){
             const { width, height } = await getImgDimension(block.src);
             const ratio = height / width;
             const relSize = {

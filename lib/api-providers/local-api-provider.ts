@@ -38,7 +38,7 @@ export class TestLocalApiProvider implements IApiProvider {
          // You really do not need to look at here ><
          data.user.workspaces.forEach(ws => {
             ws.documents.forEach((doc, i) => {
-               ws.documents[i].drawings = ws.documents[i].drawings.map(d => {
+               ws.documents[i].whiteboard.drawings = ws.documents[i].whiteboard.drawings.map(d => {
                   return plainToInstance(drawingTypeNamesToType[d.drawingTypeName], d);
                });
             });

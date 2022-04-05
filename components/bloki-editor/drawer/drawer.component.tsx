@@ -9,6 +9,8 @@ import { Instrument } from '../types/editor';
 
 import LastikCursor from './assets/lastik.cursor.png';
 import MarkerCursor from './assets/marker.cursor.png';
+import { toBlobAsync } from './helpers';
+
 
 // TODO: Refactor this!!!
 export function Drawer() {
@@ -63,31 +65,28 @@ export function Drawer() {
    }
 
    createEffect(on(
-      () => editorStore.document,
-      () => {
-         editorStore.document.drawings.forEach((drawing) => {
-            if (drawing instanceof MarkerDrawing) {
-               applyDrawing(ctx, drawing);
-               ctx.beginPath();
-               drawing.points.forEach((p, i, arr) => {
-                  if (i > 0) {
-                     drawMarker(arr[i - 1], p);
-                  }
-               });
-            }
-         });
-         editorStore.document.drawings.forEach((drawing) => {
-            if (drawing instanceof LastikDrawing) {
-               applyDrawing(ctx, drawing);
-               ctx.beginPath();
-               drawing.points.forEach((p, i, arr) => {
-                  if (i > 0) {
-                     drawMarker(arr[i - 1], p);
-                  }
-               });
-            }
-         });
+      () => editorStore.document.whiteboard,
+      async () => {
+         if (!ctx) return;
+         console.log('redrawing whiteboard');
+         const docDraw = editorStore.document.whiteboard;
+         const blob = await fetch(docDraw.blobUrl).then(img => img.blob());
 
+         const bitmap = await createImageBitmap(blob);
+         ctx.globalCompositeOperation = 'source-over';
+         ctx.drawImage(bitmap, 0, 0);
+
+         docDraw.drawings.forEach((drawing) => {
+            if (drawing instanceof MarkerDrawing || drawing instanceof LastikDrawing) {
+               applyDrawing(ctx, drawing);
+               ctx.beginPath();
+               drawing.points.forEach((p, i, arr) => {
+                  if (i > 0) {
+                     drawMarker(arr[i - 1], p);
+                  }
+               });
+            }
+         });
       })
    );
 
@@ -96,6 +95,7 @@ export function Drawer() {
       ctx.lineTo(curr.x, curr.y);
       ctx.stroke();
    }
+
    let currentDrawing: Drawing = null;
 
    function onDrawStart(e: PointerEvent) {
@@ -127,6 +127,7 @@ export function Drawer() {
          x: e.pageX - staticEditorData.containerRect.x + cursorOffset.x,
          y: e.pageY - staticEditorData.containerRect.y + cursorOffset.y
       };
+
       if (currentDrawing instanceof MarkerDrawing) {
          ctx.beginPath();
          drawMarker(lastPos, point);
@@ -141,15 +142,34 @@ export function Drawer() {
       }
    }
 
-   function onDrawEnd(e: PointerEvent) {
+   let rasterizeDrawingsTimeout = null;
+   // 10 seconds
+   const RASTERIZE_TIMEOUT = 5 * 1000;
+   async function onDrawEnd(e: PointerEvent) {
       isMouseDown = false;
       if (currentDrawing) {
-         setEditorStore('document', 'drawings', drawings => drawings.concat(currentDrawing));
-         app.apiProvider.updateDocument(editorStore.document);
+
+         setEditorStore('document', 'whiteboard', 'drawings', drawings => drawings.concat(currentDrawing));
+
+         if (rasterizeDrawingsTimeout) clearTimeout(rasterizeDrawingsTimeout);
+         rasterizeDrawingsTimeout = setTimeout(processDrawings, RASTERIZE_TIMEOUT);
       }
       currentDrawing = null;
    }
 
+   let imageObjectUrl: string = null;
+   async function processDrawings() {
+      const blob = await toBlobAsync(ctx, 'image/png', 1);
+      if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
+      imageObjectUrl = URL.createObjectURL(blob);
+
+      setEditorStore('document', 'whiteboard', 'drawings', []);
+      setEditorStore('document', 'whiteboard', 'blobUrl', imageObjectUrl);
+
+      console.log('DRAWING SAVED TO URL', imageObjectUrl);
+
+      app.apiProvider.updateDocument(editorStore.document);
+   }
    return (
       <canvas
          class={s.drawer}

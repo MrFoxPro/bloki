@@ -7,7 +7,6 @@ import { getTextBlockSize } from '@/components/bloki-editor/blocks/text/helpers'
 import { isTextBlock } from '@/components/bloki-editor/types/blocks';
 import { useEditorStore } from '@/components/bloki-editor/editor.store';
 import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
-import IntroBg from './intro.png';
 
 export function DocumentSettings() {
    const [t] = useI18n();
@@ -71,15 +70,6 @@ export function DocumentSettings() {
                         onClick={(e) => setAppStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
                         checked={app.selectedDocument.layoutOptions.showResizeAreas} />
                      <label for="show-resizers">{t('settings.document.resize-areas')}</label>
-                  </div>
-                  <div class={s.check}>
-                     <input
-                        type="checkbox"
-                        name="show-bg"
-                        onClick={() => setEditorStore('tempBg', bg => bg ? null : IntroBg)}
-                        checked={!!editor.tempBg}
-                     />
-                     <label for="show-bg">ИНТРО</label>
                   </div>
                   <div class={s.gridType}>
                      <div>
