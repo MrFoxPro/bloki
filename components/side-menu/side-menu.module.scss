@@ -63,20 +63,6 @@
       align-items: center;
       flex-direction: row-reverse;
       cursor: pointer;
-
-      .options-icon {
-         // width: 24px;
-         // height: 24px;
-         display: flex;
-         justify-content: center;
-         align-items: center;
-
-         >svg {
-            width: 24px;
-            height: 24px;
-            stroke: #2c3e50 !important;
-         }
-      }
    }
 }
 

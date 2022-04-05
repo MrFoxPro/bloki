@@ -1,4 +1,4 @@
-import { ComponentProps, createEffect, For, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
+import { ComponentProps, createEffect, For, lazy, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import cc from 'classcat';
 import s from './bloki-editor.module.scss';
@@ -12,7 +12,8 @@ import { TextBlockFontFamily } from './blocks/text/types';
 import { Backlight } from './backlight/backlight.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer.component';
-import Toolbox from './toolbox/toolbox.component';
+const Toolbox = lazy(() => import('./toolbox/toolbox.component'));
+const DocumentSettings = lazy(() => import('@/pages/main/doc-settings/doc-settings.component'));
 import { Portal } from 'solid-js/web';
 import { DrawerStoreProvider, useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
@@ -21,6 +22,7 @@ type BlokiEditorProps = {
    showMeta?: boolean;
    gridType?: 'dom' | 'canvas';
    toolboxMountRef: HTMLElement;
+   docSettingsMountRef: HTMLElement;
 };
 function BlokiEditor(props: BlokiEditorProps) {
    props = mergeProps({
@@ -235,7 +237,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   width: realSize().fGridWidth_px,
                   height: realSize().fGridHeight_px,
                   top: realSize().size_px,
-                  'user-select': drawerStore.instrument !== Instrument.Cursor ? 'none' : 'initial'
+                  'user-select': drawerStore.instrument !== Instrument.Cursor ? 'none' : 'initial',
                }}
             >
                {/* For scroll snap, but not working properly in ff */}
@@ -259,6 +261,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   style={{
                      width: realSize().fGridWidth_px,
                      height: realSize().fGridHeight_px,
+                     background: `url(${store.tempBg})`
                   }}
                   onClick={(e) => onGridClick(e, 'foreground')}
                   onContextMenu={(e) => e.preventDefault()}
@@ -291,6 +294,9 @@ function BlokiEditor(props: BlokiEditorProps) {
          </div>
          <Portal mount={props.toolboxMountRef}>
             <Toolbox />
+         </Portal>
+         <Portal mount={props.docSettingsMountRef}>
+            <DocumentSettings />
          </Portal>
       </>
    );

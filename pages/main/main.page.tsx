@@ -7,10 +7,8 @@ import { useModalStore } from '@/components/modal/modal';
 
 const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));
 const SideMenu = lazy(() => import('@/components/side-menu/side-menu.component'));
-const DocumentSettings = lazy(() => import('./doc-settings/doc-settings.component'));
 const AccountSettings = lazy(() => import('@/components/account-settings/account-settings.component'));
 
-import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 import { createCountdownFromNow } from '@solid-primitives/date';
 
 // import { createToolbox } from '../../components/bloki-editor/toolbox/toolbox.component';
@@ -18,9 +16,10 @@ import { createCountdownFromNow } from '@solid-primitives/date';
 export function MainPage() {
    const [t] = useI18n();
    const [app, { setAppStore }] = useAppStore();
-   let toolboxMountRef: HTMLDivElement;
+   let leftBarRef: HTMLDivElement;
+   let rightBarRef: HTMLDivElement;
 
-   const fiveMin = 5 * 60 * 1000
+   const fiveMin = 5 * 60 * 1000;
    const [state, setState] = createStore({
       menu: {
          settings: false,
@@ -43,7 +42,7 @@ export function MainPage() {
    const [countdown] = createCountdownFromNow(state.timeToRefresh, 1000);
 
    return (
-      <main class={s.main}>
+      <main class={s.main} >
          <SideMenu
             activeItems={Object.keys(state.menu).filter(i => state.menu[i] === true)}
             disabledItems={['trash', 'search']}
@@ -53,12 +52,12 @@ export function MainPage() {
          />
          <div class={s.workspace}>
             <div class={s.topBar}>
-               <div class={s.leftBar} ref={toolboxMountRef}>
+               <div class={s.leftBar} ref={leftBarRef}>
                   {/* Toolbox can be here */}
                </div>
                <h4>{app.selectedDocument?.title} {countdown.minutes}:{countdown.seconds}</h4>
-               <div class={s.rightBar}>
-                  <TripleDotsIcon class={s.optionsIcon} onClick={() => setState('docSettings', s => !s)} />
+               <div class={s.rightBar} ref={rightBarRef}>
+
                </div>
             </div>
             <Show when={app.selectedWorkspace && app.selectedDocument}>
@@ -66,13 +65,12 @@ export function MainPage() {
                   document={app.selectedDocument}
                   showMeta={state.docSettings}
                   gridType={app.gridRenderMethod}
-                  toolboxMountRef={toolboxMountRef}
+                  toolboxMountRef={leftBarRef}
+                  docSettingsMountRef={rightBarRef}
                />
             </Show>
          </div>
-         <Show when={app.selectedDocument && state.docSettings}>
-            <DocumentSettings />
-         </Show>
+
       </main>
    );
 };

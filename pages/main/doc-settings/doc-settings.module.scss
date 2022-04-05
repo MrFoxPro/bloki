@@ -61,3 +61,15 @@
       }
    }
 }
+
+.options-icon {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+
+   >svg {
+      width: 24px;
+      height: 24px;
+      stroke: #2c3e50 !important;
+   }
+}

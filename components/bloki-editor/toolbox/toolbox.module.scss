@@ -56,8 +56,12 @@
          .color {
             width: 36px;
             height: 36px;
-            border-radius: 18px;
+            border-radius: 50%;
             cursor: pointer;
+
+            &.selected {
+               outline: 2px solid blue;
+            }
          }
       }
    }

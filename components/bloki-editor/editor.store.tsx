@@ -21,6 +21,8 @@ type EditorStoreValues = DeepReadonly<{
    document: BlokiDocument;
 
    showContextMenu: boolean;
+
+   tempBg?: string;
 }>;
 
 type CalculatedSize = {

@@ -96,8 +96,11 @@ export function Toolbox() {
                      {Object.values(DrawingColor).map(color =>
                         <div
                            class={s.color}
+                           classList={{
+                              [s.selected]: drawerStore.drawingColor === color
+                           }}
                            style={{
-                              background: color
+                              background: color,
                            }}
                            onClick={() => setDrawerStore({ drawingColor: color })}
                         />
