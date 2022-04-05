@@ -35,7 +35,7 @@ export function Drawer() {
    const [editorStore, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
    const [drawerStore] = useDrawerStore();
 
-   const [, app] = useAppStore();
+   const [, { getWhiteBoardData }] = useAppStore();
 
    createComputed(() => {
       if (drawerStore.instrument !== Instrument.Cursor) {
@@ -67,15 +67,13 @@ export function Drawer() {
    createEffect(on(
       () => editorStore.document.whiteboard,
       async () => {
-         if (!ctx) return;
          console.log('redrawing whiteboard');
          const docDraw = editorStore.document.whiteboard;
-         const blob = await fetch(docDraw.blobUrl).then(img => img.blob());
-
+         const blob = await getWhiteBoardData();
+         console.log(blob);
          const bitmap = await createImageBitmap(blob);
          ctx.globalCompositeOperation = 'source-over';
          ctx.drawImage(bitmap, 0, 0);
-
          docDraw.drawings.forEach((drawing) => {
             if (drawing instanceof MarkerDrawing || drawing instanceof LastikDrawing) {
                applyDrawing(ctx, drawing);
@@ -164,11 +162,11 @@ export function Drawer() {
       imageObjectUrl = URL.createObjectURL(blob);
 
       setEditorStore('document', 'whiteboard', 'drawings', []);
-      setEditorStore('document', 'whiteboard', 'blobUrl', imageObjectUrl);
+      // setEditorStore('document', 'whiteboard', 'blobUrl', imageObjectUrl);
 
       console.log('DRAWING SAVED TO URL', imageObjectUrl);
 
-      app.apiProvider.updateDocument(editorStore.document);
+      // app.apiProvider.updateDocument(editorStore.document);
    }
    return (
       <canvas

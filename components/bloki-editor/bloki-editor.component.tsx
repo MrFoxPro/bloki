@@ -17,6 +17,7 @@ const DocumentSettings = lazy(() => import('@/pages/main/doc-settings/doc-settin
 import { Portal } from 'solid-js/web';
 import { DrawerStoreProvider, useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
+import { Cursors } from '../collab/cursors.component';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
@@ -31,12 +32,12 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    let containerRef: HTMLDivElement;
    let wrapperRef: HTMLDivElement;
-   const [app, { apiProvider }] = useAppStore();
+   const [app, { }] = useAppStore();
    const [t] = useI18n();
    const [
       store,
       {
-         staticEditorData: editor,
+         staticEditorData,
          realSize,
          selectBlock,
          setEditorStore,
@@ -51,8 +52,8 @@ function BlokiEditor(props: BlokiEditorProps) {
    function calculateBoxRect() {
       if (!containerRef) return;
       const containerRect = containerRef.getBoundingClientRect();
-      editor.containerRect = containerRect;
-      editor.emit('containerrectchanged', containerRect);
+      staticEditorData.containerRect = containerRect;
+      staticEditorData.emit('containerrectchanged', containerRect);
    };
 
    function onKeyDown(e: KeyboardEvent) {
@@ -88,18 +89,18 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    function onMainGridMouseMove(e: MouseEvent) {
       if (store.editingType) return;
-      const { y } = getRelativePosition(e.pageX - editor.containerRect.x, e.pageY - editor.containerRect.y);
+      const { y } = getRelativePosition(e.pageX - staticEditorData.containerRect.x, e.pageY - staticEditorData.containerRect.y);
       const { mGridWidth, fGridWidth } = store.document.layoutOptions;
       const x = (fGridWidth - mGridWidth) / 2;
       const block = { x, y, width: mGridWidth, height: 1 };
       const { correct } = checkPlacement(block);
       if (correct) {
-         editor.emit('maingridcursormoved', block, false);
+         staticEditorData.emit('maingridcursormoved', block, false);
       }
    }
 
    function onMainGridMouseOut(e: MouseEvent) {
-      editor.emit('maingridcursormoved', null, true);
+      staticEditorData.emit('maingridcursormoved', null, true);
    }
 
    const pasteError = () => alert('We are allowing only images pasted from other internet sources!');
@@ -142,7 +143,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          src: imgSrc,
          ...transform,
       }, 'select');
-      await app.apiProvider.updateDocument(app.selectedDocument);
+      // await app.apiProvider.updateDocument(app.selectedDocument);
    }
 
    function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {
@@ -150,7 +151,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          selectBlock(null);
          return;
       }
-      let { x, y } = getRelativePosition(e.pageX - editor.containerRect.x, e.pageY - editor.containerRect.y);
+      let { x, y } = getRelativePosition(e.pageX - staticEditorData.containerRect.x, e.pageY - staticEditorData.containerRect.y);
 
       const { mGridWidth, fGridWidth } = store.document.layoutOptions;
       if (grid === 'main') {
@@ -202,10 +203,10 @@ function BlokiEditor(props: BlokiEditorProps) {
    });
 
    createEffect(() => {
-      const unbindChangeEnd = editor.on('changeend', (block, { placement, relTransform, type }) => {
+      const unbindChangeEnd = staticEditorData.on('changeend', (block, { placement, relTransform, type }) => {
          if (placement.correct) {
             console.log('should sync changes here');
-            apiProvider.updateDocument(unwrap(store.document));
+            // apiProvider.updateDocument(unwrap(store.document));
          }
       });
 
@@ -261,7 +262,6 @@ function BlokiEditor(props: BlokiEditorProps) {
                   style={{
                      width: realSize().fGridWidth_px,
                      height: realSize().fGridHeight_px,
-                     background: `url(${store.tempBg})`
                   }}
                   onClick={(e) => onGridClick(e, 'foreground')}
                   onContextMenu={(e) => e.preventDefault()}
@@ -298,6 +298,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          <Portal mount={props.docSettingsMountRef}>
             <DocumentSettings />
          </Portal>
+         <Cursors />
       </>
    );
 }

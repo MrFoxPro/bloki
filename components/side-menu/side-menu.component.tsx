@@ -29,7 +29,7 @@ export function SideMenu(props: SideMenuProps) {
 
    const [t] = useI18n();
 
-   const [app, { setAppStore }] = useAppStore();
+   const [app, { setAppStore, selectedWorkspace }] = useAppStore();
 
    return (
       <div class={s.sideMenu} classList={{ [props.class]: true }}>
@@ -37,10 +37,10 @@ export function SideMenu(props: SideMenuProps) {
             <div
                class={s.box}
                style={{
-                  "background-image": `url(${app.selectedWorkspace?.workspaceIcon})`
+                  "background-image": `url(${selectedWorkspace()?.workspaceIcon})`
                }}
             />
-            <div class={s.title}>{app.selectedWorkspace?.title ?? 'Select workspace'}</div>
+            <div class={s.title}>{selectedWorkspace()?.title ?? 'Select workspace'}</div>
          </div>
          <div class={s.menus}>
             <div class={cc([s.block, s.controls])}>
@@ -66,21 +66,49 @@ export function SideMenu(props: SideMenuProps) {
                   <AddIcon class={s.icon} />
                </div>
                <div class={s.pages}>
-                  <For each={app.selectedWorkspace?.documents}>
+                  <For each={app.documents?.filter(d => !d.shared) ?? []}>
                      {(doc) => (
                         <div
                            class={cc([s.page, s.item])}
                            classList={{
-                              [s.highlighted]: doc.id === app.selectedDocument?.id
+                              [s.highlighted]: doc.id === app.selectedDocumentId
                            }}
-                           onClick={() => setAppStore({ selectedDocument: doc })}
+                           onClick={() => setAppStore({ selectedDocumentId: doc.id })}
                         >
                            <Show when={true}>
                               <div class={cc([s.icon, s.arrow])} />
                            </Show>
                            <div class={cc([s.icon, s.page])} />
                            <span>{doc.title}</span>
-                           <Show when={doc.id === app.selectedDocument?.id}>
+                           <Show when={doc.id === app.selectedDocumentId}>
+                              <div class={s.dotsIcon} />
+                           </Show>
+                        </div>
+                     )}
+                  </For>
+               </div>
+            </div>
+            <div class={s.block}>
+               <div class={s.name}>
+                  {t('menu.label.shared-pages')}
+                  <AddIcon class={s.icon} />
+               </div>
+               <div class={s.pages}>
+                  <For each={app.documents?.filter(d => d.shared) ?? []}>
+                     {(doc) => (
+                        <div
+                           class={cc([s.page, s.item])}
+                           classList={{
+                              [s.highlighted]: doc.id === app.selectedDocumentId
+                           }}
+                           onClick={() => setAppStore({ selectedDocumentId: doc.id })}
+                        >
+                           <Show when={true}>
+                              <div class={cc([s.icon, s.arrow])} />
+                           </Show>
+                           <div class={cc([s.icon, s.page])} />
+                           <span>{doc.title}</span>
+                           <Show when={doc.id === app.selectedDocumentId}>
                               <div class={s.dotsIcon} />
                            </Show>
                         </div>

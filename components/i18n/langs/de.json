@@ -32,7 +32,8 @@
   },
   "menu": {
     "label": {
-      "pages": "Seiten"
+      "pages": "Seiten",
+      "shared-pages": "Öffentliche Seiten"
     },
     "items": {
       "settings": "Einstellungen",
@@ -92,6 +93,12 @@
   "toolbox": {
     "configurator": {
       "stroke-width": "Streifenbreite"
+    }
+  },
+  "auth": {
+    "ask-name": {
+      "question": "Was ist Ihr Name?",
+      "continue": "Vorgehen"
     }
   }
 }

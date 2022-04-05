@@ -34,7 +34,7 @@ jobs:
       with:
         cache: 'pnpm'
 
-    - name: Copy repository contents via scp
+    - name: Copy frontend via scp
       uses: appleboy/scp-action@v0.1.2
       with:
         host: ${{ secrets.HOST }}
@@ -43,7 +43,7 @@ jobs:
         key: ${{ secrets.SSHKEY }}
         # This is important to keep "/"
         source: "dist/" 
-        target: "/home/foxpro/bloki"
+        target: "/home/foxpro/bloki/static"
         rm: true
         command_timeout: 1m
         strip_components: 1

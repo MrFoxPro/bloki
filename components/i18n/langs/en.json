@@ -32,7 +32,8 @@
   },
   "menu": {
     "label": {
-      "pages": "Pages"
+      "pages": "Pages",
+      "shared-pages": "Public Pages"
     },
     "items": {
       "search": "Search",
@@ -92,6 +93,12 @@
   "toolbox": {
     "configurator": {
       "stroke-width": "Stoke width"
+    }
+  },
+  "auth": {
+    "ask-name": {
+      "question": "What is your name?",
+      "continue": "Proceed"
     }
   }
 }

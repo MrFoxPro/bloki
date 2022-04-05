@@ -2,18 +2,18 @@ import { AnyBlock, Dimension } from "@/components/bloki-editor/types/blocks";
 import { BlokiWhiteboard } from "@/components/bloki-editor/types/drawings";
 
 type User = {
-   id: string;
-   name: string;
+   // id: string;
+   // name: string;
 
-   workspaces: Workspace[];
-   selectedWorkspace?: Workspace;
-   selectedDocument?: BlokiDocument;
+   // workspaces: Workspace[];
+   selectedWorkspaceId: string;
+   selectedDocumentId: string;
 };
 type Workspace = {
    id: string;
    title: string;
-   documents: BlokiDocument[];
-   participants: User[];
+   // documents: BlokiDocument[];
+   // participants: User[];
 
    workspaceIcon: string;
 };
@@ -38,6 +38,7 @@ type BlokiDocument = {
    id: string;
    title: string;
 
+   shared: boolean;
    layoutOptions: LayoutOptions;
    blocks: AnyBlock[];
    whiteboard: BlokiWhiteboard;

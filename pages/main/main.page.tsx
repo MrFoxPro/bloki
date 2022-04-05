@@ -4,6 +4,7 @@ import { createStore } from 'solid-js/store';
 import { useI18n } from '@solid-primitives/i18n';
 import { useAppStore } from '@/lib/app.store';
 import { useModalStore } from '@/components/modal/modal';
+import faker from '@faker-js/faker';
 
 const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));
 const SideMenu = lazy(() => import('@/components/side-menu/side-menu.component'));
@@ -11,11 +12,31 @@ const AccountSettings = lazy(() => import('@/components/account-settings/account
 
 import { createCountdownFromNow } from '@solid-primitives/date';
 
-// import { createToolbox } from '../../components/bloki-editor/toolbox/toolbox.component';
+
+function NameInput() {
+   const [app, { setAppStore }] = useAppStore();
+   const [t] = useI18n();
+   const animals = Object.entries(faker.animal).filter(([k]) => k !== 'type');
+   let name: string = app.name ?? animals[Math.floor(Math.random() * animals.length - 1)][1]();
+   return (
+      <div class={s.askName}>
+         <div>{t('auth.ask-name.question')}</div>
+         <input type="text" onInput={(e) => name = e.currentTarget.value} value={name} />
+         <button onClick={() => {
+            if (name.length < 1 || name.length > 18) {
+               return alert('Name is too short/long!');
+            }
+            setAppStore({ name });
+         }}>
+            {t('auth.ask-name.continue')}
+         </button>
+      </div>
+   );
+}
 
 export function MainPage() {
    const [t] = useI18n();
-   const [app, { setAppStore }] = useAppStore();
+   const [app, { setAppStore, selectedWorkspace, selectedDocument }] = useAppStore();
    let leftBarRef: HTMLDivElement;
    let rightBarRef: HTMLDivElement;
 
@@ -33,8 +54,12 @@ export function MainPage() {
 
    const createModal = useModalStore();
 
-   const [sysSettingsVisible, setSysSettingsVisible] = createModal(AccountSettings, true);
-   // const [Toolbox, toolboxState] = createToolbox();
+   const [nameVisible, setNameVisible] = createModal(NameInput, { useBlur: true, canHide: false });
+   setNameVisible(true);
+
+   createEffect(() => setNameVisible(!app.name));
+
+   const [sysSettingsVisible, setSysSettingsVisible] = createModal(AccountSettings, { useBlur: true, canHide: true });
 
    createEffect(() => setSysSettingsVisible(state.menu.settings));
    createEffect(() => setState('menu', 'settings', sysSettingsVisible()));
@@ -42,7 +67,7 @@ export function MainPage() {
    const [countdown] = createCountdownFromNow(state.timeToRefresh, 1000);
 
    return (
-      <main class={s.main} >
+      <main class={s.main}>
          <SideMenu
             activeItems={Object.keys(state.menu).filter(i => state.menu[i] === true)}
             disabledItems={['trash', 'search']}
@@ -55,14 +80,14 @@ export function MainPage() {
                <div class={s.leftBar} ref={leftBarRef}>
                   {/* Toolbox can be here */}
                </div>
-               <h4>{app.selectedDocument?.title} {countdown.minutes}:{countdown.seconds}</h4>
+               <h4>{selectedDocument()?.title} <Show when={selectedDocument()?.shared}>{countdown.minutes}:{countdown.seconds}</Show></h4>
                <div class={s.rightBar} ref={rightBarRef}>
 
                </div>
             </div>
-            <Show when={app.selectedWorkspace && app.selectedDocument}>
+            <Show when={selectedWorkspace() && selectedDocument()}>
                <BlokiEditor
-                  document={app.selectedDocument}
+                  document={selectedDocument()}
                   showMeta={state.docSettings}
                   gridType={app.gridRenderMethod}
                   toolboxMountRef={leftBarRef}
@@ -70,7 +95,6 @@ export function MainPage() {
                />
             </Show>
          </div>
-
       </main>
    );
 };

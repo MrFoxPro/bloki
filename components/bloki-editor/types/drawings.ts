@@ -17,10 +17,10 @@ enum DrawingColor {
    Grey = '#312F2F',
 }
 
-class BlokiWhiteboard {
-   public blobUrl: string;
-   public drawings: Drawing[] = [];
-}
+type BlokiWhiteboard = {
+   blob?: any;
+   drawings: Drawing[];
+};
 class Drawing {
    public drawingTypeName: string;
    public color: DrawingColor | string;

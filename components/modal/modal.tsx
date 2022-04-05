@@ -1,4 +1,4 @@
-import { Show, useContext, createContext, JSX, createMemo, Accessor } from "solid-js";
+import { Show, useContext, createContext, JSX, createMemo, Accessor, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import s from './modal.module.scss';
 
@@ -9,15 +9,18 @@ export const useModalStore = () => useContext(ModalContext);
 export const ModalStoreProvider = (props) => {
    const [store, setStore] = createStore({
       modal: null,
-      blur: false
+      useBlur: false,
+      canHide: false,
    });
 
-   const createModal = (el: () => JSX.Element, useBlur = true) => {
-      const isVisible = createMemo(() => !!store.modal);
 
-      const setVisible = (visible: boolean, blur = useBlur) => {
-         if (visible) setStore({ blur, modal: el });
-         else setStore({ blur: false, modal: null });
+   function createModal(modal: () => JSX.Element, opt) {
+      const isVisible = createMemo(() => store.modal === modal);
+
+      function setVisible(visible) {
+         if (!visible && store.modal !== modal) return;
+         if (visible) setStore({ modal, ...opt });
+         else setStore({ modal: null, useBlur: null, canHide: false });
       };
       return [isVisible, setVisible] as const;
    };
@@ -26,14 +29,12 @@ export const ModalStoreProvider = (props) => {
    return (
       <ModalContext.Provider value={createModal}>
          {props.children}
-         <Show when={store.blur && store.modal}>
-            <div class={s.blur} onClick={() => setStore({ modal: null, blur: false })} />
+         <Show when={store.modal && store.useBlur}>
+            <div class={s.blur} onClick={() => store.canHide ? setStore({ modal: null, useBlur: false }) : null} />
          </Show>
-         <Show when={store.modal}>
-            <div class={s.modal}>
-               {store.modal}
-            </div>
-         </Show>
+         <div class={s.modal}>
+            {store.modal}
+         </div>
       </ModalContext.Provider>
    );
 };
