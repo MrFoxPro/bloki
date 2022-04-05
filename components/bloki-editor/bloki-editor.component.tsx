@@ -8,7 +8,7 @@ import { EditorStoreProvider, useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
 import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
-import { TextBlockFontFamily } from './blocks/text-block/types';
+import { TextBlockFontFamily } from './blocks/text/types';
 import { Backlight } from './backlight/backlight.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer.component';

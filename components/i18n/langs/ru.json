@@ -1,96 +1,97 @@
 {
-  "menu": {
-    "label": {
-      "pages": "Страницы"
-    },
-    "items": {
-      "search": "Поиск",
-      "settings": "Настройки",
-      "trash": "Корзина"
-    }
-  },
-  "settings": {
-    "document": {
-      "grid-gradient": "Сетка",
-      "resize-areas": "Области захвата",
-      "toolbox": "Инструменты рисования",
-      "purge-db": "Сбросить локальную базу",
-      "reset-layout": "Сбросить настройки лейаута",
-      "log-calculated-sizes": "Журнал рассчитанных размеров",
-      "prod-non-active": "Недоступно в продакшене"
-    },
-    "system": {
-      "render-method": {
-        "canvas": "Canvas",
-        "title": "Метод рендера задней подсветки",
-        "dom": "DOM"
+   "menu": {
+      "label": {
+         "pages": "Страницы"
       },
-      "modal": {
-        "menu": {
-          "title": "Настройки пользователя",
-          "general": "Основные",
-          "item": {
-            "layout": "Разметка",
-            "language": "Язык"
-          }
-        },
-        "language": {
-          "select-language": "Выбрать язык"
-        }
+      "items": {
+         "search": "Поиск",
+         "settings": "Настройки",
+         "trash": "Корзина"
       }
-    }
-  },
-  "errors": {
-    "layout": {
-      "not-enough-space": "Недостаточно места на макете"
-    }
-  },
-  "system": {
-    "language": {
-      "en": "English",
-      "ru": "Russian",
-      "de": "Deutsch"
-    }
-  },
-  "blocks": {
-    "text": {
-      "placeholder": "Введите '/' для команд"
-    },
-    "ctx-menu": {
-      "item": {
-        "transform": "Преобразовать",
-        "duplicate": "Дублировать",
-        "delete": "Удалить",
-        "text": {
-          "title": "Название",
-          "regular": "Текст",
-          "header1": "Заголовок 1",
-          "header2": "Заголовок 2",
-          "header3": "Заголовок 3",
-          "description": "Описание"
-        },
-        "attachment": {
-          "image": "Картинка"
-        }
+   },
+   "settings": {
+      "document": {
+         "grid-gradient": "Сетка",
+         "resize-areas": "Области захвата",
+         "toolbox": "Инструменты рисования",
+         "purge-db": "Сбросить локальную базу",
+         "reset-layout": "Сбросить настройки лейаута",
+         "log-calculated-sizes": "Журнал рассчитанных размеров",
+         "prod-non-active": "Недоступно в продакшене"
       },
-      "header": {
-        "types": "Типы блоков",
-        "actions": "Действия"
+      "system": {
+         "render-method": {
+            "canvas": "Canvas",
+            "title": "Метод рендера задней подсветки",
+            "dom": "DOM"
+         },
+         "modal": {
+            "menu": {
+               "title": "Настройки пользователя",
+               "general": "Основные",
+               "item": {
+                  "layout": "Разметка",
+                  "language": "Язык"
+               }
+            },
+            "language": {
+               "select-language": "Выбрать язык"
+            }
+         }
       }
-    },
-    "attachments": {
-      "image": {
-        "mock": {
-          "ask": "Выберите файл",
-          "or-drag": "Или перетащите в эту область",
-          "or-link": "Или вставте ссылку на файл"
-        }
+   },
+   "errors": {
+      "layout": {
+         "not-enough-space": "Недостаточно места на макете"
       }
-    }
-  },
-  "toolbox": {
-    "configurator": {
-      "stroke-width": "Ширина полоски"
-    }
-  }
+   },
+   "system": {
+      "language": {
+         "en": "English",
+         "ru": "Russian",
+         "de": "Deutsch"
+      }
+   },
+   "blocks": {
+      "text": {
+         "placeholder": "Введите '/' для команд"
+      },
+      "ctx-menu": {
+         "item": {
+            "transform": "Преобразовать",
+            "duplicate": "Дублировать",
+            "delete": "Удалить",
+            "text": {
+               "title": "Название",
+               "regular": "Текст",
+               "header1": "Заголовок 1",
+               "header2": "Заголовок 2",
+               "header3": "Заголовок 3",
+               "description": "Описание"
+            },
+            "attachment": {
+               "image": "Картинка"
+            },
+            "code": "Код"
+         },
+         "header": {
+            "types": "Типы блоков",
+            "actions": "Действия"
+         }
+      },
+      "attachments": {
+         "image": {
+            "mock": {
+               "ask": "Выберите файл",
+               "or-drag": "Или перетащите в эту область",
+               "or-link": "Или вставте ссылку на файл"
+            }
+         }
+      }
+   },
+   "toolbox": {
+      "configurator": {
+         "stroke-width": "Ширина полоски"
+      }
+   }
 }

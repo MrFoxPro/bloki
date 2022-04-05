@@ -1,10 +1,10 @@
-import { TextBlockFontFamily } from "../blocks/text-block/types";
+import { CodeBlockTheme } from "../blocks/code/types";
+import { TextBlockFontFamily } from "../blocks/text/types";
 
 type Point = { x: number, y: number; };
 type Dimension = { width: number, height: number; };
 
 type BlockTransform = Point & Dimension;
-
 
 type PlacementStatus = {
    correct: boolean;
@@ -22,6 +22,7 @@ enum BlockType {
    Description,
 
    Image,
+   Code,
 }
 
 type Block = {
@@ -44,8 +45,12 @@ type TextBlock = Block & {
    value: string;
    fontFamily: TextBlockFontFamily;
 };
+type CodeBlock = Block & {
+   value: string;
+   theme: CodeBlockTheme;
+};
 
-type AnyBlock = Block | TextBlock | ImageBlock;
+type AnyBlock = Block | TextBlock | ImageBlock | CodeBlock;
 
 function isTextBlock(block: AnyBlock): block is TextBlock {
    return block?.type < 6;
@@ -53,6 +58,10 @@ function isTextBlock(block: AnyBlock): block is TextBlock {
 
 function isImageBlock(block: AnyBlock): block is ImageBlock {
    return block?.type === BlockType.Image;
+}
+
+function isCodeBlock(block: AnyBlock): block is CodeBlock {
+   return block?.type === BlockType.Code;
 }
 
 export {
@@ -70,6 +79,9 @@ export {
 
    TextBlock,
    isTextBlock,
+
+   CodeBlock,
+   isCodeBlock,
 
    AnyBlock,
 };

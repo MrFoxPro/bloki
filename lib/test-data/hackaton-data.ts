@@ -1,3 +1,4 @@
+import { CodeBlockTheme } from "@/components/bloki-editor/blocks/code/types";
 import { BlockType } from "@/components/bloki-editor/types/blocks";
 import { BlokiDocument, User, Workspace } from "../entities";
 import { defaultLayoutOptions } from "./layout-options";
@@ -64,11 +65,21 @@ const tutorialDoc: BlokiDocument = {
          height: 1,
       },
       {
+         id: '6d15d3c6-404c-444c-9f76-ae2c43c473f0',
+         type: BlockType.Code,
+         value: 'const a = 5;',
+         theme: CodeBlockTheme.Light,
+         x: middleX,
+         y: 13,
+         width: defaultLayoutOptions.mGridWidth,
+         height: 3,
+      },
+      {
          id: '38d759e0-9412-4473-94da-d68eff45c845',
          type: BlockType.Image,
          src: 'https://www.anypics.ru/download.php?file=201211/1280x1024/anypics.ru-38999.jpg',
          x: middleX,
-         y: 13,
+         y: 16,
          width: defaultLayoutOptions.mGridWidth,
          height: 21
       },
@@ -77,7 +88,7 @@ const tutorialDoc: BlokiDocument = {
          type: BlockType.Image,
          src: null,
          x: middleX,
-         y: 34,
+         y: 37,
          width: defaultLayoutOptions.mGridWidth,
          height: defaultLayoutOptions.mGridWidth * 2 / 3
       },
@@ -92,8 +103,9 @@ const emptyDoc: BlokiDocument = {
    blocks: [],
    drawings: [],
 };
+import SampleWorkspaceIcon from './assets/sample-workspace-icon2.png';
 const hackWorkspace: Workspace = {
-   workspaceIcon: await import('./assets/sample-workspace-icon2.png?inline').then(x => x.default),
+   workspaceIcon: SampleWorkspaceIcon,
    id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
    title: 'Bloki workspace',
    documents: [

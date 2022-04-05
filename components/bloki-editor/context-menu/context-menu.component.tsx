@@ -11,8 +11,8 @@ import Header1Icon from './assets/header1.icon.svg';
 import Header2Icon from './assets/header2.icon.svg';
 import Header3Icon from './assets/header3.icon.svg';
 import DescriptionIcon from './assets/description.icon.svg';
-
 import ImageIcon from './assets/image.icon.svg';
+import CodeIcon from './assets/code.icon.svg';
 
 import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from "../editor.store";
@@ -55,6 +55,7 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
       [BlockType.H3, <Header3Icon />, 'blocks.ctx-menu.item.text.header3'],
       [BlockType.Description, <DescriptionIcon />, 'blocks.ctx-menu.item.text.description'],
       [BlockType.Image, <ImageIcon />, 'blocks.ctx-menu.item.attachment.image'],
+      [BlockType.Code, <CodeIcon />, 'blocks.ctx-menu.item.code'],
    ] as const;
 
    return (

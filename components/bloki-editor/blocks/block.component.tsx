@@ -3,11 +3,12 @@ import { batch, ComponentProps, For, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import s from './block.module.scss';
 import { useEditorStore } from '../editor.store';
-import { TextBlock } from './text-block/text.block.component';
-import { ImageBlock } from './image-block/image.block.component';
+import { TextBlock } from './text/text.block.component';
+import { ImageBlock } from './image/image.block.component';
 import HandyIcon from './assets/handy.icon.svg';
 import { BlockType } from '../types/blocks';
 import { BlockStoreProvider, CursorSide, DotState, useBlockStore } from './block.store';
+import { CodeBlock } from './code/code.block.component';
 
 const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.Image]: ImageBlock,
@@ -18,6 +19,7 @@ const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.H2]: TextBlock,
    [BlockType.H3]: TextBlock,
    [BlockType.Title]: TextBlock,
+   [BlockType.Code]: CodeBlock,
 };
 
 function Block() {

@@ -3,7 +3,7 @@ import { For } from 'solid-js';
 import { useI18n } from '@solid-primitives/i18n';
 import { useAppStore } from '@/lib/app.store';
 import { defaultLayoutOptions } from '@/lib/test-data/layout-options';
-import { getTextBlockSize } from '@/components/bloki-editor/blocks/text-block/helpers';
+import { getTextBlockSize } from '@/components/bloki-editor/blocks/text/helpers';
 import { isTextBlock } from '@/components/bloki-editor/types/blocks';
 
 export function DocumentSettings() {

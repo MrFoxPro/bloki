@@ -7,6 +7,9 @@ import { Point } from '../types/blocks';
 import { Drawing, LastikDrawing, MarkerDrawing } from '../types/drawings';
 import { Instrument } from '../types/editor';
 
+import LastikCursor from './assets/lastik.cursor.png';
+import MarkerCursor from './assets/marker.cursor.png';
+
 // TODO: Refactor this!!!
 export function Drawer() {
    let canvasRef: HTMLCanvasElement;
@@ -17,6 +20,15 @@ export function Drawer() {
       x: 0,
       y: 0,
    };
+
+   const cursorOffset: Point = {
+      x: 4,
+      y: 15,
+   };
+   const instrumentCursorMap = {
+      [Instrument.Lastik]: LastikCursor,
+      [Instrument.Marker]: MarkerCursor
+   } as const;
 
    const [editorStore, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
    const [drawerStore] = useDrawerStore();
@@ -66,7 +78,6 @@ export function Drawer() {
          });
          editorStore.document.drawings.forEach((drawing) => {
             if (drawing instanceof LastikDrawing) {
-               console.log('applying lastik')
                applyDrawing(ctx, drawing);
                ctx.beginPath();
                drawing.points.forEach((p, i, arr) => {
@@ -103,8 +114,8 @@ export function Drawer() {
       }
       if (!currentDrawing) return;
 
-      lastPos.x = e.pageX - staticEditorData.containerRect.x;
-      lastPos.y = e.pageY - staticEditorData.containerRect.y;
+      lastPos.x = e.pageX - staticEditorData.containerRect.x + cursorOffset.x;
+      lastPos.y = e.pageY - staticEditorData.containerRect.y + cursorOffset.y;
       applyDrawing(ctx, currentDrawing);
    }
 
@@ -113,8 +124,8 @@ export function Drawer() {
       if (!isMouseDown) return;
 
       const point = {
-         x: e.pageX - staticEditorData.containerRect.x,
-         y: e.pageY - staticEditorData.containerRect.y
+         x: e.pageX - staticEditorData.containerRect.x + cursorOffset.x,
+         y: e.pageY - staticEditorData.containerRect.y + cursorOffset.y
       };
       if (currentDrawing instanceof MarkerDrawing) {
          ctx.beginPath();
@@ -152,6 +163,9 @@ export function Drawer() {
          ref={canvasRef}
          width={realSize().fGridWidth_px}
          height={realSize().fGridHeight_px}
+         style={{
+            cursor: instrumentCursorMap[drawerStore.instrument] ? `url(${instrumentCursorMap[drawerStore.instrument]}), crosshair` : 'crosshair'
+         }}
       />
    );
 }

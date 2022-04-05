@@ -71,7 +71,8 @@
         },
         "attachment": {
           "image": "Picture"
-        }
+        },
+        "code": "The code"
       },
       "header": {
         "types": "Block types",
