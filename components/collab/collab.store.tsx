@@ -35,7 +35,7 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    const [editor] = useEditorStore();
    const [app] = useAppStore();
 
-   const wsHost = import.meta.env.DEV ? 'ws://localhost:3005' : 'wss://bloki.app';
+   const wsHost = import.meta.env.DEV ? 'ws://localhost:3005/ws' : 'wss://bloki.app/ws';
 
    let ws: WebSocket;
 

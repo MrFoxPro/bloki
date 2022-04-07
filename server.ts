@@ -119,10 +119,11 @@ class DocumentServer {
 
 const servers = db.docs.filter(doc => doc.shared).map(doc => new DocumentServer(doc));
 
+const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}/i;
 fastify.server.on('upgrade', (request, socket, head) => {
-   console.log(request.url);
    if (!request.url) return;
-   const docId = request.url.slice(1);
+   const docId = request.url.match(uuidRegex)[0];
+   if (!docId) return;
    const docServer = servers.find(x => x.doc.id === docId);
    if (!docServer) return;
    docServer.wss.handleUpgrade(request, socket, head, (ws) => {
