@@ -34,15 +34,6 @@ jobs:
       with:
         cache: 'pnpm'
 
-    - name: Pull on server service
-      uses: appleboy/ssh-action@v0.1.4
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        port: ${{ secrets.PORT }}
-        key: ${{ secrets.SSHKEY }}
-        script: cd ./bloki && rm -rf ./node_modules && git reset --hard && git pull && pnpm i && sudo service bloki restart
-        
     - name: Copy frontend via scp
       uses: appleboy/scp-action@v0.1.2
       with:
@@ -52,11 +43,20 @@ jobs:
         key: ${{ secrets.SSHKEY }}
         # This is important to keep "/"
         source: "dist/" 
-        target: "/home/foxpro/bloki/dist"
+        target: "/home/deploy/bloki/dist"
         rm: true
         command_timeout: 1m
         strip_components: 1
 
+    - name: Pull on server service
+      uses: appleboy/ssh-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        port: ${{ secrets.PORT }}
+        key: ${{ secrets.SSHKEY }}
+        script: cd ./bloki && git reset --hard && git pull && pnpm i && sudo service bloki restart
+        
     - name: Collect commit messages
       run: |  
          echo "messages=${{join(github.event.commits.*.message, '<pre>\n</pre>')}}" >> $GITHUB_ENV  
