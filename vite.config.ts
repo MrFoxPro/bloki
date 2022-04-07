@@ -47,7 +47,7 @@ export default ({ mode }: ConfigEnv) => {
          polyfillDynamicImport: false,
          sourcemap: false,
          target: 'esnext',
-         outDir: './static',
+         outDir: './dist',
          reportCompressedSize: true,
          minify: 'terser',
          terserOptions: {
