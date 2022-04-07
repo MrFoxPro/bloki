@@ -5,12 +5,46 @@
    "version": "0.2.0",
    "configurations": [
       {
-         "name": "Launch firefox",
+         "name": "Firefox",
          "type": "firefox",
          "request": "launch",
          "reAttach": true,
          "url": "http://localhost:3000",
          "webRoot": "${workspaceFolder}"
       },
+      {
+         "name": "Frontend",
+         "request": "launch",
+         "runtimeArgs": [
+            "dev:frontend"
+         ],
+         "runtimeExecutable": "pnpm",
+         "skipFiles": [
+            "<node_internals>/**"
+         ],
+         "type": "pwa-node"
+      },
+      {
+         "internalConsoleOptions": "neverOpen",
+         "name": "Server",
+         "request": "launch",
+         "restart": true,
+         "runtimeExecutable": "nodemon",
+         "outputCapture": "std",
+         "skipFiles": [
+            "<node_internals>/**"
+         ],
+         "type": "pwa-node"
+      },
+   ],
+   "compounds": [
+      {
+         "name": "Start all",
+         "configurations": [
+            "Frontend",
+            "Server",
+         ],
+         "stopAll": true,
+      }
    ]
 }

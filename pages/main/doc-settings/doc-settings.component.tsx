@@ -10,46 +10,49 @@ import TripleDotsIcon from '@/components/side-menu/assets/triple-dots.icon.svg';
 
 export function DocumentSettings() {
    const [t] = useI18n();
-   const [app, { setAppStore }] = useAppStore();
+   const [app, { setAppStore, selectedDocument }] = useAppStore();
    const [editor, { setEditorStore }] = useEditorStore();
 
    const [showDocSettings, setShowDocSettings] = createSignal(false);
 
+   const sliders = [
+      ['gap', [2, 10]],
+      ['size', [4, 48]],
+      ['mGridWidth', [5, 100]],
+      ['mGridHeight', [10, 550]],
+      ['fGridWidth', [32, 150]],
+      ['fGridHeight', [10, 550]]
+   ] as const;
+
    function logCalculatedSizes() {
-      app.selectedDocument.blocks.forEach(block => {
+      selectedDocument().blocks.forEach(block => {
          if (isTextBlock(block)) {
-            getTextBlockSize(block.type, block.fontFamily, block.value, app.selectedDocument.layoutOptions);
+            getTextBlockSize(block.type, block.fontFamily, block.value, selectedDocument().layoutOptions);
          }
       });
    }
 
+
    return (
       <>
          <TripleDotsIcon class={s.optionsIcon} onClick={() => setShowDocSettings(s => !s)} />
-         <Show when={app.selectedDocument && showDocSettings()}>
+         <Show when={selectedDocument() && showDocSettings()}>
             <div class={s.settings}>
                <div class={s.control}>
-                  <For each={[
-                     ['gap', [2, 10]],
-                     ['size', [4, 48]],
-                     ['mGridWidth', [5, 100]],
-                     ['mGridHeight', [10, 550]],
-                     ['fGridWidth', [32, 150]],
-                     ['fGridHeight', [10, 550]]
-                  ] as const}>
+                  <For each={/*@once*/sliders}>
                      {([p, [min, max]]) => (
                         <div class={s.control}>
-                           <span>{p} [{app.selectedDocument.layoutOptions[p]}]</span>
+                           <span>{p} [{selectedDocument().layoutOptions[p]}]</span>
                            <input
                               disabled={import.meta.env.PROD}
                               title={import.meta.env.PROD ? t('settings.document.prod-non-active') : undefined}
                               type="range"
                               min={min}
                               max={max}
-                              value={app.selectedDocument.layoutOptions[p]}
+                              value={selectedDocument().layoutOptions[p]}
                               oninput={(e) => {
                                  if (import.meta.env.PROD) return;
-                                 setAppStore('selectedDocument', 'layoutOptions', p, e.currentTarget.valueAsNumber);
+                                 setEditorStore('document', 'layoutOptions', p, e.currentTarget.valueAsNumber);
                               }}
                            />
                         </div>
@@ -59,16 +62,18 @@ export function DocumentSettings() {
                      <input
                         type="checkbox"
                         name="show-gradient"
-                        onClick={(e) => setAppStore('selectedDocument', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
-                        checked={app.selectedDocument.layoutOptions.showGridGradient} />
+                        onClick={(e) => setEditorStore('document', 'layoutOptions', 'showGridGradient', e.currentTarget.checked)}
+                        checked={selectedDocument().layoutOptions.showGridGradient}
+                     />
                      <label for="show-gradient">{t('settings.document.grid-gradient')}</label>
                   </div>
                   <div class={s.check}>
                      <input
                         type="checkbox"
                         name="show-resizers"
-                        onClick={(e) => setAppStore('selectedDocument', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
-                        checked={app.selectedDocument.layoutOptions.showResizeAreas} />
+                        onClick={(e) => setEditorStore('document', 'layoutOptions', 'showResizeAreas', e.currentTarget.checked)}
+                        checked={selectedDocument().layoutOptions.showResizeAreas}
+                     />
                      <label for="show-resizers">{t('settings.document.resize-areas')}</label>
                   </div>
                   <div class={s.gridType}>
@@ -92,7 +97,7 @@ export function DocumentSettings() {
                      disabled={import.meta.env.PROD}
                      onClick={() => {
                         if (import.meta.env.PROD) return;
-                        setAppStore('selectedDocument', 'layoutOptions', defaultLayoutOptions);
+                        setEditorStore('document', 'layoutOptions', defaultLayoutOptions);
                      }}>
                      {t('settings.document.reset-layout')}
                   </button>
@@ -100,7 +105,7 @@ export function DocumentSettings() {
                      style={{
                         color: 'red'
                      }}
-                     onClick={() => app.apiProvider.clearCache().then(() => location.reload())}
+                  // onClick={() => app.apiProvider.clearCache().then(() => location.reload())}
                   >
                      {t('settings.document.purge-db')}
                   </button>
@@ -115,4 +120,5 @@ export function DocumentSettings() {
       </>
    );
 }
+
 export default DocumentSettings;

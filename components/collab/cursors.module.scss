@@ -1,4 +1,4 @@
-.cursor {
+.user {
    position: absolute;
    z-index: 55;
    width: auto;
@@ -8,4 +8,10 @@
    font-weight: 400;
    font-size: 14px;
    color: #FFFFFF;
+
+   .badge {
+      height: 20px;
+      background: #3655F9;
+      border-radius: 3px;
+   }
 }

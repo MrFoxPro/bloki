@@ -1,112 +1,141 @@
-import { WebSocketServer } from 'ws';
-import fastifyInit from 'fastify';
-import fastifyCors from 'fastify-cors';
-import { hackatonUser, emptyDoc, introDoc, hackWorkspace } from './lib/test-data/hackaton-data';
+require('console-stamp')(console, {
+   format: ':date(HH:MM:ss) :label'
+});
+
 import fs from 'fs';
-import { WSMessageType } from './lib/WebSocketMessages';
+import crypto from 'crypto';
+import { WebSocket, WebSocketServer } from 'ws';
+import fastifyInit from 'fastify';
+import { emptyDoc, introDoc, hackWorkspace } from './lib/test-data/hackaton-data';
+import { Roommate, WSMsg, WSMsgType as WSMsgType } from './lib/network.types';
+import { getRandomColor, mapValuesArray } from './lib/helpers';
+import { BlokiDocument } from './lib/entities';
+
+const fastify = fastifyInit({ logger: false, });
+
+const db = {
+   workspaces: [hackWorkspace],
+   users: [
+      {
+         selectedWorkspaceId: hackWorkspace.id,
+         selectedDocumentId: introDoc.id,
+      }
+   ],
+   docs: [introDoc].concat(new Array(3).fill(emptyDoc).map(doc => structuredClone(doc))),
+} as const;
+
+db.docs
+   .filter(x => x.shared)
+   .forEach((doc, i) => {
+      doc.id = crypto.randomUUID();
+      doc.title = `Shared doc ${i}`;
+   });
 
 const introImageBlob = fs.readFileSync('./lib/test-data/assets/intro.png');
 const emptyImageBlob = fs.readFileSync('./lib/test-data/assets/empty.png');
 
-const fastify = fastifyInit({ logger: false, });
-fastify.register(fastifyCors, {
-   origin: "*"
-});
+fastify.register((fastify, opt, done) => {
+   fastify.get('/user', () => {
+      return db.users[0] as any;
+   });
+   fastify.get('/workspaces', () => {
+      return db.workspaces as any;
+   });
+   fastify.get('/docs', () => {
+      return db.docs as any;
+   });
+   done();
+}, { prefix: '/api' });
 
-const user = {
-   selectedWorkspaceId: hackWorkspace.id,
-   selectedDocumentId: introDoc.id,
+function send(ws: WebSocket, type: WSMsgType, data: any) {
+   const serialized = JSON.stringify({ type, data } as WSMsg);
+   ws.send(serialized);
 };
-const db = {
-   teammates: new Map(),
-   workspaces: [hackWorkspace],
-   users: [hackatonUser],
-   docs: [emptyDoc, introDoc]
-} as const;
 
-const shards = new Array<typeof db>(2).fill(null).map(() => structuredClone(db)) as (typeof db)[];
-shards.forEach(shard => {
-   shard.docs.forEach((doc, i) => {
-      if (i === 0) doc.whiteboard.blob = emptyImageBlob.slice();
-      else doc.whiteboard.blob = introImageBlob.slice();
-   });
-});
+class DocumentServer {
+   wss: WebSocketServer;
+   room: Map<WebSocket, Roommate>;
+   blob: Buffer;
+   willResetAt: number;
+   doc: BlokiDocument;
+   constructor(doc: BlokiDocument) {
+      if (!doc.shared) throw new Error();
+      this.doc = doc;
 
-fastify.get('/:shardId/user', (req, rep) => {
-   return user;
-});
-fastify.get('/:shardId/workspaces', (req, rep) => {
-   const { shardId } = req.params;
-   const wss = shards[shardId]?.workspaces;
-   return wss;
-});
-fastify.get('/:shardId/docs', (req, rep) => {
-   const { shardId } = req.params;
-   const docs = shards[shardId]?.docs;
-   return docs?.map(doc => ({ ...doc, whiteboard: { ...doc.whiteboard, blob: null } }));
-});
+      if (doc.id === introDoc.id) this.blob = introImageBlob;
+      else this.blob = emptyImageBlob;
+      this.room = new Map();
+      this.willResetAt = Date.now() + 5 * 60 * 1000;
 
-fastify.get('/:shardId/:docId/whiteboard', (req, rep) => {
-   const { shardId, docId } = req.params;
-   const doc = shards[shardId]?.docs.find(x => x.id === docId);
-   return doc?.whiteboard.blob;
-});
+      this.wss = new WebSocketServer({ noServer: true });
 
-const wss = new WebSocketServer({
-   port: 8080,
-});
-const randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
-wss.on('connection', (ws, req) => {
-   const send = (type: WSMessageType, data, w = ws) => {
-      w.send(JSON.stringify({
-         type,
-         ...data
-      }));
-   };
-   const broadcast = (type: WSMessageType, data) => {
-      wss.clients.forEach(client => send(type, data, client));
-   };
-   const tt = (s: Map<string, any>) => Array.from(s.values());
+      this.wss.on('connection', (ws, req) => {
+         (ws as any).isAlive = true;
 
-   ws.on('message', (data) => {
-      data = JSON.parse(data);
-      const { type, shard } = data;
-      if (type === WSMessageType.Join) {
-         shards[shard].teammates.set(req.socket.remoteAddress, {
-            name: data.name,
-            action: {},
-            cursor: { x: 0, y: 0 },
-            color: randomColor()
+         ws.on('message', (buf) => {
+            // CRDT? Yes I heard about this crypto currency :p
+            const msg = JSON.parse(buf.toString()) as WSMsg;
+            if (!msg) return;
+
+            const { type, data } = msg;
+            if (type == null) return;
+
+            switch (msg.type) {
+               case WSMsgType.Join: {
+                  this.room.set(ws, {
+                     name: data.name,
+                     cursor: data.cursor,
+                     color: getRandomColor(),
+                     workingBlockId: data.workingBlockId
+                  });
+                  console.log('User %s joined document "%s"', data.name, this.doc.title);
+                  this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
+                  break;
+               }
+               case WSMsgType.CursorUpdate: {
+                  const user = this.room.get(ws);
+                  if (!user) return;
+                  user.cursor = data.cursor;
+                  this.room.forEach((rm, socket) => rm.name !== user.name && send(socket, WSMsgType.CursorUpdate, user));
+                  break;
+               }
+               case WSMsgType.Roommates: {
+                  this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
+                  break;
+               }
+               default:
+                  console.log('Unknown message', msg, req.socket.remoteAddress);
+                  break;
+            }
          });
-         const { teammates } = shards[shard];
-         broadcast(WSMessageType.Teammates, { teammates: tt(teammates) });
-      }
-      else if (type === WSMessageType.Teammates) {
-         const { teammates } = shards[shard];
-         send(WSMessageType.Teammates, { teammates: tt(teammates) });
-      }
-      else if (type === 'update') {
-
-      }
-      else if (type === WSMessageType.CursorUpdate) {
-         const whom = shards[shard].teammates.get(req.socket.remoteAddress);
-         if (!whom) return;
-         const pos = { x: data.x, y: data.y };
-         whom.cursor = pos;
-         broadcast(WSMessageType.CursorUpdate, {
-            user: whom.name,
-            pos
+         ws.on('close', () => {
+            console.log('User %s left', this.room.get(ws)?.name);
+            this.room.delete(ws);
+            this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
          });
-      }
+      });
+   }
+}
 
-   });
-   ws.on('close', () => {
-      shards.forEach(shard => shard.teammates.delete(req.socket.localAddress));
+const servers = db.docs.filter(doc => doc.shared).map(doc => new DocumentServer(doc));
+
+fastify.server.on('upgrade', (request, socket, head) => {
+   console.log(request.url);
+   if (!request.url) return;
+   const docId = request.url.slice(1);
+   const docServer = servers.find(x => x.doc.id === docId);
+   if (!docServer) return;
+   docServer.wss.handleUpgrade(request, socket, head, (ws) => {
+      docServer.wss.emit('connection', ws, request);
    });
 });
 
+
+process.on('uncaughtException', (e) => {
+   console.log('Error!', e);
+});
 (async function () {
    await fastify.listen(3005);
 })();
-
+console.log('starting');
 

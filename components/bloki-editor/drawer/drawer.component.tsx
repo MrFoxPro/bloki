@@ -1,7 +1,6 @@
 import s from './drawer.module.scss';
-import { createComputed, createEffect, on, onCleanup, onMount } from 'solid-js';
+import { createComputed, createEffect, on, onMount } from 'solid-js';
 import { useEditorStore } from '../editor.store';
-import { useAppStore } from '@/lib/app.store';
 import { useDrawerStore } from '../drawer.store';
 import { Point } from '../types/blocks';
 import { Drawing, LastikDrawing, MarkerDrawing } from '../types/drawings';
@@ -10,7 +9,7 @@ import { Instrument } from '../types/editor';
 import LastikCursor from './assets/lastik.cursor.png';
 import MarkerCursor from './assets/marker.cursor.png';
 import { toBlobAsync } from './helpers';
-
+import { baseApiUrl } from '@/lib/app.store';
 
 // TODO: Refactor this!!!
 export function Drawer() {
@@ -32,13 +31,11 @@ export function Drawer() {
       [Instrument.Marker]: MarkerCursor
    } as const;
 
-   const [editorStore, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
-   const [drawerStore] = useDrawerStore();
-
-   const [, { getWhiteBoardData }] = useAppStore();
+   const [editor, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
+   const [drawer] = useDrawerStore();
 
    createComputed(() => {
-      if (drawerStore.instrument !== Instrument.Cursor) {
+      if (drawer.instrument !== Instrument.Cursor) {
          setEditorStore({ editingBlock: null, editingType: null });
       }
    });
@@ -64,29 +61,32 @@ export function Drawer() {
       }
    }
 
-   createEffect(on(
-      () => editorStore.document.whiteboard,
-      async () => {
-         console.log('redrawing whiteboard');
-         const docDraw = editorStore.document.whiteboard;
-         const blob = await getWhiteBoardData();
-         console.log(blob);
-         const bitmap = await createImageBitmap(blob);
-         ctx.globalCompositeOperation = 'source-over';
-         ctx.drawImage(bitmap, 0, 0);
-         docDraw.drawings.forEach((drawing) => {
-            if (drawing instanceof MarkerDrawing || drawing instanceof LastikDrawing) {
-               applyDrawing(ctx, drawing);
-               ctx.beginPath();
-               drawing.points.forEach((p, i, arr) => {
-                  if (i > 0) {
-                     drawMarker(arr[i - 1], p);
-                  }
-               });
-            }
-         });
-      })
-   );
+   function getWhiteBoardData() {
+      return fetch(`${baseApiUrl}/${editor.document.id}/wb`).then(r => r.blob());
+   }
+
+   // createEffect(on(
+   //    () => editor.document.whiteboard,
+   //    async () => {
+   //       console.log('redrawing whiteboard');
+   //       const docDraw = editor.document.whiteboard;
+   //       const blob = await getWhiteBoardData();
+   //       const bitmap = await createImageBitmap(blob);
+   //       ctx.globalCompositeOperation = 'source-over';
+   //       ctx.drawImage(bitmap, 0, 0);
+   //       docDraw.drawings.forEach((drawing) => {
+   //          if (drawing instanceof MarkerDrawing || drawing instanceof LastikDrawing) {
+   //             applyDrawing(ctx, drawing);
+   //             ctx.beginPath();
+   //             drawing.points.forEach((p, i, arr) => {
+   //                if (i > 0) {
+   //                   drawMarker(arr[i - 1], p);
+   //                }
+   //             });
+   //          }
+   //       });
+   //    })
+   // );
 
    function drawMarker(prev: Point, curr: Point) {
       ctx.moveTo(prev.x, prev.y);
@@ -98,15 +98,15 @@ export function Drawer() {
 
    function onDrawStart(e: PointerEvent) {
       isMouseDown = true;
-      switch (drawerStore.instrument) {
+      switch (drawer.instrument) {
          case Instrument.Marker:
             currentDrawing = new MarkerDrawing();
-            currentDrawing.color = drawerStore.drawingColor;
-            currentDrawing.strokeWidth = drawerStore.strokeWidth;
+            currentDrawing.color = drawer.drawingColor;
+            currentDrawing.strokeWidth = drawer.strokeWidth;
             break;
          case Instrument.Lastik:
             currentDrawing = new LastikDrawing();
-            currentDrawing.strokeWidth = drawerStore.strokeWidth;
+            currentDrawing.strokeWidth = drawer.strokeWidth;
          default:
             break;
       }
@@ -176,13 +176,13 @@ export function Drawer() {
          onPointerLeave={onDrawEnd}
          onPointerMove={onDraw}
          classList={{
-            [s.ontop]: drawerStore.instrument !== Instrument.Cursor
+            [s.ontop]: drawer.instrument !== Instrument.Cursor
          }}
          ref={canvasRef}
          width={realSize().fGridWidth_px}
          height={realSize().fGridHeight_px}
          style={{
-            cursor: instrumentCursorMap[drawerStore.instrument] ? `url(${instrumentCursorMap[drawerStore.instrument]}), crosshair` : 'crosshair'
+            cursor: instrumentCursorMap[drawer.instrument] ? `url(${instrumentCursorMap[drawer.instrument]}), crosshair` : 'crosshair'
          }}
       />
    );

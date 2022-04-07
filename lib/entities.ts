@@ -41,7 +41,6 @@ type BlokiDocument = {
    shared: boolean;
    layoutOptions: LayoutOptions;
    blocks: AnyBlock[];
-   whiteboard: BlokiWhiteboard;
 };
 
 export {

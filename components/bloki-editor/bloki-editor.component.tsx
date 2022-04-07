@@ -18,6 +18,7 @@ import { Portal } from 'solid-js/web';
 import { DrawerStoreProvider, useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
 import { Cursors } from '../collab/cursors.component';
+import { CollabStoreProvider } from '../collab/collab.store';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
@@ -307,11 +308,13 @@ type WrappedEditorProps = Omit<ComponentProps<typeof EditorStoreProvider>, 'chil
 const WrappedEditor = (props: WrappedEditorProps) => {
    const [storeProps, compProps] = splitProps(props, ['document', 'instrument']);
    return (
-      <DrawerStoreProvider>
-         <EditorStoreProvider {...storeProps}>
-            <BlokiEditor {...compProps} />
-         </EditorStoreProvider>
-      </DrawerStoreProvider>
+      <EditorStoreProvider {...storeProps}>
+         <DrawerStoreProvider>
+            <CollabStoreProvider>
+               <BlokiEditor {...compProps} />
+            </CollabStoreProvider>
+         </DrawerStoreProvider>
+      </EditorStoreProvider>
    );
 };
 

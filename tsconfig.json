@@ -18,11 +18,8 @@
       "inlineSourceMap": true,
       "skipLibCheck": true,
       "outDir": "./dist/backend",
-      "lib": [
-         "ESNext",
-      ],
       "isolatedModules": false,
-      "baseUrl": "./",
+      "baseUrl": ".",
       "experimentalDecorators": true,
       "jsx": "preserve",
       "jsxImportSource": "solid-js",
@@ -35,7 +32,6 @@
       },
       "types": [
          "vite/client",
-         // "./types.d.ts"
       ],
       "plugins": [
          {
@@ -52,5 +48,6 @@
       "assets",
       ".git",
       "temp",
+      "dist"
    ]
 }

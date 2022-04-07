@@ -7,7 +7,7 @@ import { MainPage } from './pages/main/main.page';
 import { BuildInfo } from './components/build-info/build-info.component';
 import { AppStoreProvider } from './lib/app.store';
 import { Internationalization } from './components/i18n/internationalization.component';
-import { ModalStoreProvider } from './components/modal/modal';
+import { ModalStoreProvider } from './components/modals/modal';
 
 const routes: RouteDefinition[] = [
    {
@@ -15,7 +15,11 @@ const routes: RouteDefinition[] = [
       component: MainPage,
    },
    {
-      path: '/test',
+      path: '/docs',
+      component: MainPage,
+   },
+   {
+      path: '/docs/:docId',
       component: MainPage,
    },
 ];
