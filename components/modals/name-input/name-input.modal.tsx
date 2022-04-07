@@ -1,13 +1,12 @@
 import { useAppStore } from "@/lib/app.store";
-import faker from "@faker-js/faker";
 import { useI18n } from "@solid-primitives/i18n";
 import s from './name-input.module.scss';
+import { randAnimalType } from '@ngneat/falso';
 
 export function NameInput() {
    const [app, { setAppStore }] = useAppStore();
    const [t] = useI18n();
-   const animals = Object.entries(faker.animal).filter(([k]) => k !== 'type');
-   let name: string = app.name ?? animals[Math.floor(Math.random() * animals.length - 1)][1]();
+   let name = randAnimalType({ length: 5 }).find(x => x.length < 18);
    return (
       <div class={s.askName}>
          <div>{t('auth.ask-name.question')}</div>

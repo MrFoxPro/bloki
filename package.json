@@ -31,7 +31,7 @@
    "dependencies": {
       "@codemirror/basic-setup": "^0.19.3",
       "@codemirror/lang-javascript": "^0.19.7",
-      "@faker-js/faker": "^6.1.2",
+      "@ngneat/falso": "^4.0.0",
       "@solid-primitives/date": "^1.1.0",
       "@solid-primitives/i18n": "^1.0.9",
       "class-transformer": "^0.5.1",
