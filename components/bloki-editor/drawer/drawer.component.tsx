@@ -1,5 +1,5 @@
 import s from './drawer.module.scss';
-import { createComputed, createEffect, on, onMount } from 'solid-js';
+import { createComputed, createEffect, createRenderEffect, on, onMount } from 'solid-js';
 import { useEditorStore } from '../editor.store';
 import { useDrawerStore } from '../drawer.store';
 import { Point } from '../types/blocks';
@@ -11,6 +11,15 @@ import MarkerCursor from './assets/marker.cursor.png';
 import { toBlobAsync } from './helpers';
 import { baseApiUrl } from '@/lib/app.store';
 
+const cursorOffset: Point = {
+   x: 4,
+   y: 15,
+};
+const instrumentCursorMap = {
+   [Instrument.Lastik]: LastikCursor,
+   [Instrument.Marker]: MarkerCursor
+} as const;
+
 // TODO: Refactor this!!!
 export function Drawer() {
    let canvasRef: HTMLCanvasElement;
@@ -21,18 +30,8 @@ export function Drawer() {
       x: 0,
       y: 0,
    };
-
-   const cursorOffset: Point = {
-      x: 4,
-      y: 15,
-   };
-   const instrumentCursorMap = {
-      [Instrument.Lastik]: LastikCursor,
-      [Instrument.Marker]: MarkerCursor
-   } as const;
-
    const [editor, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
-   const [drawer] = useDrawerStore();
+   const [drawer, { setDrawerStore }] = useDrawerStore();
 
    createComputed(() => {
       if (drawer.instrument !== Instrument.Cursor) {
@@ -62,31 +61,31 @@ export function Drawer() {
    }
 
    function getWhiteBoardData() {
-      return fetch(`${baseApiUrl}/${editor.document.id}/wb`).then(r => r.blob());
+      return fetch(`${baseApiUrl}/${editor.document.id}/blob`).then(r => r.blob());
    }
+   createRenderEffect(async () => {
+      const initialBlob = await getWhiteBoardData();
+      setDrawerStore({ blob: initialBlob });
+   });
 
-   // createEffect(on(
-   //    () => editor.document.whiteboard,
-   //    async () => {
-   //       console.log('redrawing whiteboard');
-   //       const docDraw = editor.document.whiteboard;
-   //       const blob = await getWhiteBoardData();
-   //       const bitmap = await createImageBitmap(blob);
-   //       ctx.globalCompositeOperation = 'source-over';
-   //       ctx.drawImage(bitmap, 0, 0);
-   //       docDraw.drawings.forEach((drawing) => {
-   //          if (drawing instanceof MarkerDrawing || drawing instanceof LastikDrawing) {
-   //             applyDrawing(ctx, drawing);
-   //             ctx.beginPath();
-   //             drawing.points.forEach((p, i, arr) => {
-   //                if (i > 0) {
-   //                   drawMarker(arr[i - 1], p);
-   //                }
-   //             });
-   //          }
-   //       });
-   //    })
-   // );
+   createEffect(async () => {
+      if (!drawer.blob) return;
+      console.log('redrawing whiteboard');
+      const bitmap = await createImageBitmap(drawer.blob);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(bitmap, 0, 0);
+      // docDraw.drawings.forEach((drawing) => {
+      //    if (drawing instanceof MarkerDrawing || drawing instanceof LastikDrawing) {
+      //       applyDrawing(ctx, drawing);
+      //       ctx.beginPath();
+      //       drawing.points.forEach((p, i, arr) => {
+      //          if (i > 0) {
+      //             drawMarker(arr[i - 1], p);
+      //          }
+      //       });
+      //    }
+      // });
+   });
 
    function drawMarker(prev: Point, curr: Point) {
       ctx.moveTo(prev.x, prev.y);
@@ -147,7 +146,7 @@ export function Drawer() {
       isMouseDown = false;
       if (currentDrawing) {
 
-         setEditorStore('document', 'whiteboard', 'drawings', drawings => drawings.concat(currentDrawing));
+         // setEditorStore('document', 'whiteboard', 'drawings', drawings => drawings.concat(currentDrawing));
 
          if (rasterizeDrawingsTimeout) clearTimeout(rasterizeDrawingsTimeout);
          rasterizeDrawingsTimeout = setTimeout(processDrawings, RASTERIZE_TIMEOUT);
@@ -161,7 +160,7 @@ export function Drawer() {
       if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
       imageObjectUrl = URL.createObjectURL(blob);
 
-      setEditorStore('document', 'whiteboard', 'drawings', []);
+      // setEditorStore('document', 'whiteboard', 'drawings', []);
       // setEditorStore('document', 'whiteboard', 'blobUrl', imageObjectUrl);
 
       console.log('DRAWING SAVED TO URL', imageObjectUrl);

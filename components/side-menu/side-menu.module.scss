@@ -19,7 +19,7 @@
 
    border-right: 1px solid #EDF2F4;
 
-   background: #F6F9FB;
+   background: #FAFAFA;
 }
 
 .top-bar {
@@ -101,6 +101,7 @@
    align-items: center;
    gap: 38px;
 }
+
 .block {
    width: 100%;
 }
@@ -137,8 +138,10 @@
          position: absolute;
          right: 3px;
 
+         background-color: #E2E2E2;
+
          &:hover {
-            background-color: #EDF2F4;
+            // background-color: #EDF2F4;
          }
       }
    }

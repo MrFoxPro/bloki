@@ -56,6 +56,7 @@ export function MainPage() {
                   gridType={app.gridRenderMethod}
                   toolboxMountRef={leftBarRef}
                   docSettingsMountRef={rightBarRef}
+                  avatarsMountRef={rightBarRef}
                />
             </Show>
          </div>

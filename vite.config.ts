@@ -56,6 +56,7 @@ export default ({ mode }: ConfigEnv) => {
             keep_classnames: true,
             safari10: false,
          },
+         emptyOutDir: true,
       },
       css: {
          modules: {

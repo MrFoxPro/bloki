@@ -3,7 +3,8 @@ import { BlokiDocument } from "./entities";
 export enum WSMsgType {
    Join,
    CursorUpdate,
-   Roommates
+   Roommates,
+   Blob
 }
 export type WSMsg = { type: WSMsgType; data: any; };
 

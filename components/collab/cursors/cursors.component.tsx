@@ -1,10 +1,10 @@
 import { useAppStore } from "@/lib/app.store";
 import { createEffect, For, Show } from "solid-js";
-import { useEditorStore } from "../bloki-editor/editor.store";
-import { useCollabStore } from "./collab.store";
 import s from './cursors.module.scss';
-import CursorIcon from './assets/cursor.icon.svg';
+import CursorIcon from '../assets/cursor.icon.svg';
 import { CURSOR_UPDATE_RATE } from "@/lib/network.types";
+import { useEditorStore } from "@/components/bloki-editor/editor.store";
+import { useCollabStore } from "../collab.store";
 
 export function Cursors() {
    const [app] = useAppStore();

@@ -4,6 +4,7 @@ import { DrawingColor } from "./types/drawings";
 import { Instrument } from "./types/editor";
 
 type DrawerContextValues = {
+   blob?: Blob;
    readonly instrument: Instrument;
    readonly drawingColor: DrawingColor;
    readonly strokeWidth: number;

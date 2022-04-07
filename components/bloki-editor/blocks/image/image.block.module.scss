@@ -1,3 +1,5 @@
+@use '@/assets/styles/framework.scss';
+
 .img-block {
    width: 100%;
    height: 100%;
@@ -86,26 +88,6 @@
             font-weight: 700;
             font-size: 16px;
             color: #312F2F;
-         }
-
-         .link {
-            background: #EDF2F4;
-            border: 1px solid #D7DCDF;
-            box-sizing: border-box;
-            border-radius: 8px;
-            width: inherit;
-            height: 40px;
-            color: #312F2F;
-            font-size: 16px;
-
-            &::placeholder {
-               color: #a3a6a8;
-               font-family: 'Roboto';
-               font-style: normal;
-               font-weight: 400;
-               font-size: 16px;
-               line-height: 19px;
-            }
          }
       }
    }

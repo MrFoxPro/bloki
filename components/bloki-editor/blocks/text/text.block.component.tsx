@@ -99,7 +99,6 @@ export function TextBlock(props: TextBlockProps) {
    });
 
    function onTextInput(e: Event, pasteContent: string = null) {
-      console.log('on input');
       const mGridWidth = editor.document.layoutOptions.mGridWidth;
       // check if key is affecting content?
       const text = contentRef.textContent + (pasteContent || '');

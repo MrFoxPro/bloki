@@ -50,7 +50,6 @@ export function Toolbox() {
    function onKeyUp(e: KeyboardEvent) {
       if (editorStore.editingBlock) return;
       if (availableCodes.includes(e.code)) {
-         e.preventDefault();
          setDrawerStore({
             instrument: instrumentsKeyMap[e.code]
          });
@@ -58,9 +57,9 @@ export function Toolbox() {
    }
 
    createRenderEffect(() => {
-      window.addEventListener('keydown', onKeyUp);
+      document.addEventListener('keydown', onKeyUp);
       onCleanup(() => {
-         window.removeEventListener('keydown', onKeyUp);
+         document.removeEventListener('keydown', onKeyUp);
       });
    });
    return (

@@ -39,7 +39,7 @@
 
    &.highlighted {
       // background: #F6F9FB;
-      background: #edf2f4;
+      background: #EAEAEA;
    }
 
    &.disabled {
@@ -47,6 +47,7 @@
       pointer-events: none;
 
       >.icon {
+
          // fill: #d3d3d3;
          // stroke: #d3d3d3;
          * {
@@ -57,7 +58,8 @@
    }
 
    &:hover {
-      background: #edf2f4;
+      // background: #edf2f4;
+      background: #EAEAEA;
    }
 }
 
@@ -99,4 +101,53 @@ input[type=range] {
    $active: #51575E;
 
    accent-color: $active;
+}
+
+
+input[type=text],
+input[type=url] {
+   all: initial;
+   background: #EDF2F4;
+   border: 1px solid #D7DCDF;
+   box-sizing: border-box;
+   border-radius: 8px;
+   height: 40px;
+   color: #312F2F;
+   font-size: 16px;
+
+   padding-left: 5px;
+   &::placeholder {
+      color: #a3a6a8;
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 19px;
+   }
+}
+
+button {
+   outline: none;
+   border: none;
+   cursor: pointer;
+   height: 40px;
+   background: #417FF5;
+   border-radius: 4px;
+
+   font-family: Inter;
+   font-style: normal;
+   font-weight: 600;
+   font-size: 14px;
+
+   color: #FFFFFF;
+
+   text-align: center;
+
+   &.inactive {
+      background: #B5CBF3;
+   }
+
+   &:focus {
+      background: #306fe3;
+   }
 }

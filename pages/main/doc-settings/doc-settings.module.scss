@@ -24,9 +24,9 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: flex-start;
+      align-items: stretch;
       font-family: monospace;
-
+      gap: 5px;
       >input {
          width: 150px;
       }

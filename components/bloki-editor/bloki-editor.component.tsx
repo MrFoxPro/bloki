@@ -17,14 +17,16 @@ const DocumentSettings = lazy(() => import('@/pages/main/doc-settings/doc-settin
 import { Portal } from 'solid-js/web';
 import { DrawerStoreProvider, useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
-import { Cursors } from '../collab/cursors.component';
 import { CollabStoreProvider } from '../collab/collab.store';
+import { Cursors } from '../collab/cursors/cursors.component';
+import { Avatars } from '../collab/avatars/avatars.component';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
    gridType?: 'dom' | 'canvas';
    toolboxMountRef: HTMLElement;
    docSettingsMountRef: HTMLElement;
+   avatarsMountRef: HTMLElement;
 };
 function BlokiEditor(props: BlokiEditorProps) {
    props = mergeProps({
@@ -63,7 +65,7 @@ function BlokiEditor(props: BlokiEditorProps) {
             selectBlock(null);
          }
       }
-      if (e.key === 'Enter') {
+      else if (e.key === 'Enter') {
          if (!store.editingType || (store.editingType === 'content' && isTextBlock(store.editingBlock))) {
             console.log('enter');
             e.preventDefault();
@@ -300,6 +302,9 @@ function BlokiEditor(props: BlokiEditorProps) {
             <DocumentSettings />
          </Portal>
          <Cursors />
+         <Portal mount={props.avatarsMountRef}>
+            <Avatars />
+         </Portal>
       </>
    );
 }

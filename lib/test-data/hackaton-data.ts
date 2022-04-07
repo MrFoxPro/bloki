@@ -134,10 +134,6 @@ const introDoc: BlokiDocument = {
       }
    ],
    layoutOptions: { ...defaultLayoutOptions, fGridHeight: 160, mGridHeight: 160 },
-   whiteboard: {
-      blob: null,
-      drawings: []
-   }
 };
 
 const emptyDoc: BlokiDocument = {
@@ -145,15 +141,11 @@ const emptyDoc: BlokiDocument = {
    title: 'Try it!',
    layoutOptions: { ...defaultLayoutOptions, showGridGradient: true },
    blocks: [],
-   whiteboard: {
-      blob: null,
-      drawings: [],
-   },
    shared: true,
 };
 
 const hackWorkspace: Workspace = {
-   workspaceIcon: '/assets/favicon-32x32.png',
+   workspaceIcon: '../../assets/favicon-32x32.png',
    id: '4b95b2ef-b80e-4cb3-9ed2-e9aa2311f56f',
    title: 'Bloki workspace',
 };

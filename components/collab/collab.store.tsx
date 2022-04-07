@@ -40,6 +40,7 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    let ws: WebSocket;
 
    function send(type: WSMsgType, data: object = {}) {
+      if (!ws) return;
       if (ws.readyState === ws.CONNECTING) {
          return setTimeout(() => send(type, data), 400);
       }
@@ -56,16 +57,21 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
       if (type == null) return;
 
       switch (msg.type) {
-         case WSMsgType.Roommates:
+         case WSMsgType.Roommates: {
             setCollabStore('rommates', reconcile(data));
             break;
-         case WSMsgType.CursorUpdate:
+         }
+         case WSMsgType.CursorUpdate: {
             setCollabStore('rommates', rm => rm.name === data.name, {
                cursor: data.cursor,
                color: data.color
             });
             console.log(unwrap(collab.rommates));
             break;
+         }
+         case WSMsgType.Blob: {
+            break;
+         }
          default:
             console.warn('Unknown message type');
             break;

@@ -1,9 +1,0 @@
-{
-   "ignore": [
-      "node_modules",
-      ".git"
-   ],
-   "watch": "./server.ts",
-   "ext": "ts",
-   "exec": "node -r @swc-node/register ./server.ts"
-}
