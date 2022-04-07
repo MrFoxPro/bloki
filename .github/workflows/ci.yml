@@ -55,7 +55,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         port: ${{ secrets.PORT }}
         key: ${{ secrets.SSHKEY }}
-        script: cd ./bloki && git reset --hard && git pull && pnpm i && sudo service bloki restart
+        script: cd ./bloki && git reset --hard && git pull && pnpm i && sudo systemctl restart bloki
         
     - name: Collect commit messages
       run: |  
