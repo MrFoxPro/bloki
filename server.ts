@@ -135,7 +135,7 @@ process.on('uncaughtException', (e) => {
    console.log('Error!', e);
 });
 (async function () {
-   await fastify.listen(3005);
+   await fastify.listen(3005, '0.0.0.0');
 })();
 console.log('starting');
 
