@@ -1,4 +1,3 @@
-# BLOKI
 <br>
 <div align="center">
   <img 
