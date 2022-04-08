@@ -84,9 +84,10 @@
       }
 
       &.disabled {
-         color: #d3d3d3;
          pointer-events: none;
-
+         .text {
+            color: #d3d3d3;
+         }
          .icon {
             color: #d3d3d3;
          }
