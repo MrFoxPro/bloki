@@ -82,7 +82,7 @@ export function TextBlock(props: TextBlockProps) {
          textHeightAtMinWidth = minimals.height;
       }
    ));
-
+   const textSettings = createMemo(() => TextTypes[block.type]);
    function getContentDimension(transform: Dimension) {
       if (transform.width < minTextWidth) {
          transform.width = minTextWidth;
@@ -90,6 +90,12 @@ export function TextBlock(props: TextBlockProps) {
          return transform;
       }
       const widthPx = transform.width + 'px';
+      measurer.setOptions({
+         fontFamily: block.fontFamily,
+         fontSize: textSettings().fontSize + 'px',
+         lineHeight: textSettings().lineHeight + 'px',
+         fontWeight: textSettings().fontWeight + 'px',
+      });
       const dimension = measurer.measureText(block.value, widthPx);
       return dimension;
    }
@@ -175,7 +181,7 @@ export function TextBlock(props: TextBlockProps) {
       onTextInput(e, text);
       return false;
    }
-   const textSettings = createMemo(() => TextTypes[block.type]);
+
 
    return (
       <div

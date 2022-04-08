@@ -39,7 +39,7 @@ export const TextTypes = {
       lineHeight: 21,
       color: '#9CA5AB'
    }
-} as const;
+} as Record<BlockType, TextSetting>;
 
 export enum TextBlockFontFamily {
    Roboto = 'Roboto',
