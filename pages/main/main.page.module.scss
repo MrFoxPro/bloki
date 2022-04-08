@@ -28,7 +28,7 @@
          background-size: contain;
 
          &:nth-child(1) {
-            background-image: url("./wsicon.png");
+            background-image: url("@/components/side-menu/assets/arrow.icon.svg");
             transform: rotate(180deg);
          }
 
