@@ -3,7 +3,6 @@
    align-items: center;
    justify-content: space-evenly;
    gap: 12px;
-   margin-right: 24px;
    .avatar {
       width: 24px;
       height: 24px;
@@ -19,11 +18,5 @@
       display: flex;
       justify-content: center;
       align-items: center;
-   }
-
-   .share {
-      width: 59px;
-      height: 28px;
-      margin-left: 4px;
    }
 }

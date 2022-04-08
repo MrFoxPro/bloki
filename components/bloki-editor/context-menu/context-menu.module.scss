@@ -1,10 +1,17 @@
 @use '@/assets/styles/framework.scss';
 
+.clearfix:before,
+.clearfix:after {
+   content: ".";
+   display: block;
+   height: 0;
+   overflow: hidden;
+}
 
 .ctx-menu {
    position: absolute;
    z-index: 55;
-
+   padding: 5px;
    width: 196px;
 
    background: #FFFFFF;
@@ -14,8 +21,14 @@
    border-radius: 8px;
 
    .name {
-      padding-left: 3px;
+      margin-left: 3px;
       margin-bottom: 4px;
+   }
+
+   .block {
+      &:not(:first-child) {
+         margin-top: 5px;
+      }
    }
 
    .items {
@@ -23,8 +36,12 @@
       flex-direction: column;
 
       justify-content: space-evenly;
-      padding: 5px;
+
       box-sizing: border-box;
+
+      .item>span.text {
+         font-weight: 500;
+      }
 
       .item.delete {
          color: #DA4929;

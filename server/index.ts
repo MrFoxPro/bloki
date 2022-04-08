@@ -1,8 +1,6 @@
-
 require('console-stamp')(console, {
    format: ':date(HH:MM:ss) :label'
 });
-
 import fastifyInit from 'fastify';
 import { blobStorage, db } from './db';
 import { DocumentServer } from './doc-server';
@@ -10,6 +8,7 @@ import { DocumentServer } from './doc-server';
 const servers = db.docs.filter(doc => doc.shared).map(doc => new DocumentServer(doc));
 
 const fastify = fastifyInit({ logger: false, });
+
 fastify.register((fastify, opt, done) => {
    fastify.get('/user', () => {
       return db.users[0] as any;

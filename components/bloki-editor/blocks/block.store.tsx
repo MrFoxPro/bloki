@@ -334,6 +334,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    }
 
    function onHookPointerDown(e: PointerEvent, side: CursorSide) {
+      if (e.button !== 1) return;
       blockData.relX = e.pageX;
       blockData.relY = e.pageY;
 

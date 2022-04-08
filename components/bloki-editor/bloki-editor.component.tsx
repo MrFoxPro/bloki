@@ -1,10 +1,10 @@
-import { ComponentProps, createEffect, For, lazy, mergeProps, on, onCleanup, onMount, Show, splitProps } from 'solid-js';
+import { createEffect, For, mergeProps, on, onCleanup, onMount, Show } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import cc from 'classcat';
 import s from './bloki-editor.module.scss';
 import { useAppStore } from '@/lib/app.store';
 import { useI18n } from '@solid-primitives/i18n';
-import { EditorStoreProvider, useEditorStore } from './editor.store';
+import { useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
 import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
 import { getAsString, getGoodImageRelativeSize } from './helpers';
@@ -12,21 +12,12 @@ import { TextBlockFontFamily } from './blocks/text/types';
 import { Backlight } from './backlight/backlight.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer.component';
-const Toolbox = lazy(() => import('./toolbox/toolbox.component'));
-const DocumentSettings = lazy(() => import('@/pages/main/doc-settings/doc-settings.component'));
-import { Portal } from 'solid-js/web';
-import { DrawerStoreProvider, useDrawerStore } from './drawer.store';
+import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
-import { CollabStoreProvider } from '../collab/collab.store';
-import { Cursors } from '../collab/cursors/cursors.component';
-import { Avatars } from '../collab/avatars/avatars.component';
 
 type BlokiEditorProps = {
    showMeta?: boolean;
    gridType?: 'dom' | 'canvas';
-   toolboxMountRef: HTMLElement;
-   docSettingsMountRef: HTMLElement;
-   avatarsMountRef: HTMLElement;
 };
 function BlokiEditor(props: BlokiEditorProps) {
    props = mergeProps({
@@ -121,9 +112,9 @@ function BlokiEditor(props: BlokiEditorProps) {
       if (!str) {
          pasteError();
       }
-      const imgSrc = str.match(/<img [^>]*src="[^"]*"[^>]*>/gm)
-         .map(x => x.replace(/.*src="([^"]*)".*/, '$1'))[0];
-
+      const regexp = str.match(/<img [^>]*src="[^"]*"[^>]*>/gm);
+      if (!regexp) return;
+      const imgSrc = regexp.map(x => x.replace(/.*src="([^"]*)".*/, '$1'))[0] as string;
       if (!imgSrc?.includes('http')) {
          pasteError();
          return;
@@ -295,35 +286,8 @@ function BlokiEditor(props: BlokiEditorProps) {
                <Drawer />
             </div>
          </div>
-         <Portal mount={props.toolboxMountRef}>
-            <Toolbox />
-         </Portal>
-         <Portal mount={props.docSettingsMountRef}>
-            <DocumentSettings />
-         </Portal>
-         <Cursors />
-         <Portal mount={props.avatarsMountRef}>
-            <Avatars />
-         </Portal>
       </>
    );
 }
 
-type WrappedEditorProps = Omit<ComponentProps<typeof EditorStoreProvider>, 'children'> & ComponentProps<typeof BlokiEditor>;
-const WrappedEditor = (props: WrappedEditorProps) => {
-   const [storeProps, compProps] = splitProps(props, ['document', 'instrument']);
-   return (
-      <EditorStoreProvider {...storeProps}>
-         <DrawerStoreProvider>
-            <CollabStoreProvider>
-               <BlokiEditor {...compProps} />
-            </CollabStoreProvider>
-         </DrawerStoreProvider>
-      </EditorStoreProvider>
-   );
-};
-
-export {
-   WrappedEditor as BlokiEditor
-};
-export default WrappedEditor;
+export default BlokiEditor;

@@ -96,7 +96,7 @@ export function ImageBlock(props: ImageBlockProps) {
             dimension.width = gridSize(defaultRelDimension.width);
             dimension.height = gridSize(defaultRelDimension.height);
          }
-         else if(!block.width || !block.height){
+         else if (!block.width || !block.height) {
             const { width, height } = await getImgDimension(block.src);
             const ratio = height / width;
             const relSize = {
@@ -181,11 +181,11 @@ export function ImageBlock(props: ImageBlockProps) {
                         class={s.link}
                         placeholder={"https://cstor.nn2.ru/forum/data/forum/files/2014-12/108480959-9743143_original-1-.jpg"}
                         onInput={onUrlInput}
-                        // onPaste={(e) => {
-                        //    e.stopImmediatePropagation();
-                        //    e.stopPropagation();
-                        //    // onPaste(e);
-                        // }}
+                        onPaste={(e) => {
+                           e.stopImmediatePropagation();
+                           e.stopPropagation();
+                           tryToSetUrlImage(e.currentTarget.value);
+                        }}
                      />
                   </div>
                </div>

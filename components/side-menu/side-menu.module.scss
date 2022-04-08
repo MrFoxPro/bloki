@@ -22,50 +22,6 @@
    background: #FAFAFA;
 }
 
-.top-bar {
-   height: 40px;
-
-   border-bottom: 1px solid #EDF2F4;
-
-   font-family: Inter;
-   font-style: normal;
-   font-weight: 500;
-   font-size: 14px;
-
-   color: #312f2f;
-
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   padding: 0 20px;
-   box-sizing: border-box;
-   z-index: 45;
-
-   .left-bar {
-      // width: 190px;
-      display: flex;
-      align-items: center;
-
-      >.arrow {
-         margin-left: 10px;
-         cursor: pointer;
-      }
-
-      >h4 {
-         margin-left: 15px;
-      }
-   }
-
-   .right-bar {
-      width: 100px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-direction: row-reverse;
-      cursor: pointer;
-   }
-}
-
 .workspace-bar {
    @extend .top-bar;
    display: flex;
@@ -101,15 +57,14 @@
    flex-direction: column;
    align-items: center;
    gap: 38px;
+
+   >.items>.item>span.text {
+      font-weight: 500;
+   }
 }
 
-.page {
-   >span {
-      font-weight: 400;
-   }
-
+.item.page {
    >.icon {
-
       &.page {
          margin-left: 3px;
       }

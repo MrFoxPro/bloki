@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import fs from 'fs';
-import { hackWorkspace, introDoc, emptyDoc } from "../lib/test-data/hackaton-data";
+import { hackWorkspace, introDoc, emptyDoc, docWithSimpleLayout } from "../lib/test-data/hackaton-data";
 
 const introImageBlob = fs.readFileSync('../lib/test-data/assets/intro.png');
 const emptyImageBlob = fs.readFileSync('../lib/test-data/assets/empty.png');
@@ -13,7 +13,7 @@ const db = {
          selectedDocumentId: introDoc.id,
       }
    ],
-   docs: [introDoc].concat(new Array(3).fill(emptyDoc).map(doc => structuredClone(doc))),
+   docs: [introDoc, docWithSimpleLayout, emptyDoc, emptyDoc].map(doc => structuredClone(doc)),
 } as const;
 
 const blobStorage = new Map<string, Buffer>();

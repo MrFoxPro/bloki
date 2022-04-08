@@ -62,36 +62,42 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
       <Show when={store.showContextMenu && store.editingBlock}>
          <div
             class={s.ctxMenu}
+            className={s.clearfix}
             style={{
                transform: `translate(calc(${pos().x}px - 100% - 30px), ${pos().y}px)`
             }}
          >
-            <div class={s.items}>
+            <div class={s.block}>
                <div class={s.name}>{t('blocks.ctx-menu.header.types')}</div>
-               {/*@once*/items.map(([type, icon, name]) => (
-                  <div
-                     class={s.item}
-                     classList={{ [s.highlighted]: store.editingBlock.type === type }}
-                     onClick={(e) => onChangeBlockClick(e, type)}>
-                     {icon}
-                     <span>{t(name)}</span>
-                  </div>
-               ))}
-            </div>
-            <div class={s.items}>
-               <div class={s.name}>{t('blocks.ctx-menu.header.actions')}</div>
-               <div class={s.item}>
-                  <DuplicateIcon />
-                  <span>{t('blocks.ctx-menu.item.duplicate')}</span>
+               <div class={s.items}>
+
+                  {/*@once*/items.map(([type, icon, name]) => (
+                     <div
+                        class={s.item}
+                        classList={{ [s.highlighted]: store.editingBlock.type === type }}
+                        onClick={(e) => onChangeBlockClick(e, type)}>
+                        {icon}
+                        <span class={s.text}>{t(name)}</span>
+                     </div>
+                  ))}
                </div>
-               <div
-                  class={cc([s.item, s.delete])}
-                  onClick={() => {
-                     deleteBlock(store.editingBlock);
-                  }}
-               >
-                  <DeleteIcon />
-                  <span>{t('blocks.ctx-menu.item.delete')}</span>
+            </div>
+            <div class={s.block}>
+               <div class={s.name}>{t('blocks.ctx-menu.header.actions')}</div>
+               <div class={s.items}>
+                  <div class={s.item}>
+                     <DuplicateIcon />
+                     <span class={s.text}>{t('blocks.ctx-menu.item.duplicate')}</span>
+                  </div>
+                  <div
+                     class={cc([s.item, s.delete])}
+                     onClick={() => {
+                        deleteBlock(store.editingBlock);
+                     }}
+                  >
+                     <DeleteIcon />
+                     <span class={s.text}>{t('blocks.ctx-menu.item.delete')}</span>
+                  </div>
                </div>
             </div>
          </div>
