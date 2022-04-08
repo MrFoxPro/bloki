@@ -2,14 +2,20 @@ import s from './canvas-grid.module.scss';
 import { useEditorStore } from '../../editor.store';
 import { BlockTransform } from "../../types/blocks";
 import { FillColors, IGridImpl, } from '../shared';
-import { onMount } from 'solid-js';
+import { createEffect } from 'solid-js';
+import { useAppStore } from '@/lib/app.store';
 
 export function BlokiCanvasGrid(): IGridImpl {
    let backlightCanvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
-   const [store, { gridSize, realSize }] = useEditorStore();
+   const [editor, { gridSize, realSize }] = useEditorStore();
+   const [app] = useAppStore();
 
-   onMount(() => ctx = backlightCanvasRef.getContext('2d'));
+   createEffect(() => {
+      if (app.gridRenderMethod === 'canvas' && backlightCanvasRef) {
+         ctx = backlightCanvasRef.getContext('2d');
+      }
+   });
 
    function roundRect(x: number, y: number, width: number, height: number, radius: number = 4) {
       if (width < 2 * radius) radius = width / 2;
@@ -27,7 +33,7 @@ export function BlokiCanvasGrid(): IGridImpl {
    return {
       drawArea: (transform, cellState) => {
          const { x, y, width, height } = transform;
-         const { gap, size } = store.document.layoutOptions;
+         const { gap, size } = editor.document.layoutOptions;
 
          for (let i = x; i < x + width; i++) {
             const absX = gridSize(i);
@@ -41,7 +47,7 @@ export function BlokiCanvasGrid(): IGridImpl {
          }
       },
       clearArea: (transform: BlockTransform) => {
-         const { gap } = store.document.layoutOptions;
+         const { gap } = editor.document.layoutOptions;
          const { x, y, width, height } = transform;
          ctx.clearRect(gridSize(x) + gap, gridSize(y) + gap, gridSize(width + 1), gridSize(height + 1));
       },
