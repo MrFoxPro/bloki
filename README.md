@@ -11,7 +11,6 @@
 <h2 align="center">Bloki.app</h2>
 <p align="center"><a href="https://bloki.app">Try it</a></p>
 
----
 ## About
 
 Blocki.app a tool for creating any kind of content. Math homework or a shopping list.  
@@ -30,5 +29,4 @@ Bloki gives you great creative freedom in any interaction with a text file.
 - Multiple real-time document editors
 - Document hierarchy
 
---- 
 
