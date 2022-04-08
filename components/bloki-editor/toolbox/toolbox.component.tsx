@@ -16,9 +16,9 @@ import { Instrument } from '../types/editor';
 import { useAppStore } from '@/lib/app.store';
 
 const instruments = [
-   [Instrument.Circle, CircleIcon],
-   [Instrument.Triangle, TriangleIcon],
-   [Instrument.Rect, RectIcon],
+   // [Instrument.Circle, CircleIcon],
+   // [Instrument.Triangle, TriangleIcon],
+   // [Instrument.Rect, RectIcon],
    [Instrument.Cursor, CursorIcon],
    [Instrument.Marker, PencilIcon],
    [Instrument.Lastik, EraserIcon]
