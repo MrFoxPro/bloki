@@ -4,6 +4,7 @@ require('console-stamp')(console, {
 import fastifyInit from 'fastify';
 import { blobStorage, db } from './db';
 import { DocumentServer } from './doc-server';
+import { tg } from './tg-console';
 
 const servers = db.docs.filter(doc => doc.shared).map(doc => new DocumentServer(doc));
 
@@ -39,6 +40,7 @@ fastify.server.on('upgrade', (request, socket, head) => {
 
 process.on('uncaughtException', (e) => {
    console.log('Error!', e);
+   tg('Error happened %s %s', e.name.toString(), e.message.toString(), e.stack);
 });
 (async function () {
    await fastify.listen(3005, '0.0.0.0');
