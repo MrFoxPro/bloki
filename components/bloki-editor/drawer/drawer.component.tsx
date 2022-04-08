@@ -64,8 +64,13 @@ export function Drawer() {
       return fetch(`${baseApiUrl}/${editor.document.id}/blob`).then(r => r.blob());
    }
    createRenderEffect(async () => {
-      const initialBlob = await getWhiteBoardData();
-      setDrawerStore({ blob: initialBlob });
+      try {
+         const initialBlob = await getWhiteBoardData();
+         setDrawerStore({ blob: initialBlob });
+      }
+      catch (e) {
+         console.warn('Unable to download drawing!', e);
+      }
    });
 
    createEffect(async () => {
