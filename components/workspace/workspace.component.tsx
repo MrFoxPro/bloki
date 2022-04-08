@@ -25,32 +25,34 @@ export function Workspace() {
    const [countdown] = createCountdownFromNow(() => selectedDocument()?.willUpdateAtUnix, 1000);
 
    return (
-      <EditorStoreProvider document={selectedDocument()}>
-         <DrawerStoreProvider>
-            <CollabStoreProvider>
-               <div class={s.workspace}>
-                  <div class={s.topBar}>
-                     <div class={s.leftBar}>
-                        <Toolbox />
+      <Show when={selectedDocument()}>
+         <EditorStoreProvider document={selectedDocument()}>
+            <DrawerStoreProvider>
+               <CollabStoreProvider>
+                  <div class={s.workspace}>
+                     <div class={s.topBar}>
+                        <div class={s.leftBar}>
+                           <Toolbox />
+                        </div>
+                        <h4>{selectedDocument()?.title} <Show when={selectedDocument()?.willUpdateAtUnix}>{countdown.minutes}:{countdown.seconds}</Show></h4>
+                        <div class={s.rightBar}>
+                           <Avatars />
+                           <button class={s.share}>Share</button>
+                           <DocumentSettings />
+                        </div>
                      </div>
-                     <h4>{selectedDocument()?.title} <Show when={selectedDocument()?.willUpdateAtUnix}>{countdown.minutes}:{countdown.seconds}</Show></h4>
-                     <div class={s.rightBar}>
-                        <Avatars />
-                        <button class={s.share}>Share</button>
-                        <DocumentSettings />
-                     </div>
+                     <Show when={selectedDocument()}>
+                        <BlokiEditor
+                           showMeta={state.docSettings}
+                           gridType={app.gridRenderMethod}
+                        />
+                     </Show>
                   </div>
-                  <Show when={selectedDocument()}>
-                     <BlokiEditor
-                        showMeta={state.docSettings}
-                        gridType={app.gridRenderMethod}
-                     />
-                  </Show>
-               </div>
-               <Cursors />
-            </CollabStoreProvider>
-         </DrawerStoreProvider>
-      </EditorStoreProvider>
+                  <Cursors />
+               </CollabStoreProvider>
+            </DrawerStoreProvider>
+         </EditorStoreProvider>
+      </Show>
    );
 }
 export default Workspace;

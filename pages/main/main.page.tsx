@@ -1,4 +1,4 @@
-import { createEffect, createRenderEffect, lazy, Show, Suspense } from 'solid-js';
+import { createEffect, createRenderEffect, lazy, Suspense } from 'solid-js';
 import { useAppStore } from '@/lib/app.store';
 import { useNavigate, useParams } from 'solid-app-router';
 const SideMenu = lazy(() => import('@/components/side-menu/side-menu.component'));
@@ -24,11 +24,9 @@ export function MainPage() {
    return (
       <main class={s.main}>
          <SideMenu />
-         <Show when={app.selectedDocumentId}>
-            <Suspense>
-               <Workspace />
-            </Suspense>
-         </Show>
+         <Suspense>
+            <Workspace />
+         </Suspense>
       </main>
    );
 };
