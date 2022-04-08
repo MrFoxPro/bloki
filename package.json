@@ -1,8 +1,17 @@
 {
    "name": "bloki.app",
-   "version": "0.0.0",
+   "version": "0.0.1",
    "private": true,
-   "description": "",
+   "description": "Blocks-based collaborative editor.",
+   "info": "Bloki is an interactive block editor in which you can create anything you want whether it's a math homework or work. You can create block, write text, draw with your teammates online. You have a great level of freedom when editing files and everything fits into a text editor with its own file structure, workspaces, and collaboration.",
+   "homepage": "https://bloki.app",
+   "contributors": [
+      {
+         "name": "Dmitriy Nikiforov",
+         "email": "tuningiposadka@gmail.com",
+         "url": "https://t.me/mrfoxpro"
+      }
+   ],
    "scripts": {
       "dev": "npm run dev:backend && npm run dev:frontend",
       "build": "vite build",
@@ -10,7 +19,11 @@
       "dev:frontend": "vite",
       "dev:backend": "cd ./server && nodemon"
    },
-   "license": "MIT",
+   "license": "GNU Affero General Public License v3.0",
+   "keywords": [
+      "solidhack",
+      "best_student_project"
+   ],
    "devDependencies": {
       "@babel/core": "^7.17.8",
       "@swc-node/register": "^1.4.2",
