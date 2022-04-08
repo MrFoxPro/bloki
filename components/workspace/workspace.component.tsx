@@ -46,7 +46,6 @@ export function Workspace() {
                         gridType={app.gridRenderMethod}
                      />
                   </Show>
-
                </div>
                <Cursors />
             </CollabStoreProvider>

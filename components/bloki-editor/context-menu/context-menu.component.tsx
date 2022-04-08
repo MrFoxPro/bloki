@@ -44,7 +44,9 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
 
    onMount(() => {
       document.addEventListener('click', hideMe);
-      onCleanup(() => document.removeEventListener('click', hideMe));
+      onCleanup(() => {
+         document.removeEventListener('click', hideMe);
+      });
    });
 
    const items = [
@@ -62,7 +64,6 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
       <Show when={store.showContextMenu && store.editingBlock}>
          <div
             class={s.ctxMenu}
-            className={s.clearfix}
             style={{
                transform: `translate(calc(${pos().x}px - 100% - 30px), ${pos().y}px)`
             }}

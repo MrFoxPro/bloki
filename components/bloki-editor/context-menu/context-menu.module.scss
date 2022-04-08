@@ -1,13 +1,5 @@
 @use '@/assets/styles/framework.scss';
 
-.clearfix:before,
-.clearfix:after {
-   content: ".";
-   display: block;
-   height: 0;
-   overflow: hidden;
-}
-
 .ctx-menu {
    position: absolute;
    z-index: 55;

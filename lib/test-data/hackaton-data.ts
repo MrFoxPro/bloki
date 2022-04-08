@@ -154,7 +154,7 @@ const docWithSimpleLayout: BlokiDocument = {
       {
          id: '00c604f1-0aa8-41d8-9d25-9006e3305320',
          type: BlockType.H1,
-         value: '# H1 пример Заголовок',
+         value: '# H1 example header',
          x: middleX,
          y: 9,
          width: defaultLayoutOptions.mGridWidth,
@@ -163,7 +163,7 @@ const docWithSimpleLayout: BlokiDocument = {
       {
          id: 'db0c3192-e813-4a23-a438-735e2690ab8f',
          type: BlockType.H2,
-         value: '# H2 пример Заголовок',
+         value: '# H2 example header',
          x: middleX,
          y: 13,
          width: defaultLayoutOptions.mGridWidth,
@@ -172,7 +172,7 @@ const docWithSimpleLayout: BlokiDocument = {
       {
          id: '8712c3ce-30ec-4fc7-9b99-ee9aadc3d8c0',
          type: BlockType.H3,
-         value: '# H3 пример Заголовок',
+         value: '# H3 example header',
          x: middleX,
          y: 16,
          width: defaultLayoutOptions.mGridWidth,
@@ -181,7 +181,7 @@ const docWithSimpleLayout: BlokiDocument = {
       {
          id: '83df9986-6e50-4f87-a8e4-5620620a14a7',
          type: BlockType.Regular,
-         value: '# text пример текст',
+         value: '# regular text example',
          x: middleX,
          y: 19,
          width: defaultLayoutOptions.mGridWidth,
@@ -201,7 +201,7 @@ const docWithSimpleLayout: BlokiDocument = {
          type: BlockType.Image,
          src: 'https://www.anypics.ru/download.php?file=201211/1280x1024/anypics.ru-38999.jpg',
          x: middleX,
-         y: 21,
+         y: 22,
          width: defaultLayoutOptions.mGridWidth,
          height: 21,
       },
@@ -210,7 +210,7 @@ const docWithSimpleLayout: BlokiDocument = {
          type: BlockType.Image,
          src: null,
          x: middleX,
-         y: 42,
+         y: 45,
          width: defaultLayoutOptions.mGridWidth,
          height: defaultLayoutOptions.mGridWidth * 2 / 3
       },

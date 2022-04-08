@@ -212,31 +212,29 @@ function BlokiEditor(props: BlokiEditorProps) {
    createEffect(on(() => JSON.stringify(store.document.layoutOptions), calculateBoxRect));
 
    return (
-      <>
+      <div
+         class={s.wrapper}
+         ref={wrapperRef}
+      >
          <div
-            class={s.wrapper}
-            ref={wrapperRef}
-         >
-            <div
-               class={s.container}
-               ref={containerRef}
-               style={{
-                  'background-image': store.document.layoutOptions.showGridGradient === true ?
-                     `repeating-linear-gradient(
+            class={s.container}
+            ref={containerRef}
+            style={{
+               'background-image': store.document.layoutOptions.showGridGradient === true ?
+                  `repeating-linear-gradient(
                   0deg,
                   ${GRID_COLOR_CELL} 0 ${realSize().size_px},
                   transparent 0 ${realSize().sum_px}
                ),
                repeating-linear-gradient(90deg, ${GRID_COLOR_CELL} 0 ${realSize().size_px}, transparent 0 ${realSize().sum_px})`
-                     : null,
-                  width: realSize().fGridWidth_px,
-                  height: realSize().fGridHeight_px,
-                  top: realSize().size_px,
-                  'user-select': drawerStore.instrument !== Instrument.Cursor ? 'none' : 'initial',
-               }}
-            >
-               {/* For scroll snap, but not working properly in ff */}
-               {/*
+                  : null,
+               width: realSize().fGridWidth_px,
+               height: realSize().fGridHeight_px,
+               'user-select': drawerStore.instrument !== Instrument.Cursor ? 'none' : 'initial',
+            }}
+         >
+            {/* For scroll snap, but not working properly in ff */}
+            {/*
                 <div class={s.zones}>
                   <For each={new Array(3).fill(null)}>
                      {() => (
@@ -250,43 +248,42 @@ function BlokiEditor(props: BlokiEditorProps) {
                      )}
                   </For>
                </div>  */}
-               <Backlight type={props.gridType} />
-               <div
-                  class={cc([s.grid, s.foregroundGrid])}
-                  style={{
-                     width: realSize().fGridWidth_px,
-                     height: realSize().fGridHeight_px,
-                  }}
-                  onClick={(e) => onGridClick(e, 'foreground')}
-                  onContextMenu={(e) => e.preventDefault()}
-               />
-               <div
-                  class={cc([s.grid, s.mainGrid])}
-                  style={{
-                     width: realSize().mGridWidth_px,
-                     height: realSize().mGridHeight_px,
-                     margin: `0 ${(realSize().fGridWidth - realSize().mGridWidth) / 2}px`,
-                     background: store.document.layoutOptions.showGridGradient === true ? 'rgba(128, 128, 128, 0.507)' : null,
-                     cursor: store.editingBlock ? 'initial' : 'cell'
-                  }}
-                  onClick={(e) => onGridClick(e, 'main')}
-                  onMouseMove={onMainGridMouseMove}
-                  onMouseOut={onMainGridMouseOut}
-                  onContextMenu={(e) => e.preventDefault()}
-               />
-               <For each={store.document.blocks}>
-                  {(block) => (
-                     <Block block={block} />
-                  )}
-               </For>
-               <Show when={store.editingType === 'drag'}>
-                  <Block block={store.editingBlock} shadowed />
-               </Show>
-               <BlockContextMenu />
-               <Drawer />
-            </div>
+            <Backlight type={props.gridType} />
+            <div
+               class={cc([s.grid, s.foregroundGrid])}
+               style={{
+                  width: realSize().fGridWidth_px,
+                  height: realSize().fGridHeight_px,
+               }}
+               onClick={(e) => onGridClick(e, 'foreground')}
+               onContextMenu={(e) => e.preventDefault()}
+            />
+            <div
+               class={cc([s.grid, s.mainGrid])}
+               style={{
+                  width: realSize().mGridWidth_px,
+                  height: realSize().mGridHeight_px,
+                  margin: `0 ${(realSize().fGridWidth - realSize().mGridWidth) / 2}px`,
+                  background: store.document.layoutOptions.showGridGradient === true ? 'rgba(128, 128, 128, 0.507)' : null,
+                  cursor: store.editingBlock ? 'initial' : 'cell'
+               }}
+               onClick={(e) => onGridClick(e, 'main')}
+               onMouseMove={onMainGridMouseMove}
+               onMouseOut={onMainGridMouseOut}
+               onContextMenu={(e) => e.preventDefault()}
+            />
+            <For each={store.document.blocks}>
+               {(block) => (
+                  <Block block={block} />
+               )}
+            </For>
+            <Show when={store.editingType === 'drag'}>
+               <Block block={store.editingBlock} shadowed />
+            </Show>
+            <Drawer />
+            <BlockContextMenu />
          </div>
-      </>
+      </div>
    );
 }
 

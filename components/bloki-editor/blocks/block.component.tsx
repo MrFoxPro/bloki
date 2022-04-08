@@ -69,7 +69,6 @@ function Block() {
 
    return (
       <div
-         // title={`width: ${block.width} height: ${block.height}`}
          class={cc([s.block, s.draggable])}
          style={{
             transform: `translate(${blockState.transform.x}px, ${blockState.transform.y}px)`,
