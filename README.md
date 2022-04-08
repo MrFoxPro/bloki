@@ -1,4 +1,3 @@
-# BLOKI
 <br>
 <div align="center">
   <img 
@@ -13,10 +12,11 @@
 
 ## About
 
-Blocki.app a tool for creating any kind of content. Math homework or a shopping list.  
-You can also use team mode for brainstorming or any other kind of team work. 
-Blocks reflects the experience of using a checkered notebook and complements it with modern tools. 
-Bloki gives you great creative freedom in any interaction with a text file. 
+Bloki — app for creating any kind of content.  
+Take notes. Compose math homework or a shopping list.  
+Join team and do it together.  
+Bloki is similiar to checkered notebook and complements it with modern tools.  
+Bloki gives you creative freedom in working with text and media.  
 
 > ### ⚠️ This product is still in very early stages of development.
 
@@ -24,9 +24,7 @@ Bloki gives you great creative freedom in any interaction with a text file.
 
 - Create a block of any size
 - Move the block to any position of the document
-- Change block type (headers, images, etc)
+- Change block type (code, headers, images, etc)
 - Draw on top of blocks 
 - Multiple real-time document editors
 - Document hierarchy
-
-
