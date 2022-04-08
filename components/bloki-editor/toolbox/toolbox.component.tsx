@@ -13,6 +13,7 @@ import { useEditorStore } from '../editor.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { DrawingColor } from '../types/drawings';
 import { Instrument } from '../types/editor';
+import { useAppStore } from '@/lib/app.store';
 
 const instruments = [
    [Instrument.Circle, CircleIcon],
@@ -25,8 +26,9 @@ const instruments = [
 
 export function Toolbox() {
    const [t] = useI18n();
-   const [drawerStore, { setDrawerStore }] = useDrawerStore();
-   const [editorStore, { setEditorStore }] = useEditorStore();
+   const [app] = useAppStore();
+   const [drawer, { setDrawerStore }] = useDrawerStore();
+   const [editor] = useEditorStore();
 
    const [showInstrSettings, setShowInstrSettings] = createSignal(false);
 
@@ -48,7 +50,7 @@ export function Toolbox() {
    const availableCodes = Object.keys(instrumentsKeyMap);
 
    function onKeyUp(e: KeyboardEvent) {
-      if (editorStore.editingBlock) return;
+      if (!app.name || editor.editingBlock) return;
       if (availableCodes.includes(e.code)) {
          setDrawerStore({
             instrument: instrumentsKeyMap[e.code]
@@ -68,7 +70,7 @@ export function Toolbox() {
             {([type, icon]) => (
                <SVGIcon
                   classList={{
-                     [s.active]: type === drawerStore.instrument
+                     [s.active]: type === drawer.instrument
                   }}
                   component={icon}
                   onClick={() => onClick(type)}
@@ -78,25 +80,25 @@ export function Toolbox() {
          <Show when={showInstrSettings()}>
             <div class={s.configurator}>
                <div class={s.strokeWidth}>
-                  <label>{t('toolbox.configurator.stroke-width')}: {drawerStore.strokeWidth}</label>
+                  <label>{t('toolbox.configurator.stroke-width')}: {drawer.strokeWidth}</label>
                   <input
                      type="range"
                      min={2}
                      max={20}
                      step={0.5}
-                     value={drawerStore.strokeWidth}
+                     value={drawer.strokeWidth}
                      onInput={(e) => setDrawerStore({
                         strokeWidth: e.currentTarget.valueAsNumber
                      })}
                   />
                </div>
-               <Show when={drawerStore.instrument !== Instrument.Lastik}>
+               <Show when={drawer.instrument !== Instrument.Lastik}>
                   <div class={s.colors}>
                      {Object.values(DrawingColor).map(color =>
                         <div
                            class={s.color}
                            classList={{
-                              [s.selected]: drawerStore.drawingColor === color
+                              [s.selected]: drawer.drawingColor === color
                            }}
                            style={{
                               background: color,
