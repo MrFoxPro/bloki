@@ -13,11 +13,11 @@
 
 ## About
 
-Bloki — app for creating any kind of content. 
-Take notes. Compose math homework or a shopping list.
-Join team and do it together.
-Bloki is similiar to checkered notebook and complements it with modern tools. 
-Bloki gives you creative freedom in working with text and media.
+Bloki — app for creating any kind of content.  
+Take notes. Compose math homework or a shopping list.  
+Join team and do it together.  
+Bloki is similiar to checkered notebook and complements it with modern tools.  
+Bloki gives you creative freedom in working with text and media.  
 
 > ### ⚠️ This product is still in very early stages of development.
 
