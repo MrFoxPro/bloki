@@ -54,9 +54,9 @@ export function SideMenu(props: SideMenuProps) {
 
    const [app, { setAppStore, selectedWorkspace }] = useAppStore();
 
-   const ListItem = (doc: BlokiDocument) => (
+   const PageItem = (doc: BlokiDocument) => (
       <div
-         class={cc([s.item])}
+         class={cc([s.item, s.page])}
          classList={{
             [s.highlighted]: doc.id === app.selectedDocumentId
          }}
@@ -68,7 +68,7 @@ export function SideMenu(props: SideMenuProps) {
          <PageIcon class={cc([s.icon, s.page])} />
          <span>{doc.title}</span>
          <Show when={doc.id === app.selectedDocumentId}>
-            <div class={s.dotsIcon} />
+            <div class={s.dots} />
          </Show>
       </div>
    );
@@ -78,9 +78,9 @@ export function SideMenu(props: SideMenuProps) {
          <div class={s.workspaceBar}>
             <div
                class={s.box}
-               // style={{
-               //    "background-image": `url(${selectedWorkspace()?.workspaceIcon})`
-               // }}
+            // style={{
+            //    "background-image": `url(${selectedWorkspace()?.workspaceIcon})`
+            // }}
             />
             <div class={s.title}>{selectedWorkspace()?.title ?? 'Select workspace'}</div>
          </div>
@@ -109,7 +109,7 @@ export function SideMenu(props: SideMenuProps) {
                </div>
                <div class={s.items}>
                   <For each={app.documents?.filter(d => !d.shared) ?? []}>
-                     {(doc) => (ListItem(doc))}
+                     {(doc) => (PageItem(doc))}
                   </For>
                </div>
             </div>
@@ -120,7 +120,7 @@ export function SideMenu(props: SideMenuProps) {
                </div>
                <div class={s.items}>
                   <For each={app.documents?.filter(d => d.shared) ?? []}>
-                     {(doc) => (ListItem(doc))}
+                     {(doc) => (PageItem(doc))}
                   </For>
                </div>
             </div>

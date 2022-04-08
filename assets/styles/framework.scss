@@ -1,12 +1,11 @@
-
 .block {
    width: 100%;
 }
+
 .items {
    width: 100%;
    display: flex;
    flex-direction: column;
-   gap: 4px;
    align-items: stretch;
 }
 
@@ -22,24 +21,23 @@
 
    cursor: pointer;
 
-   font-family: Inter;
-   font-style: normal;
-   font-weight: 400;
-   font-size: 14px;
-   line-height: 16px;
-
-   color: #51575E;
-
    >.icon {
       width: 15px;
       // height: 15px;
       background-position: center;
       background-repeat: no-repeat;
       background-size: contain;
-      // fill: #51575E;
+      color: #51575E;
    }
 
    >span {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 16px;
+
+      color: #51575E;
       margin-left: 8px;
       font-weight: 500;
    }
@@ -54,9 +52,9 @@
          color: #312F2F;
       }
 
-      // >.icon {
-      //    stroke: #312F2F;
-      // }
+      >.icon {
+         color: #312F2F;
+      }
    }
 
    &.disabled {

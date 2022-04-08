@@ -103,42 +103,40 @@
    gap: 38px;
 }
 
-.pages {
-   .page {
+.page {
+   >span {
+      font-weight: 400;
+   }
 
-      >span {
-         font-weight: 400;
+   >.icon {
+
+      &.page {
+         margin-left: 3px;
       }
 
-      >.icon {
-         &.page {
-            margin-left: 3px;
-         }
-
-         &.arrow {
-            width: 10px;
-            height: 10px;
-            margin-left: 3px;
-         }
+      &.arrow {
+         width: 10px;
+         height: 10px;
+         margin-left: 3px;
       }
+   }
 
-      position: relative;
+   position: relative;
 
-      >.dotsIcon {
-         width: 22px;
-         height: 22px;
-         background-image: url(./assets/triple-dots.icon.svg);
-         background-position: center;
-         background-repeat: no-repeat;
-         border-radius: 4px;
-         position: absolute;
-         right: 3px;
+   >.dots {
+      width: 22px;
+      height: 22px;
+      background-image: url(./assets/triple-dots.icon.svg);
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 4px;
+      position: absolute;
+      right: 3px;
 
 
 
-         &:hover {
-            background-color: #E2E2E2;
-         }
+      &:hover {
+         background-color: #E2E2E2;
       }
    }
 }
