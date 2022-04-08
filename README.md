@@ -1,8 +1,11 @@
 # BLOKI
-
-
+<br>
 <div align="center">
-  <img src="https://user-images.githubusercontent.com/17229619/162398315-7605cc86-de6a-4a20-b89b-52263cf92964.png" align="center"/>
+  <img 
+    src="https://user-images.githubusercontent.com/17229619/162398315-7605cc86-de6a-4a20-b89b-52263cf92964.png" 
+    align="center"
+    width="650"
+  />
 </div> 
 
 <h2 align="center">Bloki.app</h2>
