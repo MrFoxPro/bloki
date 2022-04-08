@@ -1,5 +1,5 @@
 import { useAppStore } from "@/lib/app.store";
-import { createEffect, For, Show } from "solid-js";
+import { For, Show } from "solid-js";
 import s from './cursors.module.scss';
 import CursorIcon from '../assets/cursor.icon.svg';
 import { CURSOR_UPDATE_RATE } from "@/lib/network.types";
@@ -10,8 +10,6 @@ export function Cursors() {
    const [app] = useAppStore();
    const [editor, { staticEditorData }] = useEditorStore();
    const [collab] = useCollabStore();
-
-   createEffect(() => console.log(collab.rommates));
 
    return (
       <Show when={editor.document.shared}>

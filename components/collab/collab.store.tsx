@@ -66,7 +66,6 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
                cursor: data.cursor,
                color: data.color
             });
-            console.log(unwrap(collab.rommates));
             break;
          }
          case WSMsgType.Blob: {

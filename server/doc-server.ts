@@ -1,7 +1,6 @@
 import { BlokiDocument } from "../lib/entities";
 import { getRandomColor, mapValuesArray } from "../lib/helpers";
 import { Roommate, WSMsg, WSMsgType } from "../lib/network.types";
-import { introDoc } from "../lib/test-data/hackaton-data";
 import { WebSocketServer, WebSocket } from "ws";
 import { blobStorage } from "./db";
 import { tg } from "./tg-console";
@@ -31,7 +30,6 @@ export class DocumentServer {
       this.wss = new WebSocketServer({ noServer: true });
 
       this.wss.on('connection', (ws, req) => {
-         (ws as any).isAlive = true;
 
          ws.on('message', (buf) => {
             // CRDT? Yes I heard about this crypto currency :p
@@ -70,8 +68,8 @@ export class DocumentServer {
             }
          });
 
-         ws.on('close', () => {
-            logtg('User %s left', this.room.get(ws)?.name);
+         ws.on('close', (code, reason) => {
+            logtg('User %s left. Code: %s. Reason: %s', this.room.get(ws)?.name, code.toString(), reason.toString());
             this.room.delete(ws);
             this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
          });
