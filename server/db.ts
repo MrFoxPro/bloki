@@ -18,7 +18,9 @@ const db = {
 
 const blobStorage = new Map<string, Buffer>();
 db.docs.forEach((doc, i) => {
-   doc.id = crypto.randomUUID();
+   if (i > 0) {
+      doc.id = crypto.randomUUID();
+   }
    blobStorage.set(doc.id, doc.id === introDoc.id ? introImageBlob : emptyImageBlob);
    if (doc.shared) {
       doc.title = `Shared doc ${i}`;
