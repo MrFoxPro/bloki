@@ -1,5 +1,13 @@
+
+.block {
+   width: 100%;
+}
 .items {
    width: 100%;
+   display: flex;
+   flex-direction: column;
+   gap: 4px;
+   align-items: stretch;
 }
 
 .item {
@@ -7,7 +15,7 @@
 
    display: flex;
    align-items: center;
-   padding-left: 3px;
+   padding-left: 9px;
 
    height: 28px;
    width: 100%;
@@ -24,10 +32,11 @@
 
    >.icon {
       width: 15px;
-      height: 15px;
+      // height: 15px;
       background-position: center;
       background-repeat: no-repeat;
       background-size: contain;
+      // fill: #51575E;
    }
 
    >span {
@@ -40,6 +49,14 @@
    &.highlighted {
       // background: #F6F9FB;
       background: #EAEAEA;
+
+      >span {
+         color: #312F2F;
+      }
+
+      // >.icon {
+      //    stroke: #312F2F;
+      // }
    }
 
    &.disabled {
@@ -116,6 +133,7 @@ input[type=url] {
    font-size: 16px;
 
    padding-left: 5px;
+
    &::placeholder {
       color: #a3a6a8;
       font-family: 'Roboto';

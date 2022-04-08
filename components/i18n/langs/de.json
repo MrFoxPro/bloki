@@ -32,8 +32,8 @@
   },
   "menu": {
     "label": {
-      "pages": "Seiten",
-      "shared-pages": "Öffentliche Seiten"
+      "pages": "Persönlich",
+      "shared-pages": "Öffentlich"
     },
     "items": {
       "settings": "Einstellungen",

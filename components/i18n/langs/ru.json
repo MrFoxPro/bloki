@@ -1,8 +1,8 @@
 {
   "menu": {
     "label": {
-      "pages": "Страницы",
-      "shared-pages": "Публичные страницы"
+      "pages": "Персональные",
+      "shared-pages": "Публичные"
     },
     "items": {
       "search": "Поиск",

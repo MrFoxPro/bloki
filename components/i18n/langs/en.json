@@ -32,8 +32,8 @@
   },
   "menu": {
     "label": {
-      "pages": "Pages",
-      "shared-pages": "Public Pages"
+      "pages": "Personal",
+      "shared-pages": "Public"
     },
     "items": {
       "search": "Search",

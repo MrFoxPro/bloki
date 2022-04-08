@@ -46,7 +46,6 @@ export function MainPage() {
                </div>
                <h4>{selectedDocument()?.title} <Show when={selectedDocument()?.willUpdateAtUnix}>{countdown.minutes}:{countdown.seconds}</Show></h4>
                <div class={s.rightBar} ref={rightBarRef}>
-
                </div>
             </div>
             <Show when={selectedDocument()}>

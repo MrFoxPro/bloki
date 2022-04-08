@@ -6,6 +6,8 @@ import { useI18n } from '@solid-primitives/i18n';
 import { useAppStore } from '@/lib/app.store';
 
 import s from './side-menu.module.scss';
+import PageIcon from './assets/page.icon.svg';
+import ArrowIcon from './assets/arrow.icon.svg';
 import AddIcon from './assets/add.icon.svg';
 import SearchIcon from './assets/search.icon.svg';
 import SettingsIcon from './assets/settings.icon.svg';
@@ -54,16 +56,16 @@ export function SideMenu(props: SideMenuProps) {
 
    const ListItem = (doc: BlokiDocument) => (
       <div
-         class={cc([s.page, s.item])}
+         class={cc([s.item])}
          classList={{
             [s.highlighted]: doc.id === app.selectedDocumentId
          }}
          onClick={() => setAppStore({ selectedDocumentId: doc.id })}
       >
-         <Show when={true}>
+         {/* <Show when={true}>
             <div class={cc([s.icon, s.arrow])} />
-         </Show>
-         <div class={cc([s.icon, s.page])} />
+         </Show> */}
+         <PageIcon class={cc([s.icon, s.page])} />
          <span>{doc.title}</span>
          <Show when={doc.id === app.selectedDocumentId}>
             <div class={s.dotsIcon} />
@@ -83,7 +85,7 @@ export function SideMenu(props: SideMenuProps) {
             <div class={s.title}>{selectedWorkspace()?.title ?? 'Select workspace'}</div>
          </div>
          <div class={s.menus}>
-            <div class={s.block}>
+            <div class={s.items}>
                <For each={items}>
                   {(item) => (
                      <div
@@ -105,7 +107,7 @@ export function SideMenu(props: SideMenuProps) {
                   {t('menu.label.pages')}
                   {/* <AddIcon class={s.icon} /> */}
                </div>
-               <div class={s.pages}>
+               <div class={s.items}>
                   <For each={app.documents?.filter(d => !d.shared) ?? []}>
                      {(doc) => (ListItem(doc))}
                   </For>
@@ -116,7 +118,7 @@ export function SideMenu(props: SideMenuProps) {
                   {t('menu.label.shared-pages')}
                   {/* <AddIcon class={s.icon} /> */}
                </div>
-               <div class={s.pages}>
+               <div class={s.items}>
                   <For each={app.documents?.filter(d => d.shared) ?? []}>
                      {(doc) => (ListItem(doc))}
                   </For>

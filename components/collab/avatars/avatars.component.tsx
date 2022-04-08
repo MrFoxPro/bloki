@@ -19,8 +19,8 @@ export function Avatars(props: AvatarsProps) {
    }
 
    return (
-      <Show when={editor.document.shared}>
-         <div class={s.avatars}>
+      <div class={s.avatars}>
+         <Show when={editor.document.shared}>
             <For each={collab.rommates}>
                {user => (
                   <div
@@ -35,7 +35,8 @@ export function Avatars(props: AvatarsProps) {
                   </div>
                )}
             </For>
-         </div>
-      </Show>
+         </Show>
+         <button class={s.share}>Share</button>
+      </div>
    );
 }

@@ -80,6 +80,7 @@
       border-radius: 6px;
       background-size: contain;
       background-position: center;
+      background-image: url('@/assets/styles/favicon-32x32.png');
    }
 
    .title {
@@ -102,24 +103,19 @@
    gap: 38px;
 }
 
-.block {
-   width: 100%;
-}
-
 .pages {
    .page {
+
       >span {
          font-weight: 400;
       }
 
       >.icon {
          &.page {
-            background-image: url(./assets/page.icon.svg);
             margin-left: 3px;
          }
 
          &.arrow {
-            background-image: url(./assets/arrow-menu.icon.svg);
             width: 10px;
             height: 10px;
             margin-left: 3px;
@@ -138,10 +134,10 @@
          position: absolute;
          right: 3px;
 
-         background-color: #E2E2E2;
+
 
          &:hover {
-            // background-color: #EDF2F4;
+            background-color: #E2E2E2;
          }
       }
    }
