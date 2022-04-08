@@ -91,7 +91,7 @@ export function TextBlock(props: TextBlockProps) {
       }
       const widthPx = transform.width + 'px';
       measurer.setOptions({
-         fontFamily: block.fontFamily,
+         fontFamily: block.fontFamily ?? TextBlockFontFamily.Inter,
          fontSize: textSettings().fontSize + 'px',
          lineHeight: textSettings().lineHeight + 'px',
          fontWeight: textSettings().fontWeight + 'px',
