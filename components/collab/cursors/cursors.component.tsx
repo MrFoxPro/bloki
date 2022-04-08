@@ -21,7 +21,7 @@ export function Cursors() {
                   class={s.user}
                   style={{
                      transform: `translate(${user.cursor.x - staticEditorData.containerRect.x}px, ${user.cursor.y - staticEditorData.containerRect.y}px)`,
-                     transition: `transform ${CURSOR_UPDATE_RATE}ms ease`
+                     transition: `transform ${CURSOR_UPDATE_RATE}ms linear`
                   }}
                >
                   <CursorIcon fill={user.color} />
