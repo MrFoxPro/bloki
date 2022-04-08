@@ -17,14 +17,12 @@ const db = {
 } as const;
 
 const blobStorage = new Map<string, Buffer>();
-db.docs
-   .forEach((doc, i) => {
-      blobStorage.set(doc.id, doc.id === introDoc.id ? introImageBlob : emptyImageBlob);
-      if (doc.shared) {
-         doc.id = crypto.randomUUID();
-         doc.title = `Shared doc ${i}`;
-      }
-   });
-
+db.docs.forEach((doc, i) => {
+   doc.id = crypto.randomUUID();
+   blobStorage.set(doc.id, doc.id === introDoc.id ? introImageBlob : emptyImageBlob);
+   if (doc.shared) {
+      doc.title = `Shared doc ${i}`;
+   }
+});
 
 export { db, blobStorage };
