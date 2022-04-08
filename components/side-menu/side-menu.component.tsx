@@ -78,9 +78,9 @@ export function SideMenu(props: SideMenuProps) {
          <div class={s.workspaceBar}>
             <div
                class={s.box}
-               style={{
-                  "background-image": `url(${selectedWorkspace()?.workspaceIcon})`
-               }}
+               // style={{
+               //    "background-image": `url(${selectedWorkspace()?.workspaceIcon})`
+               // }}
             />
             <div class={s.title}>{selectedWorkspace()?.title ?? 'Select workspace'}</div>
          </div>
