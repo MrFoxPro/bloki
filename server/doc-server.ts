@@ -13,6 +13,14 @@ function logtg(...msg: string[]) {
    console.log(...msg);
    tg(...msg);
 }
+async function getCountry(addr: string) {
+   try {
+      return await fetch(`http://ip-api.com/json/${addr}`).then(x => x.json());
+   }
+   catch (e) {
+      return null;
+   }
+}
 export class DocumentServer {
    wss: WebSocketServer;
    room: Map<WebSocket, Roommate>;
@@ -31,7 +39,7 @@ export class DocumentServer {
 
       this.wss.on('connection', (ws, req) => {
 
-         ws.on('message', (buf) => {
+         ws.on('message', async (buf) => {
             // CRDT? Yes I heard about this crypto currency :p
             const msg = JSON.parse(buf.toString()) as WSMsg;
             if (!msg) return;
@@ -47,7 +55,8 @@ export class DocumentServer {
                      color: getRandomColor(),
                      workingBlockId: data.workingBlockId
                   });
-                  logtg('User %s joined document "%s"', data.name, this.doc.title);
+                  const loc = await getCountry(req.socket.remoteAddress);
+                  logtg('User %s joined document "%s"', data.name, this.doc.title, loc?.country, loc?.city);
                   this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
                   break;
                }
