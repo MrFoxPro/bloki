@@ -15,7 +15,7 @@ function logtg(...msg: string[]) {
 }
 async function getCountry(addr: string) {
    try {
-      return await fetch(`http://ip-api.com/json/${addr}`).then(x => x.json());
+      return await fetch(`http://ip-api.com/json/${addr}?fields=country,city`).then(x => x.json());
    }
    catch (e) {
       return null;
@@ -55,8 +55,8 @@ export class DocumentServer {
                      color: getRandomColor(),
                      workingBlockId: data.workingBlockId
                   });
-                  const loc = await getCountry(req.socket.remoteAddress);
-                  logtg('User %s joined document "%s"', data.name, this.doc.title, loc?.country, loc?.city);
+                  const loc = await getCountry(req.headers['x-real-ip'] as string);
+                  logtg('User %s joined document "%s"', data.name, this.doc.title, `\n Location: ${loc?.country}, ${loc?.city}`);
                   this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
                   break;
                }
