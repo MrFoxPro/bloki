@@ -6,7 +6,8 @@
       "target": "ESNext",
       "module": "ESNext",
       "moduleResolution": "node",
-      "emitDecoratorMetadata": true,
+      // "emitDecoratorMetadata": true,
+      // "experimentalDecorators": true,
       "resolveJsonModule": true,
       // Typechecking
       "noImplicitAny": false,
@@ -15,12 +16,10 @@
       "allowSyntheticDefaultImports": true,
       // "importHelpers": true,
       "skipDefaultLibCheck": true,
-      "inlineSourceMap": true,
       "skipLibCheck": true,
       "outDir": "./dist/backend",
       "isolatedModules": false,
-      "baseUrl": ".",
-      "experimentalDecorators": true,
+      "baseUrl": "./",
       "jsx": "preserve",
       "jsxImportSource": "solid-js",
       // Misc

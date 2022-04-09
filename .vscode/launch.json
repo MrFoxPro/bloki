@@ -17,8 +17,7 @@
          "internalConsoleOptions": "neverOpen",
          "name": "Server",
          "request": "launch",
-         "cwd": "${workspaceFolder}/server",
-         "restart": true,
+         "cwd": "${workspaceFolder}",
          "runtimeExecutable": "nodemon",
          "outputCapture": "std",
          "skipFiles": [

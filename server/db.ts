@@ -1,9 +1,10 @@
 import crypto from 'crypto';
 import fs from 'fs';
+import path from 'node:path';
 import { hackWorkspace, introDoc, emptyDoc, docWithSimpleLayout } from "../lib/test-data/hackaton-data";
 
-const introImageBlob = fs.readFileSync('../lib/test-data/assets/intro.png');
-const emptyImageBlob = fs.readFileSync('../lib/test-data/assets/empty.png');
+const introImageBlob = fs.readFileSync(path.resolve(__dirname, '../lib/test-data/assets/intro.png'));
+const emptyImageBlob = fs.readFileSync(path.resolve(__dirname, '../lib/test-data/assets/empty.png'));
 
 const db = {
    workspaces: [hackWorkspace],

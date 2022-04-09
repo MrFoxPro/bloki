@@ -4,7 +4,7 @@ import { Roommate, WSMsg, WSMsgType } from "../lib/network.types";
 import { WebSocketServer, WebSocket } from "ws";
 import { blobStorage } from "./db";
 import { tg } from "./tg-console";
-import fetch from 'node-fetch';
+import { request } from 'node:http';
 
 function send(ws: WebSocket, type: WSMsgType, data: any) {
    const serialized = JSON.stringify({ type, data } as WSMsg);
@@ -14,13 +14,15 @@ function logtg(...msg: string[]) {
    console.log(...msg);
    tg(...msg);
 }
-async function getCountry(addr: string) {
-   try {
-      return await fetch(`http://ip-api.com/json/${addr}?fields=country,city`).then(x => x.json());
-   }
-   catch (e) {
-      return null;
-   }
+function getCountry(addr: string) {
+   return new Promise((res, rej) => {
+      const req = request(`http://ip-api.com/json/${addr}?fields=country,city`, (r) => {
+         r.on('data', d => res(JSON.parse(d.toString())));
+      });
+      req.on('error', (e) => rej(e));
+      req.end();
+   });
+
 }
 export class DocumentServer {
    wss: WebSocketServer;
@@ -56,7 +58,10 @@ export class DocumentServer {
                      color: getRandomColor(),
                      workingBlockId: data.workingBlockId
                   });
-                  const loc = await getCountry(req.headers['x-real-ip'] as string);
+                  let loc = {};
+                  if (process.env.MODE === 'prod') {
+                     loc = await getCountry(req.headers['x-real-ip'] as string);
+                  }
                   logtg('User %s joined document "%s"', data.name, this.doc.title, `\n Location: ${loc?.country}, ${loc?.city}`);
                   this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
                   break;

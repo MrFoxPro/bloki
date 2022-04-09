@@ -5,5 +5,5 @@
    ],
    "watch": "*",
    "ext": "ts",
-   "exec": "node -r @swc-node/register ./index.ts"
+   "exec": "node -r @swc-node/register ./server/index.ts"
 }

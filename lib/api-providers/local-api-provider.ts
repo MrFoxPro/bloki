@@ -2,8 +2,8 @@
 import { IApiProvider } from "./api-provider.interface";
 import { BlokiDocument, User, Workspace } from "../entities";
 import { unwrap } from "solid-js/store";
-import { plainToInstance } from 'class-transformer';
-import { drawingTypeNamesToType } from "@/components/bloki-editor/types/drawings";
+// import { plainToInstance } from 'class-transformer';
+// import { drawingTypeNamesToType } from "@/components/bloki-editor/types/drawings";
 // import DOMPurify from 'dompurify';
 
 const LS_KEY = 'bloki_data';
@@ -36,13 +36,13 @@ export class TestLocalApiProvider implements IApiProvider {
             throw new Error('Outdated version of db: ' + data?._version + ' Required: ' + import.meta.env.VITE_GIT_COMMIT_HASH);
          }
          // You really do not need to look at here ><
-         data.user.workspaces.forEach(ws => {
-            ws.documents.forEach((doc, i) => {
-               ws.documents[i].whiteboard.drawings = ws.documents[i].whiteboard.drawings.map(d => {
-                  return plainToInstance(drawingTypeNamesToType[d.drawingTypeName], d);
-               });
-            });
-         });
+         // data.user.workspaces.forEach(ws => {
+         //    ws.documents.forEach((doc, i) => {
+         //       ws.documents[i].whiteboard.drawings = ws.documents[i].whiteboard.drawings.map(d => {
+         //          return plainToInstance(drawingTypeNamesToType[d.drawingTypeName], d);
+         //       });
+         //    });
+         // });
          this.db = data;
       }
       catch (e) {
