@@ -4,6 +4,7 @@ import { Roommate, WSMsg, WSMsgType } from "../lib/network.types";
 import { WebSocketServer, WebSocket } from "ws";
 import { blobStorage } from "./db";
 import { tg } from "./tg-console";
+import fetch from 'node-fetch';
 
 function send(ws: WebSocket, type: WSMsgType, data: any) {
    const serialized = JSON.stringify({ type, data } as WSMsg);
