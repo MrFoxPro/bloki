@@ -6,6 +6,7 @@ import { useAppStore } from "@/lib/app.store";
 import { useEditorStore } from "../bloki-editor/editor.store";
 import { Point } from "../bloki-editor/types/blocks";
 import { useDrawerStore } from "../bloki-editor/drawer.store";
+import { fromBuffer } from 'file-type';
 
 type CollabContextValues = {
    rommates: Roommate[];
@@ -14,6 +15,7 @@ type CollabContextValues = {
 };
 type CollabContextHandlers = {
    setCollabStore: SetStoreFunction<CollabContextValues>;
+   send(type: WSMsgType, data?: object): void;
 };
 
 const CollabContext = createContext<[CollabContextValues, CollabContextHandlers]>(
@@ -25,6 +27,7 @@ const CollabContext = createContext<[CollabContextValues, CollabContextHandlers]
       },
       {
          setCollabStore: () => void 0,
+         send: () => void 0
       }
    ]
 );
@@ -45,14 +48,23 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    function send(type: WSMsgType, data: object = {}) {
       if (!ws) return;
       if (ws.readyState === ws.CONNECTING) {
-         return setTimeout(() => send(type, data), 400);
+         setTimeout(() => send(type, data), 400);
+         return;
       }
       const serialized = JSON.stringify({ name: app.name, type, data } as WSMsg);
       ws.send(serialized);
    }
 
+   let drawFromServer;
    function onMessage(ev: MessageEvent) {
       if (!ev.data) return;
+
+      if (ev.data instanceof Blob) {
+         console.log('got buffer', ev.data.type);
+         drawFromServer = ev.data;
+         setDrawerStore({ blob: ev.data });
+         return;
+      }
       const msg = JSON.parse(ev.data) as WSMsg;
       if (!msg) return;
 
@@ -69,12 +81,6 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
                cursor: data.cursor,
                color: data.color
             });
-            break;
-         }
-         case WSMsgType.Blob: {
-            console.log('hey, got blob!');
-            console.log(data.blob);
-            // setDrawerStore({blob: });
             break;
          }
          default:
@@ -130,13 +136,18 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
       if (!collab.connected) return;
       send(WSMsgType.CursorUpdate, { cursor: collab.cursor });
    });
-
-   // createEffect(async () => {
-   //    if (!drawer.blob) return;
-   //    console.log('sending blob to server');
-   //    // ws.send(drawer.blob);
-   //    // send(WSMsgType.Blob, { blob: drawer.blob });
-   // });
+   function sendBlob(b: Blob) {
+      if (ws.readyState === ws.CONNECTING) {
+         setTimeout(() => sendBlob(b), 400);
+         return;
+      }
+      ws.send(drawer.blob);
+   }
+   createEffect(() => {
+      if (!drawer.blob || !ws) return;
+      if (drawer.blob === drawFromServer) return;
+      sendBlob(drawer.blob);
+   });
 
    let statusInterval: number;
    onCleanup(() => {
@@ -146,7 +157,7 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    });
 
    return (
-      <CollabContext.Provider value={[collab, { setCollabStore }]}>
+      <CollabContext.Provider value={[collab, { setCollabStore, send }]}>
          {props.children}
       </CollabContext.Provider>
    );

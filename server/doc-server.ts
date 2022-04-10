@@ -5,7 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { blobStorage } from "./db";
 import { tg } from "./tg-console";
 import { request, IncomingMessage } from 'node:http';
-// import { fileTypeFromBuffer } from 'file-type';
+import fileType from 'file-type';
 
 function send(ws: WebSocket, type: WSMsgType, data: any) {
    const serialized = JSON.stringify({ type, data } as WSMsg);
@@ -28,7 +28,7 @@ function getCountry(addr: string) {
 export class DocumentServer {
    wss: WebSocketServer;
    room = new Map<WebSocket, Roommate>();
-   blob: Buffer;
+   whiteboard: Buffer;
    willResetAt: number;
    doc: BlokiDocument;
    socketActivity = new Map<WebSocket, number>();
@@ -37,7 +37,7 @@ export class DocumentServer {
       if (!doc.shared) throw new Error();
       this.doc = doc;
 
-      this.blob = blobStorage.get(doc.id);
+      this.whiteboard = blobStorage.get(doc.id);
       this.willResetAt = Date.now() + 5 * 60 * 1000;
       this.wss = new WebSocketServer({ noServer: true });
       this.wss.on('connection', this.connection);
@@ -48,13 +48,16 @@ export class DocumentServer {
       this.socketActivity.set(ws, Date.now());
 
       ws.on('message', async (buf, isBinary) => {
-         // if (isBinary) {
-         //    const fileType = await fileTypeFromBuffer(buf as Buffer);
-         //    console.log('file type', fileType);
-         //    this.socketActivity.set(ws, Date.now());
-         //    return;
-         // }
-
+         if (isBinary) {
+            const type = await fileType.fromBuffer(buf as Buffer);
+            if (type.ext === 'png') {
+               this.socketActivity.set(ws, Date.now());
+               this.whiteboard = buf as Buffer;
+               blobStorage.set(this.doc.id, this.whiteboard);
+               this.room.forEach((_, socket) => socket != ws && socket.send(this.whiteboard));
+            }
+            return;
+         }
 
          // CRDT? Yes I heard about this crypto currency :p
          const msg = JSON.parse(buf.toString()) as WSMsg;
@@ -85,18 +88,11 @@ export class DocumentServer {
                const user = this.room.get(ws);
                if (!user) return;
                user.cursor = data.cursor;
-               this.room.forEach((rm, socket) => rm.name !== user.name && send(socket, WSMsgType.CursorUpdate, user));
+               this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.CursorUpdate, user));
                break;
             }
             case WSMsgType.Roommates: {
                this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
-               break;
-            }
-            case WSMsgType.Blob: {
-               console.log('blob msg', data);
-               const user = this.room.get(ws);
-               if (!user) return;
-               // this.room.forEach((rm, socket) => rm.name !== user.name && send(socket, WSMsgType.Blob, mapValuesArray(this.room)));
                break;
             }
             default:

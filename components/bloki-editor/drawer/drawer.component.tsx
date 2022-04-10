@@ -65,15 +65,13 @@ export function Drawer() {
    createEffect(() => {
       getWhiteBoardData()
          .then((blob) => setDrawerStore({ blob }))
-         .catch(e => console.warn('Unable to download drawing!', e));
+         .catch(e => console.warn('Unable to download initial drawing!', e));
    });
 
    createEffect(async () => {
       if (!drawer.blob) return;
-      console.log('redrawing whiteboard');
       const bitmap = await createImageBitmap(drawer.blob);
-      console.log(bitmap)
-      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalCompositeOperation = 'copy';
       ctx.drawImage(bitmap, 0, 0);
    });
 
@@ -151,9 +149,9 @@ export function Drawer() {
    }
 
    async function processDrawings() {
-      // const blob = await toBlobAsync(ctx, 'image/png', 1);
+      const blob = await toBlobAsync(ctx, 'image/png', 1);
       // const base64 = ctx.canvas.toDataURL('image/png', 1);
-      // setDrawerStore({ blob });
+      setDrawerStore({ blob });
       // if(editor.document.shared) {
 
       // }
