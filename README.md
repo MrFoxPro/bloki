@@ -18,7 +18,7 @@ Join team and do it together.
 Bloki is similiar to checkered notebook and complements it with modern tools.  
 Bloki gives you creative freedom in working with text and media.  
 ![block-editing1](https://user-images.githubusercontent.com/17229619/162616223-7bada943-3944-4fe4-83fa-76e96ec87f3d.gif)
-
+Collaboration demo: https://youtu.be/PsEwt068DGk  
 > ### ⚠️ This product is still in very early stages of development.
 
 ## Features
