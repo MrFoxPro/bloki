@@ -112,7 +112,7 @@
   "topbar": {
     "doc-status": {
       "connected": "Connected",
-      "disconnected": "Disabled"
+      "disconnected": "Disconnected"
     }
   }
 }
