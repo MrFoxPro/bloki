@@ -1,6 +1,6 @@
-import { Accessor, batch, createComputed, createContext, createMemo, mergeProps, PropsWithChildren, useContext } from "solid-js";
+import { Accessor, batch, createComputed, createContext, createEffect, createMemo, mergeProps, onCleanup, PropsWithChildren, untrack, useContext } from "solid-js";
 import { createNanoEvents, Emitter } from 'nanoevents';
-import { createStore, DeepReadonly, SetStoreFunction } from "solid-js/store";
+import { createStore, DeepReadonly, reconcile, SetStoreFunction } from "solid-js/store";
 import {
    AnyBlock,
    BlockTransform,
@@ -11,7 +11,10 @@ import {
 import { BlokiDocument } from "@/lib/entities";
 import { EditType, Instrument } from "./types/editor";
 import { checkPlacement as checkPlacementHelper } from "./helpers";
-import { ChangeEventInfo } from "@/lib/network.types";
+import { ChangeEventInfo, CURSOR_UPDATE_RATE, Roommate, WSMsg, WSMsgType } from "@/lib/network.types";
+import { useAppStore } from "@/lib/app.store";
+import { useDrawerStore } from "./drawer.store";
+import throttle from "lodash.throttle";
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock?: AnyBlock;
@@ -23,6 +26,11 @@ type EditorStoreValues = DeepReadonly<{
    document: BlokiDocument;
    layout: AnyBlock[];
    showContextMenu: boolean;
+
+   rommates: Roommate[];
+   cursor: Point;
+   connected: boolean;
+
 }>;
 
 type CalculatedSize = {
@@ -83,6 +91,7 @@ type EditorStoreHandles = {
 
    setEditorStore: SetStoreFunction<EditorStoreValues>;
    staticEditorData: StaticEditorData;
+   send(type: WSMsgType, data?: object): void;
 };
 
 const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
@@ -97,9 +106,12 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       instrument: Instrument.Cursor
    }, props);
 
+   const [app] = useAppStore();
+   const [drawer, { setDrawerStore }] = useDrawerStore();
+
    const staticEditorData = new StaticEditorData();
 
-   const [state, setState] = createStore<EditorStoreValues>(
+   const [editor, setEditorStore] = createStore<EditorStoreValues>(
       {
          editingBlock: null,
          editingType: null,
@@ -109,30 +121,35 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          isPlacementCorrect: false,
          document: null,
          layout: [],
+         rommates: [],
+         cursor: { x: 0, y: 0 },
+         connected: false,
       }
    );
 
+   const wsHost = import.meta.env.DEV ? 'ws://localhost:3005/ws' : 'wss://bloki.app/ws';
+
    createComputed(() => {
-      setState({
+      setEditorStore({
          document: props.document
       });
    });
 
-   const gridBoxSize = createMemo(() => state.document.layoutOptions.gap + state.document.layoutOptions.size);
+   const gridBoxSize = createMemo(() => editor.document.layoutOptions.gap + editor.document.layoutOptions.size);
 
    function gridSize(factor: number) {
       if (factor <= 0) return 0;
-      return factor * (state.document.layoutOptions.size + state.document.layoutOptions.gap) - state.document.layoutOptions.gap;
+      return factor * (editor.document.layoutOptions.size + editor.document.layoutOptions.gap) - editor.document.layoutOptions.gap;
    }
 
    const realSize = createMemo(() => {
       const cellPx = {
-         gap_px: state.document.layoutOptions.gap + 'px',
-         size_px: state.document.layoutOptions.size + 'px',
-         sum_px: (state.document.layoutOptions.size + state.document.layoutOptions.gap) + 'px'
+         gap_px: editor.document.layoutOptions.gap + 'px',
+         size_px: editor.document.layoutOptions.size + 'px',
+         sum_px: (editor.document.layoutOptions.size + editor.document.layoutOptions.gap) + 'px'
       };
       const dimensionsKeys = ['fGridWidth', 'fGridHeight', 'mGridWidth', 'mGridHeight'];
-      const grid = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr]: gridSize(state.document.layoutOptions[curr]) }), {});
+      const grid = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr]: gridSize(editor.document.layoutOptions[curr]) }), {});
       const gridPx = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr + '_px']: (grid[curr] + 'px') }), {});
       return { ...cellPx, ...grid, ...gridPx } as CalculatedSize;
    });
@@ -158,10 +175,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function getAbsoluteSize(width: number, height: number) {
       return { width: gridSize(width), height: gridSize(height) };
    }
-   const checkPlacement = (block: BlockTransform, x = block.x, y = block.y, width = block.width, height = block.height) => checkPlacementHelper(state.layout, state.document.layoutOptions, block, x, y, width, height);
+   const checkPlacement = (block: BlockTransform, x = block.x, y = block.y, width = block.width, height = block.height) =>
+      checkPlacementHelper(editor.layout, editor.document.layoutOptions, block, x, y, width, height);
 
    function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
-      setState({ editingBlock: block, editingType: type });
+      setEditorStore({ editingBlock: block, editingType: type });
 
       const relTransform = { height: block.height, width: block.width, x: block.x, y: block.y };
       staticEditorData.emit('changestart', block, {
@@ -176,12 +194,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
 
-      if (type === 'content') {
-
-      }
-
       const placement = checkPlacement(block, x, y, width, height);
-      setState({ isPlacementCorrect: placement.correct, overflowedBlocks: placement.affected });
+      setEditorStore({ isPlacementCorrect: placement.correct, overflowedBlocks: placement.affected });
       staticEditorData.emit('change', block, {
          absTransform,
          placement,
@@ -194,21 +208,22 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
       const placement = checkPlacement(block, x, y, width, height);
-
+      const relTransofrm = { x, y, width, height };
       batch(() => {
-         setState({
+         setEditorStore({
             // editingBlock: null,
-            editingType: 'select',
+            // editingType: 'select',
             isPlacementCorrect: true,
             overflowedBlocks: [],
          });
 
          if (placement.correct) {
-            setState('layout', state.layout.indexOf(block), { x, y, width, height });
+            setEditorStore('layout', editor.layout.indexOf(block), { x, y, width, height });
+            send(WSMsgType.ChangeEnd, { block, rel: relTransofrm, type });
             return;
          }
-         console.log('incorrect!');
-         setState('layout', state.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
+         setEditorStore('editingType', 'select');
+         setEditorStore('layout', editor.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
       staticEditorData.emit('changeend', block, {
@@ -221,28 +236,179 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function selectBlock(selectedBlock: AnyBlock, type: EditType = 'select') {
       if (selectedBlock) {
-         setState({
+         setEditorStore({
             editingBlock: selectedBlock,
             editingType: type,
          });
       }
       else {
-         setState({
+         setEditorStore({
             editingBlock: null,
             editingType: null,
          });
       }
    }
    function deleteBlock(block: AnyBlock) {
-      if (state.editingBlock === block) {
-         setState({
+      if (editor.editingBlock === block) {
+         setEditorStore({
             editingBlock: null,
             editingType: null
          });
       }
-      setState('layout', blocks => blocks.filter(b => b.id !== block.id));
+      setEditorStore('layout', blocks => blocks.filter(b => b.id !== block.id));
+      send(WSMsgType.DeleteBlock, block.id);
+   }
+   let ws: WebSocket;
+
+   function send(type: WSMsgType, data: object = {}) {
+      if (!ws) return;
+      if (ws.readyState === ws.CONNECTING) {
+         setTimeout(() => send(type, data), 400);
+         return;
+      }
+      const serialized = JSON.stringify({ type, data } as WSMsg);
+      ws.send(serialized);
    }
 
+   let drawFromServer;
+   function onMessage(ev: MessageEvent) {
+      if (!ev.data) return;
+
+      if (ev.data instanceof Blob) {
+         console.log('got buffer', ev.data.type);
+         drawFromServer = ev.data;
+         setDrawerStore({ blob: ev.data });
+         return;
+      }
+      const msg = JSON.parse(ev.data) as WSMsg;
+      if (!msg) return;
+
+      const { type, data } = msg;
+      if (type == null) return;
+
+      switch (msg.type) {
+         case WSMsgType.Roommates: {
+            console.log(data);
+            setEditorStore('rommates', reconcile(data));
+            break;
+         }
+         case WSMsgType.CursorUpdate: {
+            setEditorStore('rommates', rm => rm.name === data.name, {
+               cursor: data.cursor,
+               color: data.color
+            });
+            break;
+         }
+         case WSMsgType.Layout: {
+            console.log('resetting layout');
+            setEditorStore('layout', reconcile(data));
+            break;
+         }
+         case WSMsgType.ChangeEnd: {
+            const block = data as AnyBlock;
+            if (!block) return;
+            console.log('changeEnd', block);
+            setEditorStore('layout', b => b.id === block.id, block);
+            break;
+         }
+         case WSMsgType.CreateBlock: {
+            const block = data as AnyBlock;
+            if (!block) return;
+            console.log('creating block', block);
+            setEditorStore('layout', l => l.concat(block));
+            break;
+         }
+         case WSMsgType.DeleteBlock: {
+            const blockId = data as string;
+            if (!blockId) return;
+            console.log('deleting block', blockId);
+            setEditorStore('layout', l => l.filter(x => x.id !== blockId));
+            break;
+         }
+         case WSMsgType.ChangeBlock: {
+            const block = data as AnyBlock;
+            if (!block) return;
+            console.log('changing block', block);
+            setEditorStore('layout', b => b.id === block.id, reconcile(block));
+            break;
+         }
+         default:
+            console.warn('Unknown message type');
+            break;
+      }
+   }
+
+   const sendMouse = throttle((e: MouseEvent) =>
+      setEditorStore({ cursor: { x: e.pageX, y: e.pageY } }), CURSOR_UPDATE_RATE, { leading: false, trailing: true });
+
+   function disconnect() {
+      document.removeEventListener('mousemove', sendMouse);
+      if (ws) {
+         ws?.close();
+         ws = null;
+         console.log('Disconnected!');
+      }
+      setEditorStore({ connected: false });
+   }
+
+   createEffect(() => {
+      if (editor.document.id && app.name) {
+         if (editor.document.shared) {
+            if (ws && ws.readyState !== ws.CLOSED) disconnect();
+
+            ws = new WebSocket(wsHost + '/' + editor.document.id);
+            ws.onopen = function () {
+               setEditorStore({
+                  connected: true
+               });
+               console.log('Connected to document server', untrack(() => editor.document.title));
+            };
+
+            ws.onmessage = onMessage;
+            ws.onerror = () => setEditorStore({ connected: false });
+            ws.onclose = () => setEditorStore({ connected: false });
+            document.addEventListener('mousemove', sendMouse);
+
+            send(WSMsgType.Join, {
+               name: app.name,
+               cursor: untrack(() => editor.cursor),
+               workingBlockId: untrack(() => editor.editingBlock?.id)
+            });
+         }
+         else {
+            disconnect();
+         }
+      }
+   });
+
+   createEffect(() => {
+      if (!editor.connected) return;
+      send(WSMsgType.CursorUpdate, { cursor: editor.cursor });
+   });
+   function sendBlob(b: Blob) {
+      if (ws.readyState === ws.CONNECTING) {
+         setTimeout(() => sendBlob(b), 400);
+         return;
+      }
+      ws.send(drawer.blob);
+   }
+   createEffect(() => {
+      if (!drawer.blob || !ws) return;
+      if (drawer.blob === drawFromServer) return;
+      sendBlob(drawer.blob);
+   });
+
+   createEffect(() => {
+      console.log('editing block changing btw');
+      send(WSMsgType.SelectBlock, editor.editingBlock?.id);
+   });
+
+   let statusInterval: number;
+   onCleanup(() => {
+      clearInterval(statusInterval);
+      ws?.close();
+      document.removeEventListener('mousemove', sendMouse);
+   });
    // let verticallySortedDocs: string[];
    // createEffect(() => {
 
@@ -250,7 +416,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    return (
       <EditorStore.Provider value={[
-         state,
+         editor,
          {
             onChangeStart,
             onChange,
@@ -267,7 +433,9 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             selectBlock,
             deleteBlock,
 
-            setEditorStore: setState,
+            send,
+
+            setEditorStore: setEditorStore,
             staticEditorData
          }
       ]}>

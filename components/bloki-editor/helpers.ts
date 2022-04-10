@@ -66,7 +66,7 @@ export const getAsString = (item: DataTransferItem) => new Promise<string>((res,
    });
 });
 
-export function checkPlacement(layout: AnyBlock[], layoutOptions: LayoutOptions, block: BlockTransform, x = block.x, y = block.y, width = block.width, height = block.height): PlacementStatus {
+export function checkPlacement(layout: AnyBlock[], layoutOptions: LayoutOptions, block: AnyBlock, x = block.x, y = block.y, width = block.width, height = block.height): PlacementStatus {
    const intersections: BlockTransform[] = [];
    const affected: AnyBlock[] = [];
    let correct = true;
@@ -87,7 +87,7 @@ export function checkPlacement(layout: AnyBlock[], layoutOptions: LayoutOptions,
 
    for (let i = 0; i < layout.length; i++) {
       const sBlock = layout[i];
-      if (sBlock === block) continue;
+      if (sBlock.id === block.id) continue;
 
       const x1 = x;
       const y1 = y;

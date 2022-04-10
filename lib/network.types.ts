@@ -10,6 +10,9 @@ export enum WSMsgType {
    Layout,
    ChangeEnd,
    SelectBlock,
+   CreateBlock,
+   DeleteBlock,
+   ChangeBlock,
 }
 export type WSMsg = { type: WSMsgType; data: any; };
 

@@ -134,7 +134,7 @@ function BlokiEditor(props: BlokiEditorProps) {
       }
       createBlock({
          type: BlockType.Image,
-         src: imgSrc,
+         value: imgSrc,
          ...transform,
       }, 'select');
       // await app.apiProvider.updateDocument(app.selectedDocument);
@@ -169,6 +169,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    }
 
    function createBlock(block: Partial<AnyBlock>, editingType: EditType = 'content', id = crypto.randomUUID()) {
+      staticEditorData.emit('blockcreated', block);
       block.id = id;
       setEditorStore('layout', blocks => blocks.concat(block as AnyBlock));
       const createdBlock = store.layout[store.layout.length - 1];
@@ -184,7 +185,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    }
    createEffect(() => {
       getLayout()
-         .then((layout) => setEditorStore('layout', reconcile(layout)))
+         .then((layout) => setEditorStore('layout', layout))
          .catch(e => console.warn('Unable to download layout!', e));
    });
 
@@ -204,19 +205,6 @@ function BlokiEditor(props: BlokiEditorProps) {
          wrapperRef.removeEventListener('paste', onPaste);
       });
 
-   });
-
-   createEffect(() => {
-      const unbindChangeEnd = staticEditorData.on('changeend', (block, { placement, relTransform, type }) => {
-         if (placement.correct) {
-            console.log('should sync changes here');
-            // apiProvider.updateDocument(unwrap(store.document));
-         }
-      });
-
-      onCleanup(() => {
-         unbindChangeEnd();
-      });
    });
 
    createEffect(on(() => JSON.stringify(store.document.layoutOptions), calculateBoxRect));

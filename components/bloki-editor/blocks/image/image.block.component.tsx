@@ -7,6 +7,8 @@ import { useEditorStore } from '../../editor.store';
 import { getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
 import throttle from 'lodash.throttle';
 import cc from 'classcat';
+import { WSMsgType } from '@/lib/network.types';
+import { unwrap } from 'solid-js/store';
 
 type ImageBlockProps = {
 } & ComponentProps<'img'>;
@@ -15,20 +17,20 @@ export function ImageBlock(props: ImageBlockProps) {
    const [t] = useI18n();
    const [local, other] = splitProps(props, []);
 
-   const [, { gridSize }] = useEditorStore();
+   const [, { gridSize, send }] = useEditorStore();
    const [, { shadowed, block, isMeResizing, isMeDragging, blockData }] = useBlockStore<ImageBlockEntity>();
 
    if (shadowed) {
       return (
          <div class={cc([s.shadowed, s.imgBlock])}>
             <Switch>
-               <Match when={block.src}>
+               <Match when={block.value}>
                   <img
-                     src={block.src}
+                     src={block.value}
                      {...other}
                   />
                </Match>
-               <Match when={!block.src}>
+               <Match when={!block.value}>
                   <div class={s.mock}>
                      <div class={s.dnd}>
                         <div class={s.pic} />
@@ -73,7 +75,7 @@ export function ImageBlock(props: ImageBlockProps) {
    };
 
    function getContentDimension(transform: Dimension) {
-      if (!block.src) {
+      if (!block.value) {
          return {
             width: gridSize(defaultRelDimension.width),
             height: gridSize(defaultRelDimension.height),
@@ -89,15 +91,16 @@ export function ImageBlock(props: ImageBlockProps) {
    });
 
    createEffect(on(
-      () => block.src,
+      () => block.value,
       async () => {
-         if (!block.src) {
+         if (!block.value) {
             setEditorStore('layout', editorStore.layout.indexOf(block), defaultRelDimension);
+            send(WSMsgType.ChangeBlock, unwrap(block));
             dimension.width = gridSize(defaultRelDimension.width);
             dimension.height = gridSize(defaultRelDimension.height);
          }
          else if (!block.width || !block.height) {
-            const { width, height } = await getImgDimension(block.src);
+            const { width, height } = await getImgDimension(block.value);
             const ratio = height / width;
             const relSize = {
                width: editorStore.document.layoutOptions.mGridWidth,
@@ -106,6 +109,7 @@ export function ImageBlock(props: ImageBlockProps) {
             dimension.width = gridSize(relSize.width);
             dimension.height = gridSize(relSize.height);
             setEditorStore('layout', editorStore.layout.indexOf(block), relSize);
+            send(WSMsgType.ChangeBlock, unwrap(block));
          }
       })
    );
@@ -114,8 +118,9 @@ export function ImageBlock(props: ImageBlockProps) {
       const file = e.currentTarget.files[0];
       const base64 = await readAsDataUrl(file);
       setEditorStore('layout', editorStore.layout.indexOf(block), {
-         src: base64
+         value: base64
       });
+      send(WSMsgType.ChangeBlock, unwrap(block));
    }
 
    async function tryToSetUrlImage(imgSrc: string) {
@@ -123,8 +128,9 @@ export function ImageBlock(props: ImageBlockProps) {
       try {
          const imgPath = await getImageOrFallback(imgSrc);
          setEditorStore('layout', editorStore.layout.indexOf(block), {
-            src: imgPath,
+            value: imgPath,
          });
+         send(WSMsgType.ChangeBlock, unwrap(block));
       }
       catch (e) {
          alert('Wrong image url!');
@@ -151,16 +157,16 @@ export function ImageBlock(props: ImageBlockProps) {
          }}
       >
          <Switch>
-            <Match when={block.src}>
+            <Match when={block.value}>
                <img
-                  src={block.src}
+                  src={block.value}
                   onKeyDown={onKeyDown}
                   ref={imgRef}
                   // onPaste={onPaste}
                   {...other}
                />
             </Match>
-            <Match when={!block.src}>
+            <Match when={!block.value}>
                <div class={s.mock}>
                   <div class={s.dnd}>
                      <input type="file"

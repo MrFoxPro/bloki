@@ -1,8 +1,5 @@
 import { lazy, Show } from "solid-js";
-import { createStore } from "solid-js/store";
 import { useI18n } from "@solid-primitives/i18n";
-import { createCountdownFromNow } from "@solid-primitives/date";
-import { CollabStoreProvider } from "../collab/collab.store";
 import { DrawerStoreProvider } from "../bloki-editor/drawer.store";
 import { EditorStoreProvider } from "../bloki-editor/editor.store";
 import { useAppStore } from "@/lib/app.store";
@@ -13,41 +10,33 @@ const Toolbox = lazy(() => import('../bloki-editor/toolbox/toolbox.component'));
 import s from './workspace.module.scss';
 
 export function Workspace() {
-   const [t] = useI18n();
-   const [app, { setAppStore, selectedDocument }] = useAppStore();
-
-   const [state, setState] = createStore({
-      toolbox: false,
-   });
-
-   const [countdown] = createCountdownFromNow(() => selectedDocument()?.willUpdateAtUnix, 1000);
+   // const [t] = useI18n();
+   const [app, { selectedDocument }] = useAppStore();
 
    return (
       <Show when={selectedDocument()}>
-         <EditorStoreProvider document={selectedDocument()}>
-            <DrawerStoreProvider>
-               <CollabStoreProvider>
-                  <div class={s.workspace}>
-                     <div class={s.topBar}>
-                        <div class={s.leftBar}>
-                           <Toolbox />
-                        </div>
-                        <h4>{selectedDocument()?.title} <Show when={selectedDocument()?.willUpdateAtUnix}>{countdown.minutes}:{countdown.seconds}</Show></h4>
-                        <div class={s.rightBar}>
-                           <Avatars />
-                           <button class={s.share}>Share</button>
-                        </div>
+         <DrawerStoreProvider>
+            <EditorStoreProvider document={selectedDocument()}>
+               <div class={s.workspace}>
+                  <div class={s.topBar}>
+                     <div class={s.leftBar}>
+                        <Toolbox />
                      </div>
-                     <Show when={selectedDocument()}>
-                        <BlokiEditor
-                           gridType={app.gridRenderMethod}
-                        />
-                     </Show>
+                     <h4>{selectedDocument()?.title}</h4>
+                     <div class={s.rightBar}>
+                        <Avatars />
+                        <button class={s.share}>Share</button>
+                     </div>
                   </div>
-                  <Cursors />
-               </CollabStoreProvider>
-            </DrawerStoreProvider>
-         </EditorStoreProvider>
+                  <Show when={selectedDocument()}>
+                     <BlokiEditor
+                        gridType={app.gridRenderMethod}
+                     />
+                  </Show>
+               </div>
+               <Cursors />
+            </EditorStoreProvider>
+         </DrawerStoreProvider>
       </Show>
    );
 }

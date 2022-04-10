@@ -1,7 +1,6 @@
 import { For, Show } from "solid-js";
 import { useEditorStore } from "@/components/bloki-editor/editor.store";
 import s from './avatars.module.scss';
-import { useCollabStore } from "../collab.store";
 import { useAppStore } from "@/lib/app.store";
 
 type AvatarsProps = {
@@ -10,8 +9,6 @@ type AvatarsProps = {
 export function Avatars(props: AvatarsProps) {
    const [app] = useAppStore();
    const [editor] = useEditorStore();
-   const [collab] = useCollabStore();
-
 
    function getFormattedName(name: string) {
       const parts = name.split(' ');
@@ -24,7 +21,7 @@ export function Avatars(props: AvatarsProps) {
    return (
       <Show when={editor.document.shared}>
          <div class={s.avatars}>
-            <For each={collab.rommates}>
+            <For each={editor.rommates}>
                {user => (
                   <div
                      title={user.name}

@@ -36,7 +36,7 @@ type Block = {
 };
 
 type ImageBlock = Block & {
-   src: string;
+   value: string;
    width: number;
    height: number;
 };

@@ -6,7 +6,7 @@ import { blobStorage, layoutStorage } from "./db";
 import { tg } from "./tg-console";
 import { request, IncomingMessage } from 'node:http';
 import fileType from 'file-type';
-import { AnyBlock, BlockTransform } from "../components/bloki-editor/types/blocks";
+import { AnyBlock, BlockTransform, isTextBlock } from "../components/bloki-editor/types/blocks";
 import { checkPlacement } from "../components/bloki-editor/helpers";
 import { EditType } from "../components/bloki-editor/types/editor";
 
@@ -104,8 +104,7 @@ export class DocumentServer {
                const block = data.block as AnyBlock;
                if (!rel || !block) return;
 
-               const correct = checkPlacement(myLayout, this.doc.layoutOptions, block, rel.x, rel.y, rel.width, rel.height);
-               console.log('change correct?', correct);
+               const { correct } = checkPlacement(myLayout, this.doc.layoutOptions, block, rel.x, rel.y, rel.width, rel.height);
                if (!correct) {
                   send(ws, WSMsgType.Layout, myLayout);
                   return;
@@ -124,10 +123,48 @@ export class DocumentServer {
             }
             case WSMsgType.SelectBlock: {
                const blockId = data as string;
-               console.log('selected block');
                const user = this.room.get(ws);
                user.workingBlockId = blockId;
                this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
+               break;
+            }
+            case WSMsgType.CreateBlock: {
+               const block = data as AnyBlock;
+               const myLayout = layoutStorage.get(this.doc.id);
+               const { correct } = checkPlacement(myLayout.concat(block), this.doc.layoutOptions, block);
+               if (correct) {
+                  myLayout.push(block);
+                  this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.CreateBlock, block));
+               }
+               else {
+                  send(ws, WSMsgType.Layout, myLayout);
+               }
+               break;
+            }
+            case WSMsgType.DeleteBlock: {
+               const blockId = data as string;
+               const myLayout = layoutStorage.get(this.doc.id);
+               const index = myLayout.findIndex(x => x.id === blockId);
+               if (index > -1) {
+                  myLayout.splice(index, 1);
+                  this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.DeleteBlock, blockId));
+               }
+               else {
+                  send(ws, WSMsgType.Layout, myLayout);
+               }
+               break;
+            }
+            case WSMsgType.ChangeBlock: {
+               const block = data as AnyBlock;
+               const myLayout = layoutStorage.get(this.doc.id);
+               const index = myLayout.findIndex(x => x.id === block.id);
+               if (index > -1) {
+                  myLayout[index] = block;
+                  this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.ChangeBlock, block));
+               }
+               else {
+                  send(ws, WSMsgType.Layout, myLayout);
+               }
                break;
             }
             default:

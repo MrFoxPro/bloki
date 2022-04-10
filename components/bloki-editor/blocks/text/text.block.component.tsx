@@ -2,19 +2,21 @@ import { ComponentProps, createComputed, createEffect, createMemo, on, onMount, 
 import cc from 'classcat';
 import { TextBlock as TextBlockEntity } from '../../types/blocks';
 import { useEditorStore } from '../../editor.store';
-import s from './text.block.module.scss';
+import s, { content } from './text.block.module.scss';
 import { Dimension } from '../../types/blocks';
 import { TextBlockFontFamily, TextTypes } from './types';
 import { getTextBlockSize, measurer } from './helpers';
 import { useI18n } from '@solid-primitives/i18n';
 import { useBlockStore } from '../block.store';
+import { WSMsgType } from '@/lib/network.types';
+import { unwrap } from 'solid-js/store';
 
 
 type TextBlockProps = {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setEditorStore, gridSize, checkPlacement }] = useEditorStore();
+   const [editor, { setEditorStore, gridSize, checkPlacement, send }] = useEditorStore();
    const [blockStore, { isMeOverflowing, shadowed, block, blockData }] = useBlockStore<TextBlockEntity>();
 
    const [local, other] = splitProps(props, []);
@@ -103,6 +105,13 @@ export function TextBlock(props: TextBlockProps) {
       blockData.getContentDimension = getContentDimension;
    });
 
+   createEffect(on(() => block.value,
+      () => {
+         if (!contentRef) return;
+         if (contentRef.textContent !== block.value) {
+            contentRef.textContent = block.value;
+         }
+      }));
    function onTextInput(e: Event, pasteContent: string = null) {
       const mGridWidth = editor.document.layoutOptions.mGridWidth;
       // check if key is affecting content?
@@ -116,6 +125,7 @@ export function TextBlock(props: TextBlockProps) {
             height: boundSize.height,
             value: text,
          });
+         send(WSMsgType.ChangeBlock, unwrap(block));
          return;
       }
 
@@ -135,16 +145,19 @@ export function TextBlock(props: TextBlockProps) {
       if (!correct) {
          e.preventDefault();
          console.log('cant type more');
+         contentRef.textContent = block.value;
          return;
       }
       if (pasteContent) {
          document.execCommand("insertHTML", false, pasteContent);
       }
+
       setEditorStore('layout', editor.layout.indexOf(block), {
          width: newWidth,
          height: newHeight,
          value: text,
       });
+      send(WSMsgType.ChangeBlock, unwrap(block));
    }
 
    function onKeyDown(e: KeyboardEvent) {

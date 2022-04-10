@@ -17,13 +17,14 @@ import CodeIcon from './assets/code.icon.svg';
 import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from "../editor.store";
 import { BlockType } from "../types/blocks";
+import { WSMsgType } from "@/lib/network.types";
 
 type BlockContextMenuProps = {
 };
 
 export function BlockContextMenu(props: BlockContextMenuProps) {
    const [t] = useI18n();
-   const [store, { setEditorStore, getAbsolutePosition, deleteBlock }] = useEditorStore();
+   const [store, { setEditorStore, getAbsolutePosition, deleteBlock, send }] = useEditorStore();
    const pos = createMemo(() => getAbsolutePosition(store.editingBlock?.x ?? 0, store.editingBlock?.y ?? 0));
 
    function hideMe() {
@@ -34,6 +35,7 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
 
    function onChangeBlockClick(e: MouseEvent, type: BlockType) {
       setEditorStore('layout', store.layout.indexOf(store.editingBlock), 'type', type);
+      send(WSMsgType.ChangeBlock, store.editingBlock);
    }
 
    createEffect(() => {

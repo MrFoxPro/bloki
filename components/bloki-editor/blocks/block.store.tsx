@@ -1,4 +1,3 @@
-import { useCollabStore } from "@/components/collab/collab.store";
 import { useAppStore } from "@/lib/app.store";
 import { Roommate } from "@/lib/network.types";
 import { Accessor, createComputed, createContext, createEffect, createMemo, onCleanup, PropsWithChildren, useContext } from "solid-js";
@@ -96,7 +95,7 @@ type BlockStoreProviderProps = PropsWithChildren<{
 // TODO: refactor this
 export function BlockStoreProvider(props: BlockStoreProviderProps) {
    const blockData = new BlockData();
-   const [store, {
+   const [editor, {
       staticEditorData,
       onChangeStart,
       onChange,
@@ -105,11 +104,11 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       getAbsolutePosition,
       selectBlock,
       gridSize,
+      send,
    }] = useEditorStore();
 
    const [app] = useAppStore();
    const [drawerStore] = useDrawerStore();
-   const [collab] = useCollabStore();
    const [state, setState] = createStore<BlockContextValues>({
       transform: {
          ...getAbsolutePosition(props.block.x, props.block.y),
@@ -132,11 +131,11 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       ];
    });
 
-   const isMeEditing = createMemo(() => store.editingBlock === props.block);
-   const isMeDragging = createMemo(() => isMeEditing() && store.editingType === 'drag');
-   const isMeResizing = createMemo(() => isMeEditing() && store.editingType === 'resize');
-   const isMeOverflowing = createMemo(() => store.overflowedBlocks.includes(props.block));
-   const isMeEditingByRoommate = createMemo(() => collab.rommates.find(rm => app.name !== rm.name && rm.workingBlockId === props.block.id));
+   const isMeEditing = createMemo(() => editor.editingBlock === props.block);
+   const isMeDragging = createMemo(() => isMeEditing() && editor.editingType === 'drag');
+   const isMeResizing = createMemo(() => isMeEditing() && editor.editingType === 'resize');
+   const isMeOverflowing = createMemo(() => editor.overflowedBlocks.includes(props.block));
+   const isMeEditingByRoommate = createMemo(() => editor.rommates.find(rm => app.name !== rm.name && rm.workingBlockId === props.block.id));
 
    createEffect(() => {
       setState('transform', getAbsolutePosition(props.block.x, props.block.y));
@@ -370,7 +369,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             width += x - xc;
             x = xc;
 
-            εX = store.document.layoutOptions.gap;
+            εX = editor.document.layoutOptions.gap;
             break;
          }
          case CursorSide.E: {
@@ -382,7 +381,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             height += y - yc;
             y = yc;
 
-            εY = store.document.layoutOptions.gap;
+            εY = editor.document.layoutOptions.gap;
             break;
          }
          case CursorSide.S: {
@@ -398,8 +397,8 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
             width += x - xc;
             x = xc;
 
-            εY = store.document.layoutOptions.gap;
-            εX = store.document.layoutOptions.gap;
+            εY = editor.document.layoutOptions.gap;
+            εX = editor.document.layoutOptions.gap;
             break;
          }
          case CursorSide.NE: {
