@@ -1,10 +1,11 @@
 import throttle from "lodash.throttle";
-import { createContext, createEffect, createEffect as createRenderEffect, on, onCleanup, PropsWithChildren, untrack, useContext } from "solid-js";
+import { createContext, createEffect, on, onCleanup, PropsWithChildren, untrack, useContext } from "solid-js";
 import { createStore, reconcile, SetStoreFunction, unwrap } from "solid-js/store";
-import { CURSOR_UPDATE_RATE, Roommate, WSMsg, WSMsgType } from "@/lib/network.types";
+import { Roommate, WSMsg, WSMsgType } from "@/lib/network.types";
 import { useAppStore } from "@/lib/app.store";
 import { useEditorStore } from "../bloki-editor/editor.store";
 import { Point } from "../bloki-editor/types/blocks";
+import { useDrawerStore } from "../bloki-editor/drawer.store";
 
 type CollabContextValues = {
    rommates: Roommate[];
@@ -27,13 +28,15 @@ const CollabContext = createContext<[CollabContextValues, CollabContextHandlers]
       }
    ]
 );
+export const CURSOR_UPDATE_RATE = import.meta.env.DEV ? 200 : 300;
 
 type CollabStoreProviderProps = PropsWithChildren<{}>;
 export function CollabStoreProvider(props: CollabStoreProviderProps) {
    const [collab, setCollabStore] = createStore(CollabContext.defaultValue[0]);
 
-   const [editor] = useEditorStore();
    const [app] = useAppStore();
+   const [editor] = useEditorStore();
+   const [drawer, { setDrawerStore }] = useDrawerStore();
 
    const wsHost = import.meta.env.DEV ? 'ws://localhost:3005/ws' : 'wss://bloki.app/ws';
 
@@ -69,6 +72,9 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
             break;
          }
          case WSMsgType.Blob: {
+            console.log('hey, got blob!');
+            console.log(data.blob);
+            // setDrawerStore({blob: });
             break;
          }
          default:
@@ -78,7 +84,7 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    }
 
    const sendMouse = throttle((e: MouseEvent) =>
-      setCollabStore({ cursor: { x: e.pageX, y: e.pageY } }), CURSOR_UPDATE_RATE, { leading: true, trailing: true });
+      setCollabStore({ cursor: { x: e.pageX, y: e.pageY } }), CURSOR_UPDATE_RATE, { leading: false, trailing: true });
 
    function disconnect() {
       document.removeEventListener('mousemove', sendMouse);
@@ -120,9 +126,16 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
       }
    });
 
-   createRenderEffect(() => {
+   createEffect(() => {
       if (!collab.connected) return;
       send(WSMsgType.CursorUpdate, { cursor: collab.cursor });
+   });
+
+   createEffect(async () => {
+      if (!drawer.blob) return;
+      console.log('sending blob to server');
+      ws.send(drawer.blob);
+      // send(WSMsgType.Blob, { blob: drawer.blob });
    });
 
    let statusInterval: number;

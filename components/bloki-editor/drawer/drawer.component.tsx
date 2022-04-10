@@ -32,7 +32,6 @@ export function Drawer() {
    };
    const [editor, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
    const [drawer, { setDrawerStore }] = useDrawerStore();
-
    createComputed(() => {
       if (drawer.instrument !== Instrument.Cursor) {
          setEditorStore({ editingBlock: null, editingType: null });
@@ -117,6 +116,7 @@ export function Drawer() {
       applyDrawing(ctx, currentDrawing);
    }
 
+   let wasDrawing = false;
    function onDraw(e: PointerEvent) {
       if (e.buttons !== 1) return;
       if (!isMouseDown) return;
@@ -125,7 +125,7 @@ export function Drawer() {
          x: e.pageX - staticEditorData.containerRect.x + cursorOffset.x,
          y: e.pageY - staticEditorData.containerRect.y + cursorOffset.y
       };
-
+      wasDrawing = true;
       if (currentDrawing instanceof MarkerDrawing) {
          ctx.beginPath();
          drawMarker(lastPos, point);
@@ -145,26 +145,32 @@ export function Drawer() {
    const RASTERIZE_TIMEOUT = 5 * 1000;
    async function onDrawEnd(e: PointerEvent) {
       isMouseDown = false;
-      if (currentDrawing) {
 
-         // setEditorStore('document', 'whiteboard', 'drawings', drawings => drawings.concat(currentDrawing));
-
-         if (rasterizeDrawingsTimeout) clearTimeout(rasterizeDrawingsTimeout);
-         rasterizeDrawingsTimeout = setTimeout(processDrawings, RASTERIZE_TIMEOUT);
+      if (wasDrawing) {
+         processDrawings();
       }
+      // if (currentDrawing) {
+
+      // setEditorStore('document', 'whiteboard', 'drawings', drawings => drawings.concat(currentDrawing));
+
+      // if (rasterizeDrawingsTimeout) clearTimeout(rasterizeDrawingsTimeout);
+      // rasterizeDrawingsTimeout = setTimeout(processDrawings, RASTERIZE_TIMEOUT);
+      // }
       currentDrawing = null;
+      wasDrawing = false;
    }
 
-   let imageObjectUrl: string = null;
    async function processDrawings() {
       const blob = await toBlobAsync(ctx, 'image/png', 1);
-      if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
-      imageObjectUrl = URL.createObjectURL(blob);
+      // const base64 = ctx.canvas.toDataURL('image/png', 1);
+      setDrawerStore({ blob });
+      // if(editor.document.shared) {
+
+      // }
 
       // setEditorStore('document', 'whiteboard', 'drawings', []);
       // setEditorStore('document', 'whiteboard', 'blobUrl', imageObjectUrl);
 
-      console.log('DRAWING SAVED TO URL', imageObjectUrl);
 
       // app.apiProvider.updateDocument(editorStore.document);
    }

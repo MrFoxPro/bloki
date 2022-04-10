@@ -213,7 +213,6 @@ export function Settings() {
          <div class={s.settingsView}>
             <Dynamic component={settingsMap[selectedItem()]} />
          </div>
-
       </div>
    );
 }

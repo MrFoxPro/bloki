@@ -140,7 +140,7 @@ const introDoc: BlokiDocument = {
 const docWithSimpleLayout: BlokiDocument = {
    id: 'cdf4cd4a-c08f-46a7-813f-4f26a50e3c65',
    title: 'Try it!',
-   layoutOptions: { ...defaultLayoutOptions, showGridGradient: false },
+   layoutOptions: { ...defaultLayoutOptions },
    blocks: [
       {
          id: 'af110e09-2cf0-4d7a-8867-aa9b4238227d',
@@ -217,10 +217,11 @@ const docWithSimpleLayout: BlokiDocument = {
    ],
    shared: true,
 };
+
 const emptyDoc: BlokiDocument = {
    id: 'b99c63e2-e01b-44d0-96b2-a433db2f30ab',
    title: 'Try it!',
-   layoutOptions: { ...defaultLayoutOptions, showGridGradient: true },
+   layoutOptions: { ...defaultLayoutOptions, showGridGradient: false },
    blocks: [],
    shared: true,
 };

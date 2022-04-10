@@ -72,9 +72,11 @@ function BlokiEditor(props: BlokiEditorProps) {
    // Todo: sort vertically in createComputed and find space between blocks too.
    function findNextSpaceBelow(requiredSpace: Dimension, startFrom: Point = { x: 0, y: 0 }) {
       let start: Point;
-      const { y, height } = unwrap(store.document).blocks
-         .filter((b) => isInMainGrid(b.x) || isInMainGrid(b.x + b.width))
-         .sort((a, b) => b.y + b.height - a.y - a.height)[0];
+      const lastBlock = store.document.blocks
+      .filter((b) => isInMainGrid(b.x) || isInMainGrid(b.x + b.width))
+      .sort((a, b) => b.y + b.height - a.y - a.height)[0];
+      if(!lastBlock) return 1;
+      const { y, height } = lastBlock;
       // console.log('last vert block in main grid', lastVerticalBlockInMainGrid);
       return y + height;
    }

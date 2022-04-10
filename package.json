@@ -49,6 +49,7 @@
       "console-stamp": "^3.0.4",
       "dotenv": "^16.0.0",
       "fastify": "^3.28.0",
+      "file-type": "^17.1.1",
       "js-cookie": "^3.0.1",
       "lodash.debounce": "^4.0.8",
       "lodash.throttle": "^4.1.1",
