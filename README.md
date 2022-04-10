@@ -21,10 +21,51 @@ Bloki gives you creative freedom in working with text and media.
 > ### ⚠️ This product is still in very early stages of development.
 
 ## Features
-
 - Create a block of any size
 - Move the block to any position of the document
 - Change block type (code, headers, images, etc)
 - Draw on top of blocks 
 - Multiple real-time document editors
 - Document hierarchy
+
+## Roadmap
+
+### Block ⏳
+- [x] Change block type via menu
+- [ ] Save ration when resizing with shift pressed
+#### Text block ⏳
+- [x] Size depending on text size
+- [ ] Decide good minimal text block size
+- [ ] Edit text inside block 
+<img src="https://user-images.githubusercontent.com/17229619/162611730-1f9cfe16-1a17-46d1-b493-a548ca935d18.png" width="350" />  
+
+- [ ] Additional spaces to H1, H2 headers
+#### Code block ⏳
+- [ ] Codemirror
+- [ ] Syntax change selector
+#### Image block ⏳
+- [x] Optimal image ratio on paste
+- [ ] Downloading
+- [ ] Filters
+#### Table block ❌
+- [ ] Setup header
+- [ ] Implement
+- [ ] Controls for addding rows/cols
+- [ ] Cell style
+### System ❌
+- [ ] ASP.NET Core backend
+- [ ] PostgreSQL DB
+- [ ] Prefabs
+- [x] I18n
+- [ ] Search across documents
+- [ ] Nested documents
+<img src="https://user-images.githubusercontent.com/17229619/162612650-52093ee8-8523-4a53-8d86-2f89a312f54a.png" width="350" />  
+
+#### Plugins ❌
+- [ ] Math
+- [ ] 3D
+- [ ] Desmos
+- [ ] Wolfram Alpha
+- [ ] Marketplace
+#### Collaboration ⏳
+- [ ] Sync text and block editing via CRDT or OT
