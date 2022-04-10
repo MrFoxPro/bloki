@@ -29,7 +29,12 @@
           "document": "Dokumentieren"
         },
         "language": {
-          "select-language": "Sprache auswählen"
+          "select-language": "Sprache auswählen",
+          "name": "Sprache"
+        },
+        "name": {
+          "save": "Speichern",
+          "title": "Name"
         }
       }
     }

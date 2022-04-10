@@ -40,7 +40,12 @@
           "document": "Документ"
         },
         "language": {
-          "select-language": "Выбрать язык"
+          "select-language": "Выбрать язык",
+          "name": "Язык"
+        },
+        "name": {
+          "save": "Сохранить",
+          "title": "Имя"
         }
       }
     }

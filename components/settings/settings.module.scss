@@ -42,10 +42,6 @@
          padding-bottom: 12px;
       }
    }
-
-   .settings-view {
-      padding: 24px 32px;
-   }
 }
 
 .control {
@@ -90,7 +86,6 @@
    }
 }
 
-
 .options-icon {
    display: flex;
    justify-content: center;
@@ -101,4 +96,18 @@
       height: 24px;
       stroke: #2c3e50 !important;
    }
+}
+
+
+.settings-view {
+   padding: 24px 32px;
+   display: flex;
+   flex-direction: column;
+   gap: 15px;
+}
+
+.nickname {
+   display: flex;
+   align-items: center;
+   gap: 15px;
 }

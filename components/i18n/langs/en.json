@@ -30,6 +30,10 @@
         },
         "language": {
           "select-language": "Select language"
+        },
+        "name": {
+          "save": "Save",
+          "title": "Name"
         }
       }
     }

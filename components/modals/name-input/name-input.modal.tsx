@@ -4,7 +4,7 @@ import s from './name-input.module.scss';
 import { randAnimalType } from '@ngneat/falso';
 import { upperFirst } from "@/lib/helpers";
 
-const NAME_MAX_LENGTH = 22;
+export const NAME_MAX_LENGTH = 22;
 
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 

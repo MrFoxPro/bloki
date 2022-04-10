@@ -9,6 +9,7 @@ import { supportedLangs } from '../i18n/internationalization.component';
 import { Dynamic } from 'solid-js/web';
 import { getTextBlockSize } from '../bloki-editor/blocks/text/helpers';
 import { isTextBlock } from '../bloki-editor/types/blocks';
+import { NAME_MAX_LENGTH } from '../modals/name-input/name-input.modal';
 
 let lastOpenedItem = 'general';
 export function Settings() {
@@ -26,19 +27,39 @@ export function Settings() {
    }
 
    const GeneralSettings = () => {
+      let name = app.name;
       return (
-         <select name="lang"
-            onChange={(e) => {
-               if (e.currentTarget.selectedIndex === 0) return;
-               console.log('selected lang', supportedLangs[e.currentTarget.selectedIndex - 1]);
-               setAppStore('locale', supportedLangs[e.currentTarget.selectedIndex - 1]);
-            }}
-         >
-            <option>{t('settings.system.modal.language.select-language')}</option>
-            <For each={/*@once*/supportedLangs}>
-               {lang => (<option value={lang} selected={app.locale === lang}>{t(`system.language.${lang}`)}</option>)}
-            </For>
-         </select>
+         <>
+            <div class={s.block}>
+               <div class={s.name}>{t('settings.system.modal.name.title')}</div>
+               <div class={s.nickname}>
+                  <input type="text" value={app.name} onChange={(e) => name = e.currentTarget.value} />
+                  <button onClick={(e) => {
+                     if (name.length < 1 || name.length > NAME_MAX_LENGTH) {
+                        return alert('Name is too short/long!');
+                     }
+                     setAppStore({ name });
+                  }}>
+                     {t('settings.system.modal.name.save')}
+                  </button>
+               </div>
+            </div>
+            <div class={s.block}>
+               <div class={s.name}>{t('settings.system.modal.menu.item.language')}</div>
+               <select name="lang"
+                  onChange={(e) => {
+                     if (e.currentTarget.selectedIndex === 0) return;
+                     console.log('selected lang', supportedLangs[e.currentTarget.selectedIndex - 1]);
+                     setAppStore('locale', supportedLangs[e.currentTarget.selectedIndex - 1]);
+                  }}
+               >
+                  <option>{t('settings.system.modal.language.select-language')}</option>
+                  <For each={/*@once*/supportedLangs}>
+                     {lang => (<option value={lang} selected={app.locale === lang}>{t(`system.language.${lang}`)}</option>)}
+                  </For>
+               </select>
+            </div>
+         </>
       );
    };
    const GraphicsSettings = () => {
@@ -172,19 +193,21 @@ export function Settings() {
                      </div>
                   </div>
                </div>
-               <div class={s.block}>
-                  <div class={s.name}>{t('settings.system.modal.menu.document')}</div>
-                  <div class={s.items}>
-                     <div
-                        class={s.item}
-                        classList={{ [s.highlighted]: selectedItem() === 'doc-layout' }}
-                        onClick={() => setSelectedItem('doc-layout')}
-                     >
-                        <LayoutIcon class={s.icon} />
-                        <span class={s.text}>{t('settings.system.modal.menu.item.layout')}</span>
+               <Show when={selectedDocument()}>
+                  <div class={s.block}>
+                     <div class={s.name}>{t('settings.system.modal.menu.document')} [{selectedDocument().title}]</div>
+                     <div class={s.items}>
+                        <div
+                           class={s.item}
+                           classList={{ [s.highlighted]: selectedItem() === 'doc-layout' }}
+                           onClick={() => setSelectedItem('doc-layout')}
+                        >
+                           <LayoutIcon class={s.icon} />
+                           <span class={s.text}>{t('settings.system.modal.menu.item.layout')}</span>
+                        </div>
                      </div>
                   </div>
-               </div>
+               </Show>
             </div>
          </div>
          <div class={s.settingsView}>
