@@ -211,8 +211,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       const relTransofrm = { x, y, width, height };
       batch(() => {
          setEditorStore({
-            // editingBlock: null,
-            // editingType: 'select',
+            editingBlock: null,
+            editingType: 'select',
             isPlacementCorrect: true,
             overflowedBlocks: [],
          });
@@ -222,8 +222,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             send(WSMsgType.ChangeEnd, { block, rel: relTransofrm, type });
             return;
          }
-         setEditorStore('editingType', 'select');
-         setEditorStore('editingType', null);
          setEditorStore('layout', editor.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
