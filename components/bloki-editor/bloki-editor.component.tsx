@@ -14,6 +14,7 @@ import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer.component';
 import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
+import { WSMsgType } from '@/lib/network.types';
 
 type BlokiEditorProps = {
    gridType?: 'dom' | 'canvas';
@@ -35,6 +36,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          setEditorStore,
          getRelativePosition,
          checkPlacement,
+         send
       }
    ] = useEditorStore();
    const [drawerStore] = useDrawerStore();
@@ -169,10 +171,10 @@ function BlokiEditor(props: BlokiEditorProps) {
    }
 
    function createBlock(block: Partial<AnyBlock>, editingType: EditType = 'content', id = crypto.randomUUID()) {
-      staticEditorData.emit('blockcreated', block);
       block.id = id;
       setEditorStore('layout', blocks => blocks.concat(block as AnyBlock));
       const createdBlock = store.layout[store.layout.length - 1];
+      send(WSMsgType.CreateBlock, createdBlock);
       setEditorStore({
          editingBlock: createdBlock,
          editingType,
