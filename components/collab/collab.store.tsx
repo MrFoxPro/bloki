@@ -131,12 +131,12 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
       send(WSMsgType.CursorUpdate, { cursor: collab.cursor });
    });
 
-   createEffect(async () => {
-      if (!drawer.blob) return;
-      console.log('sending blob to server');
-      ws.send(drawer.blob);
-      // send(WSMsgType.Blob, { blob: drawer.blob });
-   });
+   // createEffect(async () => {
+   //    if (!drawer.blob) return;
+   //    console.log('sending blob to server');
+   //    // ws.send(drawer.blob);
+   //    // send(WSMsgType.Blob, { blob: drawer.blob });
+   // });
 
    let statusInterval: number;
    onCleanup(() => {

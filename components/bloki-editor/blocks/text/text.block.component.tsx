@@ -59,7 +59,6 @@ export function TextBlock(props: TextBlockProps) {
       () => block.type,
       () => {
          if (block.type == null) return;
-         console.log(block.type, 'type changed');
          const size = getTextBlockSize(block.type, block.fontFamily, block.value, editor.document.layoutOptions, block.width, 'break-word');
          setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
             height: size.height,

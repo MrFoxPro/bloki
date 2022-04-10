@@ -72,19 +72,9 @@ export function Drawer() {
       if (!drawer.blob) return;
       console.log('redrawing whiteboard');
       const bitmap = await createImageBitmap(drawer.blob);
+      console.log(bitmap)
       ctx.globalCompositeOperation = 'source-over';
       ctx.drawImage(bitmap, 0, 0);
-      // docDraw.drawings.forEach((drawing) => {
-      //    if (drawing instanceof MarkerDrawing || drawing instanceof LastikDrawing) {
-      //       applyDrawing(ctx, drawing);
-      //       ctx.beginPath();
-      //       drawing.points.forEach((p, i, arr) => {
-      //          if (i > 0) {
-      //             drawMarker(arr[i - 1], p);
-      //          }
-      //       });
-      //    }
-      // });
    });
 
    function drawMarker(prev: Point, curr: Point) {
