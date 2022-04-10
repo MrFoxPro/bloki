@@ -5,10 +5,13 @@ import { randAnimalType } from '@ngneat/falso';
 import { upperFirst } from "@/lib/helpers";
 
 const NAME_MAX_LENGTH = 22;
+
+const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
 export function NameInput() {
    const [app, { setAppStore }] = useAppStore();
    const [t] = useI18n();
-   let name = upperFirst(randAnimalType({ length: 5 }).find(x => x.length < NAME_MAX_LENGTH));
+   let name = upperFirst(randAnimalType({ length: 5 }).find(x => x.length < NAME_MAX_LENGTH)) + ' ' + getRandomInt(10, 100);
    return (
       <div class={s.askName}>
          <div class={s.question}>{t('auth.ask-name.question')}</div>

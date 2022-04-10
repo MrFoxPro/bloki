@@ -16,7 +16,6 @@ import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
 
 type BlokiEditorProps = {
-   showMeta?: boolean;
    gridType?: 'dom' | 'canvas';
 };
 function BlokiEditor(props: BlokiEditorProps) {
@@ -26,7 +25,6 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    let containerRef: HTMLDivElement;
    let wrapperRef: HTMLDivElement;
-   const [app, { }] = useAppStore();
    const [t] = useI18n();
    const [
       store,

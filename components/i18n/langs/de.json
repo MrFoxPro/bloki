@@ -2,8 +2,8 @@
   "settings": {
     "document": {
       "toolbox": "Zeichenwerkzeugleiste anzeigen",
-      "grid-gradient": "Netz",
-      "resize-areas": "Bereiche erfassen",
+      "grid-gradient": "Raster anzeigen",
+      "resize-areas": "Erfassungsbereiche anzeigen",
       "purge-db": "Lokale Datenbank zurücksetzen",
       "reset-layout": "Layouteinstellungen zurücksetzen",
       "log-calculated-sizes": "Berechnete Größen protokollieren",
@@ -17,12 +17,16 @@
       },
       "modal": {
         "menu": {
-          "title": "Kontoeinstellungen",
-          "general": "Allgemein",
+          "title": "Einstellungen",
+          "general": "Konto",
           "item": {
             "layout": "Layout",
-            "language": "Sprache"
-          }
+            "language": "Sprache",
+            "general": "Hauptsächlich",
+            "appearance": "Aussehen",
+            "graphics": "Grafik"
+          },
+          "document": "Dokumentieren"
         },
         "language": {
           "select-language": "Sprache auswählen"

@@ -12,8 +12,8 @@
   },
   "settings": {
     "document": {
-      "grid-gradient": "Сетка",
-      "resize-areas": "Области захвата",
+      "grid-gradient": "Показать сетку",
+      "resize-areas": "Показать области захвата",
       "toolbox": "Инструменты рисования",
       "purge-db": "Сбросить локальную базу",
       "reset-layout": "Сбросить настройки лейаута",
@@ -28,12 +28,16 @@
       },
       "modal": {
         "menu": {
-          "title": "Настройки пользователя",
-          "general": "Основные",
+          "title": "Настройки",
+          "general": "Аккаунт",
           "item": {
             "layout": "Разметка",
-            "language": "Язык"
-          }
+            "language": "Язык",
+            "general": "Основные",
+            "appearance": "Внешность",
+            "graphics": "Графика"
+          },
+          "document": "Документ"
         },
         "language": {
           "select-language": "Выбрать язык"

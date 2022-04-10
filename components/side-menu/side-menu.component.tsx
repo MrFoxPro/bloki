@@ -12,7 +12,7 @@ import PageIcon from './assets/page.icon.svg';
 import SearchIcon from './assets/search.icon.svg';
 import SettingsIcon from './assets/settings.icon.svg';
 import TrashIcon from './assets/trash.icon.svg';
-const AccountSettings = lazy(() => import('../account-settings/account-settings.component'));
+const Settings = lazy(() => import('../settings/settings.component'));
 import { NameInput } from '../modals/name-input/name-input.modal';
 import { useModalStore } from '../modals/modal';
 import { BlokiDocument } from '@/lib/entities';
@@ -45,7 +45,7 @@ export function SideMenu(props: SideMenuProps) {
 
    createEffect(() => setNameVisible(!app.name));
 
-   const [sysSettingsVisible, setSysSettingsVisible] = createModal(AccountSettings, { useBlur: true, canHide: true });
+   const [sysSettingsVisible, setSysSettingsVisible] = createModal(Settings, { useBlur: true, canHide: true });
 
    createEffect(() => setSysSettingsVisible(state.menu.settings));
    createEffect(() => setState('menu', 'settings', sysSettingsVisible()));

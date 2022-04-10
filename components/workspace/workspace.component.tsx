@@ -10,7 +10,6 @@ import { Avatars } from "../collab/avatars/avatars.component";
 import { Cursors } from "../collab/cursors/cursors.component";
 const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));
 const Toolbox = lazy(() => import('../bloki-editor/toolbox/toolbox.component'));
-const DocumentSettings = lazy(() => import('@/components/modals/doc-settings/doc-settings.component'));
 import s from './workspace.module.scss';
 
 export function Workspace() {
@@ -19,7 +18,6 @@ export function Workspace() {
 
    const [state, setState] = createStore({
       toolbox: false,
-      docSettings: false,
    });
 
    const [countdown] = createCountdownFromNow(() => selectedDocument()?.willUpdateAtUnix, 1000);
@@ -38,12 +36,10 @@ export function Workspace() {
                         <div class={s.rightBar}>
                            <Avatars />
                            <button class={s.share}>Share</button>
-                           <DocumentSettings />
                         </div>
                      </div>
                      <Show when={selectedDocument()}>
                         <BlokiEditor
-                           showMeta={state.docSettings}
                            gridType={app.gridRenderMethod}
                         />
                      </Show>

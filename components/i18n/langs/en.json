@@ -2,8 +2,8 @@
   "settings": {
     "document": {
       "toolbox": "Drawing toolbar",
-      "grid-gradient": "Grid",
-      "resize-areas": "Capture areas",
+      "grid-gradient": "Show grid",
+      "resize-areas": "Show capture areas",
       "purge-db": "Reset local database",
       "reset-layout": "Reset layout settings",
       "log-calculated-sizes": "Log calculated sizes",
@@ -17,12 +17,16 @@
       },
       "modal": {
         "menu": {
-          "title": "Account settings",
-          "general": "General",
+          "title": "Settings",
+          "general": "Account",
           "item": {
             "layout": "Layout",
-            "language": "Language"
-          }
+            "language": "Language",
+            "general": "General",
+            "appearance": "Appearance",
+            "graphics": "Rendering"
+          },
+          "document": "Document"
         },
         "language": {
           "select-language": "Select language"
