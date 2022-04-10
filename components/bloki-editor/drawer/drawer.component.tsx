@@ -161,9 +161,9 @@ export function Drawer() {
    }
 
    async function processDrawings() {
-      const blob = await toBlobAsync(ctx, 'image/png', 1);
+      // const blob = await toBlobAsync(ctx, 'image/png', 1);
       // const base64 = ctx.canvas.toDataURL('image/png', 1);
-      setDrawerStore({ blob });
+      // setDrawerStore({ blob });
       // if(editor.document.shared) {
 
       // }
