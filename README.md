@@ -22,12 +22,12 @@ Bloki gives you creative freedom in working with text and media.
 > ### ⚠️ This product is still in very early stages of development.
 
 ## Features
-- Create a block of any size
-- Move the block to any position of the document
+- Set any block size
+- Move block to any position of the document
 - Change block type (code, headers, images, etc)
 - Draw on top of blocks 
-- Multiple real-time document editors
-- Document hierarchy
+- Do it with your team
+- Manage document with hierarchy
 
 ## Roadmap
 
