@@ -109,5 +109,11 @@
       "question": "Как вас зовут?",
       "continue": "Продолжить"
     }
+  },
+  "topbar": {
+    "doc-status": {
+      "connected": "Подключён",
+      "disconnected": "Отключён"
+    }
   }
 }

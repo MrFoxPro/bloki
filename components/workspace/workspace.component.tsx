@@ -1,7 +1,7 @@
 import { lazy, Show } from "solid-js";
 import { useI18n } from "@solid-primitives/i18n";
 import { DrawerStoreProvider } from "../bloki-editor/drawer.store";
-import { EditorStoreProvider } from "../bloki-editor/editor.store";
+import { EditorStoreProvider, useEditorStore } from "../bloki-editor/editor.store";
 import { useAppStore } from "@/lib/app.store";
 import { Avatars } from "../collab/avatars/avatars.component";
 import { Cursors } from "../collab/cursors/cursors.component";
@@ -10,9 +10,17 @@ const Toolbox = lazy(() => import('../bloki-editor/toolbox/toolbox.component'));
 import s from './workspace.module.scss';
 
 export function Workspace() {
-   // const [t] = useI18n();
+   const [t] = useI18n();
    const [app, { selectedDocument }] = useAppStore();
 
+   const ConnectionStatus = () => {
+      const [editor] = useEditorStore();
+      return (
+         <div class={s.status} classList={{ [s.connected]: editor.connected }}>
+            [{editor.connected ? t('topbar.doc-status.connected') : t('topbar.doc-status.disconnected')}]
+         </div>
+      );
+   };
    return (
       <Show when={selectedDocument()}>
          <DrawerStoreProvider>
@@ -22,7 +30,7 @@ export function Workspace() {
                      <div class={s.leftBar}>
                         <Toolbox />
                      </div>
-                     <h4>{selectedDocument()?.title}</h4>
+                     <h4 class={s.docTitle}>{selectedDocument()?.title} <ConnectionStatus /></h4>
                      <div class={s.rightBar}>
                         <Avatars />
                         <button class={s.share}>Share</button>

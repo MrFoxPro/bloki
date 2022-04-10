@@ -109,5 +109,11 @@
       "question": "Was ist Ihr Name?",
       "continue": "Vorgehen"
     }
+  },
+  "topbar": {
+    "doc-status": {
+      "connected": "In Verbindung gebracht",
+      "disconnected": "Behindert"
+    }
   }
 }

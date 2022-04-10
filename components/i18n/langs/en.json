@@ -108,5 +108,11 @@
       "question": "What is your name?",
       "continue": "Proceed"
     }
+  },
+  "topbar": {
+    "doc-status": {
+      "connected": "Connected",
+      "disconnected": "Disabled"
+    }
   }
 }
