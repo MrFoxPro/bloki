@@ -6,7 +6,6 @@ import { useAppStore } from "@/lib/app.store";
 import { useEditorStore } from "../bloki-editor/editor.store";
 import { Point } from "../bloki-editor/types/blocks";
 import { useDrawerStore } from "../bloki-editor/drawer.store";
-import { fromBuffer } from 'file-type';
 
 type CollabContextValues = {
    rommates: Roommate[];
@@ -105,7 +104,7 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    createEffect(() => {
       if (editor.document.id && app.name) {
          if (editor.document.shared) {
-            if (untrack(() => collab.connected)) disconnect();
+            if (ws && ws.readyState !== ws.CLOSED) disconnect();
 
             ws = new WebSocket(wsHost + '/' + editor.document.id);
             ws.onopen = function () {
@@ -147,6 +146,10 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
       if (!drawer.blob || !ws) return;
       if (drawer.blob === drawFromServer) return;
       sendBlob(drawer.blob);
+   });
+
+   createEffect(() => {
+      console.log(editor.document.blocks);
    });
 
    let statusInterval: number;

@@ -4,7 +4,8 @@ export enum WSMsgType {
    Join,
    CursorUpdate,
    Roommates,
-   Blob
+   Blob,
+   Layout
 }
 export type WSMsg = { type: WSMsgType; data: any; };
 

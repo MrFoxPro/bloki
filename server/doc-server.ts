@@ -108,11 +108,13 @@ export class DocumentServer {
    };
    health = () => {
       this.socketActivity.forEach((act, ws) => {
-         if (Date.now() - act > 3 * 60 * 1000) {
+         if (Date.now() - act > 2 * 60 * 1000) {
             this.room.delete(ws);
             ws.close();
             this.socketActivity.delete(ws);
          }
       });
    };
+   // poll = () => {
+   // };
 }
