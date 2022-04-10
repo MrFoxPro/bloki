@@ -1,3 +1,6 @@
+import { useCollabStore } from "@/components/collab/collab.store";
+import { useAppStore } from "@/lib/app.store";
+import { Roommate } from "@/lib/network.types";
 import { Accessor, createComputed, createContext, createEffect, createMemo, onCleanup, PropsWithChildren, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useDrawerStore } from "../drawer.store";
@@ -62,6 +65,7 @@ type BlockContextHandlers<B extends AnyBlock = AnyBlock> = {
    isMeDragging: Accessor<boolean>;
    isMeResizing: Accessor<boolean>;
    isMeOverflowing: Accessor<boolean>;
+   isMeEditingByRoommate: Accessor<Roommate>;
    onBoxClick: (e: MouseEvent & {
       currentTarget: HTMLDivElement;
    }) => void;
@@ -103,8 +107,9 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       gridSize,
    }] = useEditorStore();
 
+   const [app] = useAppStore();
    const [drawerStore] = useDrawerStore();
-
+   const [collab] = useCollabStore();
    const [state, setState] = createStore<BlockContextValues>({
       transform: {
          ...getAbsolutePosition(props.block.x, props.block.y),
@@ -131,6 +136,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    const isMeDragging = createMemo(() => isMeEditing() && store.editingType === 'drag');
    const isMeResizing = createMemo(() => isMeEditing() && store.editingType === 'resize');
    const isMeOverflowing = createMemo(() => store.overflowedBlocks.includes(props.block));
+   const isMeEditingByRoommate = createMemo(() => collab.rommates.find(rm => app.name !== rm.name && rm.workingBlockId === props.block.id));
 
    createEffect(() => {
       setState('transform', getAbsolutePosition(props.block.x, props.block.y));
@@ -167,6 +173,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    });
 
    function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
+      if (isMeEditingByRoommate()) return;
       const rect = e.currentTarget.getBoundingClientRect();
 
       if (isInsideRect(e.pageX, e.pageY, rect)) {
@@ -295,6 +302,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    }
 
    function onBoxPointerDown(e: PointerEvent, btn = 0) {
+      if (isMeEditingByRoommate()) return;
       blockData.pointerDown = true;
       if (e.button !== btn) {
          return;
@@ -335,6 +343,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
 
    function onHookPointerDown(e: PointerEvent, side: CursorSide) {
       if (e.button !== 0) return;
+      if (isMeEditingByRoommate()) return;
       blockData.relX = e.pageX;
       blockData.relY = e.pageY;
 
@@ -469,6 +478,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
          isMeDragging,
          isMeResizing,
          isMeOverflowing,
+         isMeEditingByRoommate: isMeEditingByRoommate,
          onBoxClick,
          onPointerMove,
          onBoxPointerDown,

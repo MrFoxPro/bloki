@@ -33,7 +33,7 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
    }
 
    function onChangeBlockClick(e: MouseEvent, type: BlockType) {
-      setEditorStore('document', 'blocks', store.document.blocks.indexOf(store.editingBlock), 'type', type);
+      setEditorStore('layout', store.layout.indexOf(store.editingBlock), 'type', type);
    }
 
    createEffect(() => {

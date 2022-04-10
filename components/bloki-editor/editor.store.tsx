@@ -10,6 +10,8 @@ import {
 } from "./types/blocks";
 import { BlokiDocument } from "@/lib/entities";
 import { EditType, Instrument } from "./types/editor";
+import { checkPlacement as checkPlacementHelper } from "./helpers";
+import { ChangeEventInfo } from "@/lib/network.types";
 
 type EditorStoreValues = DeepReadonly<{
    editingBlock?: AnyBlock;
@@ -19,7 +21,7 @@ type EditorStoreValues = DeepReadonly<{
    overflowedBlocks: AnyBlock[];
    isPlacementCorrect: boolean;
    document: BlokiDocument;
-
+   layout: AnyBlock[];
    showContextMenu: boolean;
 }>;
 
@@ -35,13 +37,6 @@ type CalculatedSize = {
    fGridHeight_px: string;
    mGridWidth_px: string;
    mGridHeight_px: string;
-};
-
-type ChangeEventInfo = {
-   type: EditType;
-   absTransform: BlockTransform;
-   relTransform: BlockTransform;
-   placement: PlacementStatus;
 };
 
 interface EditorEvents {
@@ -113,6 +108,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          overflowedBlocks: [],
          isPlacementCorrect: false,
          document: null,
+         layout: [],
       }
    );
 
@@ -162,74 +158,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function getAbsoluteSize(width: number, height: number) {
       return { width: gridSize(width), height: gridSize(height) };
    }
-
-   function checkPlacement(block: BlockTransform, x = block.x, y = block.y, width = block.width, height = block.height): PlacementStatus {
-      const intersections: BlockTransform[] = [];
-      const affected: AnyBlock[] = [];
-      let correct = true;
-      let outOfBorder = false;
-
-      const { fGridHeight, fGridWidth, blockMinSize, blockMaxSize } = state.document.layoutOptions;
-
-      if (width > blockMaxSize.width || width < blockMinSize.width || height > blockMaxSize.height || height < blockMinSize.height) {
-         correct = false;
-         outOfBorder = true;
-      }
-
-      // TODO: different grid sizes?
-      if (x < 0 || y < 0 || y + height > fGridHeight || x + width > fGridWidth) {
-         correct = false;
-         outOfBorder = true;
-      }
-
-      for (let i = 0; i < state.document.blocks.length; i++) {
-         const sBlock = state.document.blocks[i];
-         if (sBlock === block) continue;
-
-         const x1 = x;
-         const y1 = y;
-         const sizeX1 = width;
-         const sizeY1 = height;
-
-         const x2 = sBlock.x;
-         const y2 = sBlock.y;
-         const sizeX2 = sBlock.width;
-         const sizeY2 = sBlock.height;
-
-         const dx = x2 - x1;
-         const dy = y2 - y1;
-
-         const colXDist = dx > 0 ? sizeX1 : sizeX2;
-         const colYDist = dy > 0 ? sizeY1 : sizeY2;
-
-         const adx = Math.abs(dx);
-         const ady = Math.abs(dy);
-
-         if (adx < colXDist && ady < colYDist) {
-            correct = false;
-            affected.push(sBlock);
-            const startX = Math.max(x1, x2);
-            const startY = Math.max(y1, y2);
-
-            const xEnd = Math.min(x1 + sizeX1, x2 + sizeX2);
-            const yEnd = Math.min(y1 + sizeY1, y2 + sizeY2);
-
-            intersections.push({
-               x: startX,
-               width: xEnd - startX,
-               y: startY,
-               height: yEnd - startY,
-            });
-            // continue;
-         }
-      }
-      return {
-         correct,
-         intersections,
-         outOfBorder,
-         affected
-      };
-   }
+   const checkPlacement = (block: BlockTransform, x = block.x, y = block.y, width = block.width, height = block.height) => checkPlacementHelper(state.layout, state.document.layoutOptions, block, x, y, width, height);
 
    function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
       setState({ editingBlock: block, editingType: type });
@@ -246,10 +175,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
-
-      // if (type === 'resize' && x === block.x && y === block.y && height === block.height && width === block.width) {
-      //    return;
-      // }
 
       if (type === 'content') {
 
@@ -279,11 +204,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          });
 
          if (placement.correct) {
-            setState('document', 'blocks', state.document.blocks.indexOf(block), { x, y, width, height });
+            setState('layout', state.layout.indexOf(block), { x, y, width, height });
             return;
          }
          console.log('incorrect!');
-         setState('document', 'blocks', state.document.blocks.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
+         setState('layout', state.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
       staticEditorData.emit('changeend', block, {
@@ -315,7 +240,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             editingType: null
          });
       }
-      setState('document', 'blocks', blocks => blocks.filter(b => b.id !== block.id));
+      setState('layout', blocks => blocks.filter(b => b.id !== block.id));
    }
 
    // let verticallySortedDocs: string[];

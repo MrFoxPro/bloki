@@ -40,7 +40,7 @@ type BlokiDocument = {
 
    shared: boolean;
    layoutOptions: LayoutOptions;
-   blocks: AnyBlock[];
+   // blocks: AnyBlock[];
 };
 
 export {

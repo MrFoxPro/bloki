@@ -37,7 +37,7 @@ function Block() {
       isMeEditing,
       isMeResizing,
       isMeOverflowing,
-
+      isMeEditingByRoommate,
       onBoxPointerDown,
       onBoxClick,
       onHookPointerDown,
@@ -61,6 +61,7 @@ function Block() {
 
    function onHandyContextMenu(e: MouseEvent) {
       e.preventDefault();
+      if (isMeEditingByRoommate()) return;
       selectBlock(block);
       setEditorStore({
          showContextMenu: true
@@ -74,6 +75,8 @@ function Block() {
             transform: `translate(${blockState.transform.x}px, ${blockState.transform.y}px)`,
             width: `${blockState.transform.width}px`,
             height: `${blockState.transform.height}px`,
+            "border": isMeEditingByRoommate()?.color ? `2px solid ${isMeEditingByRoommate().color}` : 'unset',
+            cursor: isMeEditingByRoommate() ? 'not-allowed' : 'unset',
          }}
          classList={{
             [s.dragging]: isMeDragging(),

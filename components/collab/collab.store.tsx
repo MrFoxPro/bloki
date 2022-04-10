@@ -4,7 +4,7 @@ import { createStore, reconcile, SetStoreFunction, unwrap } from "solid-js/store
 import { Roommate, WSMsg, WSMsgType } from "@/lib/network.types";
 import { useAppStore } from "@/lib/app.store";
 import { useEditorStore } from "../bloki-editor/editor.store";
-import { Point } from "../bloki-editor/types/blocks";
+import { AnyBlock, Point } from "../bloki-editor/types/blocks";
 import { useDrawerStore } from "../bloki-editor/drawer.store";
 
 type CollabContextValues = {
@@ -37,7 +37,7 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    const [collab, setCollabStore] = createStore(CollabContext.defaultValue[0]);
 
    const [app] = useAppStore();
-   const [editor] = useEditorStore();
+   const [editor, { setEditorStore, staticEditorData }] = useEditorStore();
    const [drawer, { setDrawerStore }] = useDrawerStore();
 
    const wsHost = import.meta.env.DEV ? 'ws://localhost:3005/ws' : 'wss://bloki.app/ws';
@@ -50,11 +50,12 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
          setTimeout(() => send(type, data), 400);
          return;
       }
-      const serialized = JSON.stringify({ name: app.name, type, data } as WSMsg);
+      const serialized = JSON.stringify({ type, data } as WSMsg);
       ws.send(serialized);
    }
 
    let drawFromServer;
+   let layoutFromServer;
    function onMessage(ev: MessageEvent) {
       if (!ev.data) return;
 
@@ -72,6 +73,7 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
 
       switch (msg.type) {
          case WSMsgType.Roommates: {
+            console.log(data);
             setCollabStore('rommates', reconcile(data));
             break;
          }
@@ -80,6 +82,18 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
                cursor: data.cursor,
                color: data.color
             });
+            break;
+         }
+         case WSMsgType.Layout: {
+            layoutFromServer = data.layout;
+            setEditorStore('layout', reconcile(layoutFromServer));
+            break;
+         }
+         case WSMsgType.ChangeEnd: {
+            const block = data as AnyBlock;
+            if (!block) return;
+            console.log('changeEnd', block);
+            setEditorStore('layout', b => b.id === block.id, reconcile(block));
             break;
          }
          default:
@@ -149,7 +163,15 @@ export function CollabStoreProvider(props: CollabStoreProviderProps) {
    });
 
    createEffect(() => {
-      console.log(editor.document.blocks);
+      staticEditorData.on('changeend', (block, event) => {
+         if (!event.placement.correct) return;
+         send(WSMsgType.ChangeEnd, { block, rel: event.relTransform, type: event.type });
+      });
+   });
+
+   createEffect(() => {
+      console.log('editing block changing btw');
+      send(WSMsgType.SelectBlock, editor.editingBlock?.id);
    });
 
    let statusInterval: number;

@@ -92,7 +92,7 @@ export function ImageBlock(props: ImageBlockProps) {
       () => block.src,
       async () => {
          if (!block.src) {
-            setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), defaultRelDimension);
+            setEditorStore('layout', editorStore.layout.indexOf(block), defaultRelDimension);
             dimension.width = gridSize(defaultRelDimension.width);
             dimension.height = gridSize(defaultRelDimension.height);
          }
@@ -105,7 +105,7 @@ export function ImageBlock(props: ImageBlockProps) {
             };
             dimension.width = gridSize(relSize.width);
             dimension.height = gridSize(relSize.height);
-            setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), relSize);
+            setEditorStore('layout', editorStore.layout.indexOf(block), relSize);
          }
       })
    );
@@ -113,7 +113,7 @@ export function ImageBlock(props: ImageBlockProps) {
    async function onFileChoose(e: Event & { currentTarget: HTMLInputElement; }) {
       const file = e.currentTarget.files[0];
       const base64 = await readAsDataUrl(file);
-      setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
+      setEditorStore('layout', editorStore.layout.indexOf(block), {
          src: base64
       });
    }
@@ -122,7 +122,7 @@ export function ImageBlock(props: ImageBlockProps) {
       if (!imgSrc) return;
       try {
          const imgPath = await getImageOrFallback(imgSrc);
-         setEditorStore('document', 'blocks', editorStore.document.blocks.indexOf(block), {
+         setEditorStore('layout', editorStore.layout.indexOf(block), {
             src: imgPath,
          });
       }

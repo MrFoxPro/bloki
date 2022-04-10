@@ -1,3 +1,5 @@
+import { BlockTransform, PlacementStatus } from "@/components/bloki-editor/types/blocks";
+import { EditType } from "@/components/bloki-editor/types/editor";
 import { BlokiDocument } from "./entities";
 
 export enum WSMsgType {
@@ -5,7 +7,9 @@ export enum WSMsgType {
    CursorUpdate,
    Roommates,
    Blob,
-   Layout
+   Layout,
+   ChangeEnd,
+   SelectBlock,
 }
 export type WSMsg = { type: WSMsgType; data: any; };
 
@@ -25,3 +29,10 @@ export type BlokiNetworkDocument = BlokiDocument & {
 };
 
 export const CURSOR_UPDATE_RATE = 400;
+
+export type ChangeEventInfo = {
+   type: EditType;
+   absTransform: BlockTransform;
+   relTransform: BlockTransform;
+   placement: PlacementStatus;
+};

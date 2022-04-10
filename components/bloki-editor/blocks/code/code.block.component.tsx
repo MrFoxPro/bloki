@@ -56,7 +56,7 @@ export function CodeBlock(props: CodeBlockProps) {
       (prev, curr) => {
          if (!curr) return;
          const size = getTextBlockSize(block.type, block.fontFamily, block.value, editor.document.layoutOptions, block.width, 'break-word');
-         setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+         setEditorStore('layout', editor.layout.indexOf(block), {
             width: size.width,
             height: size.height,
          });
@@ -103,7 +103,7 @@ export function CodeBlock(props: CodeBlockProps) {
       if (text === '' && block.width >= mGridWidth) {
          const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions);
 
-         setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+         setEditorStore('layout', editor.layout.indexOf(block), {
             width: mGridWidth,
             height: boundSize.height,
             value: text,
@@ -132,7 +132,7 @@ export function CodeBlock(props: CodeBlockProps) {
       if (pasteContent) {
          document.execCommand("insertHTML", false, pasteContent);
       }
-      setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+      setEditorStore('layout', editor.layout.indexOf(block), {
          width: newWidth,
          height: newHeight,
          value: text,
@@ -158,7 +158,7 @@ export function CodeBlock(props: CodeBlockProps) {
          return false;
       }
 
-      setEditorStore('document', 'blocks', editor.document.blocks.indexOf(block), {
+      setEditorStore('layout', editor.layout.indexOf(block), {
          width: newWidth,
          height: newHeight,
          value: text,

@@ -2,7 +2,7 @@ require('console-stamp')(console, {
    format: ':date(HH:MM:ss) :label'
 });
 import fastifyInit from 'fastify';
-import { blobStorage, db, emptyImageBlob } from './db';
+import { blobStorage, db, emptyImageBlob, introDoc, layoutStorage } from './db';
 import { DocumentServer } from './doc-server';
 import { tg } from './tg-console';
 
@@ -22,6 +22,9 @@ fastify.register((fastify, opt, done) => {
    });
    fastify.get('/:docId/blob', (req, res) => {
       return blobStorage.get(req.params.docId) ?? emptyImageBlob;
+   });
+   fastify.get('/:docId/layout', (req, res) => {
+      return layoutStorage.get(req.params.docId) ?? introDoc.blocks;
    });
    done();
 }, { prefix: '/api' });

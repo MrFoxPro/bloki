@@ -1,8 +1,8 @@
 import { createEffect, For, mergeProps, on, onCleanup, onMount, Show } from 'solid-js';
-import { unwrap } from 'solid-js/store';
+import { reconcile, unwrap } from 'solid-js/store';
 import cc from 'classcat';
 import s from './bloki-editor.module.scss';
-import { useAppStore } from '@/lib/app.store';
+import { baseApiUrl, useAppStore } from '@/lib/app.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
@@ -72,10 +72,10 @@ function BlokiEditor(props: BlokiEditorProps) {
    // Todo: sort vertically in createComputed and find space between blocks too.
    function findNextSpaceBelow(requiredSpace: Dimension, startFrom: Point = { x: 0, y: 0 }) {
       let start: Point;
-      const lastBlock = store.document.blocks
-      .filter((b) => isInMainGrid(b.x) || isInMainGrid(b.x + b.width))
-      .sort((a, b) => b.y + b.height - a.y - a.height)[0];
-      if(!lastBlock) return 1;
+      const lastBlock = store.layout
+         .filter((b) => isInMainGrid(b.x) || isInMainGrid(b.x + b.width))
+         .sort((a, b) => b.y + b.height - a.y - a.height)[0];
+      if (!lastBlock) return 1;
       const { y, height } = lastBlock;
       // console.log('last vert block in main grid', lastVerticalBlockInMainGrid);
       return y + height;
@@ -170,14 +170,24 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    function createBlock(block: Partial<AnyBlock>, editingType: EditType = 'content', id = crypto.randomUUID()) {
       block.id = id;
-      setEditorStore('document', 'blocks', blocks => blocks.concat(block as AnyBlock));
-      const createdBlock = store.document.blocks[store.document.blocks.length - 1];
+      setEditorStore('layout', blocks => blocks.concat(block as AnyBlock));
+      const createdBlock = store.layout[store.layout.length - 1];
       setEditorStore({
          editingBlock: createdBlock,
          editingType,
       });
       return createdBlock;
    }
+
+   function getLayout() {
+      return fetch(`${baseApiUrl}/${store.document.id}/layout`).then(r => r.json());
+   }
+   createEffect(() => {
+      getLayout()
+         .then((layout) => setEditorStore('layout', reconcile(layout)))
+         .catch(e => console.warn('Unable to download layout!', e));
+   });
+
    onMount(() => {
       calculateBoxRect();
       wrapperRef.addEventListener('scroll', calculateBoxRect, { passive: true });
@@ -272,7 +282,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                onMouseOut={onMainGridMouseOut}
                onContextMenu={(e) => e.preventDefault()}
             />
-            <For each={store.document.blocks}>
+            <For each={store.layout}>
                {(block) => (
                   <Block block={block} />
                )}

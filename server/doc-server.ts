@@ -2,10 +2,13 @@ import { BlokiDocument } from "../lib/entities";
 import { getRandomColor, mapValuesArray } from "../lib/helpers";
 import { Roommate, WSMsg, WSMsgType } from "../lib/network.types";
 import { WebSocketServer, WebSocket } from "ws";
-import { blobStorage } from "./db";
+import { blobStorage, layoutStorage } from "./db";
 import { tg } from "./tg-console";
 import { request, IncomingMessage } from 'node:http';
 import fileType from 'file-type';
+import { AnyBlock, BlockTransform } from "../components/bloki-editor/types/blocks";
+import { checkPlacement } from "../components/bloki-editor/helpers";
+import { EditType } from "../components/bloki-editor/types/editor";
 
 function send(ws: WebSocket, type: WSMsgType, data: any) {
    const serialized = JSON.stringify({ type, data } as WSMsg);
@@ -32,7 +35,6 @@ export class DocumentServer {
    willResetAt: number;
    doc: BlokiDocument;
    socketActivity = new Map<WebSocket, number>();
-
    constructor(doc: BlokiDocument) {
       if (!doc.shared) throw new Error();
       this.doc = doc;
@@ -95,14 +97,48 @@ export class DocumentServer {
                this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
                break;
             }
+            case WSMsgType.ChangeEnd: {
+               const myLayout = layoutStorage.get(this.doc.id);
+               const type = data.type as EditType;
+               const rel = data.rel as BlockTransform;
+               const block = data.block as AnyBlock;
+               if (!rel || !block) return;
+
+               const correct = checkPlacement(myLayout, this.doc.layoutOptions, block, rel.x, rel.y, rel.width, rel.height);
+               console.log('change correct?', correct);
+               if (!correct) {
+                  send(ws, WSMsgType.Layout, myLayout);
+                  return;
+               }
+               const myBlock = myLayout.find(b => b.id === block.id);
+               if (type === 'drag') {
+                  myBlock.x = rel.x;
+                  myBlock.y = rel.y;
+               }
+               else if (type === 'resize') {
+                  myBlock.width = rel.width;
+                  myBlock.height = rel.height;
+               }
+               this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.ChangeEnd, myBlock));
+               break;
+            }
+            case WSMsgType.SelectBlock: {
+               const blockId = data as string;
+               console.log('selected block');
+               const user = this.room.get(ws);
+               user.workingBlockId = blockId;
+               this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
+               break;
+            }
             default:
                console.log('Unknown message', msg, req.socket.remoteAddress);
                break;
          }
       });
       ws.on('close', (code) => {
-         logtg('User %s left. Code: %s. Reason: %s', this.room.get(ws)?.name, code.toString());
+         logtg('User %s left. Code: %s', this.room.get(ws)?.name, code.toString());
          this.room.delete(ws);
+         this.socketActivity.delete(ws);
          this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
       });
    };
