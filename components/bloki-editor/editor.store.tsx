@@ -223,6 +223,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             return;
          }
          setEditorStore('editingType', 'select');
+         setEditorStore('editingType', null);
          setEditorStore('layout', editor.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
