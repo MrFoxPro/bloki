@@ -222,6 +222,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          ref={wrapperRef}
       >
          <div
+
             class={s.container}
             ref={containerRef}
             style={{

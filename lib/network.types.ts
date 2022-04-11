@@ -31,7 +31,7 @@ export type BlokiNetworkDocument = BlokiDocument & {
    willResetAtUnix: number;
 };
 
-export const CURSOR_UPDATE_RATE = 400;
+export const CURSOR_UPDATE_RATE = 300;
 
 export type ChangeEventInfo = {
    type: EditType;

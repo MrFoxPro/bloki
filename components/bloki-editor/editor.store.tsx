@@ -333,7 +333,13 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    const sendMouse = throttle((e: MouseEvent) => {
       const wp = document.getElementById('wrapper');
-      setEditorStore({ cursor: { x: e.pageX + wp.scrollLeft, y: e.pageY + wp.scrollTop } });
+      console.log(wp.scrollTop, wp.scrollLeft)
+      setEditorStore({
+         cursor: {
+            x: e.clientX,
+            y: e.clientY + wp.scrollTop,
+         }
+      });
    }, CURSOR_UPDATE_RATE, { leading: false, trailing: true });
 
    function disconnect() {

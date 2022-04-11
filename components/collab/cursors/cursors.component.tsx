@@ -16,7 +16,7 @@ export function Cursors() {
                   class={s.user}
                   style={{
                      transform: `translate(${user.cursor.x}px, ${user.cursor.y}px)`,
-                     transition: `transform ${CURSOR_UPDATE_RATE}ms linear`
+                     transition: `transform ${CURSOR_UPDATE_RATE * 2 / 3}ms ease`
                   }}
                >
                   <CursorIcon fill={user.color} />
