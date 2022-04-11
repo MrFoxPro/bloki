@@ -286,7 +286,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       switch (msg.type) {
          case WSMsgType.Roommates: {
-            setEditorStore('rommates', reconcile(data));
+            setEditorStore('rommates', data);
             break;
          }
          case WSMsgType.CursorUpdate: {
