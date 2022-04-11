@@ -59,12 +59,13 @@ export function Drawer() {
    }
 
    createEffect(() => {
-      if(!editor.document.id) return;
+      if (!editor.document.id) return;
       ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
-   })
+   });
 
    createEffect(() => {
       if (editor.document.shared) return;
+      console.log('fetching draw');
       fetch(editor.document.blobUrl)
          .then(r => r.blob())
          .then(blob => setDrawerStore({ blob }));
@@ -75,7 +76,7 @@ export function Drawer() {
    createEffect(() => {
       if (!drawer.blob) return;
       createImageBitmap(drawer.blob).then(bitmap => {
-         ctx.globalCompositeOperation = 'copy';
+         ctx.globalCompositeOperation = 'source-over';
          ctx.drawImage(bitmap, 0, 0);
       });
    });

@@ -218,6 +218,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    return (
       <div
          class={s.wrapper}
+         id="wrapper"
          ref={wrapperRef}
       >
          <div

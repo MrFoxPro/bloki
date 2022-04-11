@@ -331,8 +331,10 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
    }
 
-   const sendMouse = throttle((e: MouseEvent) =>
-      setEditorStore({ cursor: { x: e.pageX, y: e.pageY } }), CURSOR_UPDATE_RATE, { leading: false, trailing: true });
+   const sendMouse = throttle((e: MouseEvent) => {
+      const wp = document.getElementById('wrapper');
+      setEditorStore({ cursor: { x: e.pageX + wp.scrollLeft, y: e.pageY + wp.scrollTop } });
+   }, CURSOR_UPDATE_RATE, { leading: false, trailing: true });
 
    function disconnect() {
       ws?.close();
