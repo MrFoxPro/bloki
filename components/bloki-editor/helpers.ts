@@ -22,12 +22,19 @@ export function getImgDimension(dataURL: string): Promise<Dimension> {
 
 export const getImageOrFallback = (src: string) => {
    return new Promise<string>((resolve, reject) => {
-     const img = new Image();
-     img.src = src;
-     img.onload = () => resolve(src);
-     img.onerror = () => reject();
+      const img = new Image();
+      img.src = src;
+      img.onload = () => resolve(src);
+      img.onerror = () => reject();
    });
- };
+};
+export const toBase64 = file => new Promise((resolve, reject) => {
+   const reader = new FileReader();
+   reader.readAsDataURL(file);
+   reader.onload = () => resolve(reader.result);
+   reader.onerror = error => reject(error);
+});
+
 export function distanceBetweenPoints(p1: Point, p2: Point) {
    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
 }

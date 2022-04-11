@@ -5,7 +5,7 @@ import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
 import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
-import { getAsString, getGoodImageRelativeSize } from './helpers';
+import { getAsString, getGoodImageRelativeSize, toBase64 } from './helpers';
 import { TextBlockFontFamily } from './blocks/text/types';
 import { Backlight } from './backlight/backlight.component';
 import { BlockContextMenu } from './context-menu/context-menu.component';
@@ -70,15 +70,31 @@ function BlokiEditor(props: BlokiEditorProps) {
    }
 
    // Todo: sort vertically in createComputed and find space between blocks too.
-   function findNextSpaceBelow(requiredSpace: Dimension, startFrom: Point = { x: 0, y: 0 }) {
-      let start: Point;
-      const lastBlock = store.layout
+   function findNextSpaceBelow(requiredSpace: Dimension, startFrom: Point = { x: 0, y: 0 }): Point {
+      const sorted = store.layout
          .filter((b) => isInMainGrid(b.x) || isInMainGrid(b.x + b.width))
-         .sort((a, b) => b.y + b.height - a.y - a.height)[0];
-      if (!lastBlock) return 1;
-      const { y, height } = lastBlock;
-      // console.log('last vert block in main grid', lastVerticalBlockInMainGrid);
-      return y + height;
+         .sort((a, b) => -b.y - b.height + a.y + a.height);
+
+      let pos: Point;
+      for (let i = 1; i < sorted.length; i++) {
+         const prev = sorted[i - 1];
+         const curr = sorted[i];
+         if (requiredSpace.height < curr.y - (prev.y + prev.height)) {
+            const p = { x: prev.x, y: prev.y + prev.height };
+            const { correct } = checkPlacement({ ...p, ...requiredSpace });
+            if (correct) {
+               console.log('found correct', p);
+               pos = p;
+               break;
+            }
+         }
+      }
+      console.log(pos);
+      if (pos) return pos;
+
+      const lastBlock = sorted[sorted.length - 1];
+      if (!lastBlock) return { x: store.document.layoutOptions.mGridWidth, y: 1 };
+      return { x: lastBlock.x, y: lastBlock.y + lastBlock.height };
    }
 
    function onMainGridMouseMove(e: MouseEvent) {
@@ -101,43 +117,42 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    async function onPaste(e: ClipboardEvent) {
       e.preventDefault();
-      // const file = Array.from(e.clipboardData.files)[0];
-      const item = Array.from(e.clipboardData.items)[0];
+      let src: string;
 
-      if (!item || item.type !== 'text/html') {
-         pasteError();
-         return;
+      const file = Array.from(e.clipboardData.files)[0];
+      const itemHtml = Array.from(e.clipboardData.items).find(x => x.type === 'text/html');
+      if (itemHtml) {
+         const str = await getAsString(itemHtml);
+         const regexp = str.match(/<img [^>]*src="[^"]*"[^>]*>/gm);
+         if (!regexp) return;
+         const imgSrc = regexp.map(x => x.replace(/.*src="([^"]*)".*/, '$1'))[0] as string;
+         if (!imgSrc?.includes('http')) {
+            pasteError();
+            return;
+         }
+         src = imgSrc;
       }
-      const str = await getAsString(item);
-      if (!str) {
-         pasteError();
+      if (file && !src) {
+         const isFileImage = ['png', 'svg', 'jpeg', 'jpg', 'gif'].some((ext) => file.type.includes(ext));
+         if (!isFileImage) return;
+         console.log(Array.from(e.clipboardData.files), Array.from(e.clipboardData.items));
+         console.log('found image', file.type);
+         const imgSrc = await toBase64(file);
+         src = imgSrc;
       }
-      const regexp = str.match(/<img [^>]*src="[^"]*"[^>]*>/gm);
-      if (!regexp) return;
-      const imgSrc = regexp.map(x => x.replace(/.*src="([^"]*)".*/, '$1'))[0] as string;
-      if (!imgSrc?.includes('http')) {
-         pasteError();
-         return;
-      }
-      const { fGridWidth, mGridWidth } = store.document.layoutOptions;
-      const { width, height } = await getGoodImageRelativeSize(imgSrc, store.document.layoutOptions);
-      const x = (fGridWidth - mGridWidth) / 2;
-      const y = findNextSpaceBelow(null);
+      if (!src) return;
+      // const { fGridWidth, mGridWidth } = store.document.layoutOptions;
+      const { width, height } = await getGoodImageRelativeSize(src, store.document.layoutOptions);
+      const { x, y } = findNextSpaceBelow({ width, height });
       const transform: BlockTransform = {
          width, height,
          x, y,
       };
-      const { correct } = checkPlacement(transform, x, y);
-      if (!correct) {
-         alert(t("errors.layout.not-enough-space"));
-         return;
-      }
       createBlock({
          type: BlockType.Image,
-         value: imgSrc,
+         value: src,
          ...transform,
       }, EditType.Select);
-      // await app.apiProvider.updateDocument(app.selectedDocument);
    }
 
    function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {

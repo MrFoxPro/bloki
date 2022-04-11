@@ -34,7 +34,7 @@ function getCountry(addr: string): Promise<{ country: string, city: string; }> {
 function decodeBase64Image(dataString) {
    const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
 
-   if (matches.length !== 3) {
+   if (matches?.length !== 3) {
       return [null, null];
    }
 
@@ -144,11 +144,9 @@ export class DocumentServer {
                const index = this.doc.layout.findIndex(x => x.id === blockId);
                if (index > -1) {
                   const block = this.doc.layout[index];
-                  if (isImageBlock(block)) {
-
+                  if (isImageBlock(block) && block.value?.length < 250) {
                      const possiblePath = path.join(process.cwd(), block.value);
-                     console.log('deleting image block', possiblePath);
-                     if (fs.existsSync(possiblePath)) {
+                     if (possiblePath && fs.existsSync(possiblePath)) {
                         fs.rmSync(possiblePath);
                         console.log('removed image');
                      }
@@ -170,10 +168,11 @@ export class DocumentServer {
                      if (type && buf) {
                         let ext = type.split('/')[1];
                         if (ext === 'svg+xml') ext = 'svg';
+                        console.log('pasting image', type, ext);
                         fs.writeFileSync(getImgPath("images", block.id, ext), buf);
                         block.value = `/static/images/${block.id}.${ext}`;
                      }
-                     else if (block.value.length > 100) {
+                     else if (block.value.length > 250) {
                         block.value = null;
                      }
                   }
