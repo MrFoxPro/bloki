@@ -1,14 +1,17 @@
+// This is not intended to production
 import { BlokiDocument } from "../lib/entities";
 import { getRandomColor, mapValuesArray } from "../lib/helpers";
 import { Roommate, WSMsg, WSMsgType } from "../lib/network.types";
 import { WebSocketServer, WebSocket } from "ws";
-import { blobStorage, layoutStorage } from "./db";
 import { tg } from "./tg-console";
 import { request, IncomingMessage } from 'node:http';
 import fileType from 'file-type';
-import { AnyBlock, BlockTransform, isTextBlock } from "../components/bloki-editor/types/blocks";
+import { AnyBlock, BlockTransform, isImageBlock } from "../components/bloki-editor/types/blocks";
 import { checkPlacement } from "../components/bloki-editor/helpers";
 import { EditType } from "../components/bloki-editor/types/editor";
+import { deleteImage, getImgPath, paintings, saveImage } from "./db";
+import fs from 'fs';
+import path from 'path';
 
 function send(ws: WebSocket, type: WSMsgType, data: any) {
    const serialized = JSON.stringify({ type, data } as WSMsg);
@@ -18,7 +21,7 @@ function logtg(...msg: string[]) {
    console.log(...msg);
    tg(...msg);
 }
-function getCountry(addr: string) {
+function getCountry(addr: string): Promise<{ country: string, city: string; }> {
    return new Promise((res, rej) => {
       const req = request(`http://ip-api.com/json/${addr}?fields=country,city`, (r) => {
          r.on('data', d => res(JSON.parse(d.toString())));
@@ -28,35 +31,32 @@ function getCountry(addr: string) {
    });
 }
 
+function decodeBase64Image(dataString) {
+   const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+   if (matches.length !== 3) {
+      return [null, null];
+   }
+
+   return [matches[1], Buffer.from(matches[2], 'base64')] as const;
+}
 export class DocumentServer {
    wss: WebSocketServer;
    room = new Map<WebSocket, Roommate>();
-   whiteboard: Buffer;
-   willResetAt: number;
    doc: BlokiDocument;
-   socketActivity = new Map<WebSocket, number>();
    constructor(doc: BlokiDocument) {
       if (!doc.shared) throw new Error();
       this.doc = doc;
-
-      this.whiteboard = blobStorage.get(doc.id);
-      this.willResetAt = Date.now() + 5 * 60 * 1000;
       this.wss = new WebSocketServer({ noServer: true });
       this.wss.on('connection', this.connection);
-      setInterval(this.health, 60 * 1000);
    }
-
    connection = (ws: WebSocket, req: IncomingMessage) => {
-      this.socketActivity.set(ws, Date.now());
-
       ws.on('message', async (buf, isBinary) => {
-         if (isBinary) {
-            const type = await fileType.fromBuffer(buf as Buffer);
+         if (isBinary && buf instanceof Buffer) {
+            const type = await fileType.fromBuffer(buf);
             if (type.ext === 'png') {
-               this.socketActivity.set(ws, Date.now());
-               this.whiteboard = buf as Buffer;
-               blobStorage.set(this.doc.id, this.whiteboard);
-               this.room.forEach((_, socket) => socket != ws && socket.send(this.whiteboard));
+               paintings.set(this.doc.id, buf);
+               this.room.forEach((_, socket) => socket != ws && socket.send(buf));
             }
             return;
          }
@@ -68,8 +68,6 @@ export class DocumentServer {
          const { type, data } = msg;
          if (type == null) return;
 
-         this.socketActivity.set(ws, Date.now());
-
          switch (msg.type) {
             case WSMsgType.Join: {
                this.room.set(ws, {
@@ -78,11 +76,13 @@ export class DocumentServer {
                   color: getRandomColor(),
                   workingBlockId: data.workingBlockId
                });
-               let loc = {};
+               let loc: { country: string, city: string; };
                if (process.env.MODE === 'prod') {
                   loc = await getCountry(req.headers['x-real-ip'] as string);
                }
                logtg('User %s joined document "%s"', data.name, this.doc.title, `\n Location: ${loc?.country}, ${loc?.city}`);
+               send(ws, WSMsgType.Layout, this.doc.layout);
+               ws.send(paintings.get(this.doc.id));
                this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
                break;
             }
@@ -98,23 +98,22 @@ export class DocumentServer {
                break;
             }
             case WSMsgType.ChangeEnd: {
-               const myLayout = layoutStorage.get(this.doc.id);
                const type = data.type as EditType;
                const rel = data.rel as BlockTransform;
                const block = data.block as AnyBlock;
                if (!rel || !block) return;
 
-               const { correct } = checkPlacement(myLayout, this.doc.layoutOptions, block, rel.x, rel.y, rel.width, rel.height);
+               const { correct } = checkPlacement(this.doc.layout, this.doc.layoutOptions, block, rel.x, rel.y, rel.width, rel.height);
                if (!correct) {
-                  send(ws, WSMsgType.Layout, myLayout);
+                  send(ws, WSMsgType.Layout, this.doc.layout);
                   return;
                }
-               const myBlock = myLayout.find(b => b.id === block.id);
-               if (type === 'drag') {
+               const myBlock = this.doc.layout.find(b => b.id === block.id);
+               if (type === EditType.Drag) {
                   myBlock.x = rel.x;
                   myBlock.y = rel.y;
                }
-               else if (type === 'resize') {
+               else if (type === EditType.Resize) {
                   myBlock.width = rel.width;
                   myBlock.height = rel.height;
                }
@@ -130,40 +129,60 @@ export class DocumentServer {
             }
             case WSMsgType.CreateBlock: {
                const block = data as AnyBlock;
-               const myLayout = layoutStorage.get(this.doc.id);
-               const { correct } = checkPlacement(myLayout.concat(block), this.doc.layoutOptions, block);
+               const { correct } = checkPlacement(this.doc.layout.concat(block), this.doc.layoutOptions, block);
                if (correct) {
-                  myLayout.push(block);
+                  this.doc.layout.push(block);
                   this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.CreateBlock, block));
                }
                else {
-                  send(ws, WSMsgType.Layout, myLayout);
+                  send(ws, WSMsgType.Layout, this.doc.layout);
                }
                break;
             }
             case WSMsgType.DeleteBlock: {
                const blockId = data as string;
-               const myLayout = layoutStorage.get(this.doc.id);
-               const index = myLayout.findIndex(x => x.id === blockId);
+               const index = this.doc.layout.findIndex(x => x.id === blockId);
                if (index > -1) {
-                  myLayout.splice(index, 1);
+                  const block = this.doc.layout[index];
+                  if (isImageBlock(block)) {
+
+                     const possiblePath = path.join(process.cwd(), block.value);
+                     console.log('deleting image block', possiblePath);
+                     if (fs.existsSync(possiblePath)) {
+                        fs.rmSync(possiblePath);
+                        console.log('removed image');
+                     }
+                  }
+                  this.doc.layout.splice(index, 1);
                   this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.DeleteBlock, blockId));
                }
                else {
-                  send(ws, WSMsgType.Layout, myLayout);
+                  send(ws, WSMsgType.Layout, this.doc.layout);
                }
                break;
             }
             case WSMsgType.ChangeBlock: {
                const block = data as AnyBlock;
-               const myLayout = layoutStorage.get(this.doc.id);
-               const index = myLayout.findIndex(x => x.id === block.id);
+               const index = this.doc.layout.findIndex(x => x.id === block.id);
                if (index > -1) {
-                  myLayout[index] = block;
+                  if (isImageBlock(block) && block.value && block.value !== this.doc.layout[index].value) {
+                     const [type, buf] = decodeBase64Image(block.value);
+                     if (type && buf) {
+                        let ext = type.split('/')[1];
+                        if (ext === 'svg+xml') ext = 'svg';
+                        fs.writeFileSync(getImgPath("images", block.id, ext), buf);
+                        block.value = `/static/images/${block.id}.${ext}`;
+                     }
+                     else if (block.value.length > 100) {
+                        block.value = null;
+                     }
+                  }
+
+                  this.doc.layout[index] = block;
                   this.room.forEach((_, socket) => socket != ws && send(socket, WSMsgType.ChangeBlock, block));
                }
                else {
-                  send(ws, WSMsgType.Layout, myLayout);
+                  send(ws, WSMsgType.Layout, this.doc.layout);
                }
                break;
             }
@@ -175,19 +194,7 @@ export class DocumentServer {
       ws.on('close', (code) => {
          logtg('User %s left. Code: %s', this.room.get(ws)?.name, code.toString());
          this.room.delete(ws);
-         this.socketActivity.delete(ws);
          this.room.forEach((_, socket) => send(socket, WSMsgType.Roommates, mapValuesArray(this.room)));
       });
    };
-   health = () => {
-      this.socketActivity.forEach((act, ws) => {
-         if (Date.now() - act > 2 * 60 * 1000) {
-            this.room.delete(ws);
-            ws.close();
-            this.socketActivity.delete(ws);
-         }
-      });
-   };
-   // poll = () => {
-   // };
 }

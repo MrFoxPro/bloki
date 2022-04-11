@@ -9,6 +9,7 @@ import HandyIcon from './assets/handy.icon.svg';
 import { BlockType } from '../types/blocks';
 import { BlockStoreProvider, CursorSide, DotState, useBlockStore } from './block.store';
 import { CodeBlock } from './code/code.block.component';
+import { EditType } from '../types/editor';
 
 const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.Image]: ImageBlock,
@@ -67,7 +68,6 @@ function Block() {
          showContextMenu: true
       });
    }
-
    return (
       <div
          class={cc([s.block, s.draggable])}
@@ -87,11 +87,13 @@ function Block() {
          ondrop={(e) => e.preventDefault()}
          draggable={false}
       >
-         <HandyIcon
-            class={s.handy}
-            onPointerDown={(e) => onBoxPointerDown(e, 0)}
-            onContextMenu={onHandyContextMenu}
-         />
+         <div class={s.handyBlock}>
+            <HandyIcon
+               class={s.handy}
+               onPointerDown={(e) => onBoxPointerDown(e, 0, true)}
+               onContextMenu={onHandyContextMenu}
+            />
+         </div>
          <Show when={blockState.dot.state !== DotState.None}>
             <div
                class={s.dotWrapper}
@@ -120,7 +122,7 @@ function Block() {
             onPointerLeave={() => {
                blockData.pointerInside = false;
                if (blockData.pointerDown && isMeEditing() && !isMeDragging()) {
-                  selectBlock(block, 'select');
+                  selectBlock(block, EditType.Select);
                }
             }}
             onPointerDown={(e) => onBoxPointerDown(e, 1)}

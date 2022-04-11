@@ -1,4 +1,4 @@
-import { useAppStore } from "@/lib/app.store";
+import { useAppStore } from "@/components/app.store";
 import { For, Show } from "solid-js";
 import s from './cursors.module.scss';
 import CursorIcon from '../assets/cursor.icon.svg';

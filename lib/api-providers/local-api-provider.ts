@@ -52,7 +52,7 @@ export class TestLocalApiProvider implements IApiProvider {
    }
 
    async getRandUserData() {
-      const u = await import('../test-data/hackaton-data').then(x => x.default);
+      const u = await import('../../server/hackaton-data').then(x => x.default);
       return u;
    }
    async clearCache() {

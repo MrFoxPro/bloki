@@ -1,5 +1,5 @@
 import { createEffect, createRenderEffect, lazy, Suspense } from 'solid-js';
-import { useAppStore } from '@/lib/app.store';
+import { useAppStore } from '@/components/app.store';
 import { useNavigate, useParams } from 'solid-app-router';
 const SideMenu = lazy(() => import('@/components/side-menu/side-menu.component'));
 const Workspace = lazy(() => import('@/components/workspace/workspace.component'));

@@ -1,8 +1,8 @@
-import { lazy, Show } from "solid-js";
 import { useI18n } from "@solid-primitives/i18n";
+import { lazy, Show } from "solid-js";
+import { useAppStore } from "../app.store";
 import { DrawerStoreProvider } from "../bloki-editor/drawer.store";
 import { EditorStoreProvider, useEditorStore } from "../bloki-editor/editor.store";
-import { useAppStore } from "@/lib/app.store";
 import { Avatars } from "../collab/avatars/avatars.component";
 import { Cursors } from "../collab/cursors/cursors.component";
 const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));

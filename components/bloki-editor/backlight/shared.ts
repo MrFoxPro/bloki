@@ -2,7 +2,7 @@ import { JSX } from "solid-js";
 import { BlockTransform } from "../types/blocks";
 
 export enum CellState {
-   None,
+   None = 1,
    Free,
    Intersection,
    Affected

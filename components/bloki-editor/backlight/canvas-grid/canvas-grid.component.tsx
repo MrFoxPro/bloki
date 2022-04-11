@@ -3,7 +3,7 @@ import { useEditorStore } from '../../editor.store';
 import { BlockTransform } from "../../types/blocks";
 import { FillColors, IGridImpl, } from '../shared';
 import { createEffect } from 'solid-js';
-import { useAppStore } from '@/lib/app.store';
+import { useAppStore } from '@/components/app.store';
 
 export function BlokiCanvasGrid(): IGridImpl {
    let backlightCanvasRef: HTMLCanvasElement;

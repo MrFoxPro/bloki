@@ -1,6 +1,6 @@
-import { Accessor, batch, createComputed, createContext, createEffect, createMemo, mergeProps, onCleanup, PropsWithChildren, untrack, useContext } from "solid-js";
+import { Accessor, batch, createComputed, createContext, createEffect, createMemo, mergeProps, onCleanup, onMount, PropsWithChildren, untrack, useContext } from "solid-js";
 import { createNanoEvents, Emitter } from 'nanoevents';
-import { createStore, DeepReadonly, reconcile, SetStoreFunction } from "solid-js/store";
+import { createStore, DeepReadonly, reconcile, SetStoreFunction, unwrap } from "solid-js/store";
 import {
    AnyBlock,
    BlockTransform,
@@ -12,13 +12,13 @@ import { BlokiDocument } from "@/lib/entities";
 import { EditType, Instrument } from "./types/editor";
 import { checkPlacement as checkPlacementHelper } from "./helpers";
 import { ChangeEventInfo, CURSOR_UPDATE_RATE, Roommate, WSMsg, WSMsgType } from "@/lib/network.types";
-import { useAppStore } from "@/lib/app.store";
+import { useAppStore } from "@/components/app.store";
 import { useDrawerStore } from "./drawer.store";
 import throttle from "lodash.throttle";
 
 type EditorStoreValues = DeepReadonly<{
-   editingBlock?: AnyBlock;
-   editingType?: EditType;
+   editingBlock: AnyBlock | null;
+   editingType: EditType | null;
 
    selectedBlocks: AnyBlock[];
    overflowedBlocks: AnyBlock[];
@@ -92,6 +92,7 @@ type EditorStoreHandles = {
    setEditorStore: SetStoreFunction<EditorStoreValues>;
    staticEditorData: StaticEditorData;
    send(type: WSMsgType, data?: object): void;
+   sendRaw(b: Buffer): void;
 };
 
 const EditorStore = createContext<[EditorStoreValues, EditorStoreHandles]>();
@@ -131,7 +132,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    createComputed(() => {
       setEditorStore({
-         document: props.document
+         document: props.document,
+         layout: props.document.layout
       });
    });
 
@@ -165,7 +167,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       return { x: x * gridBoxSize(), y: y * gridBoxSize() };
    }
 
-   function getRelativeSize(width, height, roundFunc = Math.ceil) {
+   function getRelativeSize(width: number, height: number, roundFunc = Math.ceil) {
       return {
          width: roundFunc(width / gridBoxSize()),
          height: roundFunc(height / gridBoxSize())
@@ -212,7 +214,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       batch(() => {
          setEditorStore({
             editingBlock: null,
-            editingType: 'select',
+            editingType: EditType.Select,
             isPlacementCorrect: true,
             overflowedBlocks: [],
          });
@@ -233,7 +235,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       });
    }
 
-   function selectBlock(selectedBlock: AnyBlock, type: EditType = 'select') {
+   function selectBlock(selectedBlock: AnyBlock, type: EditType = EditType.Select) {
       if (selectedBlock) {
          setEditorStore({
             editingBlock: selectedBlock,
@@ -259,7 +261,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    }
    let ws: WebSocket;
 
-   function send(type: WSMsgType, data: object = {}) {
+   function send(type: WSMsgType, data: any = {}) {
       if (!ws) return;
       if (ws.readyState === ws.CONNECTING) {
          setTimeout(() => send(type, data), 400);
@@ -269,13 +271,10 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       ws.send(serialized);
    }
 
-   let drawFromServer;
    function onMessage(ev: MessageEvent) {
       if (!ev.data) return;
 
       if (ev.data instanceof Blob) {
-         console.log('got buffer', ev.data.type);
-         drawFromServer = ev.data;
          setDrawerStore({ blob: ev.data });
          return;
       }
@@ -287,7 +286,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       switch (msg.type) {
          case WSMsgType.Roommates: {
-            console.log(data);
             setEditorStore('rommates', reconcile(data));
             break;
          }
@@ -306,28 +304,24 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          case WSMsgType.ChangeEnd: {
             const block = data as AnyBlock;
             if (!block) return;
-            console.log('changeEnd', block);
             setEditorStore('layout', b => b.id === block.id, block);
             break;
          }
          case WSMsgType.CreateBlock: {
             const block = data as AnyBlock;
             if (!block) return;
-            console.log('creating block', block);
             setEditorStore('layout', l => l.concat(block));
             break;
          }
          case WSMsgType.DeleteBlock: {
             const blockId = data as string;
             if (!blockId) return;
-            console.log('deleting block', blockId);
             setEditorStore('layout', l => l.filter(x => x.id !== blockId));
             break;
          }
          case WSMsgType.ChangeBlock: {
             const block = data as AnyBlock;
             if (!block) return;
-            console.log('changing block', block);
             setEditorStore('layout', b => b.id === block.id, reconcile(block));
             break;
          }
@@ -341,13 +335,10 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       setEditorStore({ cursor: { x: e.pageX, y: e.pageY } }), CURSOR_UPDATE_RATE, { leading: false, trailing: true });
 
    function disconnect() {
+      ws?.close();
+      ws = null;
       document.removeEventListener('mousemove', sendMouse);
-      if (ws) {
-         ws?.close();
-         ws = null;
-         console.log('Disconnected!');
-      }
-      setEditorStore({ connected: false });
+      console.log('Disconnected!');
    }
 
    createEffect(() => {
@@ -357,15 +348,22 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
             ws = new WebSocket(wsHost + '/' + editor.document.id);
             ws.onopen = function () {
+               console.log('Connected to document server', untrack(() => editor.document.title));
                setEditorStore({
                   connected: true
                });
-               console.log('Connected to document server', untrack(() => editor.document.title));
             };
 
             ws.onmessage = onMessage;
-            ws.onerror = () => setEditorStore({ connected: false });
-            ws.onclose = () => setEditorStore({ connected: false });
+            ws.onerror = (e) => {
+               console.warn('Socket error', e);
+               setEditorStore({ connected: false });
+            };
+            ws.onclose = () => {
+               if (!ws || ws.readyState === ws.CLOSED) {
+                  setEditorStore({ connected: false });
+               }
+            };
             document.addEventListener('mousemove', sendMouse);
 
             send(WSMsgType.Join, {
@@ -384,34 +382,26 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       if (!editor.connected) return;
       send(WSMsgType.CursorUpdate, { cursor: editor.cursor });
    });
-   function sendBlob(b: Blob) {
+
+   function sendRaw(b: Buffer) {
       if (ws.readyState === ws.CONNECTING) {
-         setTimeout(() => sendBlob(b), 400);
+         setTimeout(() => sendRaw(b), 400);
          return;
       }
-      ws.send(drawer.blob);
+      ws.send(b);
    }
-   createEffect(() => {
-      if (!drawer.blob || !ws) return;
-      if (drawer.blob === drawFromServer) return;
-      sendBlob(drawer.blob);
-   });
 
    createEffect(() => {
-      console.log('editing block changing btw');
       send(WSMsgType.SelectBlock, editor.editingBlock?.id);
    });
-
-   let statusInterval: number;
+   onMount(() => {
+      (window as any).layout = () => console.log(unwrap(editor.layout));
+   });
    onCleanup(() => {
-      clearInterval(statusInterval);
       ws?.close();
       document.removeEventListener('mousemove', sendMouse);
    });
-   // let verticallySortedDocs: string[];
-   // createEffect(() => {
 
-   // })
 
    return (
       <EditorStore.Provider value={[
@@ -433,6 +423,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             deleteBlock,
 
             send,
+            sendRaw,
 
             setEditorStore: setEditorStore,
             staticEditorData

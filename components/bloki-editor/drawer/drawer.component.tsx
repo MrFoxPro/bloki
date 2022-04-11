@@ -1,5 +1,5 @@
 import s from './drawer.module.scss';
-import { createComputed, createEffect, createRenderEffect, on, onMount } from 'solid-js';
+import { createComputed, createEffect, onMount } from 'solid-js';
 import { useEditorStore } from '../editor.store';
 import { useDrawerStore } from '../drawer.store';
 import { Point } from '../types/blocks';
@@ -9,7 +9,6 @@ import { Instrument } from '../types/editor';
 import LastikCursor from './assets/lastik.cursor.png';
 import MarkerCursor from './assets/marker.cursor.png';
 import { toBlobAsync } from './helpers';
-import { baseApiUrl } from '@/lib/app.store';
 
 const cursorOffset: Point = {
    x: 4,
@@ -30,7 +29,7 @@ export function Drawer() {
       x: 0,
       y: 0,
    };
-   const [editor, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
+   const [editor, { realSize, staticEditorData, setEditorStore, sendRaw }] = useEditorStore();
    const [drawer, { setDrawerStore }] = useDrawerStore();
    createComputed(() => {
       if (drawer.instrument !== Instrument.Cursor) {
@@ -59,20 +58,26 @@ export function Drawer() {
       }
    }
 
-   function getWhiteBoardData() {
-      return fetch(`${baseApiUrl}/${editor.document.id}/blob`).then(r => r.blob());
-   }
    createEffect(() => {
-      getWhiteBoardData()
-         .then((blob) => setDrawerStore({ blob }))
-         .catch(e => console.warn('Unable to download initial drawing!', e));
+      if(!editor.document.id) return;
+      ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
+   })
+
+   createEffect(() => {
+      if (editor.document.shared) return;
+      fetch(editor.document.blobUrl)
+         .then(r => r.blob())
+         .then(blob => setDrawerStore({ blob }));
    });
 
-   createEffect(async () => {
+
+
+   createEffect(() => {
       if (!drawer.blob) return;
-      const bitmap = await createImageBitmap(drawer.blob);
-      ctx.globalCompositeOperation = 'copy';
-      ctx.drawImage(bitmap, 0, 0);
+      createImageBitmap(drawer.blob).then(bitmap => {
+         ctx.globalCompositeOperation = 'copy';
+         ctx.drawImage(bitmap, 0, 0);
+      });
    });
 
    function drawMarker(prev: Point, curr: Point) {
@@ -131,7 +136,7 @@ export function Drawer() {
    let rasterizeDrawingsTimeout = null;
    // 10 seconds
    const RASTERIZE_TIMEOUT = 5 * 1000;
-   async function onDrawEnd(e: PointerEvent) {
+   function onDrawEnd(e: PointerEvent) {
       isMouseDown = false;
 
       if (wasDrawing) {
@@ -149,9 +154,12 @@ export function Drawer() {
    }
 
    async function processDrawings() {
-      const blob = await toBlobAsync(ctx, 'image/png', 1);
+      if (editor.document.shared) {
+         const blob = await toBlobAsync(ctx, 'image/png', 1).then(blob => blob.arrayBuffer());
+         sendRaw(blob);
+      }
       // const base64 = ctx.canvas.toDataURL('image/png', 1);
-      setDrawerStore({ blob });
+      // setDrawerStore({ blob });
       // if(editor.document.shared) {
 
       // }

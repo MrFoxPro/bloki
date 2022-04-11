@@ -13,7 +13,7 @@ import { useEditorStore } from '../editor.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { DrawingColor } from '../types/drawings';
 import { Instrument } from '../types/editor';
-import { useAppStore } from '@/lib/app.store';
+import { useAppStore } from '@/components/app.store';
 
 const instruments = [
    // [Instrument.Circle, CircleIcon],

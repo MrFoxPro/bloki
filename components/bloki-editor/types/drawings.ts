@@ -2,7 +2,7 @@ import { Point } from "./blocks";
 
 // unify with Instrument?
 enum DrawingType {
-   Marker,
+   Marker = 1,
    Circle,
    Lastik
 }

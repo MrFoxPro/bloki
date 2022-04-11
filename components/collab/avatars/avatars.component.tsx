@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 import { useEditorStore } from "@/components/bloki-editor/editor.store";
 import s from './avatars.module.scss';
-import { useAppStore } from "@/lib/app.store";
+import { useAppStore } from "@/components/app.store";
 
 type AvatarsProps = {
 };

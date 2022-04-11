@@ -1,4 +1,4 @@
-import { ComponentProps, createComputed, createEffect, Match, on, splitProps, Switch } from 'solid-js';
+import { batch, ComponentProps, createComputed, createEffect, Match, on, splitProps, Switch } from 'solid-js';
 import { Dimension, ImageBlock as ImageBlockEntity } from '@/components/bloki-editor/types/blocks';
 import s from './image.block.module.scss';
 import { useBlockStore } from '../block.store';
@@ -18,7 +18,7 @@ export function ImageBlock(props: ImageBlockProps) {
    const [local, other] = splitProps(props, []);
 
    const [, { gridSize, send }] = useEditorStore();
-   const [, { shadowed, block, isMeResizing, isMeDragging, blockData }] = useBlockStore<ImageBlockEntity>();
+   const [, { shadowed, block, isMeResizing, isMeDragging, blockData, isMeEditingByRoommate }] = useBlockStore<ImageBlockEntity>();
 
    if (shadowed) {
       return (
@@ -93,8 +93,18 @@ export function ImageBlock(props: ImageBlockProps) {
    createEffect(on(
       () => block.value,
       async () => {
-         if (!block.value) {
+         let value = block.value;
+         try {
+            await getImageOrFallback(block.value);
+         }
+         catch (e) {
+            value = null;
+         }
+         if (!value) {
             setEditorStore('layout', editorStore.layout.indexOf(block), defaultRelDimension);
+            if (value !== block.value) {
+               setEditorStore('layout', editorStore.layout.indexOf(block), 'value', null);
+            }
             send(WSMsgType.ChangeBlock, unwrap(block));
             dimension.width = gridSize(defaultRelDimension.width);
             dimension.height = gridSize(defaultRelDimension.height);
@@ -173,6 +183,7 @@ export function ImageBlock(props: ImageBlockProps) {
                         class={s.hiddenInputFile}
                         accept=".png, .jpg, .jpeg, .svg"
                         onChange={onFileChoose}
+                        disabled={!!isMeEditingByRoommate()}
                      />
                      <div class={s.pic} />
                      <div class={s.ask}>{t('blocks.attachments.image.mock.ask')}</div>
@@ -185,7 +196,7 @@ export function ImageBlock(props: ImageBlockProps) {
                      <input
                         type="url"
                         class={s.link}
-                        placeholder={"https://cstor.nn2.ru/forum/data/forum/files/2014-12/108480959-9743143_original-1-.jpg"}
+                        placeholder={"Image url"}
                         onInput={onUrlInput}
                         onPaste={(e) => {
                            e.stopImmediatePropagation();

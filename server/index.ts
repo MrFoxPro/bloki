@@ -2,7 +2,7 @@ require('console-stamp')(console, {
    format: ':date(HH:MM:ss) :label'
 });
 import fastifyInit from 'fastify';
-import { blobStorage, db, emptyImageBlob, introDoc, layoutStorage } from './db';
+import { paintings, db } from './db';
 import { DocumentServer } from './doc-server';
 import { tg } from './tg-console';
 
@@ -11,20 +11,11 @@ const servers = db.docs.filter(doc => doc.shared).map(doc => new DocumentServer(
 const fastify = fastifyInit({ logger: false, });
 
 fastify.register((fastify, opt, done) => {
-   fastify.get('/user', () => {
-      return db.users[0] as any;
-   });
-   fastify.get('/workspaces', () => {
-      return db.workspaces as any;
-   });
    fastify.get('/docs', () => {
       return db.docs as any;
    });
-   fastify.get('/:docId/blob', (req, res) => {
-      return blobStorage.get(req.params.docId) ?? emptyImageBlob;
-   });
-   fastify.get('/:docId/layout', (req, res) => {
-      return layoutStorage.get(req.params.docId) ?? introDoc.blocks;
+   fastify.get('/:docId/blob', (req) => {
+      return paintings.get(req.params.docId) as any;
    });
    done();
 }, { prefix: '/api' });

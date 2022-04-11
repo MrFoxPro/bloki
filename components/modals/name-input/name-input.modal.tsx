@@ -1,4 +1,4 @@
-import { useAppStore } from "@/lib/app.store";
+import { useAppStore } from "@/components/app.store";
 import { useI18n } from "@solid-primitives/i18n";
 import s from './name-input.module.scss';
 import { randAnimalType } from '@ngneat/falso';

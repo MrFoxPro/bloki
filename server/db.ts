@@ -1,32 +1,35 @@
-import { AnyBlock } from '@/components/bloki-editor/types/blocks';
-import crypto from 'crypto';
-import fs from 'fs';
+import fs from 'node:fs';
 import path from 'node:path';
-import { hackWorkspace, introDoc, emptyDoc, docWithSimpleLayout } from "../lib/test-data/hackaton-data";
 
-const introImageBlob = fs.readFileSync(path.resolve(__dirname, '../lib/test-data/assets/intro.png'));
-const emptyImageBlob = fs.readFileSync(path.resolve(__dirname, '../lib/test-data/assets/empty.png'));
+const db = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), './static/data.json'), { encoding: 'utf8' }));
+const paintings = new Map<string, Buffer>();
 
-const db = {
-   workspaces: [hackWorkspace],
-   users: [
-      {
-         selectedWorkspaceId: hackWorkspace.id,
-         selectedDocumentId: introDoc.id,
-      }
-   ],
-   docs: [introDoc, docWithSimpleLayout, emptyDoc, emptyDoc].map(doc => structuredClone(doc)),
-} as const;
+function getImgPath(type: 'blobs' | 'images', id: string, ext = 'png') {
+   return path.resolve(process.cwd(), `./static/${type}/${id}.${ext}`);
+}
 
-const blobStorage = new Map<string, Buffer>();
-const layoutStorage = new Map<string, AnyBlock[]>();
-db.docs.forEach((doc, i) => {
-   if (doc.shared) {
-      doc.id = crypto.randomUUID();
-      doc.title = `Shared doc ${i}`;
+function saveImage(type: 'blobs' | 'images', id, buf, ext = 'png') {
+   fs.writeFileSync(getImgPath(type, id, ext), buf);
+}
+function deleteImage(type: 'blobs' | 'images', id, ext = 'png') {
+   const path = getImgPath(type, id, ext);
+   if (fs.existsSync(path)) {
+      fs.rmSync(path);
    }
-   blobStorage.set(doc.id, doc.id === introDoc.id ? introImageBlob : emptyImageBlob);
-   layoutStorage.set(doc.id, structuredClone(doc.blocks));
-});
+}
 
-export { db, blobStorage, layoutStorage, emptyImageBlob, introDoc };
+db.docs
+   .filter(x => x.shared)
+   .forEach(doc => {
+      const blob = fs.readFileSync(getImgPath('blobs', doc.id));
+      paintings.set(doc.id, blob);
+   });
+
+setInterval(() => {
+   paintings.forEach((buf, docId) => {
+      saveImage('blobs', docId, buf);
+   });
+   fs.writeFileSync(path.resolve(process.cwd(), './static/data.json'), JSON.stringify(db, null, 3));
+}, 5 * 1000);
+
+export { db, paintings, saveImage, deleteImage,getImgPath };

@@ -1,10 +1,10 @@
-import { ComponentProps, createComputed, createEffect, createMemo, on, onMount, splitProps, untrack } from 'solid-js';
+import { ComponentProps, createComputed, createEffect, on, onMount, splitProps, untrack } from 'solid-js';
 import cc from 'classcat';
 import { TextBlock as TextBlockEntity } from '../../types/blocks';
 import { useEditorStore } from '../../editor.store';
 import s from './code.block.module.scss';
 import { Dimension } from '../../types/blocks';
-import { TextBlockFontFamily, TextTypes } from '../text/types';
+import { TextBlockFontFamily } from '../text/types';
 import { getTextBlockSize, measurer } from '../text/helpers';
 import { useI18n } from '@solid-primitives/i18n';
 import { useBlockStore } from '../block.store';
@@ -15,7 +15,7 @@ type CodeBlockProps = {
 
 export function CodeBlock(props: CodeBlockProps) {
    const [editor, { setEditorStore, gridSize, checkPlacement }] = useEditorStore();
-   const [blockStore, { isMeOverflowing, shadowed, block, blockData }] = useBlockStore<TextBlockEntity>();
+   const [blockStore, { isMeOverflowing, shadowed, block, blockData, isEditingContent }] = useBlockStore<TextBlockEntity>();
 
    const [local, other] = splitProps(props, []);
 
@@ -39,7 +39,6 @@ export function CodeBlock(props: CodeBlockProps) {
    let minTextWidth = 0;
    let textHeightAtMinWidth = 0;
 
-   const isEditingContent = createMemo(() => editor.editingBlock === block && editor.editingType === 'content');
 
    createComputed(() => {
       minTextWidth = gridSize(5);

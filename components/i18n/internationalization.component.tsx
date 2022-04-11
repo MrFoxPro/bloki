@@ -1,7 +1,7 @@
 import { createI18nContext, I18nContext } from "@solid-primitives/i18n";
 import { createEffect, PropsWithChildren } from "solid-js";
 import Cookies from 'js-cookie';
-import { useAppStore } from "@/lib/app.store";
+import { useAppStore } from "@/components/app.store";
 
 const langs = {
    en: () => import('./langs/en.json').then(x => x.default),

@@ -2,6 +2,7 @@ import { createMemo, onCleanup, onMount } from "solid-js";
 import { useEditorStore } from "../editor.store";
 import { isInsideRect } from "../helpers";
 import { BlockTransform, PlacementStatus } from "../types/blocks";
+import { EditType } from "../types/editor";
 import { BlokiCanvasGrid } from "./canvas-grid/canvas-grid.component";
 import { BlokiDomGrid } from "./dom-grid/dom-grid.component";
 import { CellState } from "./shared";
@@ -65,7 +66,7 @@ export function Backlight(props: BacklightDrawerProps) {
       // It's very cpu ineffective to use createEffect(on()) here
       // IDK how to implement performant solution here
       const unbindChange = editor.on('change', function (_, { placement, relTransform }) {
-         if (!store.editingBlock || (store.editingType !== 'drag' && store.editingType !== 'resize')) return;
+         if (store.editingBlock === null || (![EditType.Resize, EditType.Drag].includes(store.editingType))) return;
          if (prevRelTransform &&
             prevRelTransform.x === relTransform.x &&
             prevRelTransform.y === relTransform.y &&

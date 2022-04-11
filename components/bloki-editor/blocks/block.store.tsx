@@ -1,4 +1,4 @@
-import { useAppStore } from "@/lib/app.store";
+import { useAppStore } from "@/components/app.store";
 import { Roommate } from "@/lib/network.types";
 import { Accessor, createComputed, createContext, createEffect, createMemo, onCleanup, PropsWithChildren, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
@@ -6,7 +6,7 @@ import { useDrawerStore } from "../drawer.store";
 import { useEditorStore } from "../editor.store";
 import { isInsideRect, distanceBetweenPoints } from "../helpers";
 import { AnyBlock, Dimension, Point } from "../types/blocks";
-import { Instrument } from "../types/editor";
+import { EditType, Instrument } from "../types/editor";
 
 const RESIZER_LOD_ACTIVATE_OUTER_LIM = 130;
 const RESIZER_ACTIVATE_OUTER_LIM = 30;
@@ -15,7 +15,7 @@ const CURSOR_X_OFFSET = 0;
 const CURSOR_Y_OFFSET = -1;
 
 export enum DotState {
-   None,
+   None = 1,
    Micro,
    Full
 }
@@ -64,6 +64,7 @@ type BlockContextHandlers<B extends AnyBlock = AnyBlock> = {
    isMeDragging: Accessor<boolean>;
    isMeResizing: Accessor<boolean>;
    isMeOverflowing: Accessor<boolean>;
+   isEditingContent: Accessor<boolean>;
    isMeEditingByRoommate: Accessor<Roommate>;
    onBoxClick: (e: MouseEvent & {
       currentTarget: HTMLDivElement;
@@ -104,7 +105,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       getAbsolutePosition,
       selectBlock,
       gridSize,
-      send,
+      setEditorStore,
    }] = useEditorStore();
 
    const [app] = useAppStore();
@@ -132,8 +133,9 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
    });
 
    const isMeEditing = createMemo(() => editor.editingBlock === props.block);
-   const isMeDragging = createMemo(() => isMeEditing() && editor.editingType === 'drag');
-   const isMeResizing = createMemo(() => isMeEditing() && editor.editingType === 'resize');
+   const isMeDragging = createMemo(() => isMeEditing() && editor.editingType === EditType.Drag);
+   const isMeResizing = createMemo(() => isMeEditing() && editor.editingType === EditType.Resize);
+   const isEditingContent = createMemo(() => isMeEditing() && editor.editingType === EditType.Content);
    const isMeOverflowing = createMemo(() => editor.overflowedBlocks.includes(props.block));
    const isMeEditingByRoommate = createMemo(() => editor.rommates.find(rm => app.name !== rm.name && rm.workingBlockId === props.block.id));
 
@@ -176,7 +178,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       const rect = e.currentTarget.getBoundingClientRect();
 
       if (isInsideRect(e.pageX, e.pageY, rect)) {
-         selectBlock(props.block, 'content');
+         selectBlock(props.block, EditType.Content);
       }
       else {
          e.preventDefault();
@@ -299,21 +301,22 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
          y: dot.y,
       });
    }
-
-   function onBoxPointerDown(e: PointerEvent, btn = 0) {
+   let handyWasClicked = false;
+   let wasBlockMoved = false;
+   function onBoxPointerDown(e: PointerEvent, btn = 0, handy = false) {
       if (isMeEditingByRoommate()) return;
       blockData.pointerDown = true;
       if (e.button !== btn) {
          return;
       }
-
+      handyWasClicked = handy;
       const box = blockData.boxRef.getBoundingClientRect();
 
       const body = document.body;
       blockData.relX = e.pageX - (box.left + body.scrollLeft - body.clientLeft);
       blockData.relY = e.pageY - (box.top + body.scrollTop - body.clientTop);
 
-      onChangeStart(props.block, state.transform, 'drag');
+      onChangeStart(props.block, state.transform, EditType.Drag);
 
       blockData.boxRef.onpointermove = onBoxPointerMove;
       blockData.boxRef.onpointerup = onBoxPointerUp;
@@ -324,9 +327,10 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       const x = e.pageX - blockData.relX - staticEditorData.containerRect.x;
       const y = e.pageY - blockData.relY - staticEditorData.containerRect.y;
       if (x !== state.transform.x || y !== state.transform.y) {
+         wasBlockMoved = true;
          setState('transform', { x, y });
          const { width, height } = state.transform;
-         onChange(props.block, { x, y, width, height }, 'drag');
+         onChange(props.block, { x, y, width, height }, EditType.Drag);
       }
    }
 
@@ -336,8 +340,19 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       blockData.pointerDown = false;
       blockData.boxRef.onpointermove = null;
       blockData.boxRef.onpointerup = null;
-      const { x, y, width, height } = state.transform;
-      onChangeEnd(props.block, { x, y, width, height }, 'drag');
+      if (wasBlockMoved) {
+         const { x, y, width, height } = state.transform;
+         onChangeEnd(props.block, { x, y, width, height }, EditType.Drag);
+      }
+      else if (handyWasClicked) {
+         handyWasClicked = false;
+         // selectBlock(props.block);
+         setEditorStore({
+            showContextMenu: true
+         });
+         console.log(editor.showContextMenu);
+      }
+      wasBlockMoved = false;
    }
 
    function onHookPointerDown(e: PointerEvent, side: CursorSide) {
@@ -353,7 +368,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       dot.onpointerup = onDotPointerUp;
       dot.onpointermove = onHookPointerMove;
 
-      onChangeStart(props.block, state.transform, 'resize');
+      onChangeStart(props.block, state.transform, EditType.Resize);
    }
 
    function onHookPointerMove(e: PointerEvent) {
@@ -455,7 +470,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
 
       width += εX;
       height += εY;
-      onChange(props.block, { x, y, width, height }, 'resize');
+      onChange(props.block, { x, y, width, height }, EditType.Resize);
    }
 
    function onDotPointerUp(e: PointerEvent) {
@@ -465,7 +480,7 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
       dot.onpointerup = null;
       blockData.capturingSide = null;
       const { x, y, width, height } = state.transform;
-      onChangeEnd(props.block, { x, y, width, height }, 'resize');
+      onChangeEnd(props.block, { x, y, width, height }, EditType.Resize);
    }
 
    const context: [BlockContextValues, BlockContextHandlers] = [
@@ -477,7 +492,8 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
          isMeDragging,
          isMeResizing,
          isMeOverflowing,
-         isMeEditingByRoommate: isMeEditingByRoommate,
+         isMeEditingByRoommate,
+         isEditingContent,
          onBoxClick,
          onPointerMove,
          onBoxPointerDown,

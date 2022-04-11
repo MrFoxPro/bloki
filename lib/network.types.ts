@@ -3,7 +3,7 @@ import { EditType } from "@/components/bloki-editor/types/editor";
 import { BlokiDocument } from "./entities";
 
 export enum WSMsgType {
-   Join,
+   Join = 1,
    CursorUpdate,
    Roommates,
    Blob,

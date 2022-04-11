@@ -1,4 +1,4 @@
-import { useAppStore } from '@/lib/app.store';
+import { useAppStore } from '@/components/app.store';
 import { useI18n } from '@solid-primitives/i18n';
 import s from './settings.module.scss';
 import LayoutIcon from './assets/layout.icon.svg';

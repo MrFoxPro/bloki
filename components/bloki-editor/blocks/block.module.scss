@@ -29,6 +29,7 @@
    &.dragging {
       // background: rgba(201, 64, 64, 0.637);
       cursor: grabbing;
+      user-select: none;
 
       .handy {
          fill: #7597ff;
@@ -36,6 +37,8 @@
    }
 
    &.resizing {
+      user-select: none;
+
       .sizedot {
          background: #4281fa !important;
       }
@@ -141,16 +144,33 @@
    }
 }
 
-.handy {
+.handy-block {
+   width: 24px;
+   height: 30px;
+   border-radius: 4px;
+   transition: background 100ms linear;
    position: absolute;
    top: 0px;
-   left: -21px;
-   cursor: pointer;
-   transition: fill 130ms linear;
-   fill: transparent;
+   left: -29px;
 
    &:hover {
-      fill: #18a0fb !important;
+      background: #D1ECFE;
+   }
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+
+   .handy {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      transition: fill 130ms linear;
+      fill: transparent;
+
+      &:hover {
+         fill: #18a0fb !important;
+      }
    }
 }
 

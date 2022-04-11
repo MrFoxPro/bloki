@@ -1,10 +1,11 @@
-import { LayoutOptions } from "../entities";
+import { LayoutOptions } from "../../lib/entities";
 
 export const defaultLayoutOptions: LayoutOptions = {
-   fGridWidth: 3 * 26 + 2,
-   fGridHeight: 95,
+   // 3 * 26 + 2
+   fGridWidth: 80,
+   fGridHeight: 130,
 
-   mGridHeight: 95,
+   mGridHeight: 130,
    mGridWidth: 26,
 
    gap: 4,

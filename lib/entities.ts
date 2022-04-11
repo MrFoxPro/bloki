@@ -1,5 +1,4 @@
 import { AnyBlock, Dimension } from "@/components/bloki-editor/types/blocks";
-import { BlokiWhiteboard } from "@/components/bloki-editor/types/drawings";
 
 type User = {
    // id: string;
@@ -40,7 +39,8 @@ type BlokiDocument = {
 
    shared: boolean;
    layoutOptions: LayoutOptions;
-   // blocks: AnyBlock[];
+   layout: AnyBlock[];
+   blobUrl: string;
 };
 
 export {

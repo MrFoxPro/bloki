@@ -1,7 +1,12 @@
-type EditType = 'drag' | 'resize' | 'select' | 'content';
 
+enum EditType {
+   Drag = 1,
+   Resize,
+   Select,
+   Content
+}
 enum Instrument {
-   Cursor,
+   Cursor = 1,
    Pencil,
    Pen,
    Marker,

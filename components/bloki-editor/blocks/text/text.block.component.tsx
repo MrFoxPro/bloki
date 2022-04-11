@@ -17,7 +17,7 @@ type TextBlockProps = {
 
 export function TextBlock(props: TextBlockProps) {
    const [editor, { setEditorStore, gridSize, checkPlacement, send }] = useEditorStore();
-   const [blockStore, { isMeOverflowing, shadowed, block, blockData }] = useBlockStore<TextBlockEntity>();
+   const [blockStore, { isMeOverflowing, shadowed, block, blockData, isEditingContent }] = useBlockStore<TextBlockEntity>();
 
    const [local, other] = splitProps(props, []);
 
@@ -44,8 +44,6 @@ export function TextBlock(props: TextBlockProps) {
    let contentRef: HTMLDivElement;
    let minTextWidth = 0;
    let textHeightAtMinWidth = 0;
-
-   const isEditingContent = createMemo(() => editor.editingBlock === block && editor.editingType === 'content');
 
    createComputed(() => {
       minTextWidth = gridSize(5);

@@ -64,7 +64,7 @@
   },
   "blocks": {
     "text": {
-      "placeholder": "Введите '/' для команд"
+      "placeholder": "Type here"
     },
     "ctx-menu": {
       "item": {

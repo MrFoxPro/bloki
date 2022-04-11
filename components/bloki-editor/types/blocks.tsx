@@ -14,7 +14,7 @@ type PlacementStatus = {
 };
 
 enum BlockType {
-   Title,
+   Title = 1,
    Regular,
    H1,
    H2,

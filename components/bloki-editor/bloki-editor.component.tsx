@@ -1,8 +1,6 @@
 import { createEffect, For, mergeProps, on, onCleanup, onMount, Show } from 'solid-js';
-import { reconcile, unwrap } from 'solid-js/store';
 import cc from 'classcat';
 import s from './bloki-editor.module.scss';
-import { baseApiUrl, useAppStore } from '@/lib/app.store';
 import { useI18n } from '@solid-primitives/i18n';
 import { useEditorStore } from './editor.store';
 import { Block } from './blocks/block.component';
@@ -52,12 +50,12 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-         if (store.editingType === 'content' || store.editingType === 'select') {
+         if ([EditType.Content, EditType.Select].includes(store.editingType)) {
             selectBlock(null);
          }
       }
       else if (e.key === 'Enter') {
-         if (!store.editingType || (store.editingType === 'content' && isTextBlock(store.editingBlock))) {
+         if (store.editingType === null || (store.editingType === EditType.Content && isTextBlock(store.editingBlock))) {
             console.log('enter');
             e.preventDefault();
          }
@@ -138,7 +136,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          type: BlockType.Image,
          value: imgSrc,
          ...transform,
-      }, 'select');
+      }, EditType.Select);
       // await app.apiProvider.updateDocument(app.selectedDocument);
    }
 
@@ -166,11 +164,11 @@ function BlokiEditor(props: BlokiEditorProps) {
             value: '',
             fontFamily: TextBlockFontFamily.Inter,
             ...newBlockTransform,
-         }, 'content');
+         }, EditType.Content);
       }
    }
 
-   function createBlock(block: Partial<AnyBlock>, editingType: EditType = 'content', id = crypto.randomUUID()) {
+   function createBlock(block: Partial<AnyBlock>, editingType: EditType = EditType.Content, id = crypto.randomUUID()) {
       block.id = id;
       setEditorStore('layout', blocks => blocks.concat(block as AnyBlock));
       const createdBlock = store.layout[store.layout.length - 1];
@@ -181,15 +179,6 @@ function BlokiEditor(props: BlokiEditorProps) {
       });
       return createdBlock;
    }
-
-   function getLayout() {
-      return fetch(`${baseApiUrl}/${store.document.id}/layout`).then(r => r.json());
-   }
-   createEffect(() => {
-      getLayout()
-         .then((layout) => setEditorStore('layout', layout))
-         .catch(e => console.warn('Unable to download layout!', e));
-   });
 
    onMount(() => {
       calculateBoxRect();
@@ -277,7 +266,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                   <Block block={block} />
                )}
             </For>
-            <Show when={store.editingType === 'drag'}>
+            <Show when={store.editingType === EditType.Drag}>
                <Block block={store.editingBlock} shadowed />
             </Show>
             <Drawer />

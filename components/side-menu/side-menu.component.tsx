@@ -3,7 +3,7 @@ import { ComponentProps, createComponent, createEffect, For, lazy, mergeProps, S
 import { createStore } from 'solid-js/store';
 import { useLocation, useNavigate } from 'solid-app-router';
 import { useI18n } from '@solid-primitives/i18n';
-import { useAppStore } from '@/lib/app.store';
+import { useAppStore } from '@/components/app.store';
 
 import s from './side-menu.module.scss';
 import PageIcon from './assets/page.icon.svg';

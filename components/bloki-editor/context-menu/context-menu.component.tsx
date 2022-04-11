@@ -44,12 +44,12 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
       }
    });
 
-   onMount(() => {
-      document.addEventListener('click', hideMe);
-      onCleanup(() => {
-         document.removeEventListener('click', hideMe);
-      });
-   });
+   // onMount(() => {
+   //    document.addEventListener('click', hideMe);
+   //    onCleanup(() => {
+   //       document.removeEventListener('click', hideMe);
+   //    });
+   // });
 
    const items = [
       [BlockType.Title, <TitleIcon />, 'blocks.ctx-menu.item.text.title'],
@@ -61,7 +61,6 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
       [BlockType.Image, <ImageIcon />, 'blocks.ctx-menu.item.attachment.image'],
       [BlockType.Code, <CodeIcon />, 'blocks.ctx-menu.item.code'],
    ] as const;
-
    return (
       <Show when={store.showContextMenu && store.editingBlock}>
          <div
