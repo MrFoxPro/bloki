@@ -3,7 +3,7 @@
    "version": "0.0.1",
    "private": true,
    "description": "Blocks-based collaborative editor.",
-   "info": "Bloki is an interactive block editor in which you can create anything you want whether it's a math homework or work. You can create block, write text, draw with your teammates online. You have a great level of freedom when editing files and everything fits into a text editor with its own file structure, workspaces, and collaboration.",
+   "info": "Simple editor that is not restricted to one axis, but helps to place content evenly. You can create text blocks, they will be automatically adjusted to your text size. However, initially you can create blocks only in main grid that is placed in middle of screen. You can move it by snapping with middle mouse or by dragging icon with six dots. You can draw with pen over it. You can place images. It is planned to implement automatic layout, so when you will try to move block, all blocks below and grouped blocks will free space for desired place. Inline text editing, commands, nested documents, attaching drawing to text and blocks and more. Collaboration demo: https://www.youtube.com/watch?v=PsEwt068DGk. Try it on https://bloki.app",
    "homepage": "https://bloki.app",
    "contributors": [
       {
