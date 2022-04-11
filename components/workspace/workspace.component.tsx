@@ -4,7 +4,6 @@ import { useAppStore } from "../app.store";
 import { DrawerStoreProvider } from "../bloki-editor/drawer.store";
 import { EditorStoreProvider, useEditorStore } from "../bloki-editor/editor.store";
 import { Avatars } from "../collab/avatars/avatars.component";
-import { Cursors } from "../collab/cursors/cursors.component";
 const BlokiEditor = lazy(() => import('@/components/bloki-editor/bloki-editor.component'));
 const Toolbox = lazy(() => import('../bloki-editor/toolbox/toolbox.component'));
 import s from './workspace.module.scss';
@@ -42,7 +41,6 @@ export function Workspace() {
                      />
                   </Show>
                </div>
-               <Cursors />
             </EditorStoreProvider>
          </DrawerStoreProvider>
       </Show>

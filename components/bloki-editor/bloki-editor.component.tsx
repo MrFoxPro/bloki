@@ -13,6 +13,7 @@ import { Drawer } from './drawer/drawer.component';
 import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
 import { WSMsgType } from '@/lib/network.types';
+import { Cursors } from '../collab/cursors/cursors.component';
 
 type BlokiEditorProps = {
    gridType?: 'dom' | 'canvas';
@@ -286,7 +287,9 @@ function BlokiEditor(props: BlokiEditorProps) {
             </Show>
             <Drawer />
             <BlockContextMenu />
+            <Cursors />
          </div>
+
       </div>
    );
 }
