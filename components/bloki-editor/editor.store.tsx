@@ -333,7 +333,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    const sendMouse = throttle((e: MouseEvent) => {
       const wp = document.getElementById('wrapper');
-      console.log(wp.scrollTop, wp.scrollLeft)
       setEditorStore({
          cursor: {
             x: e.clientX,

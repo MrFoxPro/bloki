@@ -83,7 +83,6 @@ function BlokiEditor(props: BlokiEditorProps) {
             const p = { x: prev.x, y: prev.y + prev.height };
             const { correct } = checkPlacement({ ...p, ...requiredSpace });
             if (correct) {
-               console.log('found correct', p);
                pos = p;
                break;
             }
@@ -136,7 +135,6 @@ function BlokiEditor(props: BlokiEditorProps) {
          const isFileImage = ['png', 'svg', 'jpeg', 'jpg', 'gif'].some((ext) => file.type.includes(ext));
          if (!isFileImage) return;
          console.log(Array.from(e.clipboardData.files), Array.from(e.clipboardData.items));
-         console.log('found image', file.type);
          const imgSrc = await toBase64(file);
          src = imgSrc;
       }
