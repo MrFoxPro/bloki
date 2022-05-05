@@ -1,0 +1,70 @@
+@use 'vars' as vars;
+
+.button {
+	outline: none;
+	border: none;
+	cursor: pointer;
+	height: 40px;
+	background: vars.$accent1;
+	border-radius: 4px;
+
+	font-family: Inter;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 14px;
+	color: #ffffff;
+	text-align: center;
+
+	&.inactive {
+		background: #b5cbf3;
+	}
+}
+
+.text-input-group {
+	max-width: 360px;
+
+	label {
+		display: block;
+		@include vars.text-description1;
+		font-weight: 500;
+		margin-bottom: 8px;
+	}
+
+	input.text-input {
+		all: initial;
+		box-sizing: border-box;
+
+		height: 40px;
+		padding-left: 12px;
+		width: 100%;
+
+		border: 0.5px solid vars.$sec-grid-color;
+		border-radius: 4px;
+
+		@include vars.text-regular;
+		font-weight: 600;
+
+		&::placeholder {
+			color: vars.$sec-grid-color;
+		}
+		&:hover:not(&:disabled) {
+			border-color: vars.$accent1-semi;
+		}
+
+		&:focus {
+			border-color: vars.$accent1;
+		}
+
+		&:disabled {
+			background: #d7dcdf0a;
+			color: rgba($color: vars.$text-regular-color, $alpha: 0.7);
+			cursor: not-allowed;
+		}
+	}
+}
+
+input[type='range'] {
+	$bg: #d7dcdf;
+	$active: #51575e;
+	accent-color: $active;
+}

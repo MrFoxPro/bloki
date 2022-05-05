@@ -1,0 +1,31 @@
+$accent1: #ffa61f;
+$accent1-semi: #f8dcb2;
+
+$sec-grid-color: #d7dcdf;
+
+$text-regular-color: #31373e;
+$text-description1-color: #9ca5ab;
+$text-description2-color: #d7dcdf;
+
+@mixin text-heading() {
+	font-family: Inter;
+	color: $text-regular-color;
+}
+
+@mixin text-regular() {
+	font-family: Inter;
+	font-size: 14px;
+	color: $text-regular-color;
+}
+
+@mixin text-description1() {
+	font-family: Inter;
+	font-size: 14px;
+	color: $text-description1-color;
+}
+@mixin text-description2() {
+	font-family: Inter;
+	font-size: 14px;
+	font-weight: 400;
+	color: $text-description2-color;
+}

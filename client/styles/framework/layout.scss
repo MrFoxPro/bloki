@@ -1,0 +1,10 @@
+.top-bar {
+	height: 40px;
+	border-bottom: 1px solid #EDF2F4;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 20px;
+	box-sizing: border-box;
+	z-index: 45;
+}

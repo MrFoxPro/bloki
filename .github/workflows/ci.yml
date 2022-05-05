@@ -29,11 +29,6 @@ jobs:
         run_install: true
     - run: pnpm build
 
-    - name: Install node and packages
-      uses: actions/setup-node@v2
-      with:
-        cache: 'pnpm'
-
     - name: Copy frontend via scp
       uses: appleboy/scp-action@v0.1.2
       with:

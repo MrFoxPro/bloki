@@ -1,0 +1,9 @@
+{
+	"name": "api",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "cross-env ASPNETCORE_ENVIRONMENT=Development dotnet watch",
+		"test": "dotnet test",
+		"build": "dotnet build -c Release"
+	}
+}

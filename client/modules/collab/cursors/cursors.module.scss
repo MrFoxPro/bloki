@@ -1,0 +1,24 @@
+.user {
+	position: absolute;
+	z-index: 55;
+	width: auto;
+	height: 20px;
+
+	font-family: Inter;
+	font-weight: 400;
+	font-size: 14px;
+	color: #FFFFFF;
+
+	will-change: transform;
+	animation-fill-mode: forwards;
+
+	.badge {
+		height: 20px;
+		background: #3655F9;
+		border-radius: 3px;
+		padding: 1.5px 4px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+}

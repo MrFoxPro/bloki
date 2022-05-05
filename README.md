@@ -1,10 +1,10 @@
 <br>
 <div align="center">
-  <img 
-    src="https://user-images.githubusercontent.com/17229619/162398315-7605cc86-de6a-4a20-b89b-52263cf92964.png" 
-    align="center"
-    width="650"
-  />
+	<img 
+		src="https://user-images.githubusercontent.com/17229619/162398315-7605cc86-de6a-4a20-b89b-52263cf92964.png" 
+		align="center"
+		width="650"
+	/>
 </div> 
 
 <h2 align="center">Bloki.app</h2>
@@ -19,7 +19,9 @@ Bloki is similiar to checkered notebook and complements it with modern tools.
 Bloki gives you creative freedom in working with text and media.  
 ![block-editing1](https://user-images.githubusercontent.com/17229619/162616223-7bada943-3944-4fe4-83fa-76e96ec87f3d.gif)
 Collaboration demo: https://youtu.be/PsEwt068DGk  
-> ### ⚠️ This product is still in very early stages of development.
+
+## Development
+DOTNET_WATCH_RESTART_ON_RUDE_EDIT=1 to avoid dotnet questions
 
 ## Features
 - Set any block size

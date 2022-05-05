@@ -1,7 +1,0 @@
-@mixin font($family, $url, $font-weight: normal, $font-style: normal, $font-display: auto) {
-   font-family: $family;
-   src: local($family), local("#{$family}-Regular"), url($url) format("woff2");
-   font-weight: $font-weight;
-   font-style: $font-style;
-   font-display: $font-display;
-}

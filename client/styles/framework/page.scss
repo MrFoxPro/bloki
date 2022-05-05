@@ -1,0 +1,13 @@
+.page {
+	width: 100vw;
+	height: 100vh;
+	position: absolute;
+
+	&.mosaic {
+		background: url('@/assets/images/mosaic-orange.image.svg') no-repeat;
+	}
+
+	.colored {
+		background: orange;
+	}
+}

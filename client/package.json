@@ -1,0 +1,54 @@
+{
+	"name": "client",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"serve": "vite build && vite preview",
+		"codegen": "graphql-codegen --config gqlgen.yml"
+	},
+	"devDependencies": {
+		"graphql": "^15",
+		"postcss": "^8.4.13",
+		"rollup": "^2.71.1",
+		"rollup-plugin-visualizer": "^5.6.0",
+		"sass": "^1.51.0",
+		"type-expand": "^1.0.0",
+		"vite": "2.9.7",
+		"vite-plugin-compression": "^0.5.1",
+		"vite-plugin-image-presets": "^0.3.1",
+		"vite-plugin-solid": "2.2.6",
+		"vite-plugin-solid-svg": "^0.2.0",
+		"vite-plugin-ts-nameof": "^1.1.0"
+	},
+	"dependencies": {
+		"@microsoft/signalr": "^6.0.4",
+		"@msgpack/msgpack": "^2.7.2",
+		"@solid-primitives/date": "^2.0.0",
+		"@solid-primitives/refs": "^0.1.0",
+		"classcat": "^5.0.3",
+		"graphql-request": "^4.2.0",
+		"graphql-tag": "^2.12.6",
+		"js-cookie": "^3.0.1",
+		"nanoevents": "^6.0.2",
+		"solid-app-router": "0.3.2",
+		"solid-js": "1.3.17",
+		"solid-transition-group": "^0.0.10",
+		"ts-nameof": "^5.0.0",
+		"yjs": "^13.5.35"
+	},
+	"optionalDependencies": {
+		"@graphql-codegen/cli": "^2.6.2",
+		"@graphql-codegen/typescript": "^2.4.8",
+		"@graphql-codegen/typescript-graphql-request": "^4.4.5",
+		"@graphql-codegen/typescript-operations": "^2.3.5",
+		"@types/js-cookie": "^3.0.2",
+		"@types/lodash": "^4.14.182",
+		"@types/lodash-es": "^4.17.6",
+		"cssnano": "^5.1.7",
+		"cssnano-preset-advanced": "^5.3.3",
+		"lodash": "^4.17.21",
+		"lodash-es": "^4.17.21",
+		"typescript": "^4.6.4",
+		"typescript-plugin-css-modules": "^3.4.0"
+	}
+}

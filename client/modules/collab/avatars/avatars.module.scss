@@ -1,0 +1,22 @@
+.avatars {
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+	gap: 12px;
+	.avatar {
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		box-sizing: border-box;
+		text-align: center;
+		font-family: 'Inter';
+		font-style: normal;
+		font-weight: 600;
+		font-size: 11px;
+		color: #FFFFFF;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+}

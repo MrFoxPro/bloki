@@ -1,0 +1,10 @@
+overwrite: true
+schema: "http://localhost:3006/api"
+documents:
+   - "./lib/requests.gql"
+generates:
+   ./lib/schema.auto.ts:
+      plugins:
+         - "typescript"
+         - "typescript-operations"
+         - "typescript-graphql-request"

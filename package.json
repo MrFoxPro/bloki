@@ -1,62 +1,17 @@
 {
-   "name": "bloki.app",
-   "version": "0.0.1",
-   "private": true,
-   "description": "Blocks-based collaborative editor.",
-   "info": "Simple editor that is not restricted to one axis, but helps to place content evenly. You can create text blocks, they will be automatically adjusted to your text size. However, initially you can create blocks only in main grid that is placed in middle of screen. You can move it by snapping with middle mouse or by dragging icon with six dots. You can draw with pen over it. You can place images. It is planned to implement automatic layout, so when you will try to move block, all blocks below and grouped blocks will free space for desired place. Inline text editing, commands, nested documents, attaching drawing to text and blocks and more. Collaboration demo: https://www.youtube.com/watch?v=PsEwt068DGk. Try it on https://bloki.app",
-   "homepage": "https://bloki.app",
-   "contributors": [
-      {
-         "name": "Dmitriy Nikiforov",
-         "email": "tuningiposadka@gmail.com",
-         "url": "https://t.me/mrfoxpro"
-      }
-   ],
-   "scripts": {
-      "dev": "npm run dev:backend && npm run dev:frontend",
-      "build": "vite build",
-      "serve": "vite preview",
-      "dev:frontend": "vite",
-      "dev:backend": "cd ./server && nodemon"
-   },
-   "license": "GNU Affero General Public License v3.0",
-   "keywords": [
-      "solidhack",
-      "best_student_project"
-   ],
-   "devDependencies": {
-      "@swc-node/register": "^1.4.2",
-      "@types/dompurify": "^2.3.3",
-      "@types/js-cookie": "^3.0.1",
-      "@types/lodash.throttle": "^4.1.6",
-      "@types/ws": "^8.5.3",
-      "sass": "^1.50.0",
-      "type-expand": "^1.0.0",
-      "typescript-plugin-css-modules": "^3.4.0",
-      "vite": "^2.9.1",
-      "vite-plugin-compression": "^0.5.1",
-      "vite-plugin-solid": "2.2.6",
-      "vite-plugin-solid-svg": "^0.2.0"
-   },
-   "dependencies": {
-      "@codemirror/basic-setup": "^0.19.3",
-      "@codemirror/lang-javascript": "^0.19.7",
-      "@ngneat/falso": "^4.0.0",
-      "@solid-primitives/date": "^1.1.0",
-      "@solid-primitives/i18n": "^1.0.10",
-      "classcat": "^5.0.3",
-      "console-stamp": "^3.0.4",
-      "dotenv": "^16.0.0",
-      "fastify": "^3.28.0",
-      "file-type": "16.5.3",
-      "js-cookie": "^3.0.1",
-      "lodash.debounce": "^4.0.8",
-      "lodash.throttle": "^4.1.1",
-      "nanoevents": "^6.0.2",
-      "solid-app-router": "0.3.2",
-      "solid-js": "1.3.14",
-      "telegraf": "^4.7.0",
-      "ws": "^8.5.0",
-      "yjs": "^13.5.34"
-   }
+	"homepage": "https://bloki.app",
+	"scripts": {
+		"test": "pnpm run -F tests start",
+		"dev": "pnpm run --parallel --stream -F api -F client dev",
+		"ci:tg": "node ./notify-tg.js"
+	},
+	"workspaces": [
+		"api",
+		"client",
+		"tests",
+		"./misc/tg-notifier"
+	],
+	"devDependencies": {
+		"cross-env": "^7.0.3"
+	}
 }

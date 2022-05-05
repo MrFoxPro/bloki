@@ -1,5 +1,7 @@
 node_modules
-dist
 .env
+
+!.gitkeep
+
+
 .pnpm-debug.log
-static/data.json
