@@ -1,8 +1,7 @@
 import { execSync } from 'child_process';
 import dotenv from 'dotenv';
 import { Telegraf } from 'telegraf';
-import { readdir, readFile } from 'fs/promises';
-import { extname, resolve } from 'path';
+import { extname } from 'path';
 import fg from 'fast-glob';
 import { createReadStream } from 'fs';
 
@@ -18,7 +17,6 @@ const commitHash = execSync('git rev-parse HEAD').toString().trimEnd();
 const lastCommitMessage = execSync('git show -s --format=%s').toString().trimEnd();
 
 dotenv.config();
-const bot = new Telegraf(process.env.TG_KEY);
 
 const message = `
 	Branch ${branchName} was deployed to ${branchDeployMap[branchName]}.
@@ -39,6 +37,8 @@ if (process.env.CI !== '1') {
 	process.exit();
 }
 
+const bot = new Telegraf(process.env.TG_KEY);
+
 const chatId = process.env.TG_CHANNEL;
 
 await bot.telegram.sendMessage(chatId, message);
@@ -48,10 +48,10 @@ for (const p of artifacts) {
 	const ext = extname(p);
 
 	if (ext === '.webm') {
-		await bot.telegram.sendVideo(chatId, file);
+		await bot.telegram.sendVideo(chatId, { source: file });
 	}
 	else if (ext === '.png') {
-		await bot.telegram.sendPhoto(chatId, file);
+		await bot.telegram.sendPhoto(chatId, { source: file });
 	}
 }
 
