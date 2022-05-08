@@ -20,7 +20,9 @@
 		"vite-plugin-image-presets": "^0.3.1",
 		"vite-plugin-solid": "2.2.6",
 		"vite-plugin-solid-svg": "^0.2.0",
-		"vite-plugin-ts-nameof": "^1.1.0"
+		"vite-plugin-ts-nameof": "^1.1.0",
+		"cssnano": "^5.1.7",
+		"cssnano-preset-advanced": "^5.3.3"
 	},
 	"dependencies": {
 		"@microsoft/signalr": "^6.0.4",
@@ -43,12 +45,6 @@
 		"@graphql-codegen/typescript": "^2.4.8",
 		"@graphql-codegen/typescript-graphql-request": "^4.4.5",
 		"@graphql-codegen/typescript-operations": "^2.3.5",
-		"@types/js-cookie": "^3.0.2",
-		"@types/lodash": "^4.14.182",
-		"@types/lodash-es": "^4.17.6",
-		"cssnano": "^5.1.7",
-		"cssnano-preset-advanced": "^5.3.3",
-		"lodash": "^4.17.21",
-		"lodash-es": "^4.17.21"
+		"@types/js-cookie": "^3.0.2"
 	}
 }

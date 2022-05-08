@@ -1,4 +1,4 @@
-name: Build and deploy to next.bloki.app
+name: next.bloki.app
 
 on:
    push:
@@ -35,6 +35,9 @@ jobs:
          - uses: actions/setup-dotnet@v2
            with:
               dotnet-version: "6.0.x"
+
+         - name: dotnet restore
+           run: dotnet restore
 
          - name: run tests
            run: pnpm test
