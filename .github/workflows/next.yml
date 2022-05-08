@@ -1,81 +1,81 @@
-name: "CI/CD -> next.bloki.app"
+name: Build and deploy to next.bloki.app
 
 on:
-   push:
-      branches:
-         - next
+  push:
+    branches:
+      - next
 
 jobs:
-   deploy:
-      runs-on: ubuntu-latest
-      env:
-         DOTNET_NOLOGO: true
-         CI: 1
-      steps:
-         - name: checkout
-           uses: actions/checkout@v3
-           with:
-              ref: "next"
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      CI: 1
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          ref: "next"
 
-         - name: install node
-           uses: actions/setup-node@v3
-           with:
-              node-version: 17.9.0
+      - name: install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 17.9.0
 
-         - name: cache pnpm modules
-           uses: actions/cache@v2
-           with:
-              path: ~/.pnpm-store
-              key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-              restore-keys: |
-                 ${{ runner.os }}-
+      - name: cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
 
-         - uses: pnpm/action-setup@v2.1.0
-           with:
-              version: 7.0.1
+      - uses: pnpm/action-setup@v2.1.0
+        with:
+          version: 7.0.1
 
-         - name: pnpm install
-           run: pnpm i --no-optional
+      - name: pnpm install
+        run: pnpm i --no-optional
 
-         - name: install pw browsers
-           run: pnpx playwright install --with-deps
+      - name: install pw browsers
+        run: pnpx playwright install --with-deps
 
-         - name: install dotnet
-         - uses: actions/setup-dotnet@v2
-           with:
-              dotnet-version: "6.0.x"
+      - name: install dotnet
+      - uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "6.0.x"
 
-         - name: dotnet restore
-           run: pnpm -F api restore
+      - name: dotnet restore
+        run: pnpm -F api restore
 
-         - name: run tests
-           run: pnpm test
+      - name: run tests
+        run: pnpm test
 
-         - name: build all
-           run: pnpm build
+      - name: build all
+        run: pnpm build
 
-         - name: copy via scp
-           uses: appleboy/scp-action@v0.1.2
-           with:
-              host: ${{ secrets.HOST }}
-              username: ${{ secrets.USERNAME }}
-              port: ${{ secrets.PORT }}
-              key: ${{ secrets.SSHKEY }}
-              # This is important to keep "/"
-              source: "dist/"
-              target: "/home/deploy/bloki-next"
-              rm: true
-              command_timeout: 1m
-              strip_components: 1
+      - name: copy via scp
+        uses: appleboy/scp-action@v0.1.2
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          # This is important to keep "/"
+          source: "dist/"
+          target: "/home/deploy/bloki-next"
+          rm: true
+          command_timeout: 1m
+          strip_components: 1
 
-         - name: Restart service bloki-next
-           uses: appleboy/ssh-action@v0.1.4
-           with:
-              host: ${{ secrets.HOST }}
-              username: ${{ secrets.USERNAME }}
-              port: ${{ secrets.PORT }}
-              key: ${{ secrets.SSHKEY }}
-              script: sudo systemctl restart bloki-next
+      - name: Restart service bloki-next
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: sudo systemctl restart bloki-next
 
-         - name: Notify telegram
-           run: pnpm ci:tg
+      - name: Notify telegram
+        run: pnpm ci:tg
