@@ -79,4 +79,4 @@ jobs:
           script: sudo systemctl restart bloki-next
 
       - name: Notify telegram
-        run: pnpm ci:tg
+        run: pnpm run -F tg-notifier start
