@@ -64,7 +64,7 @@ const config: PlaywrightTestConfig = {
 		port: 3000,
 		reuseExistingServer: true,
 	},
-	timeout: ci ? 4000 : undefined,
+	timeout: ci ? 10000 : undefined,
 	use: {
 		baseURL: 'http://localhost:3000',
 		locale: 'ru',
