@@ -38,7 +38,7 @@ jobs:
            run: pnpm i --no-optional
          
          - name: pnpx playwright install
-           run: pnpx playwright install
+           run: pnpx playwright install --with-deps
 
          - name: install dotnet
          - uses: actions/setup-dotnet@v2
