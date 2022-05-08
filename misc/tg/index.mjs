@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import dotenv from 'dotenv';
 import { Telegraf } from 'telegraf';
-import { extname } from 'path';
+import { basename, extname } from 'path';
 import fg from 'fast-glob';
 import { createReadStream } from 'fs';
 
@@ -29,11 +29,9 @@ Commit: ${lastCommitMessage} / ${commitHash}
 \`\`\`
 `;
 
-const artifacts = await fg('../../dist/tests/*Journey*/**');
+const artifacts = await fg('../../dist/tests/**/*.(png|webm)');
 
-artifacts.forEach(p => {
-	console.log(p);
-})
+console.log('artifacts', artifacts);
 
 const ci = process.env.CI === '1';
 
@@ -43,25 +41,30 @@ if (!ci) {
 
 const bot = new Telegraf(process.env.TG_KEY);
 
-const chatId = ci ? process.env.TG_CHANNEL : '205601187';
+const chatId = ci ? process.env.TG_CHANNEL : process.env.TG_CHAT;
 
 await bot.telegram.sendMessage(chatId, message, { parse_mode: 'Markdown' });
-const videos = [];
-const images = [];
+
+const journey = [];
+const other = [];
+
 for (const p of artifacts) {
 	const source = createReadStream(p);
 	const ext = extname(p);
-
-	if (ext === '.webm') {
-		videos.push({ type: 'video', media: { source }, caption: p });
+	const parts = p.split('/');
+	const caption = parts[parts.length - 2];
+	const isVideo = ext === '.webm';
+	const type = isVideo ? 'video' : 'photo';
+	const at = { type, media: { source }, caption };
+	if (p.includes('Journey')) {
+		journey.push(at);
+		continue;
 	}
-	else if (ext === '.png') {
-		images.push({ type: 'photo', media: { source }, caption: p });
-	}
+	other.push(at);
 }
 
-if (images.length)
-	await bot.telegram.sendMediaGroup(chatId, images);
+if (journey.length)
+	await bot.telegram.sendMediaGroup(chatId, journey, { protect_content: true });
 
-if (videos.length)
-	await bot.telegram.sendMediaGroup(chatId, videos);
+if (other.length)
+	await bot.telegram.sendMediaGroup(chatId, other, { protect_content: true });
