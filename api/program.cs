@@ -23,7 +23,7 @@ using var ctx = serviceScope.ServiceProvider.GetService<BlokiDbContext>();
 BlokiDbContext.Seed(ctx!);
 
 
-app.Urls.Add("http://localhost:1007");
+app.Urls.Add("http://localhost:5007");
 app.MapGraphQL("/api");
 
 app.MapHub<MultiplayerHub>("/ws/{docId}");

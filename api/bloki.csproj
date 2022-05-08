@@ -9,14 +9,19 @@
   		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<UseCommonOutputDirectory>true</UseCommonOutputDirectory>
 		<DefaultItemExcludes>$(DefaultItemExcludes);package.json</DefaultItemExcludes>
+		<OutputPath>../dist/api</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="static/**/*.*;db/bloki.db">
+		<Content Include="static/**/*.*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
-
+	
+	<Target Name="MakeDbDir" AfterTargets="Build">
+		<MakeDir Directories="$(OutputPath)/db" />
+	</Target>
+	
 	<ItemGroup>
 	  <PackageReference Include="HotChocolate.AspNetCore" Version="12.7.0" />
 	  <PackageReference Include="HotChocolate.Data.EntityFramework" Version="12.8.0" />

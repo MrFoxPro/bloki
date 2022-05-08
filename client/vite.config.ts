@@ -22,6 +22,7 @@ export default async ({ mode }: ConfigEnv) => {
 	process.env.VITE_GIT_COMMIT_HASH = commitHash;
 	process.env.VITE_GIT_LAST_COMMIT_MESSAGE = lastCommitMessage;
 
+	const outDir = '../dist/client';
 	const config: UserConfig = {
 		base: dev ? './' : '/',
 		assetsInclude: ['*.gltf', /.gltf/],
@@ -29,7 +30,7 @@ export default async ({ mode }: ConfigEnv) => {
 		optimizeDeps: {},
 		server: {
 			host: '0.0.0.0',
-			port: 3000,
+			port: 5007,
 			proxy: {
 				'/api': {
 					target: 'http://localhost:1007',
@@ -51,7 +52,7 @@ export default async ({ mode }: ConfigEnv) => {
 			}),
 			!dev && visualizer({
 				open: false,
-				filename: './dist/stats.html',
+				filename: path.resolve(outDir, 'stats.html'),
 				gzipSize: true,
 			}),
 		],
@@ -60,7 +61,7 @@ export default async ({ mode }: ConfigEnv) => {
 			sourcemap: false,
 			target: 'esnext',
 			reportCompressedSize: true,
-			outDir: '../dist/client',
+			outDir: outDir,
 			rollupOptions: {
 				output: {
 					manualChunks: {
