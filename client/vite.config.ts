@@ -112,9 +112,7 @@ export default async ({ mode }: ConfigEnv) => {
 	};
 	if (!dev) {
 		// @ts-ignore
-		config.css?.postcss.plugins.push(cssnanoPlugin({
-			preset: 'advanced'
-		}));
+		config.css?.postcss.plugins.push(cssnanoPlugin());
 	}
 	return config;
 };
