@@ -11,6 +11,8 @@ jobs:
     env:
       DOTNET_NOLOGO: true
       CI: 1
+      TG_KEY: ${{ secrets.TG_KEY }}
+      TG_CHANNEL: ${{ secrets.RECEIVER_1 }}
     steps:
       - name: checkout
         uses: actions/checkout@v3

@@ -68,8 +68,8 @@ export default async ({ mode }: ConfigEnv) => {
 						solid: ['solid-js'],
 						graphql: ['graphql', 'graphql-tag', 'graphql-request']
 					},
-					entryFileNames: '[name].mjs',
-					chunkFileNames: '[name].mjs',
+					entryFileNames: '[name].js',
+					chunkFileNames: '[name].js',
 					assetFileNames: 'assets/[name].[ext]'
 				}
 			},
