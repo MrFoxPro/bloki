@@ -1,4 +1,4 @@
-name: next.bloki.app
+name: "CI/CD -> next.bloki.app"
 
 on:
    push:
