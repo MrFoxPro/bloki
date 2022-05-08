@@ -1,10 +1,8 @@
 {
-	"typescript.tsdk": "./client/node_modules/typescript/lib",
-	"typescript.preferences.importModuleSpecifier": "shortest",
-	"typescript.format.semicolons": "insert",
 	"editor.wordWrap": "off",
 	"html.format.wrapLineLength": 120,
 	"editor.tabSize": 3,
+	// "css.format.enable": true,
 	"files.exclude": {
 		"**/.git": true,
 		"**/.svn": true,
@@ -14,14 +12,18 @@
 		"**/Thumbs.db": true,
 		"**/bin": true,
 		"**/obj": true,
-		// "**/node_modules": true
+		"**/node_modules": true
 	},
-	"[typescript]": {
-		"editor.defaultFormatter": "vscode.typescript-language-features"
-	},
-	"[scss]": {
-		"editor.defaultFormatter": "sibiraj-s.vscode-scss-formatter",
-	},
-	"editor.foldingImportsByDefault": true,
-	"scssFormatter.singleQuote": true,
+	// typescript
+	"typescript.tsdk": "./client/node_modules/typescript/lib",
+	"typescript.preferences.importModuleSpecifier": "shortest",
+	"typescript.format.semicolons": "insert",
+	"typescript.preferences.quoteStyle": "single",
+	"typescript.format.enable": true,
+	"css.format.spaceAroundSelectorSeparator": true,
+	"vscode-color-picker.languages": [
+		"typescript",
+		"typescriptreact",
+		"xml"
+	]
 }

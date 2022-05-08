@@ -1,35 +1,76 @@
-import { PlaywrightTestConfig, devices } from '@playwright/test';
+import { PlaywrightTestConfig, devices, PlaywrightTestProject } from '@playwright/test';
+
+const ci = process.env.CI === '1';
+if (ci) {
+	console.log('Running tests in production mode');
+}
+
+const journeys: PlaywrightTestProject[] = [
+	{
+		name: 'Desktop Chrome 16x9',
+		use: {
+			...devices['Desktop Chrome'],
+			viewport: {
+				width: 1920,
+				height: 1080
+			},
+		}
+	},
+	{
+		name: 'Desktop Chrome 4x3',
+		use: {
+			...devices['Desktop Chrome'],
+			viewport: {
+				width: 1280,
+				height: 1024,
+			},
+		}
+	},
+	{
+		name: 'iPhone 12 Mini',
+		use: {
+			...devices['iPhone 12 Mini']
+		}
+	},
+];
+
+for (const p of journeys) {
+	p.testDir = './journeys';
+	p.use.video = {
+		mode: 'on',
+		size: p.use.viewport
+	};
+}
+
+const straight: PlaywrightTestProject[] = [
+	{
+		name: 'Desktop Chrome',
+		use: {
+			...devices['Desktop Chrome']
+		}
+	}
+];
+
+for (const p of straight) {
+	p.use.screenshot = 'on';
+	p.testDir = './';
+	p.testIgnore = /.*\/journeys\//;
+}
 
 const config: PlaywrightTestConfig = {
-	testDir: './',
-	outputDir: './dist',
-	// globalSetup
+	outputDir: '../dist/tests',
 	webServer: {
-		command: 'pnpm --dir ../ start',
+		command: 'pnpm --dir ../ dev',
 		port: 3000,
 		reuseExistingServer: true,
 	},
+	timeout: ci ? 4000 : undefined,
 	use: {
 		baseURL: 'http://localhost:3000',
-		viewport: { width: 1280, height: 720 },
-		video: 'on',
-		screenshot: 'on',
-		headless: true,
+		locale: 'ru',
+		headless: ci,
 	},
-	projects: [
-		{
-			name: 'Desktop Firefox',
-			use: devices['Desktop Firefox'],
-		},
-		{
-			name: 'Desktop Chrome',
-			use: devices['Desktop Chrome']
-		},
-		{
-			name: 'Desktop Safari',
-			use: devices['Desktop Safari']
-		}
-	],
+	projects: straight.concat(journeys),
 };
 
 export default config;

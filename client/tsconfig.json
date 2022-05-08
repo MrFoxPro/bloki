@@ -2,7 +2,7 @@
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
 		"outDir": "./dist/backend",
-		"isolatedModules": false,
+		"isolatedModules": true,
 		"baseUrl": "./",
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",
@@ -21,7 +21,7 @@
 				"name": "typescript-plugin-css-modules",
 				"options": {
 					"classnameTransform": "camelCaseOnly",
-					"customMatcher": "\\(.(module|global))?\\.scss$",
+					// "customMatcher": "\\(.(module)?\\.scss$",
 				}
 			}
 		],

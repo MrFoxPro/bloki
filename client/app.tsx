@@ -1,12 +1,13 @@
 import { RouteDefinition, Router, useRoutes } from 'solid-app-router';
 import { render } from 'solid-js/web';
-import { MainPage } from './pages/main.page';
 import { BuildInfo } from './modules/build-info/build-info.component';
 import { AppStoreProvider } from './modules/app.store';
 import { I18n } from './modules/i18n/i18n.module';
 import { ModalStoreProvider } from './modules/modals/modal';
-import { WelcomePage } from './pages/welcome.page';
+import { lazy } from 'solid-js';
 
+const MainPage = lazy(() => import('./pages/main'));
+const WelcomePage = lazy(() => import('./pages/welcome'));
 const routes: RouteDefinition[] = [
 	{
 		path: '/',

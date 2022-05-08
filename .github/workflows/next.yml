@@ -6,15 +6,18 @@ on:
          - next
 
 jobs:
-   frontend:
+   deploy:
       runs-on: ubuntu-latest
+      env:
+         DOTNET_NOLOGO: true
+         CI: 1
       steps:
-         - name: Checkout
-           uses: actions/checkout@v2
+         - name: checkout
+           uses: actions/checkout@v3
            with:
               ref: "next"
 
-         - name: Cache pnpm modules
+         - name: cache pnpm modules
            uses: actions/cache@v2
            with:
               path: ~/.pnpm-store
@@ -22,16 +25,24 @@ jobs:
               restore-keys: |
                  ${{ runner.os }}-
 
-         - name: Build frontend
-           uses: pnpm/action-setup@v2.1.0
+         - uses: pnpm/action-setup@v2.1.0
            with:
-              version: 6.31.0
-              run_install: |
-                 - recursive: true
-                   args: [--no-optional]
-         - run: pnpm build
+              version: 7.0.1
 
-         - name: Copy frontend via scp
+         - name: pnpm install
+           run: pnpm i --no-optional
+
+         - uses: actions/setup-dotnet@v2
+           with:
+              dotnet-version: "6.0.x"
+
+         - name: run tests
+           run: pnpm test
+
+         - name: build all
+           run: pnpm build
+
+         - name: copy via scp
            uses: appleboy/scp-action@v0.1.2
            with:
               host: ${{ secrets.HOST }}
@@ -40,31 +51,19 @@ jobs:
               key: ${{ secrets.SSHKEY }}
               # This is important to keep "/"
               source: "dist/"
-              target: "/home/deploy/bloki/dist"
+              target: "/home/deploy/bloki-next"
               rm: true
               command_timeout: 1m
               strip_components: 1
 
-         - name: Pull on server service
+         - name: Restart service bloki-next
            uses: appleboy/ssh-action@v0.1.4
            with:
               host: ${{ secrets.HOST }}
               username: ${{ secrets.USERNAME }}
               port: ${{ secrets.PORT }}
               key: ${{ secrets.SSHKEY }}
-              script: cd ./bloki && git pull && pnpm i && sudo systemctl restart bloki
+              script: sudo systemctl restart bloki-next
 
-         - name: Collect commit messages
-           run: |
-              echo "messages=${{join(github.event.commits.*.message, '<pre>\n</pre>')}}" >> $GITHUB_ENV  
-              echo "${{ env.messages }}"
-
-         - name: Send tg message
-           uses: appleboy/telegram-action@v0.1.1
-           with:
-              token: ${{ secrets.TG_KEY }}
-              to: ${{ secrets.RECEIVER_1 }}
-              format: "html"
-              message: |
-                 ${{ env.messages }}
-                 See changes: https://bloki.app
+         - name: Notify telegram
+           run: pnpm ci:tg

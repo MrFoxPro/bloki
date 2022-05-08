@@ -2,9 +2,10 @@
 	"name": "tests",
 	"scripts": {
 		"start": "playwright test",
-		"debug": "PWDEBUG=1 playwright test"
+		"test": "pnpm test"
 	},
 	"dependencies": {
+		"@faker-js/faker": "^6.3.1",
 		"@playwright/test": "^1.21.1"
 	}
 }

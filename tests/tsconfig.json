@@ -7,5 +7,6 @@
 				"../client/*"
 			],
 		},
+		"jsx": "preserve"
 	}
 }

@@ -8,7 +8,6 @@ import visualizer from 'rollup-plugin-visualizer';
 import cssnanoPlugin from 'cssnano';
 // https://github.com/ElMassimo/vite-plugin-image-presets
 import imagePresets from 'vite-plugin-image-presets';
-import inlineCssModules from './vite-plugin-inline-css-modules';
 
 export default async ({ mode }: ConfigEnv) => {
 	const dev = mode === 'development';
@@ -39,9 +38,6 @@ export default async ({ mode }: ConfigEnv) => {
 			}
 		},
 		plugins: [
-			inlineCssModules({
-				preprocessor: 'scss'
-			}),
 			solid({
 				hot: dev,
 				dev: dev,
@@ -64,7 +60,7 @@ export default async ({ mode }: ConfigEnv) => {
 			sourcemap: false,
 			target: 'esnext',
 			reportCompressedSize: true,
-			outDir: './dist',
+			outDir: '../dist/client',
 			rollupOptions: {
 				output: {
 					manualChunks: {

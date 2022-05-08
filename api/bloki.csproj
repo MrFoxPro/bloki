@@ -5,7 +5,17 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>preview</LangVersion>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<UseCommonOutputDirectory>true</UseCommonOutputDirectory>
+		<DefaultItemExcludes>$(DefaultItemExcludes);package.json</DefaultItemExcludes>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="static/**/*.*;db/bloki.db">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="HotChocolate.AspNetCore" Version="12.7.0" />
@@ -16,5 +26,4 @@
 	  </PackageReference>
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.4" />
 	</ItemGroup>
-
 </Project>

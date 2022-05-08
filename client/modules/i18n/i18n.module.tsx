@@ -1,20 +1,14 @@
-import { Accessor, createContext, createEffect, createMemo, on, PropsWithChildren, useContext } from "solid-js";
 import Cookies from 'js-cookie';
-import type { BaseTranslation } from "./langs/ru.lang";
-import { createSignal } from "solid-js";
+import { Accessor, createContext, createSignal, createMemo, PropsWithChildren, createEffect, on, useContext, createRoot, runWithOwner, onCleanup, getOwner } from 'solid-js';
 
 const LOCALE_COOKIE_KEY = 'locale';
 
-const langs = {
-	'en': () => import('./langs/en.lang').then(l => l.default),
-	'ru': () => import('./langs/ru.lang').then(l => l.default),
-	'zh-cn': () => import('./langs/zh-cn.lang').then(l => l.default)
-} as const;
-
-type Lang = keyof typeof langs;
+// https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B4%D1%8B_%D1%8F%D0%B7%D1%8B%D0%BA%D0%BE%D0%B2
+const languages = ['ru', 'en', 'zh'] as const;
+type Lang = typeof languages[number];
 
 function isSupportedLocale(locale: string): locale is Lang {
-	return Object.keys(langs).includes(locale as Lang);
+	return languages.includes(locale as Lang);
 }
 
 function getInitialLang() {
@@ -30,33 +24,48 @@ function getInitialLang() {
 };
 
 const initialLocale = getInitialLang();
-const initialDict = await langs[initialLocale]();
 
 type I18nContextType = {
 	lang: Accessor<Lang>;
-	LL: Accessor<BaseTranslation>;
-	loadLang: (lang: Lang) => Promise<void>;
+	setLang: (lang: Lang) => Promise<void>;
 };
 const I18nContext = createContext<I18nContextType>({
 	lang: () => 'en',
-	LL: () => ({}) as BaseTranslation,
-	loadLang: () => void 0
+	setLang: () => void 0
 });
+
+
+type Primitive = string | number | boolean;
+type LangFunction = (...args: Primitive[]) => string;
+interface Dict extends Record<string, string | LangFunction | Dict> { }
+type LangDict = Partial<Record<Lang, Dict>>;
+
+type UnConst<T> = T extends string ? string : T extends (...args: infer A) => unknown ? T & { __length: A['length']; } : {
+	[K in keyof T]: UnConst<T[K]>
+};
+
+type RemoveLength<T> = T extends string ? string : T extends (...args: infer A) => infer R ? ((...args: A) => R) : {
+	[K in keyof T]: RemoveLength<T[K]>
+};
+
+type UnionToIntersection<U> =
+	(U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
+
+const [{ lang, langs, setLang }, disposeLangRoot] = createRoot(d => {
+	const [lang, setLang] = createSignal(initialLocale);
+	function langs<T extends LangDict>(dict: T & Record<keyof T, RemoveLength<UnionToIntersection<UnConst<T[keyof T]>>>>) {
+		const handler = () => dict[lang()];
+		if (getOwner())
+			return createMemo(handler);
+		return handler;
+	};
+	return [{ lang, setLang, langs }, d] as const;
+});
+
+export { langs, lang, setLang };
 
 type i18nProps = PropsWithChildren<{}>;
 export function I18n(props: i18nProps) {
-	let langDict: Partial<Record<Lang, BaseTranslation>> = {};
-
-	const [lang, setLang] = createSignal(initialLocale);
-	const LL = createMemo(() => langDict[lang()] ?? initialDict);
-
-	async function loadLang(lang: Lang) {
-		if (!langDict[lang]) {
-			langDict[lang] = await langs[lang]();
-		}
-		setLang(lang);
-	}
-
 	createEffect(on(
 		lang,
 		() => {
@@ -65,9 +74,10 @@ export function I18n(props: i18nProps) {
 		},
 		{ defer: true })
 	);
-
+	(window as any).setLang = (lang: Lang) => setLang(lang);
+	onCleanup(disposeLangRoot);
 	return (
-		<I18nContext.Provider value={{ LL, lang, loadLang }}>
+		<I18nContext.Provider value={{ lang, setLang }}>
 			{props.children}
 		</I18nContext.Provider>
 	);

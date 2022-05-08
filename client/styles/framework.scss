@@ -1,0 +1,96 @@
+$accent1: #ffa61f;
+$accent1-semi: #f8dcb2;
+
+$sec-grid-color: #d7dcdf;
+
+$text-regular-color: #31373e;
+$text-description1-color: #9ca5ab;
+$text-description2-color: #d7dcdf;
+
+@mixin text-heading() {
+	font-family: Inter;
+	color: $text-regular-color;
+}
+
+@mixin text-regular() {
+	font-family: Inter;
+	font-size: 14px;
+	color: $text-regular-color;
+}
+
+@mixin text-description1() {
+	font-family: Inter;
+	font-size: 14px;
+	color: $text-description1-color;
+}
+@mixin text-description2() {
+	font-family: Inter;
+	font-size: 14px;
+	font-weight: 400;
+	color: $text-description2-color;
+}
+
+.button {
+	outline: none;
+	border: none;
+	cursor: pointer;
+	height: 40px;
+	background: $accent1;
+	border-radius: 4px;
+
+	font-family: Inter;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 14px;
+	color: #ffffff;
+	text-align: center;
+
+	&.inactive {
+		background: #b5cbf3;
+	}
+}
+
+.text-input-group {
+	max-width: 360px;
+	label {
+		display: block;
+		@include text-description1;
+		font-weight: 500;
+		margin-bottom: 8px;
+	}
+	input.text-input {
+		all: initial;
+		box-sizing: border-box;
+
+		height: 40px;
+		padding-left: 12px;
+		width: 100%;
+
+		border: 0.5px solid $sec-grid-color;
+		border-radius: 4px;
+
+		@include text-regular;
+		font-weight: 600;
+
+		&::placeholder {
+			color: $sec-grid-color;
+		}
+		&:hover:not(&:focus) {
+			border-color: $accent1-semi;
+		}
+		&:focus {
+			border-color: $accent1;
+		}
+		&:disabled {
+			background: #d7dcdf0a;
+			color: rgba($color: $text-regular-color, $alpha: 0.7);
+			cursor: not-allowed;
+		}
+	}
+}
+
+input[type='range'] {
+	$bg: #d7dcdf;
+	$active: #51575e;
+	accent-color: $active;
+}

@@ -4,15 +4,13 @@ charset = utf-8
 end_of_line = lf
 indent_style = tab
 indent_size = 3
+tab_width = 3
 
 [*.{js,ts,tsx,scss,json,css,cs}]
 insert_final_newline = false
-tab_width = 3
 trim_trailing_whitespace = true
 
 [*.{yml,yaml}]
-tab_width = 3
 indent_style = space
-
-[*.{conf}]
 tab_width = 3
+indent_size = 3

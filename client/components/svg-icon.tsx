@@ -1,4 +1,4 @@
-import { ComponentProps, createComponent, splitProps } from "solid-js";
+import { ComponentProps, createComponent, splitProps } from 'solid-js';
 
 type SVGIconProps = {
 	component: any;

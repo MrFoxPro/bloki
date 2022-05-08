@@ -3,7 +3,7 @@
 	"scripts": {
 		"test": "pnpm run -F tests start",
 		"dev": "pnpm run --parallel --stream -F api -F client dev",
-		"ci:tg": "node ./notify-tg.js"
+		"build": "pnpm run --parallel -F api -F client build"
 	},
 	"workspaces": [
 		"api",

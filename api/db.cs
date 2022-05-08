@@ -60,6 +60,7 @@ public class BlokiDbContext : DbContext
 
 	public static void Seed(BlokiDbContext ctx)
 	{
+		ctx.Database.Migrate();
 		if (ctx.Users.Any(u => u.Id == Initial.User.Id)) return;
 
 		var blocks = Initial.User.Workspaces.SelectMany(ws => ws.Documents).SelectMany(d => d.Layout).ToArray();

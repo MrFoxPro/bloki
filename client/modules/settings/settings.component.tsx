@@ -1,15 +1,22 @@
-import { useAppStore } from '@/modules/app.store';
 import { useI18n } from '@solid-primitives/i18n';
-import s from './settings.module.scss';
-import LayoutIcon from './assets/layout.icon.svg';
-import LanguageIcon from './assets/language.icon.svg';
-import SettingsIcon from '@/components/side-menu/assets/settings.icon.svg';
+
 import { createComputed, createSignal, For, Show } from 'solid-js';
-import { supportedLangs } from '../i18n/i18n.module';
+
 import { Dynamic } from 'solid-js/web';
+
+import LanguageIcon from './assets/language.icon.svg';
+import LayoutIcon from './assets/layout.icon.svg';
+import s from './settings.module.scss';
+
+import { supportedLangs } from '../i18n/i18n.module';
+
 import { getTextBlockSize } from '../bloki-editor/blocks/text/helpers';
 import { isTextBlock } from '../bloki-editor/types/blocks';
 import { NAME_MAX_LENGTH } from '../modals/name-input/name-input.modal';
+
+import SettingsIcon from '@/components/side-menu/assets/settings.icon.svg';
+
+import { useAppStore } from '@/modules/app.store';
 
 let lastOpenedItem = 'general';
 export function Settings() {

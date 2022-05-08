@@ -2,12 +2,13 @@
 	"name": "tg-notifier",
 	"type": "module",
 	"scripts": {
-		"ci:start": "node ./index.mjs"
+		"start": "node ./index.mjs"
 	},
 	"devDependencies": {
 		"telegraf": "^4.8.1"
 	},
 	"dependencies": {
-		"dotenv": "^16.0.0"
+		"dotenv": "^16.0.0",
+		"fast-glob": "^3.2.11"
 	}
 }
