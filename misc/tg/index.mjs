@@ -12,20 +12,21 @@ const branchDeployMap = {
 }
 if (!branchDeployMap[branchName]) process.exit();
 
-const commitDate = execSync('git log -1 --format=%cI').toString().trimEnd();
-const commitHash = execSync('git rev-parse HEAD').toString().trimEnd();
+const commitDate = execSync('git log -1 --pretty="format:%cd" --date=format:"%H:%M:%S %Y-%m-%d"').toString().trimEnd();
+const commitHash = execSync('git rev-parse --short HEAD').toString().trimEnd();
 const lastCommitMessage = execSync('git show -s --format=%s').toString().trimEnd();
 
 dotenv.config();
 
 const message = `
-	Branch **${branchName}** was deployed to ${branchDeployMap[branchName]}.
+Branch *${branchName}* was deployed
+${branchDeployMap[branchName]}
 
-	\`\`\`
-	${commitDate}
-	${commitHash}
-	${lastCommitMessage}
-	\`\`\`
+\`\`\`
+${commitDate}
+
+Commit: ${lastCommitMessage} / ${commitHash}
+\`\`\`
 `;
 
 const artifacts = await fg('../../dist/tests/*Journey*/**');
@@ -34,16 +35,17 @@ artifacts.forEach(p => {
 	console.log(p);
 })
 
-if (process.env.CI !== '1') {
+const ci = process.env.CI === '1';
+
+if (!ci) {
 	console.warn('This is not CI env');
-	process.exit();
 }
 
 const bot = new Telegraf(process.env.TG_KEY);
 
-const chatId = process.env.TG_CHANNEL;
+const chatId = ci ? process.env.TG_CHANNEL : '205601187';
 
-await bot.telegram.sendMessage(chatId, message, { parse_mode: 'MarkdownV2' });
+await bot.telegram.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 const videos = [];
 const images = [];
 for (const p of artifacts) {

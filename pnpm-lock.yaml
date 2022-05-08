@@ -86,7 +86,7 @@ importers:
       vite-plugin-solid-svg: 0.2.0_vite@2.9.7
       vite-plugin-ts-nameof: 1.1.0_soppz6ildcyh6tiupuawmjelza
 
-  misc/tg-notifier:
+  misc/tg:
     specifiers:
       dotenv: ^16.0.0
       fast-glob: ^3.2.11
@@ -5846,6 +5846,7 @@ packages:
   /telegraf/4.8.1:
     resolution: {integrity: sha512-+76tLC2XS73Rf4Ty6jXEMW52exAP6isgHmq36XBJlnOZV00K6/QdN7mFafVYeKqR3bO/ZqgIphc5In3EwKJMyA==}
     engines: {node: ^12.20.0 || >=14.13.1}
+    hasBin: true
     dependencies:
       abort-controller: 3.0.0
       debug: 4.3.4

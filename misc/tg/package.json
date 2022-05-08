@@ -1,5 +1,5 @@
 {
-	"name": "tg-notifier",
+	"name": "tg",
 	"type": "module",
 	"scripts": {
 		"start": "node ./index.mjs"

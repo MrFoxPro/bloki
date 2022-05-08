@@ -2,4 +2,4 @@ packages:
   - api
   - client
   - tests
-  - ./misc/tg-notifier
+  - ./misc/tg
