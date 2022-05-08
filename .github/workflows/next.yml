@@ -36,14 +36,6 @@ jobs:
         working-directory: ./tests
         run: pnpx playwright install --with-deps
 
-      - name: cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
       - name: install dotnet
         uses: actions/setup-dotnet@v2
         with:
