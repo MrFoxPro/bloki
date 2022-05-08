@@ -19,11 +19,13 @@ const lastCommitMessage = execSync('git show -s --format=%s').toString().trimEnd
 dotenv.config();
 
 const message = `
-	Branch ${branchName} was deployed to ${branchDeployMap[branchName]}.
+	Branch **${branchName}** was deployed to ${branchDeployMap[branchName]}.
 
+	\`\`\`
 	${commitDate}
 	${commitHash}
 	${lastCommitMessage}
+	\`\`\`
 `;
 
 const artifacts = await fg('../../dist/tests/*Journey*/**');
