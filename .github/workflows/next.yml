@@ -38,6 +38,7 @@ jobs:
         run: pnpm i --no-optional
 
       - name: install pw browsers
+        working-directory: ./tests
         run: pnpx playwright install --with-deps
 
       - name: install dotnet
