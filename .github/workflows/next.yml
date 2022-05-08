@@ -17,7 +17,7 @@ jobs:
            with:
               ref: "next"
 
-         - name: Install Node.js
+         - name: install node
            uses: actions/setup-node@v3
            with:
               node-version: 17.9.0
@@ -36,7 +36,11 @@ jobs:
 
          - name: pnpm install
            run: pnpm i --no-optional
+         
+         - name: pnpx playwright install
+           run: pnpx playwright install
 
+         - name: install dotnet
          - uses: actions/setup-dotnet@v2
            with:
               dotnet-version: "6.0.x"
