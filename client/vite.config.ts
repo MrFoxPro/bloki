@@ -32,7 +32,7 @@ export default async ({ mode }: ConfigEnv) => {
 			port: 3000,
 			proxy: {
 				'/api': {
-					target: 'http://localhost:3006',
+					target: 'http://localhost:1007',
 					changeOrigin: true,
 				},
 			}
