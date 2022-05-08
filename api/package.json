@@ -5,6 +5,6 @@
 		"restore": "dotnet restore",
 		"dev": "cross-env ASPNETCORE_ENVIRONMENT=Development dotnet watch",
 		"test": "dotnet test",
-		"build": "dotnet publish -c Release -r linux-x64 --self-contained -o ../dist/api"
+		"build": "dotnet publish -c Release --no-self-contained -r linux-x64 -o ../dist/api"
 	}
 }
