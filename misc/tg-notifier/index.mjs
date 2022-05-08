@@ -43,17 +43,23 @@ const bot = new Telegraf(process.env.TG_KEY);
 
 const chatId = process.env.TG_CHANNEL;
 
-await bot.telegram.sendMessage(chatId, message);
-
+await bot.telegram.sendMessage(chatId, message, { parse_mode: 'MarkdownV2' });
+const videos = [];
+const images = [];
 for (const p of artifacts) {
-	const file = createReadStream(p);
+	const source = createReadStream(p);
 	const ext = extname(p);
 
 	if (ext === '.webm') {
-		await bot.telegram.sendVideo(chatId, { source: file });
+		videos.push({ type: 'video', media: { source }, caption: p });
 	}
 	else if (ext === '.png') {
-		await bot.telegram.sendPhoto(chatId, { source: file });
+		images.push({ type: 'photo', media: { source }, caption: p });
 	}
 }
 
+if (images.length)
+	await bot.telegram.sendMediaGroup(chatId, images);
+
+if (videos.length)
+	await bot.telegram.sendMediaGroup(chatId, videos);
