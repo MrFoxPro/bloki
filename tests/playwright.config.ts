@@ -66,7 +66,7 @@ const config: PlaywrightTestConfig = {
 	},
 	timeout: ci ? 4000 : undefined,
 	use: {
-		baseURL: 'http://localhost:1007',
+		baseURL: 'http://localhost:3000',
 		locale: 'ru',
 		headless: ci,
 	},
