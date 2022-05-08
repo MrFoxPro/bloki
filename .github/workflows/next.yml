@@ -1,4 +1,4 @@
-name: Build and deploy to next.bloki.app
+name: next.bloki.app
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
         run: pnpx playwright install --with-deps
 
       - name: install dotnet
-      - uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v2
         with:
           dotnet-version: "6.0.x"
 
