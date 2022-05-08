@@ -39,7 +39,7 @@ jobs:
 
       - name: install pw browsers
         working-directory: ./tests
-        run: pnpx playwright install --with-deps
+        run: pnpx playwright install
 
       - name: install dotnet
         uses: actions/setup-dotnet@v2
