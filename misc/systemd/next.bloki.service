@@ -5,7 +5,7 @@ After=network.target
 Type=simple
 User=deploy
 WorkingDirectory=/home/deploy/bloki-next/api
-ExecStart=./bloki
+ExecStart=/home/deploy/bloki-next/api/bloki
 Restart=always
 RestartSec=15
 

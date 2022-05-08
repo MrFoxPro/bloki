@@ -29,6 +29,10 @@ jobs:
       - name: pnpm install
         run: pnpm i
 
+      - name: install pw browsers
+        working-directory: ./tests
+        run: pnpx playwright install --with-deps
+
       - name: cache pnpm modules
         uses: actions/cache@v2
         with:
@@ -36,10 +40,6 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-
-
-      - name: install pw browsers
-        working-directory: ./tests
-        run: pnpx playwright install --with-deps
 
       - name: install dotnet
         uses: actions/setup-dotnet@v2
@@ -63,7 +63,7 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
           # This is important to keep "/"
-          source: "dist/"
+          source: "dist/api,dist/client"
           target: "/home/deploy/bloki-next"
           rm: true
           command_timeout: 1m
