@@ -92,5 +92,5 @@ jobs:
       - name: Notify telegram
         env:
             TG_KEY: ${{ secrets.TG_KEY }}
-            TG_CHANNEL: ${{ secrets.RECEIVER_1 }}
+            TG_CHANNEL: ${{ secrets.TG_CHANNEL }}
         run: pnpm run -F tg start
