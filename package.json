@@ -17,7 +17,7 @@
       "build": "vite build",
       "serve": "vite preview",
       "dev:frontend": "vite",
-      "dev:backend": "cd ./server && nodemon"
+      "dev:backend": "nodemon"
    },
    "license": "GNU Affero General Public License v3.0",
    "keywords": [

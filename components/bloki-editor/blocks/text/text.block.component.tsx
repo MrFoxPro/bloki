@@ -70,7 +70,7 @@ export function TextBlock(props: TextBlockProps) {
       () => block.value,
       () => {
          if (!contentRef) return;
-         if (!contentRef.textContent.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
+         if (!contentRef.innerHTML.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
             contentRef.lastElementChild.remove();
          }
          measurer.setOptions({
@@ -106,7 +106,7 @@ export function TextBlock(props: TextBlockProps) {
    createEffect(on(() => block.value,
       () => {
          if (!contentRef) return;
-         if (contentRef.textContent !== block.value) {
+         if (contentRef.innerHTML !== block.value) {
             contentRef.innerHTML = block.value;
          }
       }));
@@ -158,32 +158,6 @@ export function TextBlock(props: TextBlockProps) {
       send(WSMsgType.ChangeBlock, unwrap(block));
    }
 
-   function onKeyDown(e: KeyboardEvent) {
-      const text = contentRef.textContent;
-      let maxWidth = block.width;
-
-      const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions, maxWidth);
-
-      let newWidth = boundSize.width;
-      if (block.width === editor.document.layoutOptions.mGridWidth) {
-         newWidth = editor.document.layoutOptions.mGridWidth;
-      }
-      let newHeight = boundSize.height;
-
-      const { correct } = checkPlacement(block, block.x, block.y, newWidth, newHeight);
-      if (!correct) {
-         e.preventDefault();
-         console.log('cant type more');
-         return false;
-      }
-
-      setEditorStore('layout', editor.layout.indexOf(block), {
-         width: newWidth,
-         height: newHeight,
-         value: text,
-      });
-   }
-
    function onPaste(e: ClipboardEvent) {
       e.stopPropagation();
       e.preventDefault();
@@ -215,7 +189,8 @@ export function TextBlock(props: TextBlockProps) {
          onInput={onTextInput}
          // onKeyDown={onKeyDown}
          onPaste={onPaste}
+         // innerHTML={untrack(()=>block.value)}
          {...other}
-      >{untrack(() => block.value)}</div>
+      />
    );
 }
