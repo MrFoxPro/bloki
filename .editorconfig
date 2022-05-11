@@ -2,15 +2,13 @@ root = true
 [*]
 charset = utf-8
 end_of_line = lf
-indent_style = tab
-indent_size = 3
-tab_width = 3
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
 
 [*.{js,ts,tsx,scss,json,css,cs}]
-insert_final_newline = false
-trim_trailing_whitespace = true
+indent_size = 3
 
 [*.{yml,yaml}]
 indent_style = space
-tab_width = 4
 indent_size = 4

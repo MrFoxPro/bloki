@@ -1,9 +1,20 @@
 public partial class RootQuery
 {
-	[UseSingleOrDefault]
-	[UseProjection]
-	public IQueryable<User> Me(BlokiDbContext context)
-	{
-		return context.Users.Where((x) => x.Id == -1);
-	}
+   // [UseSingleOrDefault]
+   // [UseProjection]
+   public User Me(BlokiDbContext context)
+   {
+   	return null;
+   }
+
+}
+
+
+public partial class RootMutation
+{
+   [UseMutationConvention]
+   public async Task<User?> Register(BlokiDbContext context)
+   {
+      return null;
+   }
 }

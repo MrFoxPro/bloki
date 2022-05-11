@@ -1,29 +1,28 @@
 {
-	"editor.wordWrap": "off",
-	"html.format.wrapLineLength": 120,
-	"editor.tabSize": 3,
-	// "css.format.enable": true,
-	"files.exclude": {
-		"**/.git": true,
-		"**/.svn": true,
-		"**/.hg": true,
-		"**/CVS": true,
-		"**/.DS_Store": true,
-		"**/Thumbs.db": true,
-		"**/bin": true,
-		"**/obj": true,
-		"**/node_modules": true
-	},
-	// typescript
-	"typescript.tsdk": "./client/node_modules/typescript/lib",
-	"typescript.preferences.importModuleSpecifier": "shortest",
-	"typescript.format.semicolons": "insert",
-	"typescript.preferences.quoteStyle": "single",
-	"typescript.format.enable": true,
-	"css.format.spaceAroundSelectorSeparator": true,
-	"vscode-color-picker.languages": [
-		"typescript",
-		"typescriptreact",
-		"xml"
-	]
+    "editor.wordWrap": "off",
+    "html.format.wrapLineLength": 120,
+    // "css.format.enable": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/bin": true,
+        "**/obj": true,
+        "**/node_modules": true
+    },
+    // typescript
+    "typescript.tsdk": "./client/node_modules/typescript/lib",
+    "typescript.preferences.importModuleSpecifier": "shortest",
+    "typescript.format.semicolons": "insert",
+    "typescript.preferences.quoteStyle": "single",
+    "typescript.format.enable": true,
+    "css.format.spaceAroundSelectorSeparator": true,
+    "vscode-color-picker.languages": [
+        "typescript",
+        "typescriptreact",
+        "xml"
+    ]
 }

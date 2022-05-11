@@ -1,5 +1,7 @@
 [Unit]
 After=network.target
+StartLimitBurst=3
+StartLimitIntervalSec=90
 
 [Service]
 Type=simple
@@ -7,7 +9,8 @@ User=deploy
 WorkingDirectory=/home/deploy/bloki/
 ExecStart=/usr/bin/node -r @swc-node/register ./server/index.ts
 Restart=always
-RestartSec=15
+RestartSec=30
+
 
 [Install]
 WantedBy=multi-user.target

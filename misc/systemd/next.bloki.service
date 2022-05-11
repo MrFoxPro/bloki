@@ -1,5 +1,7 @@
 [Unit]
 After=network.target
+StartLimitBurst=3
+StartLimitIntervalSec=90
 
 [Service]
 Type=simple
@@ -7,7 +9,7 @@ User=deploy
 WorkingDirectory=/home/deploy/bloki-next/api
 ExecStart=/home/deploy/bloki-next/api/bloki
 Restart=always
-RestartSec=15
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target

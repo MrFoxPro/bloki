@@ -1,52 +1,52 @@
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Client",
-			"request": "launch",
-			"cwd": "${workspaceFolder}/client",
-			"runtimeArgs": [
-				"dev"
-			],
-			"runtimeExecutable": "pnpm",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"type": "pwa-node",
-			"console": "internalConsole"
-		},
-		{
-			"name": "Server",
-			"type": "coreclr",
-			"request": "launch",
-			"preLaunchTask": "build",
-			"program": "${workspaceFolder}/server/bin/Debug/net6.0/bloki.dll",
-			"args": [],
-			"cwd": "${workspaceFolder}/server",
-			"stopAtEntry": false,
-			"console": "internalConsole",
-			"logging": {
-				"moduleLoad": false,
-				"engineLogging": false
-			},
-			"env": {
-				"ASPNETCORE_ENVIRONMENT": "Development"
-			}
-		}
-	],
-	"compounds": [
-		{
-			"name": "Start all",
-			"configurations": [
-				"Server",
-				"Client",
-			],
-			"stopAll": false,
-			"presentation": {
-				"hidden": false,
-				"group": "Project",
-				"order": 1
-			}
-		}
-	]
+   "version": "0.2.0",
+   "configurations": [
+      {
+         "name": "Client",
+         "request": "launch",
+         "cwd": "${workspaceFolder}/client",
+         "runtimeArgs": [
+            "dev"
+         ],
+         "runtimeExecutable": "pnpm",
+         "skipFiles": [
+            "<node_internals>/**"
+         ],
+         "type": "pwa-node",
+         "console": "internalConsole"
+      },
+      {
+         "name": "Server",
+         "type": "coreclr",
+         "request": "launch",
+         "preLaunchTask": "build",
+         "program": "${workspaceFolder}/api/bin/Debug/bloki.dll",
+         "args": [],
+         "cwd": "${workspaceFolder}/api",
+         "stopAtEntry": false,
+         "console": "internalConsole",
+         "logging": {
+            "moduleLoad": false,
+            "engineLogging": false
+         },
+         "env": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+         }
+      }
+   ],
+   "compounds": [
+      {
+         "name": "Start all",
+         "configurations": [
+            "Server",
+            "Client",
+         ],
+         "stopAll": false,
+         "presentation": {
+            "hidden": false,
+            "group": "Project",
+            "order": 1
+         }
+      }
+   ]
 }

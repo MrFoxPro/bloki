@@ -1,10 +1,10 @@
 {
-	"name": "api",
-	"version": "0.0.1",
-	"scripts": {
-		"restore": "dotnet restore",
-		"dev": "cross-env ASPNETCORE_ENVIRONMENT=Development dotnet watch",
-		"test": "dotnet test",
-		"build": "dotnet publish -c Release --no-self-contained -r linux-x64 -o ../dist/api"
-	}
+   "name": "api",
+   "version": "0.0.1",
+   "scripts": {
+      "restore": "dotnet restore",
+      "dev": "cross-env ASPNETCORE_ENVIRONMENT=Development dotnet watch",
+      "test": "dotnet test",
+      "build": "dotnet publish -c Release --no-self-contained -r linux-x64 -o ../dist/api"
+   }
 }

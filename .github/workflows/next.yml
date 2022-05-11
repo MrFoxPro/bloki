@@ -76,7 +76,7 @@ jobs:
           # This is important to keep "/"
           source: "dist/api,dist/client"
           target: "/home/deploy/bloki-next"
-          rm: true
+          overwrite: true
           command_timeout: 1m
           strip_components: 1
 
