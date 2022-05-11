@@ -55,12 +55,12 @@ function BlokiEditor(props: BlokiEditorProps) {
             selectBlock(null);
          }
       }
-      else if (e.key === 'Enter') {
-         if (store.editingType === null || (store.editingType === EditType.Content && isTextBlock(store.editingBlock))) {
-            console.log('enter');
-            e.preventDefault();
-         }
-      }
+      // else if (e.key === 'Enter') {
+      //    if (store.editingType === null || (store.editingType === EditType.Content && isTextBlock(store.editingBlock))) {
+      //       console.log('enter');
+      //       e.preventDefault();
+      //    }
+      // }
    }
 
    function isInMainGrid(x: number) {
