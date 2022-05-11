@@ -1,13 +1,11 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   '@codemirror/basic-setup': ^0.19.3
   '@codemirror/lang-javascript': ^0.19.7
   '@ngneat/falso': ^4.0.0
-  '@solid-primitives/date': ^1.1.0
   '@solid-primitives/i18n': ^1.0.10
   '@swc-node/register': ^1.4.2
-  '@types/dompurify': ^2.3.3
   '@types/js-cookie': ^3.0.1
   '@types/lodash.throttle': ^4.1.6
   '@types/ws': ^8.5.3
@@ -25,19 +23,18 @@ specifiers:
   solid-js: 1.3.14
   telegraf: ^4.7.0
   type-expand: ^1.0.0
+  typescript: ^4.6.4
   typescript-plugin-css-modules: ^3.4.0
   vite: ^2.9.1
   vite-plugin-compression: ^0.5.1
   vite-plugin-solid: 2.2.6
   vite-plugin-solid-svg: ^0.2.0
   ws: ^8.5.0
-  yjs: ^13.5.34
 
 dependencies:
   '@codemirror/basic-setup': 0.19.3
   '@codemirror/lang-javascript': 0.19.7
   '@ngneat/falso': 4.0.0
-  '@solid-primitives/date': 1.1.0_solid-js@1.3.14
   '@solid-primitives/i18n': 1.0.10_solid-js@1.3.14
   classcat: 5.0.3
   console-stamp: 3.0.4
@@ -52,17 +49,16 @@ dependencies:
   solid-js: 1.3.14
   telegraf: 4.7.0
   ws: 8.5.0
-  yjs: 13.5.34
 
 devDependencies:
   '@swc-node/register': 1.4.2
-  '@types/dompurify': 2.3.3
   '@types/js-cookie': 3.0.1
   '@types/lodash.throttle': 4.1.6
   '@types/ws': 8.5.3
   sass: 1.50.0
   type-expand: 1.0.0
-  typescript-plugin-css-modules: 3.4.0
+  typescript: 4.6.4
+  typescript-plugin-css-modules: 3.4.0_typescript@4.6.4
   vite: 2.9.1_sass@1.50.0
   vite-plugin-compression: 0.5.1_vite@2.9.1
   vite-plugin-solid: 2.2.6_sass@1.50.0
@@ -291,6 +287,8 @@ packages:
     resolution: {integrity: sha512-vqUSBLP8dQHFPdPi9bc5GK9vRkYHJ49fsZdtoJ8EQ8ibpwk5rPKfvNIwChB0KVXcIjcepEBBd2VHC5r9Gy8ueg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.17.0
     dev: true
 
   /@babel/plugin-syntax-jsx/7.16.7_@babel+core@7.17.9:
@@ -640,25 +638,8 @@ packages:
       fastq: 1.13.0
     dev: true
 
-  /@solid-primitives/date/1.1.0_solid-js@1.3.14:
-    resolution: {integrity: sha512-KYu9OnUIQ+ltjtlk751RhLnr9VpueTpimc0IB8VmY7q9UC6kiCs4hfpb1sdAQbAqB2umraXg2EPe9NH6xKoAkQ==}
-    peerDependencies:
-      solid-js: 1.3.0
-    dependencies:
-      '@solid-primitives/utils': 0.1.3_solid-js@1.3.14
-      solid-js: 1.3.14
-    dev: false
-
   /@solid-primitives/i18n/1.0.10_solid-js@1.3.14:
     resolution: {integrity: sha512-DIAKj3kNFTQVXDbFjY7NsaapVCEbsiaterMN9wj0ZXsFbK7ZRZYz1hVXAN8HfQUGm8G+YEBOFm8kgh++7Sr9vQ==}
-    peerDependencies:
-      solid-js: ^1.3.1
-    dependencies:
-      solid-js: 1.3.14
-    dev: false
-
-  /@solid-primitives/utils/0.1.3_solid-js@1.3.14:
-    resolution: {integrity: sha512-qtWzbvdksnYFyO/NpvmYkYEHo8mFB20CpSlpLCijERCXLA1E+HzKdYs08YbcCF4C5yKi3hdSWWc7Jcw1iyEnTw==}
     peerDependencies:
       solid-js: ^1.3.1
     dependencies:
@@ -681,7 +662,7 @@ packages:
       debug: 4.3.4
       pirates: 4.0.5
       tslib: 2.3.1
-      typescript: 4.6.3
+      typescript: 4.6.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -838,12 +819,6 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /@types/dompurify/2.3.3:
-    resolution: {integrity: sha512-nnVQSgRVuZ/843oAfhA25eRSNzUFcBPk/LOiw5gm8mD9/X7CNcbRkQu/OsjCewO8+VIYfPxUnXvPEVGenw14+w==}
-    dependencies:
-      '@types/trusted-types': 2.0.2
-    dev: true
-
   /@types/js-cookie/3.0.1:
     resolution: {integrity: sha512-7wg/8gfHltklehP+oyJnZrz9XBuX5ZPP4zB6UsI84utdlkRYLnOm2HfpLXazTwZA+fpGn0ir8tGNgVnMEleBGQ==}
     dev: true
@@ -864,10 +839,6 @@ packages:
 
   /@types/node/17.0.23:
     resolution: {integrity: sha512-UxDxWn7dl97rKVeVS61vErvw086aCYhDLyvRQZ5Rk65rZKepaFdm53GeqXaKBuOhED4e9uWq34IC3TdSdJJ2Gw==}
-    dev: true
-
-  /@types/trusted-types/2.0.2:
-    resolution: {integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==}
     dev: true
 
   /@types/ws/8.5.3:
@@ -1193,12 +1164,22 @@ packages:
 
   /debug/3.1.0:
     resolution: {integrity: sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: 2.0.0
     dev: true
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: 2.1.3
     dev: true
@@ -1795,10 +1776,6 @@ packages:
     engines: {node: '>=12.13'}
     dev: true
 
-  /isomorphic.js/0.2.5:
-    resolution: {integrity: sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==}
-    dev: false
-
   /js-cookie/3.0.1:
     resolution: {integrity: sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==}
     engines: {node: '>=12'}
@@ -1864,14 +1841,9 @@ packages:
       mime: 1.6.0
       needle: 2.9.1
       source-map: 0.6.1
+    transitivePeerDependencies:
+      - supports-color
     dev: true
-
-  /lib0/0.2.49:
-    resolution: {integrity: sha512-ziwYLe/pmI9bjHsAehm4ApuVfZ+q+sbC+vO6Z5+KM+0Fe0MrTLwZSDkJ+cElnhFNQ0P6z/wVkRmc5+vTmImJ9A==}
-    engines: {node: '>=12'}
-    dependencies:
-      isomorphic.js: 0.2.5
-    dev: false
 
   /light-my-request/4.9.0:
     resolution: {integrity: sha512-b1U3z4OVPoO/KanT14NRkXMr9rRtXAiq0ORqNrqhDyb5bGkZjAdEc6GRN1GWCfgaLBG+aq73qkCLDNeB3c2sLw==}
@@ -2011,6 +1983,8 @@ packages:
       debug: 3.2.7
       iconv-lite: 0.4.24
       sax: 1.2.4
+    transitivePeerDependencies:
+      - supports-color
     dev: true
     optional: true
 
@@ -2471,6 +2445,8 @@ packages:
       sax: 1.2.4
       semver: 6.3.0
       source-map: 0.7.3
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /supports-color/5.5.0:
@@ -2578,7 +2554,7 @@ packages:
     resolution: {integrity: sha512-MdlbWu0HfmgFJf4+xj6eqGYuanV2LJxBYTzLrD0kTV+woQ5dxDD2k8UVVjYnbBGkAagAyxzQevPiFZRWLFHSBw==}
     dev: false
 
-  /typescript-plugin-css-modules/3.4.0:
+  /typescript-plugin-css-modules/3.4.0_typescript@4.6.4:
     resolution: {integrity: sha512-2MdjfSg4MGex1csCWRUwKD+MpgnvcvLLr9bSAMemU/QYGqBsXdez0cc06H/fFhLtRoKJjXg6PSTur3Gy1Umhpw==}
     peerDependencies:
       typescript: '>=3.0.0'
@@ -2596,12 +2572,14 @@ packages:
       sass: 1.50.0
       stylus: 0.54.8
       tsconfig-paths: 3.14.1
+      typescript: 4.6.4
     transitivePeerDependencies:
+      - supports-color
       - ts-node
     dev: true
 
-  /typescript/4.6.3:
-    resolution: {integrity: sha512-yNIatDa5iaofVozS/uQJEl3JRWLKKGJKh6Yaiv0GLGSuhpFJe7P3SbHZ8/yjAHRQwKRoA6YZqlfjXWmVzoVSMw==}
+  /typescript/4.6.4:
+    resolution: {integrity: sha512-9ia/jWHIEbo49HfjrLGfKbZSuWo9iTMwXO+Ca3pRsSpbsMbc7/IU8NKdCZVRRBafVPGnoJeFL76ZOAA84I9fEg==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
@@ -2732,9 +2710,3 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
     dev: true
-
-  /yjs/13.5.34:
-    resolution: {integrity: sha512-w/XTk5vhCzbyd6uKKJWE6rPUBf9+heOTzgq8DBkcVgBMv7oeJVFQw2sRqY0YvuLZxURd/XVD2dcNnw8qeFH7Tw==}
-    dependencies:
-      lib0: 0.2.49
-    dev: false

@@ -107,13 +107,13 @@ export function TextBlock(props: TextBlockProps) {
       () => {
          if (!contentRef) return;
          if (contentRef.textContent !== block.value) {
-            contentRef.textContent = block.value;
+            contentRef.innerHTML = block.value;
          }
       }));
    function onTextInput(e: Event, pasteContent: string = null) {
       const mGridWidth = editor.document.layoutOptions.mGridWidth;
       // check if key is affecting content?
-      const text = contentRef.textContent + (pasteContent || '');
+      const text = contentRef.innerHTML + (pasteContent || '');
 
       if (text === '' && block.width >= mGridWidth) {
          const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions);
@@ -143,7 +143,7 @@ export function TextBlock(props: TextBlockProps) {
       if (!correct) {
          e.preventDefault();
          console.log('cant type more');
-         contentRef.textContent = block.value;
+         contentRef.innerHTML = block.value;
          return;
       }
       if (pasteContent) {
