@@ -5,10 +5,10 @@
 		"start": "node ./index.mjs"
 	},
 	"devDependencies": {
-		"telegraf": "^4.8.1"
+		"telegraf": "^4.8.2"
 	},
 	"dependencies": {
-		"dotenv": "^16.0.0",
+		"dotenv": "^16.0.1",
 		"fast-glob": "^3.2.11"
 	}
 }

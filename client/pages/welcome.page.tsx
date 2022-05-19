@@ -1,14 +1,14 @@
 import cc from 'classcat';
-import { createMutable, createStore } from 'solid-js/store';
+import { createMutable } from 'solid-js/store';
 import { useLocation, useNavigate } from 'solid-app-router';
-import { createMemo, JSX, Show } from 'solid-js';
+import { createEffect, createMemo, Show } from 'solid-js';
 import { Transition } from 'solid-transition-group';
 
 import LogoIcon from '@/assets/images/logo-orange.svg?url';
 import MosaicIcon from '@/assets/images/mosaic.svg';
 
 import { langs } from '@/modules/i18n/i18n.module';
-import { Input, InputReset } from '@/components/input/input.component';
+import { Input, InputLabel, InputReset } from '@/components/input/input.component';
 import s from '@/styles';
 import { emailRegex } from '@/lib/helpers';
 
@@ -71,9 +71,10 @@ export function WelcomePage() {
 
       }
    }
+
    const isEmailCorrect = () => emailRegex.test(state.email.value);
    const isNameCorrect = () => state.name.value.length > 0;
-   const LabelComp = () => <label>Hello ima label</label>;
+
    return (
       <main class={cc([s.page, s.welcome])}>
          <img class={s.logoRu} src={LogoIcon} />
@@ -88,22 +89,23 @@ export function WelcomePage() {
                {t().title}
             </div>
             <Input
-               label={{
-                  text: t().input.name.label
-               }}
-               input={{
-                  id: 'name-input',
-                  autocomplete: 'on',
-                  name: 'name',
-                  placeholder: t().input.name.placeholder,
-                  placeholder: t().input.name.placeholder,
-                  disabled: confirming(),
-                  onChange: (e) => state.name.value = e.currentTarget.value,
-               }}
+               id='name-input'
+               autocomplete='on'
+               name='name'
+               placeholder={t().input.name.placeholder}
+               disabled={confirming()}
+               onInput={(e) => state.name.value = e.currentTarget.value}
+               value={state.name.value}
             >
-               <label typeof='label'>Hello ima label</label>
+               <InputLabel>{t().input.name.label}</InputLabel>
+               <Show when={state.name.value.length > 0}>
+                  <InputReset
+                     onClick={() => state.name.value = ''}
+                  />
+               </Show>
             </Input>
-            <Input
+
+            {/* <Input
                label={{
                   text: t().input.email.label
                }}
@@ -116,7 +118,7 @@ export function WelcomePage() {
                   disabled: confirming(),
                   onChange: (e) => state.email.value = e.currentTarget.value
                }}
-            />
+            /> */}
             <Show when={confirming()}>
                <div class={s.textInputGroup}>
                   <label>

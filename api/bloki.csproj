@@ -22,15 +22,18 @@
 		<MakeDir Directories="$(OutputPath)/db" />
 	</Target>
 	<ItemGroup>
+		<!-- <PackageReference Include="EFCore.NamingConventions" Version="6.0.0" /> -->
 		<PackageReference Include="HotChocolate.AspNetCore" Version="12.7.0" />
 		<PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="12.8.2" />
 		<PackageReference Include="HotChocolate.Data.EntityFramework" Version="12.8.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.4">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
 			<IncludeAssets>runtime; build; native; contentfiles; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.5" />
+		<PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
+		<PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.22" />
 	</ItemGroup>
 </Project>

@@ -1,37 +1,37 @@
 {
-	"extends": "../tsconfig.base.json",
-	"compilerOptions": {
-		"outDir": "./dist/backend",
-		"isolatedModules": true,
-		"baseUrl": "./",
-		"jsx": "preserve",
-		"jsxImportSource": "solid-js",
-		// Misc
-		"forceConsistentCasingInFileNames": true,
-		"paths": {
-			"@/*": [
-				"./*"
-			],
-		},
-		"types": [
-			"vite/client",
-		],
-		"plugins": [
-			{
-				"name": "typescript-plugin-css-modules",
-				"options": {
-					"classnameTransform": "camelCaseOnly",
-					// "customMatcher": "\\(.(module)?\\.scss$",
-				}
-			}
-		],
-	},
-	"exclude": [
-		"node_modules",
-		".vscode",
-		"assets",
-		".git",
-		"temp",
-		"dist"
-	]
+   "extends": "../tsconfig.base.json",
+   "compilerOptions": {
+      "outDir": "./dist/backend",
+      "isolatedModules": true,
+      "baseUrl": "./",
+      "jsx": "preserve",
+      "jsxImportSource": "solid-js",
+      // Misc
+      "forceConsistentCasingInFileNames": true,
+      "paths": {
+         "@/*": [
+            "./*"
+         ],
+      },
+      "types": [
+         "vite/client",
+      ],
+      "plugins": [
+         {
+            "name": "typescript-plugin-css-modules",
+            "options": {
+               "classnameTransform": "camelCaseOnly",
+               // "customMatcher": "\\(.(module)?\\.scss$",
+            }
+         }
+      ],
+   },
+   "exclude": [
+      "node_modules",
+      ".vscode",
+      "assets",
+      ".git",
+      "temp",
+      "dist"
+   ]
 }

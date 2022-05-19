@@ -3,8 +3,10 @@
    "version": "0.0.1",
    "scripts": {
       "restore": "dotnet restore",
-      "dev": "cross-env ASPNETCORE_ENVIRONMENT=Development dotnet watch",
+      "dev": "dotnet run environment=development",
+      "rollback": "dotnet ef migrations remove",
+      "db": "dotnet ef database",
       "test": "dotnet test",
-      "build": "dotnet publish -c Release --no-self-contained -r linux-x64 -o ../dist/api"
+      "build": "dotnet publish -c Release --no-self-contained -r debian-x64 -o ../dist/api"
    }
 }

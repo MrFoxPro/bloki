@@ -1,9 +1,8 @@
-import { children, ComponentProps, createEffect, createMemo, JSX, mergeProps } from "solid-js";
-
-import { langs } from "@/modules/i18n/i18n.module";
 import s from "@/styles";
+import { ComponentProps, mergeProps, onMount } from "solid-js";
+import { langs } from "@/modules/i18n/i18n.module";
 import ResetIcon from './assets/reset.svg';
-import { ResolvedJSXElement } from 'solid-js/types/reactive/signal';
+import { typeComponent, typedChildren } from '@/lib/typed-children';
 
 const t = langs({
    en: {
@@ -17,53 +16,46 @@ const t = langs({
    }
 } as const);
 
-type InputChildren = {
-   type: 'label' | 'input-icon-right';
-   comp: () => JSX.Element;
-};
-type InputProps = {
-   container?: ComponentProps<'div'>;
-   input?: ComponentProps<'input'>;
-   label?: { text: string; } & ComponentProps<'label'>;
-
-   children?: InputChildren | InputChildren[];
-};
-
+type InputProps = ComponentProps<'input'>;
 export function Input(props: InputProps) {
    props = mergeProps({
       placeholder: t().placeholderDefault
    }, props);
 
-   const controls = createMemo(() => props.children);
-   const resolvedChildren = children(() => props.children);
-   createEffect(() => console.log('resolved children', resolvedChildren()));
-   createEffect(() => console.log('controls', controls()));
-
    const placeholder = () => {
-      console.log('placeholder', props.input?.disabled);
-      if (props.input?.disabled) {
+      if (props.disabled) {
          return t().placeholderDefault;
       }
-      return props.input?.placeholder ?? t().placeholderDefault;
+      return props.placeholder ?? t().placeholderDefault;
    };
+   const parts = typedChildren(() => props.children, ['label', 'reset']);
 
    return (
-      <div class={s.textInputGroup} {...props.container}>
+      <div class={s.textInputGroup}>
+         {parts.label}
          <input
             class={s.textInput}
             placeholder={placeholder()}
-            {...props.input}
+            {...props}
          />
-         {/* render icon here if presented in children */}
+         {parts.reset}
       </div>
    );
 }
 
-export function InputReset() {
-   return (<ResetIcon class={s.reset} />);
+type InputResetProps = ComponentProps<'svg'>;
+export function InputReset(props: InputResetProps) {
+   return (
+      <ResetIcon data-comp="reset" class={s.reset} {...props} />
+   );
 }
 
 type InputLabelProps = ComponentProps<'label'>;
 export function InputLabel(props: InputLabelProps) {
-   return (<label>{props.children}</label>);
-}
+   console.log('InputLabel rendered');
+   return (
+      <label data-comp="label">
+         {props.children}
+      </label>
+   );
+};
