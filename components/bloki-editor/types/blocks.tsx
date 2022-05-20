@@ -33,6 +33,8 @@ type Block = {
    y: number;
    width: number;
    height: number;
+
+   color?: string;
 };
 
 type ImageBlock = Block & {

@@ -116,7 +116,9 @@ function BlokiEditor(props: BlokiEditorProps) {
    const pasteError = () => alert('We are allowing only images pasted from other internet sources!');
 
    async function onPaste(e: ClipboardEvent) {
-      e.preventDefault();
+      if (!isTextBlock(store.editingBlock) || store.editingType !== EditType.Content) {
+         e.preventDefault();
+      }
       let src: string;
 
       const file = Array.from(e.clipboardData.files)[0];

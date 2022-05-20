@@ -1,5 +1,8 @@
-.blocked-text {
-   overflow-wrap: break-word;
+
+.block-text {
+   overflow-wrap: anywhere;
+   white-space: normal;
+   display: inline-block;
 }
 
 .content {
@@ -13,7 +16,7 @@
    // overflow: clip;
    // overflow: hidden;
 
-   @extend .blocked-text;
+   @extend .block-text;
 
    // CHROME HACK
    backface-visibility: hidden;
@@ -56,5 +59,6 @@
    z-index: 900;
    bottom: 0;
    pointer-events: none;
-   @extend .blocked-text;
+
+   @extend .block-text;
 }

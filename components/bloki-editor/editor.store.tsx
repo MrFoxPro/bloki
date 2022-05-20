@@ -5,6 +5,7 @@ import {
    AnyBlock,
    BlockTransform,
    Dimension,
+   isTextBlock,
    PlacementStatus,
    Point
 } from "./types/blocks";
@@ -53,6 +54,7 @@ interface EditorEvents {
    changeend(block: AnyBlock, changeInfo: ChangeEventInfo): void;
    containerrectchanged(rect: DOMRect): void;
    maingridcursormoved(block: BlockTransform, isOut: boolean): void;
+   customhighlight(target: BlockTransform, placement: PlacementStatus, timeoutMs?: number): void;
 }
 
 class StaticEditorData {
@@ -224,6 +226,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             send(WSMsgType.ChangeEnd, { block, rel: relTransofrm, type });
             return;
          }
+         console.warn('incorrect placement', placement);
          setEditorStore('layout', editor.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
@@ -235,14 +238,18 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       });
    }
 
-   function selectBlock(selectedBlock: AnyBlock, type: EditType = EditType.Select) {
-      if (selectedBlock) {
+   function selectBlock(target: AnyBlock, type: EditType = EditType.Select) {
+      if (target) {
          setEditorStore({
-            editingBlock: selectedBlock,
+            editingBlock: target,
             editingType: type,
          });
       }
       else {
+         if (isTextBlock(editor.editingBlock)
+            && editor.editingBlock.value === '') {
+            deleteBlock(editor.editingBlock);
+         }
          setEditorStore({
             editingBlock: null,
             editingType: null,

@@ -35,7 +35,7 @@ dependencies:
   '@codemirror/basic-setup': 0.19.3
   '@codemirror/lang-javascript': 0.19.7
   '@ngneat/falso': 4.0.0
-  '@solid-primitives/i18n': 1.0.10_solid-js@1.3.14
+  '@solid-primitives/i18n': 1.0.10
   classcat: 5.0.3
   console-stamp: 3.0.4
   dotenv: 16.0.0
@@ -45,7 +45,7 @@ dependencies:
   lodash.debounce: 4.0.8
   lodash.throttle: 4.1.1
   nanoevents: 6.0.2
-  solid-app-router: 0.3.2_solid-js@1.3.14
+  solid-app-router: 0.3.2
   solid-js: 1.3.14
   telegraf: 4.7.0
   ws: 8.5.0
@@ -286,7 +286,6 @@ packages:
   /@babel/parser/7.17.9:
     resolution: {integrity: sha512-vqUSBLP8dQHFPdPi9bc5GK9vRkYHJ49fsZdtoJ8EQ8ibpwk5rPKfvNIwChB0KVXcIjcepEBBd2VHC5r9Gy8ueg==}
     engines: {node: '>=6.0.0'}
-    hasBin: true
     dependencies:
       '@babel/types': 7.17.0
     dev: true
@@ -638,10 +637,8 @@ packages:
       fastq: 1.13.0
     dev: true
 
-  /@solid-primitives/i18n/1.0.10_solid-js@1.3.14:
+  /@solid-primitives/i18n/1.0.10:
     resolution: {integrity: sha512-DIAKj3kNFTQVXDbFjY7NsaapVCEbsiaterMN9wj0ZXsFbK7ZRZYz1hVXAN8HfQUGm8G+YEBOFm8kgh++7Sr9vQ==}
-    peerDependencies:
-      solid-js: ^1.3.1
     dependencies:
       solid-js: 1.3.14
     dev: false
@@ -793,7 +790,6 @@ packages:
   /@swc/core/1.2.165:
     resolution: {integrity: sha512-+Z/FquMEUQLOOVWJY4B2QnHvcAIgBKKJMVtVQLVlIwfC4Ez8OvzGPTfL1W4ixYlUoIaTbAd1956kjBXalr4wEg==}
     engines: {node: '>=10'}
-    hasBin: true
     optionalDependencies:
       '@swc/core-android-arm-eabi': 1.2.165
       '@swc/core-android-arm64': 1.2.165
@@ -904,7 +900,6 @@ packages:
   /atob/2.1.2:
     resolution: {integrity: sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==}
     engines: {node: '>= 4.5.0'}
-    hasBin: true
     dev: true
 
   /atomic-sleep/1.0.0:
@@ -976,7 +971,6 @@ packages:
   /browserslist/4.20.2:
     resolution: {integrity: sha512-CQOBCqp/9pDvDbx3xfMi+86pr4KXIf2FDkTTdeuYw8OxS9t898LA1Khq57gtufFILXpfgsSx5woNgsBgvGjpsA==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001327
       electron-to-chromium: 1.4.106
@@ -1148,7 +1142,6 @@ packages:
   /cssesc/3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
-    hasBin: true
     dev: true
 
   /csso/4.2.0:
@@ -1258,7 +1251,6 @@ packages:
 
   /errno/0.1.8:
     resolution: {integrity: sha512-dJ6oBr5SQ1VSd9qkk7ByRgb/1SH4JZjCHSW/mr63/QcXO9zLVxvJ6Oy13nio03rxpSnVDDjFor75SjVeZWPW/A==}
-    hasBin: true
     requiresBuild: true
     dependencies:
       prr: 1.0.1
@@ -1448,7 +1440,6 @@ packages:
   /esbuild/0.14.34:
     resolution: {integrity: sha512-QIWdPT/gFF6hCaf4m7kP0cJ+JIuFkdHibI7vVFvu3eJS1HpVmYHWDulyN5WXwbRA0SX/7ZDaJ/1DH8SdY9xOJg==}
     engines: {node: '>=12'}
-    hasBin: true
     requiresBuild: true
     optionalDependencies:
       esbuild-android-64: 0.14.34
@@ -1697,11 +1688,9 @@ packages:
       postcss: 6.0.23
     dev: true
 
-  /icss-utils/5.1.0_postcss@8.4.12:
+  /icss-utils/5.1.0:
     resolution: {integrity: sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==}
     engines: {node: ^10 || ^12 || >= 14}
-    peerDependencies:
-      postcss: ^8.1.0
     dependencies:
       postcss: 8.4.12
     dev: true
@@ -1713,7 +1702,6 @@ packages:
   /image-size/0.5.5:
     resolution: {integrity: sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=}
     engines: {node: '>=0.10.0'}
-    hasBin: true
     requiresBuild: true
     dev: true
     optional: true
@@ -1788,7 +1776,6 @@ packages:
   /jsesc/2.5.2:
     resolution: {integrity: sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA==}
     engines: {node: '>=4'}
-    hasBin: true
     dev: true
 
   /json-schema-traverse/0.4.1:
@@ -1801,12 +1788,10 @@ packages:
 
   /json5/0.5.1:
     resolution: {integrity: sha1-Hq3nrMASA0rYTiOWdn6tn6VJWCE=}
-    hasBin: true
     dev: true
 
   /json5/1.0.1:
     resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==}
-    hasBin: true
     dependencies:
       minimist: 1.2.6
     dev: true
@@ -1814,7 +1799,6 @@ packages:
   /json5/2.2.1:
     resolution: {integrity: sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==}
     engines: {node: '>=6'}
-    hasBin: true
     dev: true
 
   /jsonfile/6.1.0:
@@ -1828,7 +1812,6 @@ packages:
   /less/4.1.2:
     resolution: {integrity: sha512-EoQp/Et7OSOVu0aJknJOtlXZsnr8XE8KwuzTHOLeVSEx8pVWUICc8Q0VYRHgzyjX78nMEyC/oztWFbgyhtNfDA==}
     engines: {node: '>=6'}
-    hasBin: true
     dependencies:
       copy-anything: 2.0.6
       parse-node-version: 1.0.1
@@ -1927,7 +1910,6 @@ packages:
   /mime/1.6.0:
     resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
     engines: {node: '>=4'}
-    hasBin: true
     requiresBuild: true
     dev: true
     optional: true
@@ -1944,7 +1926,6 @@ packages:
   /mkdirp/1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
-    hasBin: true
     dev: true
 
   /module-alias/2.2.2:
@@ -1971,13 +1952,11 @@ packages:
   /nanoid/3.3.2:
     resolution: {integrity: sha512-CuHBogktKwpm5g2sRgv83jEy2ijFzBwMoYA60orPDR7ynsLijJDqgsi4RDGj3OJpy3Ieb+LYwiRmIOGyytgITA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
     dev: true
 
   /needle/2.9.1:
     resolution: {integrity: sha512-6R9fqJ5Zcmf+uYaFgdIHmLwNldn5HbK8L5ybn7Uz+ylX/rnOsSp1AHcvQSrCaFN+qNM1wpymHqD7mVasEOlHGQ==}
     engines: {node: '>= 4.4.x'}
-    hasBin: true
     requiresBuild: true
     dependencies:
       debug: 3.2.7
@@ -2071,7 +2050,6 @@ packages:
 
   /pino/6.14.0:
     resolution: {integrity: sha512-iuhEDel3Z3hF9Jfe44DPXR8l07bhjuFY3GMHIXbjnY9XcafbyDDwl2sN2vw2GjMPf5Nkoe+OFao7ffn9SXaKDg==}
-    hasBin: true
     dependencies:
       fast-redact: 3.1.1
       fast-safe-stringify: 2.1.1
@@ -2213,12 +2191,10 @@ packages:
 
   /resolve-url/0.2.1:
     resolution: {integrity: sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=}
-    deprecated: https://github.com/lydell/resolve-url#deprecated
     dev: true
 
   /resolve/1.22.0:
     resolution: {integrity: sha512-Hhtrw0nLeSrFQ7phPp4OOcVjLPIeMnRlr5mcnVuMe7M/7eBn98A3hmFRLoFo3DLZkivSYwhRUJTyPyWAk56WLw==}
-    hasBin: true
     dependencies:
       is-core-module: 2.8.1
       path-parse: 1.0.7
@@ -2241,7 +2217,6 @@ packages:
   /rollup/2.70.1:
     resolution: {integrity: sha512-CRYsI5EuzLbXdxC6RnYhOuRdtz4bhejPMSWjsFLfVM/7w/85n2szZv6yExqUXsBdz5KT8eoubeyDUDjhLHEslA==}
     engines: {node: '>=10.0.0'}
-    hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -2284,7 +2259,6 @@ packages:
   /sass/1.50.0:
     resolution: {integrity: sha512-cLsD6MEZ5URXHStxApajEh7gW189kkjn4Rc8DQweMyF+o5HF5nfEz8QYLMlPsTOD88DknatTmBWkOcw5/LnJLQ==}
     engines: {node: '>=12.0.0'}
-    hasBin: true
     dependencies:
       chokidar: 3.5.3
       immutable: 4.0.0
@@ -2309,19 +2283,16 @@ packages:
 
   /semver/5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}
-    hasBin: true
     dev: true
     optional: true
 
   /semver/6.3.0:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
-    hasBin: true
     dev: true
 
   /semver/7.3.6:
     resolution: {integrity: sha512-HZWqcgwLsjaX1HBD31msI/rXktuIhS+lWvdE4kN9z+8IVT4Itc7vqU2WvYsyD6/sjYCt4dEKH/m1M3dwI9CC5w==}
     engines: {node: ^10.0.0 || ^12.0.0 || ^14.0.0 || >=16.0.0}
-    hasBin: true
     dependencies:
       lru-cache: 7.8.0
     dev: false
@@ -2330,10 +2301,8 @@ packages:
     resolution: {integrity: sha512-edRH8mBKEWNVIVMKejNnuJxleqYE/ZSdcT8/Nem9/mmosx12pctd80s2Oy00KNZzrogMZS5mauK2/ymL1bvlvg==}
     dev: false
 
-  /solid-app-router/0.3.2_solid-js@1.3.14:
+  /solid-app-router/0.3.2:
     resolution: {integrity: sha512-zh6Ui87xy23JUxrH0z1xAROJPpiuxa3JRx9jP2qqjr07q2EKQOjn9BrmTFvQd/azQWzLjSMU+hN2fy6kLh5Bdw==}
-    peerDependencies:
-      solid-js: ^1.3.5
     dependencies:
       solid-js: 1.3.14
     dev: false
@@ -2366,7 +2335,6 @@ packages:
 
   /source-map-resolve/0.5.3:
     resolution: {integrity: sha512-Htz+RnsXWk5+P2slx5Jh3Q66vhQj1Cllm0zvnaY98+NFx+Dv2CF/f5O/t8x+KaNdrdIAsruNzoh/KpialbqAnw==}
-    deprecated: See https://github.com/lydell/source-map-resolve#deprecated
     dependencies:
       atob: 2.1.2
       decode-uri-component: 0.2.0
@@ -2384,7 +2352,6 @@ packages:
 
   /source-map-url/0.4.1:
     resolution: {integrity: sha512-cPiFOTLUKvJFIg4SKVScy4ilPPW6rFgMgfuZJPNoDuMs3nC1HbMUycBoJw77xFIp6z1UJQJOfx6C9GMH80DiTw==}
-    deprecated: See https://github.com/lydell/source-map-url#deprecated
     dev: true
 
   /source-map/0.5.7:
@@ -2435,7 +2402,6 @@ packages:
 
   /stylus/0.54.8:
     resolution: {integrity: sha512-vr54Or4BZ7pJafo2mpf0ZcwA74rpuYCZbxrHBsH8kbcXOwSfvBFwsRfpGO5OD5fhG5HDCFW737PKaawI7OqEAg==}
-    hasBin: true
     dependencies:
       css-parse: 2.0.0
       debug: 3.1.0
@@ -2470,7 +2436,6 @@ packages:
   /svgo/2.8.0:
     resolution: {integrity: sha512-+N/Q9kV1+F+UeWYoSiULYo4xYSDQlTgb+ayMobAXPwMnLvop7oxKMo9OzIrX5x3eS4L4f2UHhc9axXwY8DpChg==}
     engines: {node: '>=10.13.0'}
-    hasBin: true
     dependencies:
       '@trysound/sax': 0.2.0
       commander: 7.2.0
@@ -2484,7 +2449,6 @@ packages:
   /telegraf/4.7.0:
     resolution: {integrity: sha512-rspH4kiVHE1zpnyQvlGFj+Tzu7zN02gSOcdLUayvnkaTwww2E6xBkwne+DKkDPdaRhvQ61J+dcVhLQv9fL+FsQ==}
     engines: {node: ^12.20.0 || >=14.13.1}
-    hasBin: true
     dependencies:
       abort-controller: 3.0.0
       debug: 4.3.4
@@ -2560,7 +2524,7 @@ packages:
       typescript: '>=3.0.0'
     dependencies:
       dotenv: 10.0.0
-      icss-utils: 5.1.0_postcss@8.4.12
+      icss-utils: 5.1.0
       less: 4.1.2
       lodash.camelcase: 4.3.0
       postcss: 8.4.12
@@ -2581,7 +2545,6 @@ packages:
   /typescript/4.6.4:
     resolution: {integrity: sha512-9ia/jWHIEbo49HfjrLGfKbZSuWo9iTMwXO+Ca3pRsSpbsMbc7/IU8NKdCZVRRBafVPGnoJeFL76ZOAA84I9fEg==}
     engines: {node: '>=4.2.0'}
-    hasBin: true
     dev: true
 
   /universalify/2.0.0:
@@ -2597,7 +2560,6 @@ packages:
 
   /urix/0.1.0:
     resolution: {integrity: sha1-2pN/emLiH+wf0Y1Js1wpNQZ6bHI=}
-    deprecated: Please see https://github.com/lydell/urix#deprecated
     dev: true
 
   /util-deprecate/1.0.2:
@@ -2606,7 +2568,6 @@ packages:
 
   /uuid/8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
-    hasBin: true
     dev: false
 
   /vite-plugin-compression/0.5.1_vite@2.9.1:
@@ -2652,7 +2613,6 @@ packages:
   /vite/2.9.1_sass@1.50.0:
     resolution: {integrity: sha512-vSlsSdOYGcYEJfkQ/NeLXgnRv5zZfpAsdztkIrs7AZHV8RCMZQkwjo4DS5BnrYTqoWqLoUe1Cah4aVO4oNNqCQ==}
     engines: {node: '>=12.2.0'}
-    hasBin: true
     peerDependencies:
       less: '*'
       sass: '*'

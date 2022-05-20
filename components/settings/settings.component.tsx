@@ -7,8 +7,6 @@ import SettingsIcon from '@/components/side-menu/assets/settings.icon.svg';
 import { createComputed, createSignal, For, Show } from 'solid-js';
 import { supportedLangs } from '../i18n/internationalization.component';
 import { Dynamic } from 'solid-js/web';
-import { getTextBlockSize } from '../bloki-editor/blocks/text/helpers';
-import { isTextBlock } from '../bloki-editor/types/blocks';
 import { NAME_MAX_LENGTH } from '../modals/name-input/name-input.modal';
 
 let lastOpenedItem = 'general';
@@ -63,13 +61,6 @@ export function Settings() {
       );
    };
    const GraphicsSettings = () => {
-      function logCalculatedSizes() {
-         selectedDocument().blocks.forEach(block => {
-            if (isTextBlock(block)) {
-               getTextBlockSize(block.type, block.fontFamily, block.value, selectedDocument().layoutOptions);
-            }
-         });
-      }
       return (
          <Show when={selectedDocument()}>
             <div class={s.check}>
@@ -107,11 +98,6 @@ export function Settings() {
                   ))}
                </div>
             </div>
-            <button
-               onClick={logCalculatedSizes}
-            >
-               {t('settings.document.log-calculated-sizes')}
-            </button>
          </Show>
       );
    };

@@ -55,7 +55,7 @@ export function Backlight(props: BacklightDrawerProps) {
       let prevPlacement: PlacementStatus = null;
       let prevRelTransform: BlockTransform = null;
 
-      const unbindChangeEnd = editor.on('changeend', function () {
+      const unbindChangeEnd = editor.on('changeend', () => {
          if (prevRelTransform) {
             clearProjection(prevRelTransform, prevPlacement);
             prevPlacement = null;
@@ -65,7 +65,7 @@ export function Backlight(props: BacklightDrawerProps) {
 
       // It's very cpu ineffective to use createEffect(on()) here
       // IDK how to implement performant solution here
-      const unbindChange = editor.on('change', function (_, { placement, relTransform }) {
+      const unbindChange = editor.on('change', (_, { placement, relTransform }) => {
          if (store.editingBlock === null || (![EditType.Resize, EditType.Drag].includes(store.editingType))) return;
          if (prevRelTransform &&
             prevRelTransform.x === relTransform.x &&
@@ -84,7 +84,6 @@ export function Backlight(props: BacklightDrawerProps) {
          prevPlacement = placement;
          prevRelTransform = relTransform;
       });
-
       let prevTransform: BlockTransform = null;
       const unbindGridMouseMove = editor.on('maingridcursormoved', function (transform, isOut) {
          prevTransform && impl().clearArea(prevTransform);
@@ -96,12 +95,21 @@ export function Backlight(props: BacklightDrawerProps) {
          prevTransform = transform;
       });
 
+      let timeout: number;
+      const unbindTempHighlightning = editor.on('customhighlight', (target, placement, timeoutMs = 1000) => {
+         drawProjection(target, placement);
+         timeout = window.setTimeout(() => {
+            clearProjection(target, placement);
+            clearTimeout(timeout);
+         }, timeoutMs);
+      });
+
       onCleanup(() => {
          unbindGridMouseMove();
          unbindChange();
          unbindChangeEnd();
+         unbindTempHighlightning();
       });
    });
-
    return comp;
 };

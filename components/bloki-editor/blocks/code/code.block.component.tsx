@@ -5,9 +5,10 @@ import { useEditorStore } from '../../editor.store';
 import s from './code.block.module.scss';
 import { Dimension } from '../../types/blocks';
 import { TextBlockFontFamily } from '../text/types';
-import { getTextBlockSize, measurer } from '../text/helpers';
+import { createTextBlockResizeHelper, measurer } from '../text/helpers';
 import { useI18n } from '@solid-primitives/i18n';
 import { useBlockStore } from '../block.store';
+
 
 
 type CodeBlockProps = {
@@ -62,6 +63,8 @@ export function CodeBlock(props: CodeBlockProps) {
       })
    );
 
+   const getTextBlockSize = createTextBlockResizeHelper(editor.document.layoutOptions);
+
    createEffect(on(
       () => block.value,
       () => {
@@ -69,10 +72,11 @@ export function CodeBlock(props: CodeBlockProps) {
          if (!contentRef.textContent.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
             contentRef.lastElementChild.remove();
          }
-         measurer.setOptions({
-            overflowWrap: 'break-all'
+         const minimals = measurer.measureText(block.value, {
+            overflowWrap: 'break-all',
+            width: 'min-content',
+            height: 'min-content'
          });
-         const minimals = measurer.measureText(block.value, 'min-content', 'min-content');
          minTextWidth = minimals.width;
          textHeightAtMinWidth = minimals.height;
       }

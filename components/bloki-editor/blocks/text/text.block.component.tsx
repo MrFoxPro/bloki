@@ -1,25 +1,21 @@
-import { ComponentProps, createComputed, createEffect, createMemo, on, onMount, splitProps, untrack } from 'solid-js';
+import { ComponentProps, createComputed, createEffect, createMemo, on, onCleanup, onMount, untrack } from 'solid-js';
 import cc from 'classcat';
-import { TextBlock as TextBlockEntity } from '../../types/blocks';
+import { Dimension, TextBlock as TextBlockEntity } from '../../types/blocks';
 import { useEditorStore } from '../../editor.store';
-import s, { content } from './text.block.module.scss';
-import { Dimension } from '../../types/blocks';
+import s from './text.block.module.scss';
 import { TextBlockFontFamily, TextTypes } from './types';
-import { getTextBlockSize, measurer } from './helpers';
 import { useI18n } from '@solid-primitives/i18n';
 import { useBlockStore } from '../block.store';
 import { WSMsgType } from '@/lib/network.types';
 import { unwrap } from 'solid-js/store';
-
+import { createTextBlockResizeHelper, getCurrentCursorPosition, getTextOneLineHeight, HeightMargins, setCurrentCursorPosition } from './helpers';
 
 type TextBlockProps = {
 } & ComponentProps<'div'>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setEditorStore, gridSize, checkPlacement, send }] = useEditorStore();
+   const [editor, { setEditorStore, gridSize, checkPlacement, send, staticEditorData }] = useEditorStore();
    const [blockStore, { isMeOverflowing, shadowed, block, blockData, isEditingContent }] = useBlockStore<TextBlockEntity>();
-
-   const [local, other] = splitProps(props, []);
 
    if (shadowed) {
       const textSettings = TextTypes[block.type];
@@ -32,10 +28,9 @@ export function TextBlock(props: TextBlockProps) {
                "font-weight": textSettings.fontWeight,
                "line-height": textSettings.lineHeight + 'px',
             }}
-            {...other}
-         >
-            {untrack(() => block.value)}
-         </div>
+            innerHTML={untrack(() => block.value)}
+            {...props}
+         />
       );
    }
 
@@ -44,6 +39,18 @@ export function TextBlock(props: TextBlockProps) {
    let contentRef: HTMLDivElement;
    let minTextWidth = 0;
    let textHeightAtMinWidth = 0;
+   let widthWasChanged = false;
+   let lastCaretPos = 0;
+
+   const textSettings = createMemo(() => TextTypes[block.type]);
+
+   blockData.getContentDimension = function getContentDimension(transform: Dimension) {
+      const dimension = getTextBlockSize(block, block.value, {
+         maxWidth: transform.width + 'px',
+         minWidth: gridSize(5) + 'px'
+      });
+      return { width: gridSize(dimension.width), height: gridSize(dimension.height) };
+   };
 
    createComputed(() => {
       minTextWidth = gridSize(5);
@@ -55,113 +62,122 @@ export function TextBlock(props: TextBlockProps) {
       }
    });
 
-   createEffect(on(
-      () => block.type,
-      () => {
-         if (block.type == null) return;
-         const size = getTextBlockSize(block.type, block.fontFamily, block.value, editor.document.layoutOptions, block.width, 'break-word');
-         setEditorStore('layout', editor.layout.indexOf(block), {
-            height: size.height,
-         });
-      })
-   );
+   // createEffect(on(
+   //    () => block.type,
+   //    () => {
+   //       if (block.type == null) return;
+   //       const size = getTextBlockSize(block, block.value, {
+   //          // width: block.width + 'px'
+   //          overflowWrap: 'break-word'
+   //       });
+   //       setEditorStore('layout', editor.layout.indexOf(block), {
+   //          height: size.height,
+   //       });
+   //    })
+   // );
 
+   createEffect(on(
+      () => blockStore.transform.width,
+      () => {
+         widthWasChanged = true;
+         console.log('Width was changed');
+      },
+      { defer: true })
+   );
    createEffect(on(
       () => block.value,
       () => {
          if (!contentRef) return;
-         if (!contentRef.innerHTML.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
-            contentRef.lastElementChild.remove();
-         }
-         measurer.setOptions({
-            overflowWrap: 'break-all'
-         });
-         const minimals = measurer.measureText(block.value, 'min-content', 'min-content');
-         minTextWidth = minimals.width;
-         textHeightAtMinWidth = minimals.height;
-      }
-   ));
-   const textSettings = createMemo(() => TextTypes[block.type]);
-   function getContentDimension(transform: Dimension) {
-      if (transform.width < minTextWidth) {
-         transform.width = minTextWidth;
-         transform.height = textHeightAtMinWidth;
-         return transform;
-      }
-      const widthPx = transform.width + 'px';
-      measurer.setOptions({
-         fontFamily: block.fontFamily ?? TextBlockFontFamily.Inter,
-         fontSize: textSettings().fontSize + 'px',
-         lineHeight: textSettings().lineHeight + 'px',
-         fontWeight: textSettings().fontWeight + 'px',
-      });
-      const dimension = measurer.measureText(block.value, widthPx);
-      return dimension;
-   }
-
-   onMount(() => {
-      blockData.getContentDimension = getContentDimension;
-   });
-
-   createEffect(on(() => block.value,
-      () => {
-         if (!contentRef) return;
          if (contentRef.innerHTML !== block.value) {
             contentRef.innerHTML = block.value;
+            trimContent(contentRef);
          }
-      }));
-   function onTextInput(e: Event, pasteContent: string = null) {
-      const mGridWidth = editor.document.layoutOptions.mGridWidth;
-      // check if key is affecting content?
-      const text = contentRef.innerHTML + (pasteContent || '');
+         const { mGridWidth } = editor.document.layoutOptions;
 
-      if (text === '' && block.width >= mGridWidth) {
-         const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions);
+         let maxWidth = gridSize(Math.min(block.width, mGridWidth));
 
-         setEditorStore('layout', editor.layout.indexOf(block), {
-            width: mGridWidth,
-            height: boundSize.height,
-            value: text,
+         const minimals = getTextBlockSize(block, block.value, {
+            maxWidth: gridSize(maxWidth) + 'px',
          });
-         send(WSMsgType.ChangeBlock, unwrap(block));
-         return;
+         minTextWidth = minimals.width;
+         textHeightAtMinWidth = minimals.height;
+      })
+   );
+
+   const getTextBlockSize = createTextBlockResizeHelper(editor.document.layoutOptions);
+
+   function trimContent(node: HTMLElement) {
+      if (node.lastElementChild?.tagName === 'BR') {
+         node.lastElementChild.remove();
       }
+   }
 
-      let maxWidth = block.width;
-      if (maxWidth < mGridWidth) maxWidth = mGridWidth;
-
-      const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions, maxWidth, 'break-word');
-
-      let newWidth = boundSize.width;
-      if (block.width === mGridWidth) {
-         newWidth = mGridWidth;
-      }
-      let newHeight = boundSize.height;
-      if (block.height > newHeight) newHeight = block.height;
-
-      const { correct } = checkPlacement(block, block.x, block.y, newWidth, newHeight);
-      if (!correct) {
-         e.preventDefault();
-         console.log('cant type more');
-         contentRef.innerHTML = block.value;
-         return;
-      }
+   function onClick() {
+      lastCaretPos = getCurrentCursorPosition(contentRef);
+   }
+   function onTextInput(e: Event, pasteContent = null) {
+      const { mGridWidth } = editor.document.layoutOptions;
+      // check if key is affecting content?
       if (pasteContent) {
          document.execCommand("insertHTML", false, pasteContent);
       }
+      trimContent(contentRef);
+      const text = contentRef.textContent.trim();
 
+      const html = contentRef.innerHTML.trim();
+
+      let newWidth: number;
+      let newHeight: number;
+      if (text === '') {
+         newWidth = mGridWidth;
+         newHeight = getTextOneLineHeight(block.type, editor.document.layoutOptions.size) + HeightMargins[block.type];
+      }
+      else {
+         let maxWidth = !widthWasChanged ? gridSize(Math.min(block.width, mGridWidth)) : gridSize(Math.max(block.width, 5));
+
+         const boundSize = getTextBlockSize(block, html, {
+            maxWidth: maxWidth + 'px',
+            height: 'auto',
+         });
+
+         newWidth = text === '' ? mGridWidth : boundSize.width;
+         if (newWidth !== mGridWidth && block.width === mGridWidth) {
+            newWidth = mGridWidth;
+         }
+         newHeight = boundSize.height;
+      }
+      // if (block.height > newHeight) newHeight = block.height;
+
+      const placement = checkPlacement(block, block.x, block.y, newWidth, newHeight);
+      if (!placement.correct) {
+         e.preventDefault();
+         staticEditorData.emit('customhighlight', block, placement);
+         console.warn('No more space');
+         contentRef.innerHTML = block.value;
+         setCurrentCursorPosition(lastCaretPos, contentRef);
+         return;
+      }
+
+      lastCaretPos = getCurrentCursorPosition(contentRef);
       setEditorStore('layout', editor.layout.indexOf(block), {
          width: newWidth,
          height: newHeight,
-         value: text,
+         value: html,
       });
       send(WSMsgType.ChangeBlock, unwrap(block));
    }
 
+   // function onKeyDown(e: KeyboardEvent){
+   //    if(e.key.includes('Key')) {
+
+   //       return;
+   //    }
+   //    else
+   // }
    function onPaste(e: ClipboardEvent) {
       e.stopPropagation();
       e.preventDefault();
-      var text = e.clipboardData.getData('text/plain');
+      const text = e.clipboardData.getData('text/plain');
       onTextInput(e, text);
       return false;
    }
@@ -171,8 +187,6 @@ export function TextBlock(props: TextBlockProps) {
       <div
          class={s.content}
          style={{
-            // 'word-break': 'break-word',
-            // 'white-space': 'normal',
             "font-family": block.fontFamily ?? TextBlockFontFamily.Inter,
             "font-size": textSettings().fontSize + 'px',
             "font-weight": textSettings().fontWeight,
@@ -189,8 +203,10 @@ export function TextBlock(props: TextBlockProps) {
          onInput={onTextInput}
          // onKeyDown={onKeyDown}
          onPaste={onPaste}
+         onClick={onClick}
          // innerHTML={untrack(()=>block.value)}
-         {...other}
+         {...props}
       />
    );
 }
+

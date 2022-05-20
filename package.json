@@ -13,7 +13,7 @@
       }
    ],
    "scripts": {
-      "dev": "npm run dev:backend && npm run dev:frontend",
+      "dev": "pnpm run dev:backend && pnpm run dev:frontend",
       "build": "vite build",
       "serve": "vite preview",
       "dev:frontend": "vite",
