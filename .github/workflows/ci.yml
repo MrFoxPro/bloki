@@ -66,7 +66,7 @@ jobs:
       uses: appleboy/telegram-action@v0.1.1
       with:
          token: ${{ secrets.TG_KEY }}
-         to: ${{ secrets.RECEIVER_1 }}
+         to: ${{ secrets.TG_CHANNEL }}
          format: 'html'
          message: |
             ${{ env.messages }}
