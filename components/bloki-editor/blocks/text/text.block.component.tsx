@@ -76,7 +76,6 @@ export function TextBlock(props: TextBlockProps) {
          setEditorStore('layout', editor.layout.indexOf(block), {
             height: size.height,
          });
-         console.log(size);
       })
    );
 

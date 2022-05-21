@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const db = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), './static/data.json'), { encoding: 'utf8' }));
-const paintings = new Map<string, Buffer>();
+const paintings: Record<string, Buffer> = {};
 
 function getImgPath(type: 'blobs' | 'images', id: string, ext = 'png') {
    return path.resolve(process.cwd(), `./static/${type}/${id}.${ext}`);
@@ -22,14 +22,14 @@ db.docs
    .filter(x => x.shared)
    .forEach(doc => {
       const blob = fs.readFileSync(getImgPath('blobs', doc.id));
-      paintings.set(doc.id, blob);
+      paintings[doc.id] = blob;
    });
 
 setInterval(() => {
-   paintings.forEach((buf, docId) => {
-      saveImage('blobs', docId, buf);
-   });
+   for (const docId in paintings) {
+      saveImage('blobs', docId, paintings[docId]);
+   }
    fs.writeFileSync(path.resolve(process.cwd(), './static/data.json'), JSON.stringify(db, null, 3));
 }, 5 * 1000);
 
-export { db, paintings, saveImage, deleteImage,getImgPath };
+export { db, paintings, saveImage, deleteImage, getImgPath };

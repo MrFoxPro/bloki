@@ -39,8 +39,6 @@
       "vite-plugin-solid-svg": "^0.2.0"
    },
    "dependencies": {
-      "@codemirror/basic-setup": "^0.19.3",
-      "@codemirror/lang-javascript": "^0.19.7",
       "@ngneat/falso": "^4.0.0",
       "@solid-primitives/i18n": "^1.0.10",
       "classcat": "^5.0.3",

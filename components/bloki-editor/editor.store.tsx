@@ -31,7 +31,6 @@ type EditorStoreValues = DeepReadonly<{
    rommates: Roommate[];
    cursor: Point;
    connected: boolean;
-
 }>;
 
 type CalculatedSize = {
@@ -282,7 +281,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       if (!ev.data) return;
 
       if (ev.data instanceof Blob) {
-         setDrawerStore({ blob: ev.data });
+         setDrawerStore('blob', ev.data);
          return;
       }
       const msg = JSON.parse(ev.data) as WSMsg;
@@ -340,6 +339,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    const sendMouse = throttle((e: MouseEvent) => {
       const wp = document.getElementById('wrapper');
+      if (!wp) return;
       const rect = wp.getBoundingClientRect();
       setEditorStore({
          cursor: {
@@ -350,46 +350,44 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    }, CURSOR_UPDATE_RATE, { leading: false, trailing: true });
 
    function disconnect() {
-      ws?.close();
-      ws = null;
+      if (ws) {
+         ws.close();
+         ws = null;
+      }
       document.removeEventListener('mousemove', sendMouse);
       console.log('Disconnected!');
    }
 
    createEffect(() => {
       if (editor.document.id && app.name) {
-         if (editor.document.shared) {
-            if (ws && ws.readyState !== ws.CLOSED) disconnect();
-
-            ws = new WebSocket(wsHost + '/' + editor.document.id);
-            ws.onopen = function () {
-               console.log('Connected to document server', untrack(() => editor.document.title));
-               setEditorStore({
-                  connected: true
-               });
-            };
-
-            ws.onmessage = onMessage;
-            ws.onerror = (e) => {
-               console.warn('Socket error', e);
-               setEditorStore({ connected: false });
-            };
-            ws.onclose = () => {
-               if (!ws || ws.readyState === ws.CLOSED) {
-                  setEditorStore({ connected: false });
-               }
-            };
-            document.addEventListener('mousemove', sendMouse);
-
-            send(WSMsgType.Join, {
-               name: app.name,
-               cursor: untrack(() => editor.cursor),
-               workingBlockId: untrack(() => editor.editingBlock?.id)
-            });
-         }
-         else {
+         if (!editor.document.shared) {
             disconnect();
+            return;
          }
+
+         if (ws && ws.readyState !== ws.CLOSED) disconnect();
+
+         ws = new WebSocket(wsHost + '/' + editor.document.id);
+         ws.onopen = function () {
+            console.log('Connected to document server', untrack(() => editor.document.title));
+            setEditorStore('connected', true);
+         };
+         ws.onmessage = onMessage;
+         ws.onerror = (e) => {
+            console.warn('Socket error', e);
+            setEditorStore('connected', false);
+         };
+         ws.onclose = () => {
+            if (!ws || ws.readyState === ws.CLOSED) {
+               setEditorStore('connected', false);
+            }
+         };
+         document.addEventListener('mousemove', sendMouse);
+         send(WSMsgType.Join, {
+            name: app.name,
+            cursor: untrack(() => editor.cursor),
+            workingBlockId: untrack(() => editor.editingBlock?.id)
+         });
       }
    });
 
@@ -400,7 +398,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function sendRaw(b: Buffer) {
       if (ws.readyState === ws.CONNECTING) {
-         setTimeout(() => sendRaw(b), 400);
+         setTimeout(() => sendRaw(b), 50);
          return;
       }
       ws.send(b);

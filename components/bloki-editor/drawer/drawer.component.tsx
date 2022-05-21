@@ -65,13 +65,10 @@ export function Drawer() {
 
    createEffect(() => {
       if (editor.document.shared) return;
-      console.log('fetching draw');
       fetch(editor.document.blobUrl)
          .then(r => r.blob())
          .then(blob => setDrawerStore({ blob }));
    });
-
-
 
    createEffect(() => {
       if (!drawer.blob) return;

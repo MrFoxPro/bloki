@@ -35,11 +35,9 @@ export function Workspace() {
                         <button class={s.share}>Share</button>
                      </div>
                   </div>
-                  <Show when={selectedDocument()}>
-                     <BlokiEditor
-                        gridType={app.gridRenderMethod}
-                     />
-                  </Show>
+                  <BlokiEditor
+                     gridType={app.gridRenderMethod}
+                  />
                </div>
             </EditorStoreProvider>
          </DrawerStoreProvider>
