@@ -43,6 +43,7 @@ export function TextBlock(props: TextBlockProps) {
    let lastCaretPos = 0;
 
    const textSettings = createMemo(() => TextTypes[block.type]);
+   const getTextBlockSize = createTextBlockResizeHelper(editor.document.layoutOptions);
 
    blockData.getContentDimension = function getContentDimension(transform: Dimension) {
       const dimension = getTextBlockSize(block, block.value, {
@@ -62,19 +63,22 @@ export function TextBlock(props: TextBlockProps) {
       }
    });
 
-   // createEffect(on(
-   //    () => block.type,
-   //    () => {
-   //       if (block.type == null) return;
-   //       const size = getTextBlockSize(block, block.value, {
-   //          // width: block.width + 'px'
-   //          overflowWrap: 'break-word'
-   //       });
-   //       setEditorStore('layout', editor.layout.indexOf(block), {
-   //          height: size.height,
-   //       });
-   //    })
-   // );
+   createEffect(on(
+      () => block.type,
+      () => {
+         if (block.type == null) return;
+         const maxWidth = gridSize(block.width);
+         const size = getTextBlockSize(block, block.value, {
+            maxWidth: maxWidth + 'px',
+            height: 'auto',
+         });
+         size.height += HeightMargins[block.type] ?? 0;
+         setEditorStore('layout', editor.layout.indexOf(block), {
+            height: size.height,
+         });
+         console.log(size);
+      })
+   );
 
    createEffect(on(
       () => blockStore.transform.width,
@@ -96,7 +100,7 @@ export function TextBlock(props: TextBlockProps) {
 
          let maxWidth = gridSize(Math.min(block.width, mGridWidth));
 
-         const minimals = getTextBlockSize(block, block.value, {
+         const minimals = getTextBlockSize(block, block.value.trim(), {
             maxWidth: gridSize(maxWidth) + 'px',
          });
          minTextWidth = minimals.width;
@@ -104,7 +108,6 @@ export function TextBlock(props: TextBlockProps) {
       })
    );
 
-   const getTextBlockSize = createTextBlockResizeHelper(editor.document.layoutOptions);
 
    function trimContent(node: HTMLElement) {
       if (node.lastElementChild?.tagName === 'BR') {
@@ -130,7 +133,7 @@ export function TextBlock(props: TextBlockProps) {
       let newHeight: number;
       if (text === '') {
          newWidth = mGridWidth;
-         newHeight = getTextOneLineHeight(block.type, editor.document.layoutOptions.size) + HeightMargins[block.type];
+         newHeight = getTextOneLineHeight(block.type, editor.document.layoutOptions.size) + HeightMargins[block.type] ?? 0;
       }
       else {
          let maxWidth = !widthWasChanged ? gridSize(Math.min(block.width, mGridWidth)) : gridSize(Math.max(block.width, 5));
