@@ -65,11 +65,11 @@ export function LandingView() {
                   </svg>
 
                </div>
-               <img class='interactive' src={PresentationGif} />
+               <img class='interactive' src={PresentationGif} decoding='async' loading='lazy' />
             </section>
 
             <section class='feature'>
-               <img class='demo' src={FileStructureImage} />
+               <img class='demo' src={FileStructureImage} decoding='async' loading='lazy' />
                <div class='text'>
                   <div class='heading'>
                      {t().fs.heading}
@@ -82,7 +82,7 @@ export function LandingView() {
             </section>
 
             <section class='feature'>
-               <img class='demo' src={WorkspacesImage} />
+               <img class='demo' src={WorkspacesImage} decoding='async' loading='lazy' />
                <div class='text'>
                   <div class='heading'>
                      <svg class='text-mark workspaces__workspaces-word' width="403" height="38" viewBox="0 0 403 38" fill="none" >
@@ -96,7 +96,7 @@ export function LandingView() {
             </section>
 
             <section class='feature'>
-               <img class='demo' src={TeamWorkImage} />
+               <img class='demo' src={TeamWorkImage} decoding='async' loading='lazy' />
                <div class='text'>
                   <div class='heading'>
                      {t().teamwork.heading}
@@ -109,7 +109,7 @@ export function LandingView() {
             </section>
 
             <section class='feature'>
-               <img class='demo' src={LibImage} />
+               <img class='demo' src={LibImage} decoding='async' loading='lazy' />
                <div class='text'>
                   <div class='heading'>
                      {t().lib.heading}
