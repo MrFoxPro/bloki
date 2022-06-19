@@ -7,8 +7,8 @@ import { createReadStream } from 'fs';
 
 const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trimEnd();
 const branchDeployMap = {
-	'master': 'https://bloki.app',
-	'next': 'https://next.bloki.app',
+   'master': 'https://bloki.app',
+   'next': 'https://next.bloki.app',
 }
 if (!branchDeployMap[branchName]) process.exit();
 
@@ -29,14 +29,14 @@ Commit: ${lastCommitMessage} / ${commitHash}
 \`\`\`
 `;
 
-const artifacts = await fg('../../dist/tests/**/*.(png|webm)');
+const artifacts = (await fg('../../dist/tests/**/*.(png|webm)')) ?? [];
 
 console.log('artifacts', artifacts);
 
 const ci = process.env.CI === '1';
 
 if (!ci) {
-	console.warn('This is not CI env');
+   console.warn('This is not CI env');
 }
 
 const bot = new Telegraf(process.env.TG_KEY);
@@ -49,22 +49,22 @@ const journey = [];
 const other = [];
 
 for (const p of artifacts) {
-	const source = createReadStream(p);
-	const ext = extname(p);
-	const parts = p.split('/');
-	const caption = parts[parts.length - 2];
-	const isVideo = ext === '.webm';
-	const type = isVideo ? 'video' : 'photo';
-	const at = { type, media: { source }, caption };
-	if (p.includes('Journey')) {
-		journey.push(at);
-		continue;
-	}
-	other.push(at);
+   const source = createReadStream(p);
+   const ext = extname(p);
+   const parts = p.split('/');
+   const caption = parts[parts.length - 2];
+   const isVideo = ext === '.webm';
+   const type = isVideo ? 'video' : 'photo';
+   const at = { type, media: { source }, caption };
+   if (p.includes('Journey')) {
+      journey.push(at);
+      continue;
+   }
+   other.push(at);
 }
 
 if (journey.length)
-	await bot.telegram.sendMediaGroup(chatId, journey, { protect_content: true });
+   await bot.telegram.sendMediaGroup(chatId, journey, { protect_content: true });
 
 if (other.length)
-	await bot.telegram.sendMediaGroup(chatId, other, { protect_content: true });
+   await bot.telegram.sendMediaGroup(chatId, other, { protect_content: true });

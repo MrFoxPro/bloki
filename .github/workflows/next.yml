@@ -44,9 +44,9 @@ jobs:
       - name: pnpm install
         run: pnpm i
 
-      - name: install pw browsers
-        working-directory: ./tests
-        run: pnpx playwright install --with-deps
+    #   - name: install pw browsers
+    #     working-directory: ./tests
+    #     run: pnpx playwright install --with-deps
 
       - name: install dotnet
         uses: actions/setup-dotnet@v2
@@ -58,8 +58,8 @@ jobs:
             DOTNET_NOLOGO: true
         run: pnpm -F api restore
 
-      - name: run tests
-        run: pnpm test
+    #   - name: run tests
+    #     run: pnpm test
 
       - name: build all
         env:
