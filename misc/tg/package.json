@@ -5,7 +5,7 @@
 		"start": "node ./index.mjs"
 	},
 	"devDependencies": {
-		"telegraf": "^4.8.2"
+		"telegraf": "^4.8.5"
 	},
 	"dependencies": {
 		"dotenv": "^16.0.1",

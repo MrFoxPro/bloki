@@ -1,0 +1,215 @@
+@import '@/styles/vars.scss';
+
+.page.landing {
+   background-color: #fafafa;
+   $content-width: 1280px;
+   background: url(./assets/background-bricks.svg) no-repeat -10px 50vh,
+               url(./assets/background-bricks.svg) no-repeat -10px 250vh;
+
+   > .page-content {
+      margin: 0 auto;
+      max-width: $content-width;
+   }
+
+   .text-mark {
+      position: absolute;
+      pointer-events: none;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      transition: stroke-dashoffset 1.5s;
+
+      &.intro__place-word {
+         top: -5px;
+         left: 30%;
+      }
+
+      &.intro__all-word {
+         left: 0;
+         bottom: -20px;
+      }
+
+      &.fs__structure-word {
+         left: -30px;
+         bottom: -10px;
+      }
+
+      &.workspaces__workspaces-word {
+         bottom: -30px;
+      }
+
+      &.teams__team-word {
+         top: -20px;
+         left: -30px;
+      }
+
+      &.libs__libraries-word {
+         left: 0;
+         bottom: -20px;
+      }
+
+      &.templates-and-plugins {
+         left: 0;
+         bottom: -10px;
+      }
+
+      &.smile {
+         right: -80px;
+      }
+   }
+
+   .page-header {
+      height: 117px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 auto;
+      padding: 0;
+
+      > .logo {
+         width: 150px;
+         cursor: pointer;
+      }
+
+      > .items-container {
+         display: flex;
+         align-items: center;
+         justify-content: center;
+
+         > .login {
+            font-weight: 600;
+            font-size: 20px;
+            cursor: pointer;
+         }
+
+         > .try {
+            margin-left: 30px;
+            font-size: 20px;
+         }
+      }
+   }
+
+   section {
+      width: 100%;
+      margin-top: 26px;
+      margin-bottom: 26px;
+
+      > .intro {
+         margin: 40px auto;
+         width: 570px;
+         font-family: $font-family--handwrited;
+         font-size: 64px;
+         text-align: center;
+         position: relative;
+      }
+
+      > .interactive {
+         width: 100%;
+         background-color: $text-description2-color;
+      }
+
+      &.feature {
+         margin-top: 260px;
+         display: flex;
+         flex-wrap: wrap-reverse;
+         align-items: center;
+         justify-content: center;
+         gap: 96px;
+
+         > .demo {
+            flex: 1;
+            width: 100%;
+            min-width: 500px;
+            max-width: 90vw;
+            max-height: 400px;
+         }
+
+         > .text {
+            width: 370px;
+
+            > .heading {
+               font-family: $font-family--handwrited;
+               font-size: 54px;
+               position: relative;
+            }
+
+            > .description {
+               margin-top: 40px;
+               font-size: 24px;
+               color: #2C2C2C;
+            }
+         }
+
+         &:nth-child(2n+1) {
+            flex-direction: row-reverse;
+         }
+      }
+
+      &.outro {
+         display: inline;
+         margin-top: 460px;
+         margin-bottom: 440px;
+         font-family: $font-family--handwrited;
+         font-size: 64px;
+         display: block;
+         text-align: center;
+
+         > .start,
+         > .end {
+            display: inline;
+            position: relative;
+         }
+
+         > .end {
+            font-size: 48px;
+            color: $accent1;
+         }
+      }
+   }
+
+
+
+   footer {
+      min-height: 500px;
+      max-width: $content-width;
+      margin: 0 auto;
+      padding-top: 55px;
+      display: flex;
+      justify-content: space-between;
+
+      > .brands {
+         min-width: min-content;
+         display: flex;
+         gap: 50px;
+         flex-direction: column;
+         flex: 1;
+      }
+
+      > .navs {
+         display: flex;
+         flex: 3;
+         justify-content: space-around;
+
+         > nav {
+            > h4 {
+               font-size: 20px;
+               font-weight: 600;
+               color: #31373E;
+               display: flex;
+               flex-direction: column;
+            }
+
+            > ul {
+               list-style: none;
+               margin: 0;
+               padding: 0;
+
+               > li {
+                  color: #31373E;
+                  text-decoration-line: underline;
+                  font-size: 20px;
+               }
+            }
+         }
+      }
+   }
+}

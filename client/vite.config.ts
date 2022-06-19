@@ -14,7 +14,7 @@ export default async ({ mode }: ConfigEnv) => {
 
    const commitDate = execSync('git log -1 --format=%cI').toString().trimEnd();
    const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trimEnd();
-   const commitHash = execSync('git rev-parse HEAD').toString().trimEnd();
+   const commitHash = execSync('git rev-parse --short HEAD').toString().trimEnd();
    const lastCommitMessage = execSync('git show -s --format=%s').toString().trimEnd();
 
    process.env.VITE_GIT_COMMIT_DATE = commitDate;
@@ -39,15 +39,14 @@ export default async ({ mode }: ConfigEnv) => {
          }
       },
       plugins: [
+         solidSvg(),
          solid({
-            hot: false,
+            hot: dev,
             dev: false,
             ssr: false,
          }),
-         solidSvg(),
          imagePresets(),
-         viteCompression({
-            disable: dev,
+         !dev && viteCompression({
             filter: /\.(js|mjs|json|css|html|woff2)$/i
          }),
          !dev && visualizer({
@@ -86,21 +85,23 @@ export default async ({ mode }: ConfigEnv) => {
          cssCodeSplit: true,
       },
       css: {
-         modules: {
-            // https://github.com/madyankin/postcss-modules
-            // generateScopedName: '[local]-[hash:base64:2]',
-            generateScopedName: '[local]',
-            localsConvention: 'camelCaseOnly',
-            scopeBehaviour: 'local',
-         },
+         modules: false,
+         // modules: {
+         //    // https://github.com/madyankin/postcss-modules
+         //    // generateScopedName: '[local]-[hash:base64:2]',
+         //    generateScopedName: '[local]',
+         //    localsConvention: 'camelCaseOnly',
+         //    scopeBehaviour: 'local',
+         // },
          postcss: {
-            plugins: []
+            plugins: [
+            ]
          },
-         preprocessorOptions: {
-            scss: {
-               includePaths: ['./styles']
-            }
-         }
+         // preprocessorOptions: {
+         //    scss: {
+         //       includePaths: ['./styles']
+         //    }
+         // }
       },
       resolve: {
          alias: [
@@ -111,9 +112,9 @@ export default async ({ mode }: ConfigEnv) => {
          ],
       },
    };
-   if (!dev) {
-      // @ts-ignore
-      config.css?.postcss.plugins.push(cssnanoPlugin());
-   }
+   // if (!dev) {
+   // @ts-ignore
+   config.css.postcss.plugins.push(cssnanoPlugin());
+   // }
    return config;
 };

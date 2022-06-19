@@ -1,0 +1,118 @@
+@import './vars.scss';
+@import './fonts.scss';
+
+.button {
+   outline: none;
+   border: none;
+   cursor: pointer;
+   background: $accent1;
+   border-radius: 7px;
+
+   font-family: Inter;
+   font-style: normal;
+   font-weight: 600;
+   font-size: 14px;
+   color: #ffffff;
+   text-align: center;
+
+   padding: 11px 17px;
+
+   &:disabled {
+      background: $accent1-semi;
+      cursor: not-allowed;
+   }
+}
+
+.text-input-group {
+   max-width: 360px;
+   position: relative;
+
+   label {
+      display: block;
+      @include text-description1;
+      font-weight: 500;
+      margin-bottom: 8px;
+   }
+
+   input.text-input {
+      all: initial;
+      box-sizing: border-box;
+
+      height: 41px;
+      padding-left: 12px;
+      padding-right: 26px;
+      width: 100%;
+
+      border: 0.5px solid $sec-grid-color;
+      border-radius: 4px;
+
+      @include text-regular;
+      font-weight: 600;
+
+      &::placeholder {
+         color: $sec-grid-color;
+      }
+
+      &:hover:not(&:focus):not(&:disabled) {
+         border-color: $accent1-semi;
+      }
+
+      &:focus {
+         border-color: $accent1;
+      }
+
+      &:disabled {
+         background: #d7dcdf0a;
+         color: rgba($color: $text-regular-color, $alpha: 0.7);
+         cursor: not-allowed;
+      }
+   }
+
+   .reset {
+      position: absolute;
+      bottom: 14px;
+      right: 11px;
+      cursor: pointer;
+   }
+}
+
+input[type='range'] {
+   $bg: #d7dcdf;
+   $active: #51575e;
+   accent-color: $active;
+}
+
+.page {
+   width: 100vw;
+   position: absolute;
+
+   &.colored {
+      background: orange;
+   }
+}
+
+hr {
+   border-color: $sec-grid-color;
+   border-style: solid;
+   margin: initial;
+   padding: initial;
+}
+
+
+// app
+body,
+html {
+   all: initial;
+   font-family: $font-family--default;
+}
+
+.top-bar {
+   height: 40px;
+   border-bottom: 1px solid #edf2f4;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 0 20px;
+   box-sizing: border-box;
+   z-index: 45;
+}

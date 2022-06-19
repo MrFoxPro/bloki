@@ -6,7 +6,11 @@
    "typescript.format.semicolons": "insert",
    "typescript.preferences.quoteStyle": "single",
    "typescript.format.enable": true,
-   "css.format.spaceAroundSelectorSeparator": true,
+   "scss.format.spaceAroundSelectorSeparator": true,
+   "scss.validate": true,
+   "editor.insertSpaces": true,
+   "editor.tabSize": 3,
+   "scss.format.enable": true,
    "vscode-color-picker.languages": [
       "typescript",
       "typescriptreact",

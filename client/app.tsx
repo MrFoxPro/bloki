@@ -1,38 +1,42 @@
+import '@/styles/app.scss';
+
 import { RouteDefinition, Router, useRoutes } from 'solid-app-router';
 import { render } from 'solid-js/web';
-import { BuildInfo } from './modules/build-info/build-info.component';
+import { useConsoleBuildInfo } from './lib/build-info';
 import { AppStoreProvider } from './modules/app.store';
 import { I18n } from './modules/i18n/i18n.module';
 import { ModalStoreProvider } from './modules/modals/modal';
 import { lazy } from 'solid-js';
 
-const MainPage = lazy(() => import('./pages/main.page'));
-const WelcomePage = lazy(() => import('./pages/welcome.page'));
+const LandingView = lazy(() => import('./views/landing/landing.view'));
+const MainView = lazy(() => import('./views/main/main.view'));
+const WelcomeView = lazy(() => import('./views/welcome/welcome.view'));
 
 const routes: RouteDefinition[] = [
    {
       path: '/',
-      component: MainPage,
+      component: LandingView,
    },
    {
       path: '/welcome',
-      component: WelcomePage,
+      component: WelcomeView,
       children: [
-         { path: '/', component: WelcomePage, },
-         { path: '/confirm', component: WelcomePage }
+         { path: '/', component: WelcomeView, },
+         { path: '/confirm', component: WelcomeView }
       ]
    },
    {
       path: '/docs',
-      component: MainPage,
+      component: MainView,
    },
    {
       path: '/docs/:docId',
-      component: MainPage,
+      component: MainView,
    },
 ];
 
 function App() {
+   useConsoleBuildInfo();
    const Routes = useRoutes(routes);
    return (
       <AppStoreProvider>
@@ -41,7 +45,6 @@ function App() {
                <Router>
                   <Routes />
                </Router>
-               <BuildInfo />
             </ModalStoreProvider>
          </I18n>
       </AppStoreProvider>

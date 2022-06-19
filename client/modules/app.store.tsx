@@ -10,33 +10,33 @@ export type AppStoreValues = {
 } & User;
 
 type AppStoreHandlers = {
-	setAppStore: SetStoreFunction<AppStoreValues>;
+   setAppStore: SetStoreFunction<AppStoreValues>;
 };
 
 const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>(
-	[
-		{
-			locale: null,
-			gridRenderMethod: GridRenderMethod.Canvas,
-		},
-		{
-			setAppStore: () => void 0,
-		}
-	]
+   [
+      {
+         locale: null,
+         gridRenderMethod: GridRenderMethod.Canvas,
+      },
+      {
+         setAppStore: () => void 0,
+      }
+   ]
 );
 
 type AppStoreProps = PropsWithChildren;
 
 export function AppStoreProvider(props: AppStoreProps) {
-	const [state, setAppStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
+   const [state, setAppStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
 
-	const [meResource] = createResource(() => gqlClient.me());
+   const [meResource] = createResource(() => gqlClient.me());
 
-	return (
-		<AppStore.Provider value={[state, { setAppStore, }]}>
-			{props.children}
-		</AppStore.Provider>
-	);
+   return (
+      <AppStore.Provider value={[state, { setAppStore, }]}>
+         {props.children}
+      </AppStore.Provider>
+   );
 }
 
 export const useAppStore = () => useContext(AppStore);
