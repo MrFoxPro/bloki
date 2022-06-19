@@ -83,7 +83,7 @@ input[type='range'] {
 }
 
 .page {
-   width: 100vw;
+   width: 100%;
    position: absolute;
 
    &.colored {
@@ -103,6 +103,8 @@ hr {
 body,
 html {
    all: initial;
+   // margin: 0;
+   // padding: 0;
    font-family: $font-family--default;
 }
 

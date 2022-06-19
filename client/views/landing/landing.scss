@@ -4,19 +4,16 @@
    background-color: #fafafa;
    $content-width: 1280px;
    background: url(./assets/background-bricks.svg) no-repeat -10px 50vh,
-               url(./assets/background-bricks.svg) no-repeat -10px 250vh;
+      url(./assets/background-bricks.svg) no-repeat -10px 250vh;
 
    > .page-content {
       margin: 0 auto;
       max-width: $content-width;
    }
 
-   .text-mark {
+   .decoration {
       position: absolute;
       pointer-events: none;
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
-      transition: stroke-dashoffset 1.5s;
 
       &.intro__place-word {
          top: -5px;
@@ -53,8 +50,14 @@
       }
 
       &.smile {
-         right: -80px;
+         right: -90px;
       }
+   }
+
+   .mark {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      transition: stroke-dashoffset 1.5s;
    }
 
    .page-header {
