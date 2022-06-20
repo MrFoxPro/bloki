@@ -11,14 +11,34 @@ import GithubIcon from '@/assets/images/github-logo.svg';
 import UnderLine1 from './assets/underline-1.svg';
 import UnderLine2 from './assets/underline-2.svg';
 import UnderLine3 from './assets/underline-3.svg';
+import ChangeThemeIcon from './assets/change-theme.svg';
+import BackgroundBricks from './assets/background-bricks.svg';
 import { langs } from '@/modules/i18n/i18n.module';
-import { For, onCleanup } from 'solid-js';
+import { createEffect, createSignal, For, onCleanup } from 'solid-js';
 import { useYandexMetrica } from '@/lib/ym';
 import { useNavigate } from 'solid-app-router';
+
+enum Theme {
+   Light = 'light',
+   Dark = 'dark'
+}
 
 export function LandingView() {
    useYandexMetrica();
    const navigate = useNavigate();
+   const [theme, setTheme] = createSignal(Theme.Light);
+
+   createEffect(() => {
+      if (matchMedia('(prefers-color-scheme: dark)').matches) {
+         setTheme(Theme.Dark);
+      }
+      window
+         .matchMedia('(prefers-color-scheme: dark)')
+         .addEventListener('change', event => {
+            const newColorScheme = event.matches ? Theme.Dark : Theme.Light;
+            setTheme(newColorScheme);
+         });
+   });
 
    function animatedash(el: HTMLElement, delay?: () => number) {
       const observer = new IntersectionObserver((e) => {
@@ -45,17 +65,25 @@ export function LandingView() {
    };
 
    return (
-      <div class='page landing'>
+      <div
+         class='page landing'
+         classList={{
+            [`theme-${theme()}`]: true
+         }}
+      >
+         <BackgroundBricks class='background-bricks' />
+         <BackgroundBricks class='background-bricks' />
+         <BackgroundBricks class='background-bricks' />
          <div class='page-content'>
             <div class='page-header'>
-               <LogoIcon class='logo' />
+               <LogoIcon class='logo' id='logo' width="122" />
                <div class='items-container'>
+                  <ChangeThemeIcon class='change-theme' onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')} />
                   <a class='login' onClick={() => navigate('/welcome')}>{t().login}</a>
                   <button class='button try' onClick={() => navigate('/docs')}>{t().try}</button>
                </div>
             </div>
          </div>
-         <hr />
          <div class='page-content'>
             <section>
                <div class='intro'>
@@ -144,15 +172,9 @@ export function LandingView() {
                </div>
             </section>
          </div>
-         <hr />
          <footer>
-            <div class='brands'>
-               <LogoDarkIcon />
-               <a href='https://github.com/MrFoxPro/bloki' target='_blank'>
-                  <GithubIcon />
-               </a>
-            </div>
             <div class='navs'>
+               <LogoDarkIcon class='logo' width='122px' />
                <For each={[
                   [t().footer.about, ['Пример'], UnderLine1],
                   [t().footer.product, ['Роадмап'], UnderLine2],
@@ -174,8 +196,12 @@ export function LandingView() {
                      )}
                </For>
             </div>
-         </footer >
-      </div >
+            <hr />
+            <a href='https://github.com/MrFoxPro/bloki' target='_blank' class='gh'>
+               <GithubIcon />
+            </a>
+         </footer>
+      </div>
    );
 }
 

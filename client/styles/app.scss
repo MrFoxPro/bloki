@@ -96,10 +96,11 @@ hr {
    border-style: solid;
    margin: initial;
    padding: initial;
+   border-width: 0;
+   height: 1px;
+   background: #E9EAEA;
 }
 
-
-// app
 body,
 html {
    all: initial;
