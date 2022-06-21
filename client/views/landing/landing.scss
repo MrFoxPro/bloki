@@ -23,13 +23,16 @@
    overflow: hidden;
 
    > .page-content {
+      z-index: 2;
       margin: 0 auto;
       max-width: $content-width;
+      position: relative;
    }
 
    > .background-bricks {
       position: absolute;
       color: var(--bg-bricks-color);
+      z-index: 1;
 
       &:nth-child(1) {
          top: 50vh;
