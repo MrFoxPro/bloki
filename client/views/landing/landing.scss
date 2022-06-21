@@ -1,6 +1,6 @@
 @import '@/styles/vars.scss';
 
-.theme-light {
+.theme.light {
    --page-bg-color: #fafafa;
    --text-regular-color: #000000;
    --text-description-color: #2c2c2c;
@@ -8,7 +8,7 @@
    --bg-bricks-color: #FAF3F3;
 }
 
-.theme-dark {
+.theme.dark {
    --page-bg-color: #31373E;
    --text-regular-color: #ffffff;
    --text-description-color: #FFFFFF;
@@ -252,6 +252,7 @@
             }
          }
       }
+
       .gh {
          color: var(--text-regular-color);
       }

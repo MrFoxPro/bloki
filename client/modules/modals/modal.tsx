@@ -30,9 +30,9 @@ export const ModalStoreProvider = (props) => {
 		<ModalContext.Provider value={createModal}>
 			{props.children}
 			<Show when={store.modal && store.useBlur}>
-				<div class={'blur'} onClick={() => store.canHide ? setStore({ modal: null, useBlur: false }) : null} />
+				<div class='blur' onClick={() => store.canHide ? setStore({ modal: null, useBlur: false }) : ''} />
 			</Show>
-			<div class={'modal'}>
+			<div class='modal'>
 				{store.modal}
 			</div>
 		</ModalContext.Provider>

@@ -7,6 +7,7 @@ import { AppStoreProvider } from './modules/app.store';
 import { I18n } from './modules/i18n/i18n.module';
 import { ModalStoreProvider } from './modules/modals/modal';
 import { lazy } from 'solid-js';
+import { ThemeContextProvider } from './modules/theme.store';
 
 const LandingView = lazy(() => import('./views/landing/landing.view'));
 const MainView = lazy(() => import('./views/main/main.view'));
@@ -26,11 +27,7 @@ const routes: RouteDefinition[] = [
       ]
    },
    {
-      path: '/docs',
-      component: MainView,
-   },
-   {
-      path: '/docs/:docId',
+      path: '/demo',
       component: MainView,
    },
 ];
@@ -41,11 +38,13 @@ function App() {
    return (
       <AppStoreProvider>
          <I18n>
-            <ModalStoreProvider>
-               <Router>
-                  <Routes />
-               </Router>
-            </ModalStoreProvider>
+            <ThemeContextProvider>
+               {/* <ModalStoreProvider> */}
+                  <Router>
+                     <Routes />
+                  </Router>
+               {/* </ModalStoreProvider> */}
+            </ThemeContextProvider>
          </I18n>
       </AppStoreProvider>
    );

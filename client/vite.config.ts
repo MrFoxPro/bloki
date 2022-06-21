@@ -42,7 +42,7 @@ export default async ({ mode }: ConfigEnv) => {
          solidSvg(),
          solid({
             hot: dev,
-            dev: false,
+            dev: dev,
             ssr: false,
          }),
          imagePresets(),

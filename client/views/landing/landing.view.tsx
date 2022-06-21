@@ -14,31 +14,16 @@ import UnderLine3 from './assets/underline-3.svg';
 import ChangeThemeIcon from './assets/change-theme.svg';
 import BackgroundBricks from './assets/background-bricks.svg';
 import { langs } from '@/modules/i18n/i18n.module';
-import { createEffect, createSignal, For, onCleanup } from 'solid-js';
+import { For, onCleanup } from 'solid-js';
 import { useYandexMetrica } from '@/lib/ym';
 import { useNavigate } from 'solid-app-router';
-
-enum Theme {
-   Light = 'light',
-   Dark = 'dark'
-}
+import { Theme, useThemes } from '@/modules/theme.store';
 
 export function LandingView() {
    useYandexMetrica();
    const navigate = useNavigate();
-   const [theme, setTheme] = createSignal(Theme.Light);
 
-   createEffect(() => {
-      if (matchMedia('(prefers-color-scheme: dark)').matches) {
-         setTheme(Theme.Dark);
-      }
-      window
-         .matchMedia('(prefers-color-scheme: dark)')
-         .addEventListener('change', event => {
-            const newColorScheme = event.matches ? Theme.Dark : Theme.Light;
-            setTheme(newColorScheme);
-         });
-   });
+   const { setTheme } = useThemes();
 
    function animatedash(el: HTMLElement, delay?: () => number) {
       const observer = new IntersectionObserver((e) => {
@@ -65,12 +50,7 @@ export function LandingView() {
    };
 
    return (
-      <div
-         class='page landing'
-         classList={{
-            [`theme-${theme()}`]: true
-         }}
-      >
+      <div class='page landing'>
          <BackgroundBricks class='background-bricks' />
          <BackgroundBricks class='background-bricks' />
          <BackgroundBricks class='background-bricks' />
@@ -78,9 +58,9 @@ export function LandingView() {
             <div class='page-header'>
                <LogoIcon class='logo' id='logo' width="122" />
                <div class='items-container'>
-                  <ChangeThemeIcon class='change-theme' onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')} />
+                  <ChangeThemeIcon class='change-theme' onClick={() => setTheme(t => t === Theme.Light ? Theme.Dark : Theme.Light)} />
                   <a class='login' onClick={() => navigate('/welcome')}>{t().login}</a>
-                  <button class='button try' onClick={() => navigate('/docs')}>{t().try}</button>
+                  <button class='button try' onClick={() => navigate('/demo')}>{t().try}</button>
                </div>
             </div>
          </div>

@@ -1,0 +1,92 @@
+.side-menu {
+   width: 250px;
+   min-width: 250px;
+   display: flex;
+   flex-direction: column;
+   align-items: stretch;
+
+   height: 100%;
+
+   font-family: Inter;
+   font-style: normal;
+   font-weight: 400;
+   font-size: 14px;
+   line-height: 16px;
+
+   color: #51575e;
+
+   border-right: 1px solid #EDF2F4;
+
+   background: #FAFAFA;
+}
+
+.workspace-bar {
+   // @apply .top-bar;
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   justify-content: flex-start;
+
+   .box {
+      min-width: 24px;
+      min-height: 24px;
+
+      border-radius: 6px;
+      background-size: contain;
+      background-position: center;
+      background-image: url('./assets/wsicon.png');
+   }
+
+   .title {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 18px;
+      color: #312F2F;
+   }
+
+   margin-bottom: 15px;
+}
+
+.menus {
+   width: 207px;
+   margin-left: #{24 - 3}px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 38px;
+
+   > .items > .item > span.text {
+      font-weight: 500;
+   }
+}
+
+.item.page {
+   > .icon {
+
+      &.arrow {
+         width: 10px;
+         height: 10px;
+         margin-left: 3px;
+      }
+   }
+
+   position: relative;
+
+   > .dots {
+      width: 22px;
+      height: 22px;
+      background-image: url(./assets/triple-dots.icon.svg);
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 4px;
+      position: absolute;
+      right: 3px;
+
+
+
+      &:hover {
+         background-color: #E2E2E2;
+      }
+   }
+}

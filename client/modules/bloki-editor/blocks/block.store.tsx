@@ -1,6 +1,6 @@
 import { useAppStore } from "@/modules/app.store";
 import { Roommate } from "@/lib/network.types";
-import { Accessor, createComputed, createContext, createEffect, createMemo, onCleanup, PropsWithChildren, useContext } from "solid-js";
+import { Accessor, createComputed, createContext, createEffect, createMemo, onCleanup, ParentProps, PropsWithChildren, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useDrawerStore } from "../drawer.store";
 import { useEditorStore } from "../editor.store";
@@ -89,7 +89,7 @@ type BlockContextHandlers<B extends AnyBlock = AnyBlock> = {
 
 const BlockContext = createContext<[BlockContextValues, BlockContextHandlers]>();
 
-type BlockStoreProviderProps = PropsWithChildren<{
+type BlockStoreProviderProps = ParentProps<{
 	block: AnyBlock;
 	shadowed?: boolean;
 }>;
@@ -294,7 +294,6 @@ export function BlockStoreProvider(props: BlockStoreProviderProps) {
 		}
 		dot.x -= (resState === DotState.Full ? 3 : 2);
 		dot.y -= (resState === DotState.Full ? 3 : 2);
-
 		setState('dot', {
 			state: resState,
 			x: dot.x,
