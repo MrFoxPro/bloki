@@ -1,19 +1,18 @@
 import './block.scss';
 
-import { ComponentProps, createEffect, For, Show, splitProps } from 'solid-js';
+import { ComponentProps, For, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { useEditorStore } from '../editor.store';
 import { TextBlock } from './text/text.block.component';
 import { ImageBlock } from './image/image.block';
 import HandyIcon from './assets/handy.svg';
 import { BlockType } from '../types/blocks';
-import { BlockStoreProvider, CursorSide, DotState, useBlockStore } from './block.store';
+import { BlockStoreProvider, CursorSide, useBlockStore } from './block.store';
 import { CodeBlock } from './code/code.block.component';
 import { EditType } from '../types/editor';
 
 const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.Image]: ImageBlock,
-
    [BlockType.Description]: TextBlock,
    [BlockType.Regular]: TextBlock,
    [BlockType.H1]: TextBlock,
@@ -95,24 +94,6 @@ function Block() {
                onContextMenu={onHandyContextMenu}
             />
          </div>
-         <Show when={blockState.dot.state !== DotState.None}>
-            <div
-               class="dot-wrapper"
-               style={{
-                  transform: `translate(${blockState.dot.x}px, ${blockState.dot.y}px)`,
-               }}
-            >
-               <div
-                  class="sizedot"
-                  classList={{
-                     "expand": blockState.dot.state === DotState.Full,
-                  }}
-                  style={{
-                     transform: `scale(${blockState.dot.state === DotState.Full ? 2.2 : 1})`,
-                  }}
-               />
-            </div>
-         </Show>
          {/* This overlay helps with preveinting mouseenter on firing on child elements */}
          <div
             class="overlay"

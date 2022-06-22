@@ -2,11 +2,11 @@ import './bloki-editor.scss';
 
 import { createEffect, For, mergeProps, on, onCleanup, onMount, Show } from 'solid-js';
 import { useEditorStore } from './editor.store';
-import { Block } from './blocks/block.component';
+import { Block } from './blocks/block';
 import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
 import { getAsString, getGoodImageRelativeSize, toBase64 } from './helpers';
 import { TextBlockFontFamily } from './blocks/text/types';
-import { Backlight } from './backlight/backlight';
+import { BlokiCanvasGrid } from './backlight/backglight';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer';
 import { useDrawerStore } from './drawer.store';
@@ -249,7 +249,7 @@ function BlokiEditor(props: BlokiEditorProps) {
 							)}
 						</For>
 					</div>  */}
-            <Backlight type={props.gridType} />
+            <BlokiCanvasGrid />
             <div
                class="grid foreground"
                style={{
