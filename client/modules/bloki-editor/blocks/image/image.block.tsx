@@ -1,53 +1,17 @@
 import './image.block.scss';
-
-import { ComponentProps, createComputed, createEffect, Match, on, splitProps, Switch } from 'solid-js';
+import { ComponentProps, createComputed, createEffect, Match, on, Switch } from 'solid-js';
 import { Dimension, ImageBlock as ImageBlockEntity } from '@/modules/bloki-editor/types/blocks';
-import { useBlockStore } from '../block.store';
 import { useEditorStore } from '../../editor.store';
 import { getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
+import { CommonContentProps, useBlockContext } from '../base.block';
 
 type ImageBlockProps = {
-} & ComponentProps<'img'>;
+} & CommonContentProps;
 
 export function ImageBlock(props: ImageBlockProps) {
-   const [local, other] = splitProps(props, []);
 
    const [, { gridSize }] = useEditorStore();
-   const [, { shadowed, block, isMeResizing, isMeDragging, blockData, isMeEditingByRoommate }] = useBlockStore<ImageBlockEntity>();
-
-   if (shadowed) {
-      return (
-         <div class='img-block shadowed'>
-            <Switch>
-               <Match when={block.value}>
-                  <img
-                     src={block.value}
-                     {...other}
-                  />
-               </Match>
-               <Match when={!block.value}>
-                  <div class="mock">
-                     <div class="dnd">
-                        <div class="pic" />
-                        <div class="ask">{'blocks.attachments.image.mock.ask'}</div>
-                        <div class="orDrop">{'blocks.attachments.image.mock.or-drag'}</div>
-                     </div>
-                     <div class="input-block">
-                        <div class="name">
-                           {'blocks.attachments.image.mock.or-link'}
-                        </div>
-                        <input
-                           type="url"
-                           class="link"
-                           placeholder={"https://cstor.nn2.ru/forum/data/forum/files/2014-12/108480959-9743143_original-1-.jpg"}
-                        />
-                     </div>
-                  </div>
-               </Match>
-            </Switch>
-         </div>
-      );
-   }
+   const [, { block, isMeResizing, isMeDragging, isMeEditingByRoommate }] = useBlockContext<ImageBlockEntity>();
    const [editorStore, { setEditorStore }] = useEditorStore();
 
    let imgRef: HTMLImageElement;
@@ -82,7 +46,7 @@ export function ImageBlock(props: ImageBlockProps) {
       };
    }
    createComputed(() => {
-      blockData.getContentDimension = getContentDimension;
+      props.wrapGetContentDimension(getContentDimension);
    });
 
    createEffect(on(
@@ -153,13 +117,11 @@ export function ImageBlock(props: ImageBlockProps) {
    //    tryToSetUrlImage(text);
    // }, 1000);
 
-
    return (
       <div
-         class="img-block"
+         class="content img-block"
          classList={{
             'changing': isMeResizing() || isMeDragging(),
-            'shadowed': shadowed,
          }}
       >
          <Switch>
@@ -168,8 +130,7 @@ export function ImageBlock(props: ImageBlockProps) {
                   src={block.value}
                   onKeyDown={onKeyDown}
                   ref={imgRef}
-                  // onPaste={onPaste}
-                  {...other}
+               // onPaste={onPaste}
                />
             </Match>
             <Match when={!block.value}>

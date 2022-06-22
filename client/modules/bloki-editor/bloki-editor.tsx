@@ -1,27 +1,20 @@
 import './bloki-editor.scss';
-
-import { createEffect, For, mergeProps, on, onCleanup, onMount, Show } from 'solid-js';
+import { createEffect, For, on, onCleanup, onMount, Show } from 'solid-js';
 import { useEditorStore } from './editor.store';
-import { Block } from './blocks/block';
+import { Block, GhostBlock } from './blocks/base.block';
 import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
 import { getAsString, getGoodImageRelativeSize, toBase64 } from './helpers';
 import { TextBlockFontFamily } from './blocks/text/types';
-import { BlokiCanvasGrid } from './backlight/backglight';
+import { Backlight } from './backlight/backglight';
 import { BlockContextMenu } from './context-menu/context-menu.component';
 import { Drawer } from './drawer/drawer';
 import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
-// import { WSMsgType } from '@/lib/network.types';
 // import { Cursors } from '../collab/cursors/cursors.component';
 
 type BlokiEditorProps = {
-   gridType?: 'dom' | 'canvas';
 };
 function BlokiEditor(props: BlokiEditorProps) {
-   props = mergeProps({
-      gridType: 'canvas'
-   }, props);
-
    let containerRef: HTMLDivElement;
    let wrapperRef: HTMLDivElement;
    const [
@@ -201,7 +194,6 @@ function BlokiEditor(props: BlokiEditorProps) {
 
       onCleanup(() => {
          wrapperRef.removeEventListener('scroll', calculateBoxRect);
-
          window.removeEventListener('resize', calculateBoxRect);
          window.removeEventListener('keydown', onKeyDown);
          wrapperRef.removeEventListener('paste', onPaste);
@@ -249,7 +241,7 @@ function BlokiEditor(props: BlokiEditorProps) {
 							)}
 						</For>
 					</div>  */}
-            <BlokiCanvasGrid />
+            <Backlight />
             <div
                class="grid foreground"
                style={{
@@ -279,7 +271,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                )}
             </For>
             <Show when={store.editingType === EditType.Drag}>
-               <Block block={store.editingBlock} shadowed />
+               <GhostBlock blockId={/*@once*/store.editingBlock.id} />
             </Show>
             <Drawer />
             <BlockContextMenu />

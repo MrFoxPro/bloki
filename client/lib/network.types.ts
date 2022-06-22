@@ -1,20 +1,6 @@
 import { BlockTransform, PlacementStatus } from "@/modules/bloki-editor/types/blocks";
 import { EditType } from "@/modules/bloki-editor/types/editor";
 
-export enum WSMsgType {
-   Join = 1,
-   CursorUpdate,
-   Roommates,
-   Blob,
-   Layout,
-   ChangeEnd,
-   SelectBlock,
-   CreateBlock,
-   DeleteBlock,
-   ChangeBlock,
-}
-export type WSMsg = { type: WSMsgType; data: any; };
-
 export type Roommate = {
    name: string;
    color: string;

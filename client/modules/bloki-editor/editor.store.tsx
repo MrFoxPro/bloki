@@ -1,6 +1,6 @@
 import { Accessor, batch, createComputed, createContext, createMemo, mergeProps, ParentProps, useContext } from "solid-js";
 import { createNanoEvents, Emitter } from 'nanoevents';
-import { createStore, reconcile, SetStoreFunction } from "solid-js/store";
+import { createStore, SetStoreFunction } from "solid-js/store";
 import {
    AnyBlock,
    BlockTransform,
@@ -10,7 +10,7 @@ import {
 } from "./types/blocks";
 import { EditType, Instrument } from "./types/editor";
 import { checkPlacement as checkPlacementHelper } from "./helpers";
-import { ChangeEventInfo, Roommate, WSMsg, WSMsgType } from "@/lib/network.types";
+import { ChangeEventInfo, Roommate } from "@/lib/network.types";
 import { useAppStore } from "@/modules/app.store";
 import { useDrawerStore } from "./drawer.store";
 import { BlokiDocument } from '@/lib/schema.auto';
@@ -258,157 +258,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       setEditorStore('layout', blocks => blocks.filter(b => b.id !== block.id));
       // send(WSMsgType.DeleteBlock, block.id);
    }
-   let ws: WebSocket;
-
-   // function send(type: WSMsgType, data: any = {}) {
-   //    if (!ws) return;
-   //    if (ws.readyState === ws.CONNECTING) {
-   //       setTimeout(() => send(type, data), 400);
-   //       return;
-   //    }
-   //    const serialized = JSON.stringify({ type, data } as WSMsg);
-   //    ws.send(serialized);
-   // }
-
-   function onMessage(ev: MessageEvent) {
-      if (!ev.data) return;
-
-      if (ev.data instanceof Blob) {
-         setDrawerStore({ blob: ev.data });
-         return;
-      }
-      const msg = JSON.parse(ev.data) as WSMsg;
-      if (!msg) return;
-
-      const { type, data } = msg;
-      if (type == null) return;
-
-      switch (msg.type) {
-         case WSMsgType.Roommates: {
-            setEditorStore('rommates', data);
-            break;
-         }
-         case WSMsgType.CursorUpdate: {
-            setEditorStore('rommates', rm => rm.name === data.name, {
-               cursor: data.cursor,
-               color: data.color
-            });
-            break;
-         }
-         case WSMsgType.Layout: {
-            console.log('resetting layout');
-            setEditorStore('layout', reconcile(data));
-            break;
-         }
-         case WSMsgType.ChangeEnd: {
-            const block = data as AnyBlock;
-            if (!block) return;
-            setEditorStore('layout', b => b.id === block.id, block);
-            break;
-         }
-         case WSMsgType.CreateBlock: {
-            const block = data as AnyBlock;
-            if (!block) return;
-            setEditorStore('layout', l => l.concat(block));
-            break;
-         }
-         case WSMsgType.DeleteBlock: {
-            const blockId = data as string;
-            if (!blockId) return;
-            setEditorStore('layout', l => l.filter(x => x.id !== blockId));
-            break;
-         }
-         case WSMsgType.ChangeBlock: {
-            const block = data as AnyBlock;
-            if (!block) return;
-            setEditorStore('layout', b => b.id === block.id, reconcile(block));
-            break;
-         }
-         default:
-            console.warn('Unknown message type');
-            break;
-      }
-   }
-
-   // const sendMouse = throttle((e: MouseEvent) => {
-   //    const wp = document.getElementById('wrapper');
-   //    const rect = wp.getBoundingClientRect();
-   //    setEditorStore({
-   //       cursor: {
-   //          x: e.clientX - staticEditorData.containerRect.x,
-   //          y: e.clientY + wp.scrollTop - rect.y,
-   //       }
-   //    });
-   // }, CURSOR_UPDATE_RATE, { leading: false, trailing: true });
-
-   // function disconnect() {
-   //    ws?.close();
-   //    ws = null;
-   //    document.removeEventListener('mousemove', sendMouse);
-   //    console.log('Disconnected!');
-   // }
-
-   // createEffect(() => {
-   //    if (editor.document.id && app.name) {
-   //       if (editor.document.shared) {
-   //          if (ws && ws.readyState !== ws.CLOSED) disconnect();
-
-   //          ws = new WebSocket(wsHost + '/' + editor.document.id);
-   //          ws.onopen = function () {
-   //             console.log('Connected to document server', untrack(() => editor.document.title));
-   //             setEditorStore({
-   //                connected: true
-   //             });
-   //          };
-
-   //          ws.onmessage = onMessage;
-   //          ws.onerror = (e) => {
-   //             console.warn('Socket error', e);
-   //             setEditorStore({ connected: false });
-   //          };
-   //          ws.onclose = () => {
-   //             if (!ws || ws.readyState === ws.CLOSED) {
-   //                setEditorStore({ connected: false });
-   //             }
-   //          };
-   //          document.addEventListener('mousemove', sendMouse);
-
-   //          send(WSMsgType.Join, {
-   //             name: app.name,
-   //             cursor: untrack(() => editor.cursor),
-   //             workingBlockId: untrack(() => editor.editingBlock?.id)
-   //          });
-   //       }
-   //       else {
-   //          disconnect();
-   //       }
-   //    }
-   // });
-
-   // createEffect(() => {
-   //    if (!editor.connected) return;
-   //    send(WSMsgType.CursorUpdate, { cursor: editor.cursor });
-   // });
-
-   // function sendRaw(b: Buffer) {
-   //    if (ws.readyState === ws.CONNECTING) {
-   //       setTimeout(() => sendRaw(b), 400);
-   //       return;
-   //    }
-   //    ws.send(b);
-   // }
-
-   // createEffect(() => {
-   //    send(WSMsgType.SelectBlock, editor.editingBlock?.id);
-   // });
-   // onMount(() => {
-   //    (window as any).layout = () => console.log(unwrap(editor.layout));
-   // });
-   // onCleanup(() => {
-   //    ws?.close();
-   //    document.removeEventListener('mousemove', sendMouse);
-   // });
-
 
    return (
       <EditorStore.Provider value={[

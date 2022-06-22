@@ -5,37 +5,14 @@ import { useEditorStore } from '../../editor.store';
 import { Dimension } from '../../types/blocks';
 import { TextBlockFontFamily, TextTypes } from './types';
 import { getTextBlockSize, measurer } from './helpers';
-import { useBlockStore } from '../block.store';
-import { WSMsgType } from '@/lib/network.types';
-import { unwrap } from 'solid-js/store';
-
+import { CommonContentProps, useBlockContext } from '../base.block';
 
 type TextBlockProps = {
-} & ComponentProps<'div'>;
+} & CommonContentProps;
 
 export function TextBlock(props: TextBlockProps) {
    const [editor, { setEditorStore, gridSize, checkPlacement }] = useEditorStore();
-   const [blockStore, { isMeOverflowing, shadowed, block, blockData, isEditingContent }] = useBlockStore<TextBlockEntity>();
-
-   const [local, other] = splitProps(props, []);
-
-   if (shadowed) {
-      const textSettings = TextTypes[block.type];
-      return (
-         <div
-            class="content shadow"
-            style={{
-               "font-family": block.fontFamily ?? TextBlockFontFamily.Inter,
-               "font-size": textSettings.fontSize + 'px',
-               "font-weight": textSettings.fontWeight,
-               "line-height": textSettings.lineHeight + 'px',
-            }}
-            {...other}
-         >
-            {untrack(() => block.value)}
-         </div>
-      );
-   }
+   const [blockState, { isMeOverflowing, block, isEditingContent }] = useBlockContext<TextBlockEntity>();
 
    let contentRef: HTMLDivElement;
    let minTextWidth = 0;
@@ -96,7 +73,8 @@ export function TextBlock(props: TextBlockProps) {
    }
 
    onMount(() => {
-      blockData.getContentDimension = getContentDimension;
+      // (props.ref as any).getContentDimension = getContentDimension;
+      props.wrapGetContentDimension(getContentDimension);
    });
 
    createEffect(on(() => block.value,
@@ -154,32 +132,6 @@ export function TextBlock(props: TextBlockProps) {
       // send(WSMsgType.ChangeBlock, unwrap(block));
    }
 
-   function onKeyDown(e: KeyboardEvent) {
-      const text = contentRef.textContent;
-      let maxWidth = block.width;
-
-      const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions, maxWidth);
-
-      let newWidth = boundSize.width;
-      if (block.width === editor.document.layoutOptions.mGridWidth) {
-         newWidth = editor.document.layoutOptions.mGridWidth;
-      }
-      let newHeight = boundSize.height;
-
-      const { correct } = checkPlacement(block, block.x, block.y, newWidth, newHeight);
-      if (!correct) {
-         e.preventDefault();
-         console.log('cant type more');
-         return false;
-      }
-
-      setEditorStore('layout', editor.layout.indexOf(block), {
-         width: newWidth,
-         height: newHeight,
-         value: text,
-      });
-   }
-
    function onPaste(e: ClipboardEvent) {
       e.stopPropagation();
       e.preventDefault();
@@ -188,21 +140,17 @@ export function TextBlock(props: TextBlockProps) {
       return false;
    }
 
-
    return (
       <div
          class="content"
          style={{
-            // 'word-break': 'break-word',
-            // 'white-space': 'normal',
             "font-family": block.fontFamily ?? TextBlockFontFamily.Inter,
             "font-size": textSettings().fontSize + 'px',
             "font-weight": textSettings().fontWeight,
             "line-height": textSettings().lineHeight + 'px',
-            "color": block.color ?? textSettings().color ?? 'initial',
          }}
          classList={{
-            "show-placeholder": !block.value && blockStore.transform.width / gridSize(1) > 7,
+            "show-placeholder": !block.value && blockState.transform.width / gridSize(1) > 7,
             "overflowing": isMeOverflowing()
          }}
          data-placeholder={"blocks.text.placeholder"}
@@ -211,7 +159,6 @@ export function TextBlock(props: TextBlockProps) {
          onInput={onTextInput}
          // onKeyDown={onKeyDown}
          onPaste={onPaste}
-         {...other}
       >{untrack(() => block.value)}</div>
    );
 }

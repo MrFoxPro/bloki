@@ -173,27 +173,3 @@
 		}
 	}
 }
-
-.dot-wrapper {
-	position: absolute;
-	z-index: 5;
-
-	.sizedot {
-		width: 5px;
-		height: 5px;
-		outline: 0.5px solid transparent;
-		outline-offset: -0.5px;
-		// border: 0.5px solid transparent;
-		border-radius: 50%;
-		background: #4281fa;
-		transform-origin: center;
-		transition: transform 100ms linear;
-		pointer-events: none;
-
-		&.expand {
-			background: white;
-			outline-color: #4281fa;
-			// border-color: #4281fa;
-		}
-	}
-}

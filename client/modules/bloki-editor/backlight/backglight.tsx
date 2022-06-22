@@ -7,7 +7,7 @@ import { createEffect, onCleanup, onMount } from 'solid-js';
 import { isInsideRect } from '../helpers';
 import { EditType } from '../types/editor';
 
-export function BlokiCanvasGrid() {
+export function Backlight() {
    let backlightCanvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
    const [store, { gridSize, realSize, staticEditorData }] = useEditorStore();
@@ -110,6 +110,7 @@ export function BlokiCanvasGrid() {
       ctx.arcTo(x, y, x + width, y, radius);
       ctx.closePath();
    }
+
    function drawArea(transform, cellState) {
       const { x, y, width, height } = transform;
       const { gap, size } = store.document.layoutOptions;
@@ -125,6 +126,7 @@ export function BlokiCanvasGrid() {
          }
       }
    }
+
    function clearArea(transform: BlockTransform) {
       const { gap } = store.document.layoutOptions;
       const { x, y, width, height } = transform;
