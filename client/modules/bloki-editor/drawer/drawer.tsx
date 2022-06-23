@@ -19,8 +19,10 @@ const instrumentCursorMap = {
    [Instrument.Marker]: MarkerCursor
 } as const;
 
+type DrawerProps = {
+};
 // TODO: Refactor this!!!
-export function Drawer() {
+export function Drawer(props: DrawerProps) {
    let canvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
 
@@ -29,11 +31,11 @@ export function Drawer() {
       x: 0,
       y: 0,
    };
-   const [editor, { realSize, staticEditorData, setEditorState: setEditorStore }] = useEditorContext();
+   const [editor, { realSize, setEditorState }] = useEditorContext();
    const [drawer, { setDrawerStore }] = useDrawerStore();
    createComputed(() => {
       if (drawer.instrument !== Instrument.Cursor) {
-         setEditorStore({ editingBlock: null, editingType: null });
+         setEditorState({ editingBlock: null, editingType: null });
       }
    });
 
@@ -105,8 +107,8 @@ export function Drawer() {
       }
       if (!currentDrawing) return;
 
-      lastPos.x = e.pageX - staticEditorData.containerRect.x + cursorOffset.x;
-      lastPos.y = e.pageY - staticEditorData.containerRect.y + cursorOffset.y;
+      lastPos.x = e.offsetX + cursorOffset.x;
+      lastPos.y = e.offsetY + cursorOffset.y;
       applyDrawing(ctx, currentDrawing);
    }
 
@@ -116,8 +118,8 @@ export function Drawer() {
       if (!isMouseDown) return;
 
       const point = {
-         x: e.pageX - staticEditorData.containerRect.x + cursorOffset.x,
-         y: e.pageY - staticEditorData.containerRect.y + cursorOffset.y
+         x: e.offsetX + cursorOffset.x,
+         y: e.offsetY + cursorOffset.y
       };
       wasDrawing = true;
       if (currentDrawing instanceof MarkerDrawing) {
@@ -145,7 +147,7 @@ export function Drawer() {
       }
       // if (currentDrawing) {
 
-      // setEditorStore('document', 'whiteboard', 'drawings', drawings => drawings.concat(currentDrawing));
+      // setEditorState('document', 'whiteboard', 'drawings', drawings => drawings.concat(currentDrawing));
 
       // if (rasterizeDrawingsTimeout) clearTimeout(rasterizeDrawingsTimeout);
       // rasterizeDrawingsTimeout = setTimeout(processDrawings, RASTERIZE_TIMEOUT);
@@ -165,8 +167,8 @@ export function Drawer() {
 
       // }
 
-      // setEditorStore('document', 'whiteboard', 'drawings', []);
-      // setEditorStore('document', 'whiteboard', 'blobUrl', imageObjectUrl);
+      // setEditorState('document', 'whiteboard', 'drawings', []);
+      // setEditorState('document', 'whiteboard', 'blobUrl', imageObjectUrl);
 
 
       // app.apiProvider.updateDocument(editorStore.document);
