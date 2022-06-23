@@ -10,7 +10,7 @@ import { EditType } from '../types/editor';
 export function Backlight() {
    let backlightCanvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
-   const [store, { gridSize, realSize, staticEditorData }] = useEditorStore();
+   const [store, { gridSize, realSize }] = useEditorStore();
 
    createEffect(() => {
       if (backlightCanvasRef) {
@@ -51,52 +51,52 @@ export function Backlight() {
       let prevPlacement: PlacementStatus = null;
       let prevRelTransform: BlockTransform = null;
 
-      const unbindChangeEnd = staticEditorData.on('changeend', function () {
-         if (prevRelTransform) {
-            clearProjection(prevRelTransform, prevPlacement);
-            prevPlacement = null;
-            prevRelTransform = null;
-         }
-      });
+      // const unbindChangeEnd = staticEditorData.on('changeend', function () {
+      //    if (prevRelTransform) {
+      //       clearProjection(prevRelTransform, prevPlacement);
+      //       prevPlacement = null;
+      //       prevRelTransform = null;
+      //    }
+      // });
 
       // It's very cpu ineffective to use createEffect(on()) here
       // IDK how to implement performant solution here
-      const unbindChange = staticEditorData.on('change', function (_, { placement, relTransform }) {
-         if (store.editingBlock === null || (![EditType.Resize, EditType.Drag].includes(store.editingType))) return;
-         if (prevRelTransform &&
-            prevRelTransform.x === relTransform.x &&
-            prevRelTransform.y === relTransform.y &&
-            prevRelTransform.height === relTransform.height &&
-            prevRelTransform.width === relTransform.width
-         ) {
-            // Skip unwanted updates
-            return;
-         }
-         if (prevRelTransform && prevPlacement) {
-            clearProjection(prevRelTransform, prevPlacement);
-         }
-         drawProjection(relTransform, placement);
+      // const unbindChange = staticEditorData.on('change', function (_, { placement, relTransform }) {
+      //    if (store.editingBlock === null || (![EditType.Resize, EditType.Drag].includes(store.editingType))) return;
+      //    if (prevRelTransform &&
+      //       prevRelTransform.x === relTransform.x &&
+      //       prevRelTransform.y === relTransform.y &&
+      //       prevRelTransform.height === relTransform.height &&
+      //       prevRelTransform.width === relTransform.width
+      //    ) {
+      //       // Skip unwanted updates
+      //       return;
+      //    }
+      //    if (prevRelTransform && prevPlacement) {
+      //       clearProjection(prevRelTransform, prevPlacement);
+      //    }
+      //    drawProjection(relTransform, placement);
 
-         prevPlacement = placement;
-         prevRelTransform = relTransform;
-      });
+      //    prevPlacement = placement;
+      //    prevRelTransform = relTransform;
+      // });
 
-      let prevTransform: BlockTransform = null;
-      const unbindGridMouseMove = staticEditorData.on('maingridcursormoved', function (transform, isOut) {
-         prevTransform && clearArea(prevTransform);
-         if (isOut) {
-            prevTransform = null;
-            return;
-         }
-         drawArea(transform, CellState.Free);
-         prevTransform = transform;
-      });
+      // let prevTransform: BlockTransform = null;
+      // const unbindGridMouseMove = staticEditorData.on('maingridcursormoved', function (transform, isOut) {
+      //    prevTransform && clearArea(prevTransform);
+      //    if (isOut) {
+      //       prevTransform = null;
+      //       return;
+      //    }
+      //    drawArea(transform, CellState.Free);
+      //    prevTransform = transform;
+      // });
 
-      onCleanup(() => {
-         unbindGridMouseMove();
-         unbindChange();
-         unbindChangeEnd();
-      });
+      // onCleanup(() => {
+      //    unbindGridMouseMove();
+      //    unbindChange();
+      //    unbindChangeEnd();
+      // });
    });
 
    function roundRect(x: number, y: number, width: number, height: number, radius: number = 4) {

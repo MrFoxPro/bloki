@@ -41,7 +41,7 @@ export default async ({ mode }: ConfigEnv) => {
       plugins: [
          solidSvg(),
          solid({
-            hot: dev,
+            hot: false,
             dev: dev,
             ssr: false,
          }),

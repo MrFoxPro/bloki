@@ -6,21 +6,20 @@ import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } fr
 import { getAsString, getGoodImageRelativeSize, toBase64 } from './helpers';
 import { TextBlockFontFamily } from './blocks/text/types';
 import { Backlight } from './backlight/backglight';
-import { BlockContextMenu } from './context-menu/context-menu.component';
+import { BlockContextMenu } from './context-menu/context-menu';
 import { Drawer } from './drawer/drawer';
 import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
+import { Refs } from '@solid-primitives/refs';
 // import { Cursors } from '../collab/cursors/cursors.component';
 
 type BlokiEditorProps = {
 };
 function BlokiEditor(props: BlokiEditorProps) {
-   let containerRef: HTMLDivElement;
    let wrapperRef: HTMLDivElement;
    const [
       store,
       {
-         staticEditorData,
          realSize,
          selectBlock,
          setEditorStore,
@@ -29,15 +28,10 @@ function BlokiEditor(props: BlokiEditorProps) {
       }
    ] = useEditorStore();
    const [drawerStore] = useDrawerStore();
-
    const GRID_COLOR_CELL = '#ffae0020';
+   let containerRef: HTMLDivElement;
 
-   function calculateBoxRect() {
-      if (!containerRef) return;
-      const containerRect = containerRef.getBoundingClientRect();
-      staticEditorData.containerRect = containerRect;
-      staticEditorData.emit('containerrectchanged', containerRect);
-   };
+   // const blocksDomMap = new WeakMap<AnyBlock, HTMLElement>();
 
    function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
@@ -89,18 +83,19 @@ function BlokiEditor(props: BlokiEditorProps) {
 
    function onMainGridMouseMove(e: MouseEvent) {
       if (store.editingType) return;
-      const { y } = getRelativePosition(e.pageX - staticEditorData.containerRect.x, e.pageY - staticEditorData.containerRect.y);
+      // console.log(e.screenX, e.pageX, e.clientX, e.offsetX);
+      const { y } = getRelativePosition(e.offsetX, e.offsetY);
       const { mGridWidth, fGridWidth } = store.document.layoutOptions;
       const x = (fGridWidth - mGridWidth) / 2;
       const block = { x, y, width: mGridWidth, height: 1 };
-      const { correct } = checkPlacement(block);
-      if (correct) {
-         staticEditorData.emit('maingridcursormoved', block, false);
-      }
+      // const { correct } = checkPlacement(block);
+      // if (correct) {
+      //    staticEditorData.emit('maingridcursormoved', block, false);
+      // }
    }
 
    function onMainGridMouseOut(e: MouseEvent) {
-      staticEditorData.emit('maingridcursormoved', null, true);
+      // staticEditorData.emit('maingridcursormoved', null, true);
    }
 
    const pasteError = () => alert('We are allowing only images pasted from other internet sources!');
@@ -149,7 +144,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          selectBlock(null);
          return;
       }
-      let { x, y } = getRelativePosition(e.pageX - staticEditorData.containerRect.x, e.pageY - staticEditorData.containerRect.y);
+      let { x, y } = getRelativePosition(e.offsetX, e.offsetY);
 
       const { mGridWidth, fGridWidth } = store.document.layoutOptions;
       if (grid === 'main') {
@@ -185,23 +180,14 @@ function BlokiEditor(props: BlokiEditorProps) {
    }
 
    onMount(() => {
-      calculateBoxRect();
-      wrapperRef.addEventListener('scroll', calculateBoxRect, { passive: true });
-
-      window.addEventListener('resize', calculateBoxRect);
       window.addEventListener('keydown', onKeyDown);
       wrapperRef.addEventListener('paste', onPaste);
-
       onCleanup(() => {
-         wrapperRef.removeEventListener('scroll', calculateBoxRect);
-         window.removeEventListener('resize', calculateBoxRect);
          window.removeEventListener('keydown', onKeyDown);
          wrapperRef.removeEventListener('paste', onPaste);
       });
 
    });
-
-   createEffect(on(() => JSON.stringify(store.document.layoutOptions), calculateBoxRect));
 
    return (
       <div
@@ -267,11 +253,14 @@ function BlokiEditor(props: BlokiEditorProps) {
             />
             <For each={store.layout}>
                {(block) => (
-                  <Block block={block} />
+                  <Block
+                     block={block}
+                     containerRef={/*@once*/containerRef}
+                  />
                )}
             </For>
             <Show when={store.editingType === EditType.Drag}>
-               <GhostBlock blockId={/*@once*/store.editingBlock.id} />
+               <GhostBlock blockRef={/*@once*/document.getElementById(store.editingBlock.id)} />
             </Show>
             <Drawer />
             <BlockContextMenu />

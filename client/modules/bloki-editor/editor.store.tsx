@@ -18,18 +18,15 @@ import { BlokiDocument } from '@/lib/schema.auto';
 type EditorStoreValues = {
    editingBlock: AnyBlock | null;
    editingType: EditType | null;
-
    selectedBlocks: AnyBlock[];
    overflowedBlocks: AnyBlock[];
    isPlacementCorrect: boolean;
    document: BlokiDocument;
    layout: AnyBlock[];
    showContextMenu: boolean;
-
    rommates: Roommate[];
    cursor: Point;
    connected: boolean;
-
 };
 
 type CalculatedSize = {
@@ -45,30 +42,6 @@ type CalculatedSize = {
    mGridWidth_px: string;
    mGridHeight_px: string;
 };
-
-interface EditorEvents {
-   changestart(block: AnyBlock, changeInfo: ChangeEventInfo): void;
-   change(block: AnyBlock, changeInfo: ChangeEventInfo): void;
-   changeend(block: AnyBlock, changeInfo: ChangeEventInfo): void;
-   containerrectchanged(rect: DOMRect): void;
-   maingridcursormoved(block: BlockTransform, isOut: boolean): void;
-}
-
-class StaticEditorData {
-   private emitter: Emitter<EditorEvents>;
-   public containerRect: DOMRect;
-   constructor() {
-      this.emitter = createNanoEvents<EditorEvents>();
-   }
-
-   on<E extends keyof EditorEvents>(event: E, callback: EditorEvents[E]) {
-      return this.emitter.on(event, callback);
-   }
-
-   emit<K extends keyof EditorEvents>(event: K, ...args: Parameters<EditorEvents[K]>) {
-      return this.emitter.emit(event, ...args);
-   }
-}
 
 type ChangeHandler = (block: AnyBlock, absTransform: BlockTransform, type: EditType) => void;
 
@@ -89,7 +62,6 @@ type EditorStoreHandles = {
    deleteBlock(block: AnyBlock): void;
 
    setEditorStore: SetStoreFunction<EditorStoreValues>;
-   staticEditorData: StaticEditorData;
    // send(type: WSMsgType, data?: object): void;
    // sendRaw(b: Buffer): void;
 };
@@ -109,7 +81,6 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    const [app] = useAppStore();
    const [drawer, { setDrawerStore }] = useDrawerStore();
 
-   const staticEditorData = new StaticEditorData();
 
    const [editor, setEditorStore] = createStore<EditorStoreValues>(
       {
@@ -181,14 +152,13 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function onChangeStart(block: AnyBlock, abs: BlockTransform, type: EditType) {
       setEditorStore({ editingBlock: block, editingType: type });
-
       const relTransform = { height: block.height, width: block.width, x: block.x, y: block.y };
-      staticEditorData.emit('changestart', block, {
-         absTransform: abs,
-         placement: { correct: true, intersections: [], outOfBorder: false, affected: [] },
-         relTransform,
-         type
-      });
+      // staticEditorData.emit('changestart', block, {
+      //    absTransform: abs,
+      //    placement: { correct: true, intersections: [], outOfBorder: false, affected: [] },
+      //    relTransform,
+      //    type
+      // });
    }
 
    function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
@@ -197,12 +167,12 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
       const placement = checkPlacement(block, x, y, width, height);
       setEditorStore({ isPlacementCorrect: placement.correct, overflowedBlocks: placement.affected });
-      staticEditorData.emit('change', block, {
-         absTransform,
-         placement,
-         relTransform: { x, y, width, height },
-         type
-      });
+      // staticEditorData.emit('change', block, {
+      //    absTransform,
+      //    placement,
+      //    relTransform: { x, y, width, height },
+      //    type
+      // });
    }
 
    function onChangeEnd(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
@@ -226,12 +196,12 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          setEditorStore('layout', editor.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
-      staticEditorData.emit('changeend', block, {
-         absTransform,
-         placement,
-         relTransform: { x, y, width, height },
-         type
-      });
+      // staticEditorData.emit('changeend', block, {
+      //    absTransform,
+      //    placement,
+      //    relTransform: { x, y, width, height },
+      //    type
+      // });
    }
 
    function selectBlock(selectedBlock: AnyBlock, type: EditType = EditType.Select) {
@@ -282,7 +252,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             // sendRaw,
 
             setEditorStore: setEditorStore,
-            staticEditorData
+            // staticEditorData
          }
       ]}>
          {props.children}

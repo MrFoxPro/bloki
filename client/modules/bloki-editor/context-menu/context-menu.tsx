@@ -15,7 +15,6 @@ import CodeIcon from './assets/code.svg';
 
 import { useEditorStore } from "../editor.store";
 import { BlockType } from "../types/blocks";
-import { WSMsgType } from "@/lib/network.types";
 
 type BlockContextMenuProps = {
 };
@@ -61,12 +60,12 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
    return (
       <Show when={store.showContextMenu && store.editingBlock}>
          <div
-            class="ctxMenu"
+            class="ctx-menu"
             style={{
                transform: `translate(calc(${pos().x}px - 100% - 30px), ${pos().y}px)`
             }}
          >
-            <div class="block">
+            <div class="items-block">
                <div class="name">{'blocks.ctx-menu.header.types'}</div>
                <div class="items">
 
@@ -81,7 +80,7 @@ export function BlockContextMenu(props: BlockContextMenuProps) {
                   ))}
                </div>
             </div>
-            <div class="block">
+            <div class="items-block">
                <div class="name">{'blocks.ctx-menu.header.actions'}</div>
                <div class="items">
                   <div class="item">

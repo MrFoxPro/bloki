@@ -10,8 +10,8 @@ import PageIcon from './assets/page.svg';
 import SearchIcon from './assets/search.svg';
 import SettingsIcon from './assets/settings.svg';
 import TrashIcon from './assets/trash.svg';
-const Settings = lazy(() => import('../settings/settings'));
-import { useModalStore } from '../modals/modal';
+// const Settings = lazy(() => import('../settings/settings'));
+// import { useModalStore } from '../modals/modal';
 
 const items = ['search', 'settings', 'trash'] as const;
 const itemIconDict = {
@@ -92,7 +92,7 @@ export function SideMenu(props: SideMenuProps) {
                   )}
                </For>
             </div>
-            <div class="block">
+            <div class="items-block">
                <div class="name">
                   {'menu.label.pages'}
                   {/* <AddIcon class="icon" /> */}
@@ -103,7 +103,7 @@ export function SideMenu(props: SideMenuProps) {
                   </For>
                </div>
             </div>
-            <div class="block">
+            <div class="items-block">
                <div class="name">
                   {'menu.label.shared-pages'}
                   {/* <AddIcon class="icon" /> */}

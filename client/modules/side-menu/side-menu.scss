@@ -1,6 +1,7 @@
 .side-menu {
    width: 250px;
    min-width: 250px;
+   float: left;
    display: flex;
    flex-direction: column;
    align-items: stretch;
@@ -21,7 +22,6 @@
 }
 
 .workspace-bar {
-   // @apply .top-bar;
    display: flex;
    align-items: center;
    gap: 12px;

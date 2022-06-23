@@ -118,9 +118,10 @@ html {
    padding: 0 20px;
    box-sizing: border-box;
    z-index: 45;
+   min-width: 600px;
 }
 
-.block {
+.items-block {
    width: 100%;
 
    .name {

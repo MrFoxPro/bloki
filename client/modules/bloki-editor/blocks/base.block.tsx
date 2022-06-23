@@ -54,9 +54,9 @@ type BlockContextHandlers<B extends AnyBlock = AnyBlock> = {
    onBoxClick: (e: MouseEvent & {
       currentTarget: HTMLDivElement;
    }) => void;
-   onBoxPointerDown: (e: PointerEvent, btn?: number) => void;
-   onBoxPointerMove: (e: PointerEvent) => void;
-   onBoxPointerUp: (e: PointerEvent) => void;
+   onHitBoxPointerDown: (e: PointerEvent, btn?: number) => void;
+   onHitBoxPointerMove: (e: PointerEvent) => void;
+   onHitBoxPointerUp: (e: PointerEvent) => void;
    onHookPointerDown: (e: PointerEvent, side: CursorSide) => void;
    onHookPointerMove: (e: PointerEvent) => void;
    onDotPointerUp: (e: PointerEvent) => void;
@@ -67,21 +67,19 @@ const BlockContext = createContext<[BlockContextValues, BlockContextHandlers]>()
 
 type BlockProps = {
    block: AnyBlock;
+   containerRef: HTMLDivElement;
 };
 export function Block(props: BlockProps) {
-
-
-
-   let boxRef!: HTMLDivElement;
+   let hitBoxRef!: HTMLDivElement;
    let relX = 0;
    let relY = 0;
    let pointerDown = false;
    let pointerInside = false;
    let capturingSide: CursorSide;
    let getContentDimension: (d: Dimension) => Dimension;
+   const { containerRef } = props;
 
    const [editorState, {
-      staticEditorData,
       onChangeStart,
       onChange,
       onChangeEnd,
@@ -147,19 +145,18 @@ export function Block(props: BlockProps) {
          return;
       }
       handyWasClicked = handy;
-      const box = boxRef.getBoundingClientRect();
-      const body = document.body;
-      relX = e.pageX - (box.left + body.scrollLeft - body.clientLeft);
-      relY = e.pageY - (box.top + body.scrollTop - body.clientTop);
+      // handy is -30px left from block
+      relX = !handyWasClicked ? e.offsetX : e.offsetX - 30;
+      relY = e.offsetY;
       onChangeStart(props.block, state.transform, EditType.Drag);
-      boxRef.onpointermove = onBoxPointerMove;
-      boxRef.onpointerup = onBoxPointerUp;
-      boxRef.setPointerCapture(e.pointerId);
+      containerRef.onpointerup = onContainerPointerUp;
+      containerRef.onpointermove = onContainerPointerMove;
+      containerRef.setPointerCapture(e.pointerId);
    }
 
-   function onBoxPointerMove(e: PointerEvent) {
-      const x = e.pageX - relX - staticEditorData.containerRect.x;
-      const y = e.pageY - relY - staticEditorData.containerRect.y;
+   function onContainerPointerMove(e: PointerEvent) {
+      const x = e.offsetX - relX;
+      const y = e.offsetY - relY;
       if (x !== state.transform.x || y !== state.transform.y) {
          wasBlockMoved = true;
          setState('transform', { x, y });
@@ -168,12 +165,14 @@ export function Block(props: BlockProps) {
       }
    }
 
-   function onBoxPointerUp(e: PointerEvent) {
+   function onContainerPointerUp(e: PointerEvent) {
       e.preventDefault();
       e.stopImmediatePropagation();
+      containerRef.releasePointerCapture(e.pointerId);
+
       pointerDown = false;
-      boxRef.onpointermove = null;
-      boxRef.onpointerup = null;
+      containerRef.onpointermove = null;
+      containerRef.onpointerup = null;
       if (wasBlockMoved) {
          const { x, y, width, height } = state.transform;
          onChangeEnd(props.block, { x, y, width, height }, EditType.Drag);
@@ -192,71 +191,70 @@ export function Block(props: BlockProps) {
    function onHookPointerDown(e: PointerEvent, side: CursorSide) {
       if (e.button !== 0) return;
       if (isMeEditingByRoommate()) return;
-      relX = e.pageX;
-      relY = e.pageY;
+      relX = e.offsetX;
+      relY = e.offsetY;
       capturingSide = side;
-      const dot = e.currentTarget as HTMLDivElement;
-      dot.setPointerCapture(e.pointerId);
-      dot.onpointerup = onDotPointerUp;
-      dot.onpointermove = onHookPointerMove;
+      containerRef.setPointerCapture(e.pointerId);
+      containerRef.onpointerup = onDotPointerUp;
+      containerRef.onpointermove = onHookPointerMove;
       onChangeStart(props.block, state.transform, EditType.Resize);
    }
 
    function onHookPointerMove(e: PointerEvent) {
       let { x, y, width, height } = state.transform;
       let εX = 0, εY = 0;
-      const { containerRect } = staticEditorData;
+      const { gap } = editorState.document.layoutOptions;
       switch (capturingSide) {
          case CursorSide.W: {
-            const xc = e.pageX - containerRect.x;
+            const xc = e.offsetX;
             width += x - xc;
             x = xc;
-            εX = editorState.document.layoutOptions.gap;
+            εX = gap;
             break;
          }
          case CursorSide.E: {
-            width = e.pageX - state.transform.x - containerRect.x;
+            width = e.offsetX - state.transform.x;
             break;
          }
          case CursorSide.N: {
-            const yc = e.pageY - containerRect.y;
+            const yc = e.offsetY;
             height += y - yc;
             y = yc;
-            εY = editorState.document.layoutOptions.gap;
+            εY = gap;
             break;
          }
          case CursorSide.S: {
-            height = e.pageY - state.transform.y - containerRect.y;
+            height = e.offsetY - state.transform.y;
             break;
          }
          case CursorSide.NW: {
-            const yc = e.pageY - containerRect.y;
+            const yc = e.offsetY;
             height += y - yc;
             y = yc;
-            const xc = e.pageX - containerRect.x;
+            const xc = e.offsetX;
             width += x - xc;
             x = xc;
-            εY = editorState.document.layoutOptions.gap;
-            εX = editorState.document.layoutOptions.gap;
+            εY = gap;
+            εX = gap;
             break;
          }
          case CursorSide.NE: {
-            width = e.pageX - state.transform.x - containerRect.x;
-            const yc = e.pageY - containerRect.y;
+            width = e.offsetX - state.transform.x;
+            const yc = e.offsetY;
             height += y - yc;
             y = yc;
             break;
          }
          case CursorSide.SE: {
-            width = e.pageX - state.transform.x - containerRect.x;
-            height = e.pageY - state.transform.y - containerRect.y;
+            width = e.offsetX - state.transform.x;
+            height = e.offsetY - state.transform.y;
             break;
          }
          case CursorSide.SW: {
-            const xc = e.pageX - containerRect.x;
+            const xc = e.offsetX;
             width += x - xc;
             x = xc;
-            height = e.pageY - state.transform.y - containerRect.y;
+            height = e.offsetY - state.transform.y;
             break;
          }
       }
@@ -297,10 +295,9 @@ export function Block(props: BlockProps) {
    }
 
    function onDotPointerUp(e: PointerEvent) {
-      const dot = e.currentTarget as HTMLDivElement;
-      dot.releasePointerCapture(e.pointerId);
-      dot.onpointermove = null;
-      dot.onpointerup = null;
+      containerRef.onpointermove = null;
+      containerRef.onpointerup = null;
+      containerRef.releasePointerCapture(e.pointerId);
       capturingSide = null;
       const { x, y, width, height } = state.transform;
       onChangeEnd(props.block, { x, y, width, height }, EditType.Resize);
@@ -326,9 +323,9 @@ export function Block(props: BlockProps) {
          isMeEditingByRoommate,
          isEditingContent,
          onBoxClick,
-         onBoxPointerDown,
-         onBoxPointerMove,
-         onBoxPointerUp,
+         onHitBoxPointerDown: onBoxPointerDown,
+         onHitBoxPointerMove: onContainerPointerMove,
+         onHitBoxPointerUp: onContainerPointerUp,
          onHookPointerDown,
          onHookPointerMove,
          onDotPointerUp,
@@ -366,7 +363,7 @@ export function Block(props: BlockProps) {
             {/* This overlay helps with preveinting mouseenter on firing on child elements */}
             <div
                class="overlay"
-               ref={boxRef}
+               ref={hitBoxRef}
                onPointerEnter={() => {
                   pointerInside = true;
                }}
@@ -412,15 +409,14 @@ export type CommonContentProps = {
 };
 
 type GhostBlockProps = {
-   blockId: string;
+   blockRef: HTMLElement;
 };
 export function GhostBlock(props: GhostBlockProps) {
-   const node = document.getElementById(props.blockId);
-   const ghost = node.cloneNode() as HTMLElement;
+   const ghost = props.blockRef.cloneNode() as HTMLElement;
    ghost.id = 'ghost';
    ghost.className = 'block ghost';
 
-   const innerContent = node.getElementsByClassName('content')[0].cloneNode(true) as HTMLElement;
+   const innerContent = props.blockRef.getElementsByClassName('content')[0].cloneNode(true) as HTMLElement;
    innerContent.classList.add('ghost');
    ghost.appendChild(innerContent);
    return ghost;

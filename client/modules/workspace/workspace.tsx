@@ -36,9 +36,7 @@ export function Workspace() {
                      </div>
                   </div>
                   <Show when={selectedDocument()}>
-                     <BlokiEditor
-                        gridType='canvas'
-                     />
+                     <BlokiEditor />
                   </Show>
                </div>
             </EditorStoreProvider>
