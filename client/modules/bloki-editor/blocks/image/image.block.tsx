@@ -1,18 +1,17 @@
 import './image.block.scss';
-import { ComponentProps, createComputed, createEffect, Match, on, Switch } from 'solid-js';
+import { createComputed, createEffect, Match, on, Switch } from 'solid-js';
 import { Dimension, ImageBlock as ImageBlockEntity } from '@/modules/bloki-editor/types/blocks';
-import { useEditorStore } from '../../editor.store';
+import { useEditorContext } from '../../editor.store';
 import { getImageOrFallback, getImgDimension, readAsDataUrl } from '../../helpers';
-import { CommonContentProps, useBlockContext } from '../base.block';
+import { CommonContentProps } from '../base.block';
 
 type ImageBlockProps = {
-} & CommonContentProps;
+} & CommonContentProps<ImageBlockEntity>;
 
 export function ImageBlock(props: ImageBlockProps) {
 
-   const [, { gridSize }] = useEditorStore();
-   const [, { block, isMeResizing, isMeDragging, isMeEditingByRoommate }] = useBlockContext<ImageBlockEntity>();
-   const [editorStore, { setEditorStore }] = useEditorStore();
+   const [, { gridSize }] = useEditorContext();
+   const [editorStore, { setEditorState: setEditorStore }] = useEditorContext();
 
    let imgRef: HTMLImageElement;
 
@@ -23,8 +22,8 @@ export function ImageBlock(props: ImageBlockProps) {
    }
 
    const dimension: Dimension = {
-      width: gridSize(block.width),
-      height: gridSize(block.height)
+      width: gridSize(props.block.width),
+      height: gridSize(props.block.height)
    };
    const currRatio = () => dimension.width / dimension.height;
 
@@ -34,7 +33,7 @@ export function ImageBlock(props: ImageBlockProps) {
    };
 
    function getContentDimension(transform: Dimension) {
-      if (!block.value) {
+      if (!props.block.value) {
          return {
             width: gridSize(defaultRelDimension.width),
             height: gridSize(defaultRelDimension.height),
@@ -50,26 +49,26 @@ export function ImageBlock(props: ImageBlockProps) {
    });
 
    createEffect(on(
-      () => block.value,
+      () => props.block.value,
       async () => {
-         let value = block.value;
+         let value = props.block.value;
          try {
-            await getImageOrFallback(block.value);
+            await getImageOrFallback(props.block.value);
          }
          catch (e) {
             value = null;
          }
          if (!value) {
-            setEditorStore('layout', editorStore.layout.indexOf(block), defaultRelDimension);
-            if (value !== block.value) {
-               setEditorStore('layout', editorStore.layout.indexOf(block), 'value', null);
+            setEditorStore('layout', editorStore.layout.indexOf(props.block), defaultRelDimension);
+            if (value !== props.block.value) {
+               setEditorStore('layout', editorStore.layout.indexOf(props.block), 'value', null);
             }
             // send(WSMsgType.ChangeBlock, unwrap(block));
             dimension.width = gridSize(defaultRelDimension.width);
             dimension.height = gridSize(defaultRelDimension.height);
          }
-         else if (!block.width || !block.height) {
-            const { width, height } = await getImgDimension(block.value);
+         else if (!props.block.width || !props.block.height) {
+            const { width, height } = await getImgDimension(props.block.value);
             const ratio = height / width;
             const relSize = {
                width: editorStore.document.layoutOptions.mGridWidth,
@@ -77,7 +76,7 @@ export function ImageBlock(props: ImageBlockProps) {
             };
             dimension.width = gridSize(relSize.width);
             dimension.height = gridSize(relSize.height);
-            setEditorStore('layout', editorStore.layout.indexOf(block), relSize);
+            setEditorStore('layout', editorStore.layout.indexOf(props.block), relSize);
             // send(WSMsgType.ChangeBlock, unwrap(block));
          }
       })
@@ -86,7 +85,7 @@ export function ImageBlock(props: ImageBlockProps) {
    async function onFileChoose(e: Event & { currentTarget: HTMLInputElement; }) {
       const file = e.currentTarget.files[0];
       const base64 = await readAsDataUrl(file);
-      setEditorStore('layout', editorStore.layout.indexOf(block), {
+      setEditorStore('layout', editorStore.layout.indexOf(props.block), {
          value: base64
       });
       // send(WSMsgType.ChangeBlock, unwrap(block));
@@ -96,7 +95,7 @@ export function ImageBlock(props: ImageBlockProps) {
       if (!imgSrc) return;
       try {
          const imgPath = await getImageOrFallback(imgSrc);
-         setEditorStore('layout', editorStore.layout.indexOf(block), {
+         setEditorStore('layout', editorStore.layout.indexOf(props.block), {
             value: imgPath,
          });
          // send(WSMsgType.ChangeBlock, unwrap(block));
@@ -121,26 +120,26 @@ export function ImageBlock(props: ImageBlockProps) {
       <div
          class="content img-block"
          classList={{
-            'changing': isMeResizing() || isMeDragging(),
+            'changing': props.isMeResizing || props.isMeDragging,
          }}
       >
          <Switch>
-            <Match when={block.value}>
+            <Match when={props.block.value}>
                <img
-                  src={block.value}
+                  src={props.block.value}
                   onKeyDown={onKeyDown}
                   ref={imgRef}
                // onPaste={onPaste}
                />
             </Match>
-            <Match when={!block.value}>
+            <Match when={!props.block.value}>
                <div class="mock">
                   <div class="dnd">
                      <input type="file"
                         class="hidden-input-file"
                         accept=".png, .jpg, .jpeg, .svg"
                         onChange={onFileChoose}
-                        disabled={!!isMeEditingByRoommate()}
+                        disabled={!!props.isMeEditingByRoommate}
                      />
                      <div class="pic" />
                      <div class="ask">{'blocks.attachments.image.mock.ask'}</div>

@@ -2,12 +2,12 @@ import { useAppStore } from "@/modules/app.store";
 import { For, Show } from "solid-js";
 import s from './cursors.module.scss';
 import CursorIcon from '../assets/cursor.icon.svg';
-import { useEditorStore } from "@/modules/bloki-editor/editor.store";
+import { useEditorContext } from "@/modules/bloki-editor/editor.store";
 import { CURSOR_UPDATE_RATE } from "@/lib/network.types";
 
 export function Cursors() {
 	const [app] = useAppStore();
-	const [editor] = useEditorStore();
+	const [editor] = useEditorContext();
 	return (
 		<Show when={editor.document.shared}>
 			<For each={editor.rommates.filter(x => x.name !== app.name)}>

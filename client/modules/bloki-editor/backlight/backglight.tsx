@@ -1,16 +1,16 @@
 import './backlight.scss';
 
-import { useEditorStore } from '../editor.store';
+import { useEditorContext } from '../editor.store';
 import { BlockTransform, PlacementStatus } from "../types/blocks";
 import { CellState, FillColors } from './shared';
-import { createEffect, onCleanup, onMount } from 'solid-js';
+import { createEffect, on, onCleanup, onMount } from 'solid-js';
 import { isInsideRect } from '../helpers';
 import { EditType } from '../types/editor';
 
 export function Backlight() {
    let backlightCanvasRef: HTMLCanvasElement;
    let ctx: CanvasRenderingContext2D;
-   const [store, { gridSize, realSize }] = useEditorStore();
+   const [editorState, { gridSize, realSize }] = useEditorContext();
 
    createEffect(() => {
       if (backlightCanvasRef) {
@@ -46,6 +46,20 @@ export function Backlight() {
          });
       }
    }
+
+   // createEffect(on(
+   //    () => editorState.placement,
+   //    (curr, prev) => {
+   //       // if (!curr) {
+   //       //    clearProjection(editorState.editingBlock, prev);
+   //       //    return;
+   //       // }
+   //       // if (prev) {
+   //       //    clearProjection(editorState.editingBlock, prev);
+   //       // }
+   //       drawProjection(editorState.editingBlock, editorState.placement);
+   //    }, { defer: true })
+   // );
 
    onMount(() => {
       let prevPlacement: PlacementStatus = null;
@@ -113,7 +127,7 @@ export function Backlight() {
 
    function drawArea(transform, cellState) {
       const { x, y, width, height } = transform;
-      const { gap, size } = store.document.layoutOptions;
+      const { gap, size } = editorState.document.layoutOptions;
 
       for (let i = x; i < x + width; i++) {
          const absX = gridSize(i);
@@ -128,7 +142,7 @@ export function Backlight() {
    }
 
    function clearArea(transform: BlockTransform) {
-      const { gap } = store.document.layoutOptions;
+      const { gap } = editorState.document.layoutOptions;
       const { x, y, width, height } = transform;
       ctx.clearRect(gridSize(x) + gap, gridSize(y) + gap, gridSize(width + 1), gridSize(height + 1));
    }

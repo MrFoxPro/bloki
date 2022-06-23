@@ -1,6 +1,3 @@
-import { BlockTransform, PlacementStatus } from "@/modules/bloki-editor/types/blocks";
-import { EditType } from "@/modules/bloki-editor/types/editor";
-
 export type Roommate = {
    name: string;
    color: string;
@@ -17,10 +14,3 @@ export type BlokiNetworkDocument = BlokiDocument & {
 };
 
 export const CURSOR_UPDATE_RATE = 300;
-
-export type ChangeEventInfo = {
-   type: EditType;
-   absTransform: BlockTransform;
-   relTransform: BlockTransform;
-   placement: PlacementStatus;
-};

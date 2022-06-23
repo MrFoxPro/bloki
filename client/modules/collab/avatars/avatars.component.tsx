@@ -1,5 +1,5 @@
 import { For, Show } from "solid-js";
-import { useEditorStore } from "@/modules/bloki-editor/editor.store";
+import { useEditorContext } from "@/modules/bloki-editor/editor.store";
 import s from './avatars.module.scss';
 import { useAppStore } from "@/modules/app.store";
 
@@ -8,7 +8,7 @@ type AvatarsProps = {
 
 export function Avatars(props: AvatarsProps) {
 	const [app] = useAppStore();
-	const [editor] = useEditorStore();
+	const [editor] = useEditorContext();
 
 	function getFormattedName(name: string) {
 		const parts = name.split(' ');

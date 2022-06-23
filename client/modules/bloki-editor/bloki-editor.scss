@@ -5,14 +5,14 @@
    position: relative;
 }
 
-.zones {
-   display: flex;
-   position: absolute;
+// .zones {
+//    display: flex;
+//    position: absolute;
 
-   .zone {
-      scroll-snap-align: center;
-   }
-}
+//    .zone {
+//       scroll-snap-align: center;
+//    }
+// }
 
 .container {
    background-attachment: local;

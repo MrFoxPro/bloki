@@ -1,11 +1,11 @@
 import './base.block.scss';
 import { Accessor, createContext, createEffect, createMemo, For, Show, useContext } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { useEditorStore } from '../editor.store';
+import { useEditorContext } from '../editor.store';
 import { TextBlock } from './text/text.block';
 import { ImageBlock } from './image/image.block';
 import HandyIcon from './assets/handy.svg';
-import { AnyBlock, BlockType, Dimension } from '../types/blocks';
+import { AnyBlock, BlockTransform, BlockType, Dimension } from '../types/blocks';
 import { CodeBlock } from './code/code.block.component';
 import { EditType } from '../types/editor';
 import { useAppStore } from '@/modules/app.store';
@@ -35,36 +35,6 @@ export enum CursorSide {
    W = 'w-resize',
 }
 
-type BlockContextValues = {
-   transform: {
-      width: number;
-      height: number;
-      x: number;
-      y: number;
-   };
-};
-
-type BlockContextHandlers<B extends AnyBlock = AnyBlock> = {
-   isMeEditing: Accessor<boolean>;
-   isMeDragging: Accessor<boolean>;
-   isMeResizing: Accessor<boolean>;
-   isMeOverflowing: Accessor<boolean>;
-   isEditingContent: Accessor<boolean>;
-   isMeEditingByRoommate: Accessor<Roommate>;
-   onBoxClick: (e: MouseEvent & {
-      currentTarget: HTMLDivElement;
-   }) => void;
-   onHitBoxPointerDown: (e: PointerEvent, btn?: number) => void;
-   onHitBoxPointerMove: (e: PointerEvent) => void;
-   onHitBoxPointerUp: (e: PointerEvent) => void;
-   onHookPointerDown: (e: PointerEvent, side: CursorSide) => void;
-   onHookPointerMove: (e: PointerEvent) => void;
-   onDotPointerUp: (e: PointerEvent) => void;
-   block: B;
-};
-
-const BlockContext = createContext<[BlockContextValues, BlockContextHandlers]>();
-
 type BlockProps = {
    block: AnyBlock;
    containerRef: HTMLDivElement;
@@ -87,8 +57,8 @@ export function Block(props: BlockProps) {
       getAbsolutePosition,
       selectBlock,
       gridSize,
-      setEditorStore,
-   }] = useEditorStore();
+      setEditorState: setEditorStore,
+   }] = useEditorContext();
    const [app] = useAppStore();
    const [state, setState] = createStore({
       transform: {
@@ -149,14 +119,14 @@ export function Block(props: BlockProps) {
       relX = !handyWasClicked ? e.offsetX : e.offsetX - 30;
       relY = e.offsetY;
       onChangeStart(props.block, state.transform, EditType.Drag);
+      containerRef.setPointerCapture(e.pointerId);
       containerRef.onpointerup = onContainerPointerUp;
       containerRef.onpointermove = onContainerPointerMove;
-      containerRef.setPointerCapture(e.pointerId);
    }
 
    function onContainerPointerMove(e: PointerEvent) {
-      const x = e.offsetX - relX;
-      const y = e.offsetY - relY;
+      const x = Math.round(e.offsetX - relX);
+      const y = Math.round(e.offsetY - relY);
       if (x !== state.transform.x || y !== state.transform.y) {
          wasBlockMoved = true;
          setState('transform', { x, y });
@@ -312,99 +282,89 @@ export function Block(props: BlockProps) {
       });
    }
 
-   const blockCtx: [BlockContextValues, BlockContextHandlers] = [
-      state,
-      {
-         block: props.block,
-         isMeEditing,
-         isMeDragging,
-         isMeResizing,
-         isMeOverflowing,
-         isMeEditingByRoommate,
-         isEditingContent,
-         onBoxClick,
-         onHitBoxPointerDown: onBoxPointerDown,
-         onHitBoxPointerMove: onContainerPointerMove,
-         onHitBoxPointerUp: onContainerPointerUp,
-         onHookPointerDown,
-         onHookPointerMove,
-         onDotPointerUp,
-      }
-   ];
-
    return (
-      <BlockContext.Provider value={blockCtx}>
-         <div
-            id={props.block.id}
-            class="block draggable"
-            style={{
-               transform: `translate(${state.transform.x}px, ${state.transform.y}px)`,
-               width: `${state.transform.width}px`,
-               height: `${state.transform.height}px`,
-               border: isMeEditingByRoommate()?.color ? `2px solid ${isMeEditingByRoommate().color}` : 'unset',
-               cursor: isMeEditingByRoommate() ? 'not-allowed' : 'unset',
-            }}
-            classList={{
-               "dragging": isMeDragging(),
-               "selected": isMeEditing(),
-               "resizing": isMeResizing(),
-            }}
-            ondragstart={(e) => e.preventDefault()}
-            ondrop={(e) => e.preventDefault()}
-            draggable={false}
-         >
-            <div class="handy-block">
-               <HandyIcon
-                  class="handy"
-                  onPointerDown={(e) => onBoxPointerDown(e, 0, true)}
-                  onContextMenu={onHandyContextMenu}
-               />
-            </div>
-            {/* This overlay helps with preveinting mouseenter on firing on child elements */}
-            <div
-               class="overlay"
-               ref={hitBoxRef}
-               onPointerEnter={() => {
-                  pointerInside = true;
-               }}
-               onPointerLeave={() => {
-                  pointerInside = false;
-                  if (pointerDown && isMeEditing() && !isMeDragging()) {
-                     selectBlock(props.block, EditType.Select);
-                  }
-               }}
-               onPointerDown={(e) => onBoxPointerDown(e, 1)}
-               onPointerUp={() => pointerDown = false}
-               onClick={onBoxClick}
-            >
-               <Dynamic<CommonContentProps>
-                  wrapGetContentDimension={(fn) => getContentDimension = fn}
-                  component={blockContentTypeMap[props.block.type]}
-               />
-            </div>
-            <Show when={isMeEditing()}>
-               <For each={/*@once*/Object.keys(CursorSide) as (keyof typeof CursorSide)[]}>
-                  {side => (
-                     <div
-                        class={`${side.length === 2 ? "vert" : "edge"} ${side.toLowerCase()}`}
-                        classList={{
-                           ["show-resize-areas"]: editorState.document.layoutOptions.showResizeAreas
-                        }}
-                        onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
-                     />
-                  )}
-               </For>
-            </Show>
+      <div
+         id={props.block.id}
+         class="block draggable"
+         style={{
+            transform: `translate(${state.transform.x}px, ${state.transform.y}px)`,
+            width: `${state.transform.width}px`,
+            height: `${state.transform.height}px`,
+            border: isMeEditingByRoommate()?.color ? `2px solid ${isMeEditingByRoommate().color}` : 'unset',
+            cursor: isMeEditingByRoommate() ? 'not-allowed' : 'unset',
+         }}
+         classList={{
+            "dragging": isMeDragging(),
+            "selected": isMeEditing(),
+            "resizing": isMeResizing(),
+         }}
+         ondragstart={(e) => e.preventDefault()}
+         ondrop={(e) => e.preventDefault()}
+         draggable={false}
+      >
+         <div class="handy-block">
+            <HandyIcon
+               class="handy"
+               onPointerDown={(e) => onBoxPointerDown(e, 0, true)}
+               onContextMenu={onHandyContextMenu}
+            />
          </div>
-      </BlockContext.Provider>
+         {/* This overlay helps with preveinting mouseenter on firing on child elements */}
+         <div
+            class="overlay"
+            ref={hitBoxRef}
+            onPointerEnter={() => {
+               pointerInside = true;
+            }}
+            onPointerLeave={() => {
+               pointerInside = false;
+               if (pointerDown && isMeEditing() && !isMeDragging()) {
+                  selectBlock(props.block, EditType.Select);
+               }
+            }}
+            onPointerDown={(e) => onBoxPointerDown(e, 1)}
+            onPointerUp={() => pointerDown = false}
+            onClick={onBoxClick}
+         >
+            <Dynamic<CommonContentProps>
+               component={blockContentTypeMap[props.block.type]}
+               block={props.block}
+               wrapGetContentDimension={(fn) => getContentDimension = fn}
+               isEditingContent={isEditingContent()}
+               isMeDragging={isMeDragging()}
+               isMeEditing={isMeEditing()}
+               isMeEditingByRoommate={isMeEditingByRoommate()}
+               isMeOverflowing={isMeOverflowing()}
+               isMeResizing={isMeResizing()}
+               transform={state.transform}
+            />
+         </div>
+         <Show when={isMeEditing()}>
+            <For each={/*@once*/Object.keys(CursorSide) as (keyof typeof CursorSide)[]}>
+               {side => (
+                  <div
+                     class={`${side.length === 2 ? "vert" : "edge"} ${side.toLowerCase()}`}
+                     classList={{
+                        ["show-resize-areas"]: editorState.document.layoutOptions.showResizeAreas
+                     }}
+                     onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
+                  />
+               )}
+            </For>
+         </Show>
+      </div>
    );
 };
 
-export function useBlockContext<T extends AnyBlock>() {
-   return useContext(BlockContext) as [BlockContextValues, BlockContextHandlers<T>];
-}
-
-export type CommonContentProps = {
+export type CommonContentProps<B extends AnyBlock = AnyBlock> = {
+   block: B;
+   transform: BlockTransform;
+   isMeEditing: boolean;
+   isMeDragging: boolean;
+   isMeResizing: boolean;
+   isMeOverflowing: boolean;
+   isEditingContent: boolean;
+   isMeEditingByRoommate: Roommate;
    wrapGetContentDimension: (fn: (d: Dimension) => Dimension) => void;
 };
 

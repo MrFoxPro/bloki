@@ -3,7 +3,7 @@ import './workspace.scss';
 import { lazy, Show } from "solid-js";
 import { useAppStore } from "../app.store";
 import { DrawerStoreProvider } from "../bloki-editor/drawer.store";
-import { EditorStoreProvider, useEditorStore } from "../bloki-editor/editor.store";
+import { EditorStoreProvider, useEditorContext } from "../bloki-editor/editor.store";
 import { Avatars } from "../collab/avatars/avatars.component";
 const BlokiEditor = lazy(() => import('@/modules/bloki-editor/bloki-editor'));
 const Toolbox = lazy(() => import('../bloki-editor/toolbox/toolbox.component'));
@@ -12,7 +12,7 @@ export function Workspace() {
    const [app, { selectedDocument }] = useAppStore();
 
    const ConnectionStatus = () => {
-      const [editor] = useEditorStore();
+      const [editor] = useEditorContext();
       return (
          <div class="status" classList={{ "connected": editor.connected }}>
             [{editor.connected ? 'topbar.doc-status.connected' : 'topbar.doc-status.disconnected'}]

@@ -1,46 +1,44 @@
 import './text.block.scss';
-import { ComponentProps, createComputed, createEffect, createMemo, on, onMount, splitProps, untrack } from 'solid-js';
+import { createComputed, createEffect, createMemo, on, onMount, untrack } from 'solid-js';
 import { TextBlock as TextBlockEntity } from '../../types/blocks';
-import { useEditorStore } from '../../editor.store';
+import { useEditorContext } from '../../editor.store';
 import { Dimension } from '../../types/blocks';
 import { TextBlockFontFamily, TextTypes } from './types';
 import { getTextBlockSize, measurer } from './helpers';
-import { CommonContentProps, useBlockContext } from '../base.block';
+import { CommonContentProps } from '../base.block';
 
 type TextBlockProps = {
-} & CommonContentProps;
+} & CommonContentProps<TextBlockEntity>;
 
 export function TextBlock(props: TextBlockProps) {
-   const [editor, { setEditorStore, gridSize, checkPlacement }] = useEditorStore();
-   const [blockState, { isMeOverflowing, block, isEditingContent }] = useBlockContext<TextBlockEntity>();
-
    let contentRef: HTMLDivElement;
    let minTextWidth = 0;
    let textHeightAtMinWidth = 0;
+   const [editor, { setEditorState: setEditorStore, gridSize, checkPlacement }] = useEditorContext();
 
    createComputed(() => {
       minTextWidth = gridSize(5);
    });
 
    createEffect(() => {
-      if (isEditingContent()) {
+      if (props.isEditingContent) {
          contentRef.focus();
       }
    });
 
    createEffect(on(
-      () => block.type,
+      () => props.block.type,
       () => {
-         if (block.type == null) return;
-         const size = getTextBlockSize(block.type, block.fontFamily, block.value, editor.document.layoutOptions, block.width, 'break-word');
-         setEditorStore('layout', editor.layout.indexOf(block), {
+         if (props.block.type == null) return;
+         const size = getTextBlockSize(props.block.type, props.block.fontFamily, props.block.value, editor.document.layoutOptions, props.block.width, 'break-word');
+         setEditorStore('layout', editor.layout.indexOf(props.block), {
             height: size.height,
          });
       })
    );
 
    createEffect(on(
-      () => block.value,
+      () => props.block.value,
       () => {
          if (!contentRef) return;
          if (!contentRef.textContent.trimEnd() && contentRef.lastElementChild?.tagName === 'BR') {
@@ -49,12 +47,12 @@ export function TextBlock(props: TextBlockProps) {
          measurer.setOptions({
             overflowWrap: 'anywhere'
          });
-         const minimals = measurer.measureText(block.value, 'min-content', 'min-content');
+         const minimals = measurer.measureText(props.block.value, 'min-content', 'min-content');
          minTextWidth = minimals.width;
          textHeightAtMinWidth = minimals.height;
       }
    ));
-   const textSettings = createMemo(() => TextTypes[block.type]);
+   const textSettings = createMemo(() => TextTypes[props.block.type]);
    function getContentDimension(transform: Dimension) {
       if (transform.width < minTextWidth) {
          transform.width = minTextWidth;
@@ -63,12 +61,12 @@ export function TextBlock(props: TextBlockProps) {
       }
       const widthPx = transform.width + 'px';
       measurer.setOptions({
-         fontFamily: block.fontFamily ?? TextBlockFontFamily.Inter,
+         fontFamily: props.block.fontFamily ?? TextBlockFontFamily.Inter,
          fontSize: textSettings().fontSize + 'px',
          lineHeight: textSettings().lineHeight + 'px',
          fontWeight: textSettings().fontWeight + 'px',
       });
-      const dimension = measurer.measureText(block.value, widthPx);
+      const dimension = measurer.measureText(props.block.value, widthPx);
       return dimension;
    }
 
@@ -77,11 +75,11 @@ export function TextBlock(props: TextBlockProps) {
       props.wrapGetContentDimension(getContentDimension);
    });
 
-   createEffect(on(() => block.value,
+   createEffect(on(() => props.block.value,
       () => {
          if (!contentRef) return;
-         if (contentRef.textContent !== block.value) {
-            contentRef.textContent = block.value;
+         if (contentRef.textContent !== props.block.value) {
+            contentRef.textContent = props.block.value;
          }
       }));
    function onTextInput(e: Event, pasteContent: string = null) {
@@ -89,10 +87,10 @@ export function TextBlock(props: TextBlockProps) {
       // check if key is affecting content?
       const text = contentRef.textContent + (pasteContent || '');
 
-      if (text === '' && block.width >= mGridWidth) {
-         const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions);
+      if (text === '' && props.block.width >= mGridWidth) {
+         const boundSize = getTextBlockSize(props.block.type, props.block.fontFamily, text, editor.document.layoutOptions);
 
-         setEditorStore('layout', editor.layout.indexOf(block), {
+         setEditorStore('layout', editor.layout.indexOf(props.block), {
             width: mGridWidth,
             height: boundSize.height,
             value: text,
@@ -101,30 +99,30 @@ export function TextBlock(props: TextBlockProps) {
          return;
       }
 
-      let maxWidth = block.width;
+      let maxWidth = props.block.width;
       if (maxWidth < mGridWidth) maxWidth = mGridWidth;
 
-      const boundSize = getTextBlockSize(block.type, block.fontFamily, text, editor.document.layoutOptions, maxWidth, 'break-word');
+      const boundSize = getTextBlockSize(props.block.type, props.block.fontFamily, text, editor.document.layoutOptions, maxWidth, 'break-word');
 
       let newWidth = boundSize.width;
-      if (block.width === mGridWidth) {
+      if (props.block.width === mGridWidth) {
          newWidth = mGridWidth;
       }
       let newHeight = boundSize.height;
-      if (block.height > newHeight) newHeight = block.height;
+      if (props.block.height > newHeight) newHeight = props.block.height;
 
-      const { correct } = checkPlacement(block, block.x, block.y, newWidth, newHeight);
+      const { correct } = checkPlacement(props.block, props.block.x, props.block.y, newWidth, newHeight);
       if (!correct) {
          e.preventDefault();
          console.log('cant type more');
-         contentRef.textContent = block.value;
+         contentRef.textContent = props.block.value;
          return;
       }
       if (pasteContent) {
          document.execCommand("insertHTML", false, pasteContent);
       }
 
-      setEditorStore('layout', editor.layout.indexOf(block), {
+      setEditorStore('layout', editor.layout.indexOf(props.block), {
          width: newWidth,
          height: newHeight,
          value: text,
@@ -144,21 +142,21 @@ export function TextBlock(props: TextBlockProps) {
       <div
          class="content"
          style={{
-            "font-family": block.fontFamily ?? TextBlockFontFamily.Inter,
+            "font-family": props.block.fontFamily ?? TextBlockFontFamily.Inter,
             "font-size": textSettings().fontSize + 'px',
             "font-weight": textSettings().fontWeight,
             "line-height": textSettings().lineHeight + 'px',
          }}
          classList={{
-            "show-placeholder": !block.value && blockState.transform.width / gridSize(1) > 7,
-            "overflowing": isMeOverflowing()
+            "show-placeholder": !props.block.value && props.transform.width / gridSize(1) > 7,
+            "overflowing": props.isMeOverflowing
          }}
          data-placeholder={"blocks.text.placeholder"}
-         contentEditable={isEditingContent()}
+         contentEditable={props.isEditingContent}
          ref={contentRef}
          onInput={onTextInput}
          // onKeyDown={onKeyDown}
          onPaste={onPaste}
-      >{untrack(() => block.value)}</div>
+      >{untrack(() => props.block.value)}</div>
    );
 }

@@ -1,6 +1,6 @@
 import './drawer.scss';
 import { createComputed, createEffect, onMount } from 'solid-js';
-import { useEditorStore } from '../editor.store';
+import { useEditorContext } from '../editor.store';
 import { useDrawerStore } from '../drawer.store';
 import { Point } from '../types/blocks';
 import { Drawing, LastikDrawing, MarkerDrawing } from '../types/drawings';
@@ -29,7 +29,7 @@ export function Drawer() {
       x: 0,
       y: 0,
    };
-   const [editor, { realSize, staticEditorData, setEditorStore }] = useEditorStore();
+   const [editor, { realSize, staticEditorData, setEditorState: setEditorStore }] = useEditorContext();
    const [drawer, { setDrawerStore }] = useDrawerStore();
    createComputed(() => {
       if (drawer.instrument !== Instrument.Cursor) {

@@ -13,14 +13,14 @@ import DescriptionIcon from './assets/description.svg';
 import ImageIcon from './assets/image.svg';
 import CodeIcon from './assets/code.svg';
 
-import { useEditorStore } from "../editor.store";
+import { useEditorContext } from "../editor.store";
 import { BlockType } from "../types/blocks";
 
 type BlockContextMenuProps = {
 };
 
 export function BlockContextMenu(props: BlockContextMenuProps) {
-   const [store, { setEditorStore, getAbsolutePosition, deleteBlock }] = useEditorStore();
+   const [store, { setEditorState: setEditorStore, getAbsolutePosition, deleteBlock }] = useEditorContext();
    const pos = createMemo(() => getAbsolutePosition(store.editingBlock?.x ?? 0, store.editingBlock?.y ?? 0));
 
    function hideMe() {

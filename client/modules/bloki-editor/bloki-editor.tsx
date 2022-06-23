@@ -1,6 +1,6 @@
 import './bloki-editor.scss';
 import { createEffect, For, on, onCleanup, onMount, Show } from 'solid-js';
-import { useEditorStore } from './editor.store';
+import { useEditorContext } from './editor.store';
 import { Block, GhostBlock } from './blocks/base.block';
 import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
 import { getAsString, getGoodImageRelativeSize, toBase64 } from './helpers';
@@ -10,7 +10,6 @@ import { BlockContextMenu } from './context-menu/context-menu';
 import { Drawer } from './drawer/drawer';
 import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
-import { Refs } from '@solid-primitives/refs';
 // import { Cursors } from '../collab/cursors/cursors.component';
 
 type BlokiEditorProps = {
@@ -22,11 +21,11 @@ function BlokiEditor(props: BlokiEditorProps) {
       {
          realSize,
          selectBlock,
-         setEditorStore,
+         setEditorState: setEditorStore,
          getRelativePosition,
          checkPlacement,
       }
-   ] = useEditorStore();
+   ] = useEditorContext();
    const [drawerStore] = useDrawerStore();
    const GRID_COLOR_CELL = '#ffae0020';
    let containerRef: HTMLDivElement;
@@ -186,7 +185,6 @@ function BlokiEditor(props: BlokiEditorProps) {
          window.removeEventListener('keydown', onKeyDown);
          wrapperRef.removeEventListener('paste', onPaste);
       });
-
    });
 
    return (
@@ -213,20 +211,20 @@ function BlokiEditor(props: BlokiEditorProps) {
             }}
          >
             {/* For scroll snap, but not working properly in ff */}
-            {/*
-					<div class={s.zones}>
-						<For each={new Array(3).fill(null)}>
-							{() => (
-								<div
-									class={s.zone}
-									style={{
-										width: realSize().mGridWidth_px,
-										height: realSize().fGridHeight_px
-									}}
-								/>
-							)}
-						</For>
-					</div>  */}
+
+            {/* <div class="zones">
+               <For each={new Array(3).fill(null)}>
+                  {() => (
+                     <div
+                        class="zone"
+                        style={{
+                           width: realSize().mGridWidth_px,
+                           height: realSize().fGridHeight_px
+                        }}
+                     />
+                  )}
+               </For>
+            </div> */}
             <Backlight />
             <div
                class="grid foreground"

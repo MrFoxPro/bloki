@@ -10,7 +10,7 @@ import CursorIcon from './assets/cursor.icon.svg';
 import PencilIcon from './assets/pencil.icon.svg';
 import EraserIcon from './assets/eraser.icon.svg';
 import { useDrawerStore } from '../drawer.store';
-import { useEditorStore } from '../editor.store';
+import { useEditorContext } from '../editor.store';
 import { DrawingColor } from '../types/drawings';
 import { Instrument } from '../types/editor';
 import { useAppStore } from '@/modules/app.store';
@@ -27,7 +27,7 @@ const instruments = [
 export function Toolbox() {
    const [app] = useAppStore();
    const [drawer, { setDrawerStore }] = useDrawerStore();
-   const [editor] = useEditorStore();
+   const [editor] = useEditorContext();
 
    const [showInstrSettings, setShowInstrSettings] = createSignal(false);
 
