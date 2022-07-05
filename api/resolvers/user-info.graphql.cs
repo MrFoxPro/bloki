@@ -12,7 +12,6 @@ public partial class RootQuery
    }
 }
 
-
 public partial class RootMutation
 {
    // [UseMutationConvention]

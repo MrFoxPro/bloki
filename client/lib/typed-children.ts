@@ -39,7 +39,7 @@ export function typedChildren<T extends string>(childrenGetter, types: T[]) {
    const parts = {};
    for (const type of types) {
       Object.defineProperty(parts, type, {
-         get: () => resChildren().filter(x => x?.dataset.comp === type)
+         get: () => resChildren().filter((x) => x?.dataset.comp === type)
       });
    }
    return parts as Record<T, JSXElement>;

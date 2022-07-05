@@ -16,20 +16,20 @@ const WelcomeView = lazy(() => import('./views/welcome/welcome.view'));
 const routes: RouteDefinition[] = [
    {
       path: '/',
-      component: LandingView,
+      component: LandingView
    },
    {
       path: '/welcome',
       component: WelcomeView,
       children: [
-         { path: '/', component: WelcomeView, },
+         { path: '/', component: WelcomeView },
          { path: '/confirm', component: WelcomeView }
       ]
    },
    {
       path: '/demo',
-      component: MainView,
-   },
+      component: MainView
+   }
 ];
 
 function App() {
@@ -40,9 +40,9 @@ function App() {
          <I18n>
             <ThemeContextProvider>
                {/* <ModalStoreProvider> */}
-                  <Router>
-                     <Routes />
-                  </Router>
+               <Router>
+                  <Routes />
+               </Router>
                {/* </ModalStoreProvider> */}
             </ThemeContextProvider>
          </I18n>

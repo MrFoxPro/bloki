@@ -10,8 +10,5 @@
 		"client",
 		"tests",
 		"./misc/tg"
-	],
-	"devDependencies": {
-		"cross-env": "^7.0.3"
-	}
+	]
 }

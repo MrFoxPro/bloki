@@ -6,7 +6,7 @@
    transition: opacity 80ms ease;
    position: relative;
 
-   &.changing {
+   &.overflowing {
       // perf drop in FF.
       opacity: 0.4;
    }

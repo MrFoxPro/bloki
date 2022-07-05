@@ -14,17 +14,14 @@ export function ThemeContextProvider(props: ParentProps) {
       if (matchMedia('(prefers-color-scheme: dark)').matches) {
          setTheme(Theme.Dark);
       }
-      window
-         .matchMedia('(prefers-color-scheme: dark)')
-         .addEventListener('change', event => {
-            const newColorScheme = event.matches ? Theme.Dark : Theme.Light;
-            setTheme(newColorScheme);
-         });
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+         const newColorScheme = event.matches ? Theme.Dark : Theme.Light;
+         setTheme(newColorScheme);
+      });
    });
 
-   createEffect(on(
-      theme,
-      (curr, prev) => {
+   createEffect(
+      on(theme, (curr, prev) => {
          if (prev) {
             document.body.classList.replace(prev, curr);
             return;

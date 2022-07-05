@@ -5,10 +5,12 @@
 
 .block {
    z-index: 10;
-   outline: 1px solid transparent;
-   // border: 1px solid transparent;
-   border-radius: 2px;
+   // border-left: 5px dashed red;
+   // border-radius: 2px;
+
    position: absolute;
+   box-sizing: border-box;
+   /* repeat */
 
    &:hover {
       .handy {
@@ -17,9 +19,11 @@
    }
 
    &.selected {
-      outline-color: #4281fa;
-      // border-color: #4281fa;
       z-index: 25;
+
+      border-radius: 2px;
+      outline: 1px solid #E9E9E9;
+      outline-offset: 5px;
 
       .handy {
          fill: #9ca5ab;
@@ -48,98 +52,77 @@
       position: absolute;
       inset: 0px;
    }
+}
 
-   $area-size: 14px;
-   $area-offset: -14px;
+.block .controls {
+   position: absolute;
+   width: calc(100% + 12px);
+   height: calc(100% + 12px);
+   transform: translate(-6px, -6px);
 
    // I'm too lazy to make array and iterate here
    .edge,
    .vert {
       position: absolute;
+      fill: none;
    }
 
    .vert {
-      width: $area-size - $area-offset;
-      height: $area-size - $area-offset;
+      stroke-width: 2;
+      stroke: #FFA61F;
 
       &.show-resize-areas {
-         background: rgba(255, 0, 0, 0.212);
+         background: rgba(255, 0, 0, 0.2);
       }
 
       &.nw {
-         left: $area-offset - $area-size;
-         top: $area-offset - $area-size;
          cursor: nwse-resize;
+         transform: translate(11px, 1px);
       }
 
       &.ne {
-         right: $area-offset - $area-size;
-         top: $area-offset - $area-size;
          cursor: nesw-resize;
+         transform: translate(calc(100% - 11px), 1px);
       }
 
       &.se {
-         right: $area-offset - $area-size;
-         bottom: $area-offset - $area-size;
          cursor: nwse-resize;
+         transform: translate(calc(100% - 11px), calc(100% - 1px));
       }
 
       &.sw {
-         left: $area-offset - $area-size;
-         bottom: $area-offset - $area-size;
          cursor: nesw-resize;
+         transform: translate(1px, calc(100% - 11px));
       }
    }
 
    .edge {
+      stroke: #FFA61F;
+      stroke-width: 2px;
+      // stroke-linecap: round;
+
       &.show-resize-areas {
          background: rgba(0, 0, 255, 0.199);
       }
 
       &.n {
-         top: $area-offset;
-         // right: $area-size;
-         // left: $area-size;
-         left: 0;
-         right: 0;
-
-         height: $area-size;
          cursor: ns-resize;
+         transform: translate(calc(50% - 11px), 1px);
       }
 
       &.s {
-         bottom: $area-offset;
-         // right: $area-size;
-         // left: $area-size;
-         left: 0;
-         right: 0;
-
-         height: $area-size;
          cursor: ns-resize;
+         transform: translate(calc(50% - 11px), calc(100% - 1px));
       }
 
       &.e {
-         right: $area-offset;
-
-         // top: $area-size;
-         // bottom: $area-size;
-         top: 0;
-         bottom: 0;
-
-         width: $area-size;
          cursor: ew-resize;
+         transform: translate(calc(100% - 1px), calc(50% - 11px));
       }
 
       &.w {
-         left: $area-offset;
-
-         // top: $area-size;
-         // bottom: $area-size;
-         top: 0;
-         bottom: 0;
-
-         width: $area-size;
          cursor: ew-resize;
+         transform: translate(1px, calc(50% - 11px));
       }
    }
 }
@@ -154,7 +137,7 @@
    left: -30px;
 
    &:hover {
-      background: #D1ECFE;
+      background: #d1ecfe;
    }
 
    display: flex;

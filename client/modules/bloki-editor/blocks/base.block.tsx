@@ -1,5 +1,5 @@
 import './base.block.scss';
-import { Accessor, createContext, createEffect, createMemo, For, Show, useContext } from 'solid-js';
+import { createEffect, createMemo, createSignal, For, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { useEditorContext } from '../editor.store';
 import { TextBlock } from './text/text.block';
@@ -12,6 +12,7 @@ import { useAppStore } from '@/modules/app.store';
 import { createStore } from 'solid-js/store';
 import { isInsideRect } from '../helpers';
 import { Roommate } from '@/lib/network.types';
+import { getRandomColor } from '@/lib/helpers';
 
 const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.Image]: ImageBlock,
@@ -21,7 +22,7 @@ const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.H2]: TextBlock,
    [BlockType.H3]: TextBlock,
    [BlockType.Title]: TextBlock,
-   [BlockType.Code]: CodeBlock,
+   [BlockType.Code]: CodeBlock
 };
 
 export enum CursorSide {
@@ -32,7 +33,7 @@ export enum CursorSide {
    SE = 'se-resize',
    S = 's-resize',
    SW = 'sw-resize',
-   W = 'w-resize',
+   W = 'w-resize'
 }
 
 type BlockProps = {
@@ -49,29 +50,25 @@ export function Block(props: BlockProps) {
    let getContentDimension: (d: Dimension) => Dimension;
    const { containerRef } = props;
 
-   const [editorState, {
-      onChangeStart,
-      onChange,
-      onChangeEnd,
-      getAbsoluteSize,
-      getAbsolutePosition,
-      selectBlock,
-      gridSize,
-      setEditorState: setEditorStore,
-   }] = useEditorContext();
+   const [
+      editorState,
+      { onChangeStart, onChange, onChangeEnd, getAbsoluteSize, getAbsolutePosition, selectBlock, gridSize, setEditorState }
+   ] = useEditorContext();
    const [app] = useAppStore();
    const [state, setState] = createStore({
       transform: {
          ...getAbsolutePosition(props.block.x, props.block.y),
          ...getAbsoluteSize(props.block.width, props.block.height)
-      },
+      }
    });
    const isMeEditing = createMemo(() => editorState.editingBlock === props.block);
    const isMeDragging = createMemo(() => isMeEditing() && editorState.editingType === EditType.Drag);
    const isMeResizing = createMemo(() => isMeEditing() && editorState.editingType === EditType.Resize);
    const isEditingContent = createMemo(() => isMeEditing() && editorState.editingType === EditType.Content);
    const isMeOverflowing = createMemo(() => editorState.overflowedBlocks.includes(props.block));
-   const isMeEditingByRoommate = createMemo(() => editorState.rommates.find(rm => app.name !== rm.name && rm.workingBlockId === props.block.id));
+   const isMeEditingByRoommate = createMemo(() =>
+      editorState.rommates.find((rm) => app.name !== rm.name && rm.workingBlockId === props.block.id)
+   );
 
    createEffect(() => {
       setState('transform', getAbsolutePosition(props.block.x, props.block.y));
@@ -93,14 +90,13 @@ export function Block(props: BlockProps) {
       }
    });
 
-   function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement; }) {
+   function onBoxClick(e: MouseEvent & { currentTarget: HTMLDivElement }) {
       if (isMeEditingByRoommate()) return;
       const rect = e.currentTarget.getBoundingClientRect();
 
       if (isInsideRect(e.pageX, e.pageY, rect)) {
          selectBlock(props.block, EditType.Content);
-      }
-      else {
+      } else {
          e.preventDefault();
       }
    }
@@ -125,8 +121,8 @@ export function Block(props: BlockProps) {
    }
 
    function onContainerPointerMove(e: PointerEvent) {
-      const x = Math.round(e.offsetX - relX);
-      const y = Math.round(e.offsetY - relY);
+      const x = e.offsetX - relX;
+      const y = e.offsetY - relY;
       if (x !== state.transform.x || y !== state.transform.y) {
          wasBlockMoved = true;
          setState('transform', { x, y });
@@ -146,14 +142,12 @@ export function Block(props: BlockProps) {
       if (wasBlockMoved) {
          const { x, y, width, height } = state.transform;
          onChangeEnd(props.block, { x, y, width, height }, EditType.Drag);
-      }
-      else if (handyWasClicked) {
+      } else if (handyWasClicked) {
          handyWasClicked = false;
          // selectBlock(props.block);
-         setEditorStore({
+         setEditorState({
             showContextMenu: true
          });
-         console.log(editorState.showContextMenu);
       }
       wasBlockMoved = false;
    }
@@ -172,7 +166,8 @@ export function Block(props: BlockProps) {
 
    function onHookPointerMove(e: PointerEvent) {
       let { x, y, width, height } = state.transform;
-      let εX = 0, εY = 0;
+      let εX = 0,
+         εY = 0;
       const { gap } = editorState.document.layoutOptions;
       switch (capturingSide) {
          case CursorSide.W: {
@@ -277,7 +272,7 @@ export function Block(props: BlockProps) {
       e.preventDefault();
       if (isMeEditingByRoommate()) return;
       selectBlock(props.block);
-      setEditorStore({
+      setEditorState({
          showContextMenu: true
       });
    }
@@ -290,25 +285,41 @@ export function Block(props: BlockProps) {
             transform: `translate(${state.transform.x}px, ${state.transform.y}px)`,
             width: `${state.transform.width}px`,
             height: `${state.transform.height}px`,
-            border: isMeEditingByRoommate()?.color ? `2px solid ${isMeEditingByRoommate().color}` : 'unset',
-            cursor: isMeEditingByRoommate() ? 'not-allowed' : 'unset',
+            // border: isMeEditingByRoommate()?.color ? `2px solid ${isMeEditingByRoommate().color}` : 'unset',
+            cursor: isMeEditingByRoommate() ? 'not-allowed' : 'unset'
          }}
          classList={{
-            "dragging": isMeDragging(),
-            "selected": isMeEditing(),
-            "resizing": isMeResizing(),
+            dragging: isMeDragging(),
+            selected: isMeEditing(),
+            resizing: isMeResizing()
          }}
          ondragstart={(e) => e.preventDefault()}
          ondrop={(e) => e.preventDefault()}
          draggable={false}
       >
          <div class="handy-block">
-            <HandyIcon
-               class="handy"
-               onPointerDown={(e) => onBoxPointerDown(e, 0, true)}
-               onContextMenu={onHandyContextMenu}
-            />
+            <HandyIcon class="handy" onPointerDown={(e) => onBoxPointerDown(e, 0, true)} onContextMenu={onHandyContextMenu} />
          </div>
+         <Show when={isMeEditing()}>
+            <svg class="controls">
+               <path class="vert nw" d="M0,0 h-5 c-3,0 -5,2 -5,5 v5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.NW)} />
+               <line class="edge n" x1="0" y1="0" x2="20" y2="0" onPointerDown={(e) => onHookPointerDown(e, CursorSide.N)} />
+               <path class="vert ne" d="M0,0 h5 c3,0 5,2 5,5 v5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.NE)} />
+               <line class="edge e" x1="0" y1="0" x2="0" y2="20" onPointerDown={(e) => onHookPointerDown(e, CursorSide.E)} />
+               <path class="vert se" d="M0,0 h5 c3,0 5,-2 5,-5 v-5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.SE)} />
+               <line class="edge s" x1="0" y1="0" x2="20" y2="0" onPointerDown={(e) => onHookPointerDown(e, CursorSide.S)} />
+               <path class="vert sw" d="M0,0 v5 c0,3 2,5 5,5 h5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.SW)} />
+               <line class="edge w" x1="0" y1="0" x2="0" y2="20" onPointerDown={(e) => onHookPointerDown(e, CursorSide.W)} />
+            </svg>
+         </Show>
+         {/* <path class="border" d="M11,1 h-5 c-3,0 -5,2 -5,5 v5 " /> */}
+         {/* // <div
+                  //    class={`${side.length === 2 ? "vert" : "edge"} ${side.toLowerCase()}`}
+                  //    classList={{
+                  //       ["show-resize-areas"]: editorState.document.layoutOptions.showResizeAreas
+                  //    }}
+                  //    onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
+                  // /> */}
          {/* This overlay helps with preveinting mouseenter on firing on child elements */}
          <div
             class="overlay"
@@ -323,13 +334,13 @@ export function Block(props: BlockProps) {
                }
             }}
             onPointerDown={(e) => onBoxPointerDown(e, 1)}
-            onPointerUp={() => pointerDown = false}
+            onPointerUp={() => (pointerDown = false)}
             onClick={onBoxClick}
          >
             <Dynamic<CommonContentProps>
                component={blockContentTypeMap[props.block.type]}
                block={props.block}
-               wrapGetContentDimension={(fn) => getContentDimension = fn}
+               wrapGetContentDimension={(fn) => (getContentDimension = fn)}
                isEditingContent={isEditingContent()}
                isMeDragging={isMeDragging()}
                isMeEditing={isMeEditing()}
@@ -339,22 +350,9 @@ export function Block(props: BlockProps) {
                transform={state.transform}
             />
          </div>
-         <Show when={isMeEditing()}>
-            <For each={/*@once*/Object.keys(CursorSide) as (keyof typeof CursorSide)[]}>
-               {side => (
-                  <div
-                     class={`${side.length === 2 ? "vert" : "edge"} ${side.toLowerCase()}`}
-                     classList={{
-                        ["show-resize-areas"]: editorState.document.layoutOptions.showResizeAreas
-                     }}
-                     onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
-                  />
-               )}
-            </For>
-         </Show>
       </div>
    );
-};
+}
 
 export type CommonContentProps<B extends AnyBlock = AnyBlock> = {
    block: B;

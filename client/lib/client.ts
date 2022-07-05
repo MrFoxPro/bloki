@@ -3,7 +3,7 @@ import { GraphQLClient } from 'graphql-request';
 // import { encode, decode,  } from '@msgpack/msgpack';
 
 const client = new GraphQLClient('/api', {
-   cache: 'no-cache',
+   cache: 'no-cache'
    // headers: {
    // 	'content-type': 'application/msgpack'
    // },

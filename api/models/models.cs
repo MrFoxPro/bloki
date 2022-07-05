@@ -82,10 +82,8 @@ class CodeBlock : Block
 public class User : IdentityUser<int>
 {
    public List<Workspace> Workspaces { get; set; } = new();
-
    public int SelectedDocumentId { get; set; }
    public int SelectedWorkspaceId { get; set; }
-
    public Locale Locale { get; set; } = Locale.English;
    public GridRenderMethod GridRenderMethod { get; set; } = GridRenderMethod.Canvas;
 }
@@ -94,7 +92,6 @@ public class User : IdentityUser<int>
 public class Workspace : IDbEntity
 {
    public int Id { get; set; }
-
    public string Title { get; set; } = "WS without title";
    public List<User> Users { get; set; } = new();
    public List<Document> Documents { get; set; } = new();
@@ -104,12 +101,9 @@ public class Workspace : IDbEntity
 public class Document : IDbEntity
 {
    public int Id { get; set; }
-
    public int WorkspaceId { get; set; }
-
    public string Title { get; set; } = "Document without title";
    public bool Shared { get; set; } = false;
-
    [GraphQLIgnore]
    public byte[] Blob { get; set; } = new byte[1024];
    public ICollection<Block> Layout { get; set; } = new Block[0];
@@ -137,10 +131,8 @@ public class LayoutOptions : ICloneable
    public int MGridHeight { get; set; } = 150;
    public int Gap { get; set; } = 4;
    public int Size { get; set; } = 16;
-
    public bool ShowGridGradient { get; set; } = false;
    public bool ShowResizeAreas { get; set; } = false;
-
    public object Clone()
    {
       return this.MemberwiseClone();

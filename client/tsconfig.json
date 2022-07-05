@@ -1,11 +1,14 @@
 {
    "extends": "../tsconfig.base.json",
    "compilerOptions": {
-      "outDir": "./dist/backend",
+      "target": "ESNext",
+      "module": "ESNext",
       "isolatedModules": true,
       "baseUrl": "./",
       "jsx": "preserve",
       "jsxImportSource": "solid-js",
+      "noEmit": true,
+      "moduleResolution": "node",
       // Misc
       "forceConsistentCasingInFileNames": true,
       "paths": {

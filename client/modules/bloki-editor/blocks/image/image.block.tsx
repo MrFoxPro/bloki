@@ -121,6 +121,7 @@ export function ImageBlock(props: ImageBlockProps) {
          class="content img-block"
          classList={{
             'changing': props.isMeResizing || props.isMeDragging,
+            "overflowing": props.isMeOverflowing
          }}
       >
          <Switch>

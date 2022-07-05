@@ -12,22 +12,12 @@ import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
 // import { Cursors } from '../collab/cursors/cursors.component';
 
-type BlokiEditorProps = {
-};
+type BlokiEditorProps = {};
 function BlokiEditor(props: BlokiEditorProps) {
    let wrapperRef: HTMLDivElement;
-   const [
-      store,
-      {
-         realSize,
-         selectBlock,
-         setEditorState: setEditorStore,
-         getRelativePosition,
-         checkPlacement,
-      }
-   ] = useEditorContext();
+   const [store, { realSize, selectBlock, setEditorState: setEditorStore, getRelativePosition, checkPlacement }] = useEditorContext();
    const [drawerStore] = useDrawerStore();
-   const GRID_COLOR_CELL = '#ffae0020';
+   const GRID_COLOR_CELL = '#005eff0a';
    let containerRef: HTMLDivElement;
 
    // const blocksDomMap = new WeakMap<AnyBlock, HTMLElement>();
@@ -37,8 +27,7 @@ function BlokiEditor(props: BlokiEditorProps) {
          if ([EditType.Content, EditType.Select].includes(store.editingType)) {
             selectBlock(null);
          }
-      }
-      else if (e.key === 'Enter') {
+      } else if (e.key === 'Enter') {
          if (store.editingType === null || (store.editingType === EditType.Content && isTextBlock(store.editingBlock))) {
             console.log('enter');
             e.preventDefault();
@@ -104,12 +93,12 @@ function BlokiEditor(props: BlokiEditorProps) {
       let src: string;
 
       const file = Array.from(e.clipboardData.files)[0];
-      const itemHtml = Array.from(e.clipboardData.items).find(x => x.type === 'text/html');
+      const itemHtml = Array.from(e.clipboardData.items).find((x) => x.type === 'text/html');
       if (itemHtml) {
          const str = await getAsString(itemHtml);
          const regexp = str.match(/<img [^>]*src="[^"]*"[^>]*>/gm);
          if (!regexp) return;
-         const imgSrc = regexp.map(x => x.replace(/.*src="([^"]*)".*/, '$1'))[0] as string;
+         const imgSrc = regexp.map((x) => x.replace(/.*src="([^"]*)".*/, '$1'))[0] as string;
          if (!imgSrc?.includes('http')) {
             pasteError();
             return;
@@ -128,17 +117,22 @@ function BlokiEditor(props: BlokiEditorProps) {
       const { width, height } = await getGoodImageRelativeSize(src, store.document.layoutOptions);
       const { x, y } = findNextSpaceBelow({ width, height });
       const transform: BlockTransform = {
-         width, height,
-         x, y,
+         width,
+         height,
+         x,
+         y
       };
-      createBlock({
-         type: BlockType.Image,
-         value: src,
-         ...transform,
-      }, EditType.Select);
+      createBlock(
+         {
+            type: BlockType.Image,
+            value: src,
+            ...transform
+         },
+         EditType.Select
+      );
    }
 
-   function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement; }, grid: 'main' | 'foreground') {
+   function onGridClick(e: MouseEvent & { currentTarget: HTMLDivElement }, grid: 'main' | 'foreground') {
       if (store.editingBlock) {
          selectBlock(null);
          return;
@@ -148,32 +142,35 @@ function BlokiEditor(props: BlokiEditorProps) {
       const { mGridWidth, fGridWidth } = store.document.layoutOptions;
       if (grid === 'main') {
          x = (fGridWidth - mGridWidth) / 2;
-      }
-      else return;
+      } else return;
 
       const newBlockTransform: BlockTransform = {
          height: 1,
          width: mGridWidth,
-         x, y
+         x,
+         y
       };
       if (checkPlacement(newBlockTransform, x, y).correct) {
-         createBlock({
-            type: BlockType.Regular,
-            value: '',
-            fontFamily: TextBlockFontFamily.Inter,
-            ...newBlockTransform,
-         }, EditType.Content);
+         createBlock(
+            {
+               type: BlockType.Regular,
+               value: '',
+               fontFamily: TextBlockFontFamily.Inter,
+               ...newBlockTransform
+            },
+            EditType.Content
+         );
       }
    }
 
    function createBlock(block: Partial<AnyBlock>, editingType: EditType = EditType.Content, id = crypto.randomUUID()) {
       block.id = id;
-      setEditorStore('layout', blocks => blocks.concat(block as AnyBlock));
+      setEditorStore('layout', (blocks) => blocks.concat(block as AnyBlock));
       const createdBlock = store.layout[store.layout.length - 1];
       // send(WSMsgType.CreateBlock, createdBlock);
       setEditorStore({
          editingBlock: createdBlock,
-         editingType,
+         editingType
       });
       return createdBlock;
    }
@@ -188,26 +185,23 @@ function BlokiEditor(props: BlokiEditorProps) {
    });
 
    return (
-      <div
-         class="wrapper"
-         id="wrapper"
-         ref={wrapperRef}
-      >
+      <div class="wrapper" id="wrapper" ref={wrapperRef}>
          <div
             class="container"
             ref={containerRef}
             style={{
-               'background-image': store.document.layoutOptions.showGridGradient === true ?
-                  `repeating-linear-gradient(
+               'background-image':
+                  store.document.layoutOptions.showGridGradient === true
+                     ? `repeating-linear-gradient(
 						0deg,
 						${GRID_COLOR_CELL} 0 ${realSize().size_px},
 						transparent 0 ${realSize().sum_px}
 					),
 					repeating-linear-gradient(90deg, ${GRID_COLOR_CELL} 0 ${realSize().size_px}, transparent 0 ${realSize().sum_px})`
-                  : null,
+                     : null,
                width: realSize().fGridWidth_px,
                height: realSize().fGridHeight_px,
-               'user-select': drawerStore.instrument !== Instrument.Cursor ? 'none' : 'initial',
+               'user-select': drawerStore.instrument !== Instrument.Cursor ? 'none' : 'initial'
             }}
          >
             {/* For scroll snap, but not working properly in ff */}
@@ -230,7 +224,7 @@ function BlokiEditor(props: BlokiEditorProps) {
                class="grid foreground"
                style={{
                   width: realSize().fGridWidth_px,
-                  height: realSize().fGridHeight_px,
+                  height: realSize().fGridHeight_px
                }}
                onClick={(e) => onGridClick(e, 'foreground')}
                onContextMenu={(e) => e.preventDefault()}
@@ -249,22 +243,14 @@ function BlokiEditor(props: BlokiEditorProps) {
                onMouseOut={onMainGridMouseOut}
                onContextMenu={(e) => e.preventDefault()}
             />
-            <For each={store.layout}>
-               {(block) => (
-                  <Block
-                     block={block}
-                     containerRef={/*@once*/containerRef}
-                  />
-               )}
-            </For>
+            <For each={store.layout}>{(block) => <Block block={block} containerRef={/*@once*/ containerRef} />}</For>
             <Show when={store.editingType === EditType.Drag}>
-               <GhostBlock blockRef={/*@once*/document.getElementById(store.editingBlock.id)} />
+               <GhostBlock blockRef={/*@once*/ document.getElementById(store.editingBlock.id)} />
             </Show>
             <Drawer />
             <BlockContextMenu />
             {/* <Cursors /> */}
          </div>
-
       </div>
    );
 }

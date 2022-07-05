@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { ConfigEnv, UserConfig } from 'vite';
 import solid from 'vite-plugin-solid';
 import viteCompression from 'vite-plugin-compression';
-import solidSvg from "vite-plugin-solid-svg";
+import solidSvg from 'vite-plugin-solid-svg';
 import visualizer from 'rollup-plugin-visualizer';
 import cssnanoPlugin from 'cssnano';
 // https://github.com/ElMassimo/vite-plugin-image-presets
@@ -34,26 +34,28 @@ export default async ({ mode }: ConfigEnv) => {
          proxy: {
             '/api': {
                target: 'http://localhost:5007',
-               changeOrigin: true,
-            },
+               changeOrigin: true
+            }
          }
       },
       plugins: [
          solidSvg(),
          solid({
-            hot: false,
+            hot: dev,
             dev: dev,
-            ssr: false,
+            ssr: false
          }),
          imagePresets(),
-         !dev && viteCompression({
-            filter: /\.(js|mjs|json|css|html|woff2)$/i
-         }),
-         !dev && visualizer({
-            open: false,
-            filename: path.resolve(outDir, 'stats.html'),
-            gzipSize: true,
-         }),
+         !dev &&
+            viteCompression({
+               filter: /\.(js|mjs|json|css|html|woff2)$/i
+            }),
+         !dev &&
+            visualizer({
+               open: false,
+               filename: path.resolve(outDir, 'stats.html'),
+               gzipSize: true
+            })
       ],
       build: {
          polyfillDynamicImport: false,
@@ -82,7 +84,7 @@ export default async ({ mode }: ConfigEnv) => {
          // 	toplevel: true
          // },
          emptyOutDir: true,
-         cssCodeSplit: true,
+         cssCodeSplit: true
       },
       css: {
          modules: false,
@@ -94,9 +96,8 @@ export default async ({ mode }: ConfigEnv) => {
          //    scopeBehaviour: 'local',
          // },
          postcss: {
-            plugins: [
-            ]
-         },
+            plugins: []
+         }
          // preprocessorOptions: {
          //    scss: {
          //       includePaths: ['./styles']
@@ -107,10 +108,10 @@ export default async ({ mode }: ConfigEnv) => {
          alias: [
             {
                find: '@',
-               replacement: path.resolve(__dirname, './'),
-            },
-         ],
-      },
+               replacement: path.resolve(__dirname, './')
+            }
+         ]
+      }
    };
    // if (!dev) {
    // @ts-ignore

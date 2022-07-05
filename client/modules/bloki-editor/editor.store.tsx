@@ -1,14 +1,20 @@
-import { Accessor, batch, createComputed, createContext, createMemo, mergeProps, ParentProps, useContext } from "solid-js";
-import { createStore, SetStoreFunction } from "solid-js/store";
 import {
-   AnyBlock,
-   BlockTransform,
-   Dimension,
-   PlacementStatus,
-   Point
-} from "./types/blocks";
-import { EditType, Instrument } from "./types/editor";
-import { Roommate } from "@/lib/network.types";
+   Accessor,
+   batch,
+   createComputed,
+   createContext,
+   createEffect,
+   createMemo,
+   mergeProps,
+   on,
+   onMount,
+   ParentProps,
+   useContext
+} from 'solid-js';
+import { createStore, SetStoreFunction } from 'solid-js/store';
+import { AnyBlock, BlockTransform, Dimension, PlacementStatus, Point } from './types/blocks';
+import { EditType, Instrument } from './types/editor';
+import { Roommate } from '@/lib/network.types';
 import { BlokiDocument } from '@/lib/schema.auto';
 
 type EditorStoreValues = {
@@ -66,26 +72,27 @@ type EditorStoreProviderProps = ParentProps<{
 }>;
 
 export function EditorStoreProvider(props: EditorStoreProviderProps) {
-   props = mergeProps({
-      instrument: Instrument.Cursor
-   }, props);
-
-   const [editorState, setEditorState] = createStore<EditorStoreValues>(
+   props = mergeProps(
       {
-         editingBlock: null,
-         editingType: null,
-         selectedBlocks: [],
-         showContextMenu: false,
-         overflowedBlocks: [],
-         isPlacementCorrect: false,
-         document: null,
-         layout: [],
-         rommates: [],
-         cursor: { x: 0, y: 0 },
-         connected: false,
-         placement: null,
-      }
+         instrument: Instrument.Cursor
+      },
+      props
    );
+
+   const [editorState, setEditorState] = createStore<EditorStoreValues>({
+      editingBlock: null,
+      editingType: null,
+      selectedBlocks: [],
+      showContextMenu: false,
+      overflowedBlocks: [],
+      isPlacementCorrect: false,
+      document: null,
+      layout: [],
+      rommates: [],
+      cursor: { x: 0, y: 0 },
+      connected: false,
+      placement: null
+   });
 
    createComputed(() => {
       setEditorState({
@@ -98,21 +105,23 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
 
    function gridSize(factor: number) {
       if (factor <= 0) return 0;
-      return factor * (editorState.document.layoutOptions.size + editorState.document.layoutOptions.gap) - editorState.document.layoutOptions.gap;
+      return (
+         factor * (editorState.document.layoutOptions.size + editorState.document.layoutOptions.gap) -
+         editorState.document.layoutOptions.gap
+      );
    }
 
    const realSize = createMemo(() => {
       const cellPx = {
          gap_px: editorState.document.layoutOptions.gap + 'px',
          size_px: editorState.document.layoutOptions.size + 'px',
-         sum_px: (editorState.document.layoutOptions.size + editorState.document.layoutOptions.gap) + 'px'
+         sum_px: editorState.document.layoutOptions.size + editorState.document.layoutOptions.gap + 'px'
       };
       const dimensionsKeys = ['fGridWidth', 'fGridHeight', 'mGridWidth', 'mGridHeight'];
       const grid = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr]: gridSize(editorState.document.layoutOptions[curr]) }), {});
-      const gridPx = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr + '_px']: (grid[curr] + 'px') }), {});
+      const gridPx = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr + '_px']: grid[curr] + 'px' }), {});
       return { ...cellPx, ...grid, ...gridPx } as CalculatedSize;
    });
-
 
    function getRelativePosition(absX: number, absY: number) {
       const x = Math.floor(absX / gridBoxSize());
@@ -189,7 +198,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
                x: startX,
                width: xEnd - startX,
                y: startY,
-               height: yEnd - startY,
+               height: yEnd - startY
             });
          }
       }
@@ -215,15 +224,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    function onChange(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
       const { x, y } = getRelativePosition(absTransform.x, absTransform.y);
       const { width, height } = getRelativeSize(absTransform.width, absTransform.height);
-
       const placement = checkPlacement(block, x, y, width, height);
       setEditorState({ isPlacementCorrect: placement.correct, overflowedBlocks: placement.affected, placement });
-      // staticEditorData.emit('change', block, {
-      //    absTransform,
-      //    placement,
-      //    relTransform: { x, y, width, height },
-      //    type
-      // });
    }
 
    function onChangeEnd(block: AnyBlock, absTransform: BlockTransform, type: EditType) {
@@ -260,13 +262,12 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       if (selectedBlock) {
          setEditorState({
             editingBlock: selectedBlock,
-            editingType: type,
+            editingType: type
          });
-      }
-      else {
+      } else {
          setEditorState({
             editingBlock: null,
-            editingType: null,
+            editingType: null
          });
       }
    }
@@ -277,31 +278,33 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
             editingType: null
          });
       }
-      setEditorState('layout', blocks => blocks.filter(b => b.id !== block.id));
+      setEditorState('layout', (blocks) => blocks.filter((b) => b.id !== block.id));
       // send(WSMsgType.DeleteBlock, block.id);
    }
 
    return (
-      <EditorContext.Provider value={[
-         editorState,
-         {
-            onChangeStart,
-            onChange,
-            onChangeEnd,
-            checkPlacement,
-            gridSize,
-            realSize,
-            gridBoxSize,
-            getRelativePosition,
-            getAbsolutePosition,
-            getAbsoluteSize,
-            getRelativeSize,
+      <EditorContext.Provider
+         value={[
+            editorState,
+            {
+               onChangeStart,
+               onChange,
+               onChangeEnd,
+               checkPlacement,
+               gridSize,
+               realSize,
+               gridBoxSize,
+               getRelativePosition,
+               getAbsolutePosition,
+               getAbsoluteSize,
+               getRelativeSize,
 
-            selectBlock,
-            deleteBlock,
-            setEditorState,
-         }
-      ]}>
+               selectBlock,
+               deleteBlock,
+               setEditorState
+            }
+         ]}
+      >
          {props.children}
       </EditorContext.Provider>
    );
