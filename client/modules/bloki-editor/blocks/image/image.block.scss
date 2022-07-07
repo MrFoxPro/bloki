@@ -5,18 +5,17 @@
    backface-visibility: hidden;
    // transition: opacity 80ms ease;
    position: relative;
-
-
+   &.changing {
+      image-rendering: pixelated;
+   }
    &.overflowing {
       // perf drop in FF.
       opacity: 0.4;
    }
-
    &.ghost {
       opacity: 0.15;
       image-rendering: pixelated;
    }
-
    .mock {
       width: inherit;
       height: inherit;
