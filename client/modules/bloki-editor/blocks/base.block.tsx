@@ -34,7 +34,6 @@ export enum CursorSide {
    SW,
    W
 }
-// const
 
 type BlockProps = {
    block: AnyBlock;
@@ -276,7 +275,6 @@ export function Block(props: BlockProps) {
          showContextMenu: true
       });
    }
-
    return (
       <div
          id={props.block.id}
@@ -304,45 +302,44 @@ export function Block(props: BlockProps) {
             <For
                each={
                   /*@once*/ [
-                     [CursorSide.W, 'xMaxYMid'],
-                     [CursorSide.N, 'xMidYMax'],
-                     [CursorSide.E, 'xMinYMid'],
-                     [CursorSide.S, 'xMidYMin']
+                     [CursorSide.W, 'v'],
+                     [CursorSide.N, 'h'],
+                     [CursorSide.E, 'v'],
+                     [CursorSide.S, 'h']
                   ] as const
                }
             >
-               {([side, par], i) => (
+               {([side, rot]) => (
                   <svg
-                     class={`edge ${CursorSide[side].toLowerCase()}`}
+                     class="edge"
                      classList={{
-                        debug: editorState.document.layoutOptions.showResizeAreas
+                        debug: editorState.document.layoutOptions.showResizeAreas,
+                        [CursorSide[side].toLowerCase()]: true
                      }}
-                     viewBox={i() % 2 == 0 ? '0 0 2 26' : '0 0 26 2'}
-                     preserveAspectRatio={par}
                      onPointerDown={(e) => onHookPointerDown(e, side)}
                   >
-                     <path d={`M1,1 ${i() % 2 == 0 ? 'v' : 'h'}24`} />
+                     <path d={`M1,1 ${rot}24`} />
                   </svg>
                )}
             </For>
             <For
                // TODO: calculate viewBox with trigonometric expression?
                each={
-                  /*@once*/ [
-                     [CursorSide.NW, 'M11,1 h-5 c-3,0 -5,2 -5,5 v5', '-12 -12 24 24'],
-                     [CursorSide.NE, 'M1,1 h5 c3,0 5,2 5,5 v5', '0 -12 24 24'],
-                     [CursorSide.SE, 'M1,11 h5 c3,0 5,-2 5,-5 v-5', '0 0 24 24'],
-                     [CursorSide.SW, 'M1,1 v5 c0,3 2,5 5,5 h5', '-12 0 24 24']
+                  [
+                     [CursorSide.NW, 'M11,1 h-5 c-3,0 -5,2 -5,5 v5'],
+                     [CursorSide.NE, 'M1,1 h5 c3,0 5,2 5,5 v5'],
+                     [CursorSide.SE, 'M1,11 h5 c3,0 5,-2 5,-5 v-5'],
+                     [CursorSide.SW, 'M1,1 v5 c0,3 2,5 5,5 h5']
                   ] as const
                }
             >
-               {([side, d, viewBox]) => (
+               {([side, d]) => (
                   <svg
-                     class={`vert ${CursorSide[side].toLowerCase()}`}
+                     class="vert"
                      classList={{
-                        debug: editorState.document.layoutOptions.showResizeAreas
+                        debug: editorState.document.layoutOptions.showResizeAreas,
+                        [CursorSide[side].toLowerCase()]: true
                      }}
-                     viewBox={viewBox}
                      onPointerDown={(e) => onHookPointerDown(e, side)}
                   >
                      <path d={d} />

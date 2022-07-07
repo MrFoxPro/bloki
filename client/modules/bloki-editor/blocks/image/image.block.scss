@@ -5,6 +5,7 @@
    backface-visibility: hidden;
    transition: opacity 80ms ease;
    position: relative;
+   -webkit-backface-visibility: hidden;
 
    &.overflowing {
       // perf drop in FF.

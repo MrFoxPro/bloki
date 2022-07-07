@@ -236,7 +236,7 @@ const sampleDoc = {
          height: 45
       },
       showGridGradient: true,
-      showResizeAreas: false
+      showResizeAreas: true
    }
 };
 
