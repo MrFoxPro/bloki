@@ -3,9 +3,9 @@
    height: 100%;
    border-radius: 2px;
    backface-visibility: hidden;
-   transition: opacity 80ms ease;
+   // transition: opacity 80ms ease;
    position: relative;
-   -webkit-backface-visibility: hidden;
+
 
    &.overflowing {
       // perf drop in FF.
@@ -14,6 +14,7 @@
 
    &.ghost {
       opacity: 0.15;
+      image-rendering: pixelated;
    }
 
    .mock {
@@ -90,7 +91,6 @@
          }
       }
    }
-
    > img {
       width: inherit;
       height: inherit;

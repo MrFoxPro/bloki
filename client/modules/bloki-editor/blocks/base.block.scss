@@ -7,30 +7,6 @@
    z-index: 10;
    position: absolute;
    box-sizing: border-box;
-   &:hover {
-      .handy {
-         fill: #9ca5ab;
-      }
-   }
-   &.selected {
-      z-index: 25;
-      .handy {
-         fill: #9ca5ab;
-      }
-   }
-   &.dragging {
-      cursor: grabbing;
-      user-select: none;
-      .handy {
-         fill: #7597ff;
-      }
-   }
-   &.resizing {
-      user-select: none;
-      .sizedot {
-         background: #4281fa !important;
-      }
-   }
    .overlay {
       position: absolute;
       inset: 0px;
@@ -133,6 +109,34 @@
       &.s {
          bottom: $edge-total-offset;
          cursor: ns-resize;
+      }
+   }
+   &:hover {
+      .handy {
+         fill: #9ca5ab;
+      }
+   }
+   &.selected {
+      z-index: 25;
+      .handy {
+         fill: #9ca5ab;
+      }
+   }
+   &.dragging {
+      cursor: grabbing;
+      z-index: 25;
+      user-select: none;
+      .handy {
+         fill: #7597ff;
+      }
+      img {
+         image-rendering: crisp-edges;
+      }
+   }
+   &.resizing {
+      user-select: none;
+      .sizedot {
+         background: #4281fa !important;
       }
    }
 }
