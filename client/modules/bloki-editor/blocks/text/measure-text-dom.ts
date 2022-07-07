@@ -16,7 +16,8 @@ export class DOMTextMeasurer {
       const el = document.createElement('div');
       el.className = 'measurer';
       el.style.height = 'auto';
-      el.style.visibility = import.meta.env.PROD ? 'hidden' : 'unset';
+      // el.style.visibility = import.meta.env.PROD ? 'hidden' : 'unset';
+      el.style.visibility = 'hidden';
       this.ruler = el;
       document.body.appendChild(this.ruler);
    }
@@ -28,7 +29,7 @@ export class DOMTextMeasurer {
       return this.ruler.getBoundingClientRect();
    }
    setOptions(options: Partial<Options> = {}) {
-      Object.keys(options).forEach(key => {
+      Object.keys(options).forEach((key) => {
          this.ruler.style[key] = options[key];
       });
    }

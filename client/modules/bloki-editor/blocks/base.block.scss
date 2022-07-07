@@ -1,132 +1,131 @@
+@use 'sass:math';
 .draggable {
    // causes some artifacts in chrome. possibly cause of overlay or outline
    will-change: transform;
 }
-
 .block {
    z-index: 10;
-   // border-left: 5px dashed red;
-   // border-radius: 2px;
-
    position: absolute;
    box-sizing: border-box;
-   /* repeat */
-
    &:hover {
       .handy {
          fill: #9ca5ab;
       }
    }
-
    &.selected {
       z-index: 25;
-
-      border-radius: 2px;
-      outline: 1px solid #E9E9E9;
-      outline-offset: 5px;
-
+      &::after {
+         position: absolute;
+         content: '';
+         inset: -5px;
+         border: 1px solid #e9e9e9;
+         border-radius: 3px;
+         z-index: -1;
+      }
       .handy {
          fill: #9ca5ab;
       }
    }
-
    &.dragging {
-      // background: rgba(201, 64, 64, 0.637);
       cursor: grabbing;
       user-select: none;
-
       .handy {
          fill: #7597ff;
       }
    }
-
    &.resizing {
       user-select: none;
-
       .sizedot {
          background: #4281fa !important;
       }
    }
-
    .overlay {
       position: absolute;
       inset: 0px;
    }
-}
-
-.block .controls {
-   position: absolute;
-   width: calc(100% + 12px);
-   height: calc(100% + 12px);
-   transform: translate(-6px, -6px);
-
-   // I'm too lazy to make array and iterate here
+   // controls
+   $stroke-width: 2px;
+   $stroke-color: #ffa61f;
+   $touch-area: 10px;
    .edge,
    .vert {
       position: absolute;
       fill: none;
-   }
-
-   .vert {
-      stroke-width: 2;
-      stroke: #FFA61F;
-
-      &.show-resize-areas {
+      > path {
+         stroke-linecap: round;
+         stroke-width: $stroke-width;
+         stroke: $stroke-color;
+      }
+      &.debug {
          background: rgba(255, 0, 0, 0.2);
       }
+   }
+   .vert {
+      $vert-border-offset: 6px;
+      $vert-total-offset: -$vert-border-offset - $touch-area - $stroke-width;
+
+      position: absolute;
+      width: 14px + $touch-area;
+      height: 14px + $touch-area;
 
       &.nw {
+         left: $vert-total-offset;
+         top: $vert-total-offset;
          cursor: nwse-resize;
-         transform: translate(11px, 1px);
       }
-
       &.ne {
+         right: $vert-total-offset;
+         top: $vert-total-offset;
          cursor: nesw-resize;
-         transform: translate(calc(100% - 11px), 1px);
       }
-
       &.se {
+         right: $vert-total-offset;
+         bottom: $vert-total-offset;
          cursor: nwse-resize;
-         transform: translate(calc(100% - 11px), calc(100% - 1px));
       }
-
       &.sw {
+         left: $vert-total-offset;
+         bottom: $vert-total-offset;
          cursor: nesw-resize;
-         transform: translate(1px, calc(100% - 11px));
       }
    }
-
    .edge {
-      stroke: #FFA61F;
-      stroke-width: 2px;
-      // stroke-linecap: round;
-
-      &.show-resize-areas {
-         background: rgba(0, 0, 255, 0.199);
+      $edge-offset: -5px;
+      margin: auto;
+      &.n, &.s {
+         height: 3px + $touch-area;
+         width: 26px;
       }
-
-      &.n {
-         cursor: ns-resize;
-         transform: translate(calc(50% - 11px), 1px);
+      &.w, &.e {
+         width: 3px + $touch-area;
+         height: 26px;
       }
-
-      &.s {
-         cursor: ns-resize;
-         transform: translate(calc(50% - 11px), calc(100% - 1px));
-      }
-
-      &.e {
-         cursor: ew-resize;
-         transform: translate(calc(100% - 1px), calc(50% - 11px));
-      }
-
       &.w {
+         left: $edge-offset - $stroke-width - $touch-area;
+         top: 0;
+         bottom: 0;
          cursor: ew-resize;
-         transform: translate(1px, calc(50% - 11px));
+      }
+      &.n {
+         top: $edge-offset - $touch-area - $stroke-width;
+         left: 0;
+         right: 0;
+         cursor: ns-resize;
+      }
+      &.e {
+         right: $edge-offset - $touch-area - $stroke-width;
+         top: 0;
+         bottom: 0;
+         cursor: ew-resize;
+      }
+      &.s {
+         bottom: $edge-offset - $touch-area - $stroke-width;
+         left: 0;
+         right: 0;
+         cursor: ns-resize;
       }
    }
 }
-
 .handy-block {
    width: 24px;
    height: 30px;
@@ -135,22 +134,18 @@
    position: absolute;
    top: 0px;
    left: -30px;
-
    &:hover {
       background: #d1ecfe;
    }
-
    display: flex;
    justify-content: center;
    align-items: center;
-
    .handy {
       width: 24px;
       height: 24px;
       cursor: pointer;
       transition: fill 130ms linear;
       fill: transparent;
-
       &:hover {
          fill: #18a0fb !important;
       }

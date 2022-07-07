@@ -197,8 +197,8 @@ const sampleDoc = {
          fontFamily: 'Inter',
          height: 8,
          width: 8,
-         x: 27,
-         y: 60,
+         x: 6,
+         y: 2,
          id: 'ae89d98a-4d6f-42a3-a735-a5d8d5059d3b'
       },
       {
@@ -236,7 +236,7 @@ const sampleDoc = {
          height: 45
       },
       showGridGradient: true,
-      showResizeAreas: true
+      showResizeAreas: false
    }
 };
 

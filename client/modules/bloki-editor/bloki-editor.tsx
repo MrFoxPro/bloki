@@ -17,7 +17,7 @@ function BlokiEditor(props: BlokiEditorProps) {
    let wrapperRef: HTMLDivElement;
    const [store, { realSize, selectBlock, setEditorState: setEditorStore, getRelativePosition, checkPlacement }] = useEditorContext();
    const [drawerStore] = useDrawerStore();
-   const GRID_COLOR_CELL = '#005eff0a';
+   const GRID_COLOR_CELL = '#005eff32';
    let containerRef: HTMLDivElement;
 
    // const blocksDomMap = new WeakMap<AnyBlock, HTMLElement>();

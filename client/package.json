@@ -21,10 +21,10 @@
       "yjs": "^13.5.39"
    },
    "devDependencies": {
-      "@graphql-codegen/cli": "^2.6.4",
-      "@graphql-codegen/typescript": "^2.5.1",
-      "@graphql-codegen/typescript-graphql-request": "^4.4.10",
-      "@graphql-codegen/typescript-operations": "^2.4.2",
+      "@graphql-codegen/cli": "^2.7.0",
+      "@graphql-codegen/typescript": "^2.6.0",
+      "@graphql-codegen/typescript-graphql-request": "^4.4.11",
+      "@graphql-codegen/typescript-operations": "^2.4.3",
       "@types/js-cookie": "^3.0.2",
       "cssnano": "^5.1.12",
       "cssnano-preset-advanced": "^5.3.8",

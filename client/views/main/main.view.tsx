@@ -5,7 +5,7 @@ export function MainView() {
 
    return (
       <div class='main'>
-         <SideMenu />
+         {/* <SideMenu /> */}
          <Workspace />
       </div>
    );

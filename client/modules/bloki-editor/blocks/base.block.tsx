@@ -1,5 +1,5 @@
 import './base.block.scss';
-import { createEffect, createMemo, createSignal, For, Match, Show, Switch } from 'solid-js';
+import { createEffect, createMemo, For, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { useEditorContext } from '../editor.store';
 import { TextBlock } from './text/text.block';
@@ -12,7 +12,6 @@ import { useAppStore } from '@/modules/app.store';
 import { createStore } from 'solid-js/store';
 import { isInsideRect } from '../helpers';
 import { Roommate } from '@/lib/network.types';
-import { getRandomColor } from '@/lib/helpers';
 
 const blockContentTypeMap: Record<BlockType, any> = {
    [BlockType.Image]: ImageBlock,
@@ -26,15 +25,16 @@ const blockContentTypeMap: Record<BlockType, any> = {
 };
 
 export enum CursorSide {
-   NW = 'nw-resize',
-   N = 'n-resize',
-   NE = 'ne-resize',
-   E = 'e-resize',
-   SE = 'se-resize',
-   S = 's-resize',
-   SW = 'sw-resize',
-   W = 'w-resize'
+   NW,
+   N,
+   NE,
+   E,
+   SE,
+   S,
+   SW,
+   W
 }
+// const
 
 type BlockProps = {
    block: AnyBlock;
@@ -301,25 +301,55 @@ export function Block(props: BlockProps) {
             <HandyIcon class="handy" onPointerDown={(e) => onBoxPointerDown(e, 0, true)} onContextMenu={onHandyContextMenu} />
          </div>
          <Show when={isMeEditing()}>
-            <svg class="controls">
-               <path class="vert nw" d="M0,0 h-5 c-3,0 -5,2 -5,5 v5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.NW)} />
-               <line class="edge n" x1="0" y1="0" x2="20" y2="0" onPointerDown={(e) => onHookPointerDown(e, CursorSide.N)} />
-               <path class="vert ne" d="M0,0 h5 c3,0 5,2 5,5 v5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.NE)} />
-               <line class="edge e" x1="0" y1="0" x2="0" y2="20" onPointerDown={(e) => onHookPointerDown(e, CursorSide.E)} />
-               <path class="vert se" d="M0,0 h5 c3,0 5,-2 5,-5 v-5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.SE)} />
-               <line class="edge s" x1="0" y1="0" x2="20" y2="0" onPointerDown={(e) => onHookPointerDown(e, CursorSide.S)} />
-               <path class="vert sw" d="M0,0 v5 c0,3 2,5 5,5 h5" onPointerDown={(e) => onHookPointerDown(e, CursorSide.SW)} />
-               <line class="edge w" x1="0" y1="0" x2="0" y2="20" onPointerDown={(e) => onHookPointerDown(e, CursorSide.W)} />
-            </svg>
+            <For
+               each={
+                  /*@once*/ [
+                     [CursorSide.W, 'xMaxYMid'],
+                     [CursorSide.N, 'xMidYMax'],
+                     [CursorSide.E, 'xMinYMid'],
+                     [CursorSide.S, 'xMidYMin']
+                  ] as const
+               }
+            >
+               {([side, par], i) => (
+                  <svg
+                     class={`edge ${CursorSide[side].toLowerCase()}`}
+                     classList={{
+                        debug: editorState.document.layoutOptions.showResizeAreas
+                     }}
+                     viewBox={i() % 2 == 0 ? '0 0 2 26' : '0 0 26 2'}
+                     preserveAspectRatio={par}
+                     onPointerDown={(e) => onHookPointerDown(e, side)}
+                  >
+                     <path d={`M1,1 ${i() % 2 == 0 ? 'v' : 'h'}24`} />
+                  </svg>
+               )}
+            </For>
+            <For
+               // TODO: calculate viewBox with trigonometric expression?
+               each={
+                  /*@once*/ [
+                     [CursorSide.NW, 'M11,1 h-5 c-3,0 -5,2 -5,5 v5', '-12 -12 24 24'],
+                     [CursorSide.NE, 'M1,1 h5 c3,0 5,2 5,5 v5', '0 -12 24 24'],
+                     [CursorSide.SE, 'M1,11 h5 c3,0 5,-2 5,-5 v-5', '0 0 24 24'],
+                     [CursorSide.SW, 'M1,1 v5 c0,3 2,5 5,5 h5', '-12 0 24 24']
+                  ] as const
+               }
+            >
+               {([side, d, viewBox]) => (
+                  <svg
+                     class={`vert ${CursorSide[side].toLowerCase()}`}
+                     classList={{
+                        debug: editorState.document.layoutOptions.showResizeAreas
+                     }}
+                     viewBox={viewBox}
+                     onPointerDown={(e) => onHookPointerDown(e, side)}
+                  >
+                     <path d={d} />
+                  </svg>
+               )}
+            </For>
          </Show>
-         {/* <path class="border" d="M11,1 h-5 c-3,0 -5,2 -5,5 v5 " /> */}
-         {/* // <div
-                  //    class={`${side.length === 2 ? "vert" : "edge"} ${side.toLowerCase()}`}
-                  //    classList={{
-                  //       ["show-resize-areas"]: editorState.document.layoutOptions.showResizeAreas
-                  //    }}
-                  //    onPointerDown={(e) => onHookPointerDown(e, CursorSide[side])}
-                  // /> */}
          {/* This overlay helps with preveinting mouseenter on firing on child elements */}
          <div
             class="overlay"
