@@ -16,7 +16,7 @@ export interface IGridImpl {
 
 export const FillColors: Record<CellState, string> = {
    [CellState.None]: 'transparent',
-   [CellState.Free]: '#EDF3FF',
+   [CellState.Free]: '#FBF2E4',
    [CellState.Intersection]: '#DA4929',
    [CellState.Affected]: '#e6e612'
 };

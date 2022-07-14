@@ -17,12 +17,11 @@
    }
 
    &.selected {
-      outline-color: #4281fa;
-      // border-color: #4281fa;
+      outline-color: #FFA61F;
       z-index: 25;
 
       .handy {
-         fill: #9ca5ab;
+         fill: #FFA61F;
       }
    }
 
@@ -32,7 +31,7 @@
       user-select: none;
 
       .handy {
-         fill: #7597ff;
+         fill: #FFA61F;
       }
    }
 
@@ -154,7 +153,7 @@
    left: -29px;
 
    &:hover {
-      background: #D1ECFE;
+      background: #FAF1E3;
    }
 
    display: flex;
@@ -169,7 +168,7 @@
       fill: transparent;
 
       &:hover {
-         fill: #18a0fb !important;
+         fill: #FFA61F !important;
       }
    }
 }
