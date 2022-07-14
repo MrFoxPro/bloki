@@ -123,7 +123,7 @@ export function TextBlock(props: TextBlockProps) {
       if (pasteContent) {
          document.execCommand("insertHTML", false, pasteContent);
       }
-      trimContent(contentRef);
+      // trimContent(contentRef);
       const text = contentRef.textContent.trim();
 
       const html = contentRef.innerHTML.trim();
