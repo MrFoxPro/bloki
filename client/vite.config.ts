@@ -27,14 +27,14 @@ export default async ({ mode }: ConfigEnv) => {
       base: dev ? './' : '/',
       assetsInclude: ['*.gltf', /.gltf/],
       clearScreen: false,
-      optimizeDeps: {},
+      // optimizeDeps: {},
       server: {
          host: '0.0.0.0',
          port: 3000,
          proxy: {
             '/api': {
                target: 'http://localhost:5007',
-               changeOrigin: true
+               changeOrigin: true,
             }
          }
       },

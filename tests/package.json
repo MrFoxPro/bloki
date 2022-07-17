@@ -6,6 +6,6 @@
 	},
 	"dependencies": {
 		"@faker-js/faker": "^7.3.0",
-		"@playwright/test": "^1.23.1"
+		"@playwright/test": "^1.23.3"
 	}
 }

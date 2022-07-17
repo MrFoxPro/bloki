@@ -32,9 +32,9 @@
          stroke-width: $stroke-width;
          stroke: $stroke-color;
       }
-      &.debug {
-         background: rgba(255, 0, 0, 0.2);
-      }
+      // &.debug {
+      //    background: rgba(255, 0, 0, 0.2);
+      // }
    }
    .vert {
       $vert-size: 12px;

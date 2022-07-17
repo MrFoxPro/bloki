@@ -1,0 +1,49 @@
+@import '@/styles/vars.scss';
+
+.modal.settings {
+   display: flex;
+   > .menu {
+      padding-right: 21px;
+      border-right: 1px solid #edf2f4;
+      .items {
+         &:not(:first-child) {
+            margin-top: 24px;
+         }
+      }
+   }
+   > .content {
+      padding-inline: 40px;
+      .control-group {
+         label {
+            display: block;
+            @include text(16px, $color-text-regular, 600);
+         }
+         .panel {
+            display: flex;
+            align-items: center;
+            .range {
+               width: 563px;
+            }
+            .numeric {
+               background: #ffffff;
+               border: 0.5px solid #d7dcdf;
+               border-radius: 4px;
+               width: 78px;
+               height: 40px;
+               @include text-regular();
+               text-align: center;
+            }
+            .reset {
+               width: 18px;
+               margin-left: 12px;
+            }
+            .range + .numeric {
+               margin-left: 12px;
+            }
+         }
+         label + .panel {
+            margin-top: 20px;
+         }
+      }
+   }
+}

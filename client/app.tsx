@@ -8,6 +8,7 @@ import { I18n } from './modules/i18n/i18n.module';
 import { ModalStoreProvider } from './modules/modals/modal';
 import { lazy } from 'solid-js';
 import { ThemeContextProvider } from './modules/theme.store';
+import { Toaster } from 'solid-toast';
 
 const LandingView = lazy(() => import('./views/landing/landing.view'));
 const MainView = lazy(() => import('./views/main/main.view'));
@@ -44,6 +45,7 @@ function App() {
                   <Routes />
                </Router>
                {/* </ModalStoreProvider> */}
+               <Toaster />
             </ThemeContextProvider>
          </I18n>
       </AppStoreProvider>
