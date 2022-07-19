@@ -46,7 +46,8 @@ export function Switch(props: SwitchProps) {
    createEffect(
       on(
          () => store.checked,
-         () => start()
+         () => start(),
+         { defer: true }
       )
    );
    return (
