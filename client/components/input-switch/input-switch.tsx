@@ -7,8 +7,8 @@ type SwitchProps = {} & ComponentProps<'input'>;
 export function Switch(props: SwitchProps) {
    const [store, setStore] = createStore({
       checked: props.checked,
-      d1: !props.checked ? 'M7,1 L1,7' : 'M9.5,1 L3.5,7',
-      d2: !props.checked ? 'M1,1 L7,7' : 'M3.5,7 L1,4.5'
+      d1: !props.checked ? 'M7,1 L1,7' : 'M8.5,1 L2.5,7',
+      d2: !props.checked ? 'M1,1 L7,7' : 'M2.5,7 L0,4.5'
    });
    let startTime: number;
    const animDuration = 100;
@@ -21,15 +21,15 @@ export function Switch(props: SwitchProps) {
          if (!store.checked) progress = 1 - progress;
          progress = Math.min(1, Math.max(0, progress));
          const l1 = {
-            x1: 7 + (9.5 - 7) * progress,
+            x1: 7 + (8.5 - 7) * progress,
             y1: 1,
-            x2: 1 + (3.5 - 1) * progress,
+            x2: 1 + (2.5 - 1) * progress,
             y2: 7
          };
          const l2 = {
-            x1: 1 + (3.5 - 1) * progress,
+            x1: 1 + (2.5 - 1) * progress,
             y1: 1 + (7 - 1) * progress,
-            x2: 7 + (1 - 7) * progress,
+            x2: 7 + (0 - 7) * progress,
             y2: 7 + (4.5 - 7) * progress
          };
          batch(() => {

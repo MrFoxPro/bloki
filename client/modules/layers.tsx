@@ -45,32 +45,39 @@ export function LayersContextProvider<T extends string[]>(props: LayersContextPr
          ref.showModal();
       });
       return (
-         <dialog
-            class="modal"
+         <div
+            class="modal-backdrop"
             classList={{
-               [props.viewName]: true,
                closing: closing()
             }}
-            onAnimationEnd={() => {
-               if (closing()) {
-                  ref.close();
-               }
-            }}
-            onClose={() => context.toggle(props.viewName)}
-            ref={ref}
          >
-            <svg
-               viewBox="0 0 14 14"
-               class="close"
-               onClick={() => {
-                  setClosing(true);
+            <dialog
+               class="modal"
+               classList={{
+                  [props.viewName]: true,
+                  closing: closing()
                }}
+               onAnimationEnd={() => {
+                  if (closing()) {
+                     ref.close();
+                  }
+               }}
+               onClose={() => context.toggle(props.viewName)}
+               ref={ref}
             >
-               <path d="M13 1L1 13" />
-               <path d="M1 1L13 13" />
-            </svg>
-            {views[props.viewName]}
-         </dialog>
+               <svg
+                  viewBox="0 0 14 14"
+                  class="close"
+                  onClick={() => {
+                     setClosing(true);
+                  }}
+               >
+                  <path d="M13 1L1 13" />
+                  <path d="M1 1L13 13" />
+               </svg>
+               {views[props.viewName]}
+            </dialog>
+         </div>
       );
    }
    return (

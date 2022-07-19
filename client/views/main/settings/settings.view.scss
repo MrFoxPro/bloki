@@ -2,6 +2,8 @@
 
 .modal.settings {
    display: flex;
+   width: 1280px;
+   height: 800px;
    > .menu {
       padding-right: 21px;
       border-right: 1px solid #edf2f4;
@@ -13,7 +15,6 @@
    }
    > .content {
       padding-inline: 40px;
-      min-width: 760px;
       .control-group {
          label {
             display: block;
