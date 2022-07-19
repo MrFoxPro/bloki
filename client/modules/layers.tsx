@@ -1,5 +1,5 @@
 import './layers.scss';
-import { Component, createContext, For, onCleanup, onMount, ParentProps, useContext } from 'solid-js';
+import { Component, createContext, createRenderEffect, createSignal, For, onCleanup, onMount, ParentProps, useContext } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 
 type LayersContext<T extends string[] = string[]> = {
@@ -19,7 +19,7 @@ type LayersContextProviderProps<T extends string[]> = ParentProps<{
 }>;
 export function LayersContextProvider<T extends string[]>(props: LayersContextProviderProps<T>) {
    const { graph, views } = props;
-   const stack = createMutable([]);
+   const stack = createMutable<string[]>([]);
    const context: LayersContext = {
       toggle(path: T[number]) {
          const entry = stack.lastIndexOf(path);
@@ -38,33 +38,45 @@ export function LayersContextProvider<T extends string[]>(props: LayersContextPr
       },
       includes: stack.includes
    };
+   function DialogWrapper(props) {
+      let ref: HTMLDialogElement;
+      const [closing, setClosing] = createSignal(false);
+      onMount(() => {
+         ref.showModal();
+      });
+      return (
+         <dialog
+            class="modal"
+            classList={{
+               [props.viewName]: true,
+               closing: closing()
+            }}
+            onAnimationEnd={() => {
+               if (closing()) {
+                  ref.close();
+               }
+            }}
+            onClose={() => context.toggle(props.viewName)}
+            ref={ref}
+         >
+            <svg
+               viewBox="0 0 14 14"
+               class="close"
+               onClick={() => {
+                  setClosing(true);
+               }}
+            >
+               <path d="M13 1L1 13" />
+               <path d="M1 1L13 13" />
+            </svg>
+            {views[props.viewName]}
+         </dialog>
+      );
+   }
    return (
       <LayersContext.Provider value={context}>
          {props.children}
-         <For each={stack}>
-            {(viewName) => (
-               <dialog
-                  class={`modal ${viewName}`}
-                  ref={(ref: HTMLDialogElement) => {
-                     onMount(() => ref.showModal());
-                     onCleanup(() => ref.close());
-                  }}
-                  onClose={() => context.toggle(viewName)}
-               >
-                  <svg
-                     viewBox="0 0 14 14"
-                     fill="none"
-                     xmlns="http://www.w3.org/2000/svg"
-                     class="close"
-                     onClick={(e) => e.currentTarget.parentElement.close()}
-                  >
-                     <path d="M13 1L1 13" stroke="#9CA5AB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                     <path d="M1 1L13 13" stroke="#9CA5AB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  {views[viewName]}
-               </dialog>
-            )}
-         </For>
+         <For each={stack}>{(viewName) => <DialogWrapper viewName={viewName} />}</For>
       </LayersContext.Provider>
    );
 }

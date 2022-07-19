@@ -34,7 +34,7 @@ export default async ({ mode }: ConfigEnv) => {
          proxy: {
             '/api': {
                target: 'http://localhost:5007',
-               changeOrigin: true,
+               changeOrigin: true
             }
          }
       },
@@ -58,7 +58,8 @@ export default async ({ mode }: ConfigEnv) => {
             })
       ],
       build: {
-         polyfillDynamicImport: false,
+         // polyfillDynamicImport: false,
+         polyfillModulePreload: false,
          sourcemap: false,
          target: 'esnext',
          reportCompressedSize: true,
@@ -97,10 +98,11 @@ export default async ({ mode }: ConfigEnv) => {
          // },
          postcss: {
             plugins: []
-         }
+         },
          // preprocessorOptions: {
          //    scss: {
-         //       includePaths: ['./styles']
+         //       additionalData: '@use "@/styles/vars.scss";\n'
+         //       // includePaths: ['./styles']
          //    }
          // }
       },

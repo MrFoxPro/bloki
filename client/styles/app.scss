@@ -1,23 +1,28 @@
 @use 'sass:math';
-@import './vars.scss';
-@import './fonts.scss';
+@import '@/styles/vars.scss';
+@import '@/styles/fonts.scss';
 
 body,
 html {
    all: initial;
    font-family: $font-family--default;
 }
+
+h4 {
+   @include text(16px, $color-gray-800, 600);
+}
+
 .button {
    outline: none;
    border: none;
    cursor: pointer;
-   background: $color-accent1;
+   background: $color-orange-900;
    border-radius: 7px;
-   color: #ffffff;
+   color: $color-white;
    text-align: center;
    padding: 11px 17px;
    &:disabled {
-      background: $color-accent1-semi;
+      background: $color-orange-200;
       cursor: not-allowed;
    }
 }
@@ -37,21 +42,21 @@ html {
       padding-left: 12px;
       padding-right: 26px;
       width: 100%;
-      border: 0.5px solid $color-sec-grid;
+      border: 0.5px solid $color-gray-600;
       border-radius: 4px;
       // @include text(12px, '', 600);
       &::placeholder {
-         color: $color-sec-grid;
+         color: $color-gray-600;
       }
       &:hover:not(&:focus):not(&:disabled) {
-         border-color: $color-accent1-semi;
+         border-color: $color-orange-200;
       }
       &:focus {
-         border-color: $color-accent1;
+         border-color: $color-orange-900;
       }
       &:disabled {
          background: #d7dcdf0a;
-         color: rgba($color: $color-text-regular, $alpha: 0.7);
+         color: rgba($color: $color-gray-800, $alpha: 0.7);
          cursor: not-allowed;
       }
    }
@@ -64,7 +69,7 @@ html {
 }
 input[type='range'] {
    $color-bg: #d7dcdf;
-   $color-active: #FFC632;
+   $color-active: #ffc632;
    $track-height: 4px;
    $thumb-height: 16px;
    $thumb-border-radius: 2px;
@@ -79,6 +84,7 @@ input[type='range'] {
       border: none;
       width: $thumb-height;
       height: $thumb-height;
+      cursor: pointer;
    }
    &::-moz-range-track {
       background-color: $color-bg;
@@ -113,13 +119,13 @@ input[type='range'] {
    }
 }
 hr {
-   border-color: $color-sec-grid;
+   border-color: $color-gray-600;
    border-style: solid;
    margin: initial;
    padding: initial;
    border-width: 0;
    height: 1px;
-   background: #E9EAEA;
+   background: #e9eaea;
 }
 .top-bar {
    height: 40px;
@@ -132,17 +138,19 @@ hr {
    z-index: 45;
    min-width: 600px;
 }
+
 .items {
    width: 100%;
    display: flex;
    flex-direction: column;
    align-items: stretch;
+   gap: 2px;
    &.bottom-line {
       padding-bottom: 18px;
-      border-bottom: 1px solid #EDF2F4;
+      border-bottom: 1px solid #edf2f4;
    }
    .name {
-      @include text(12px, $color-text-description1, 600);
+      @include text(12px, $color-gray-700, 600);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -156,7 +164,7 @@ hr {
          > svg {
             width: 16px;
             height: 16px;
-            stroke: #9ca5ab !important;
+            stroke: $color-gray-700 !important;
          }
          &:hover > svg {
             stroke: #4281fa !important;
@@ -184,15 +192,15 @@ hr {
          background-position: center;
          background-repeat: no-repeat;
          background-size: contain;
-         color: $color-text-regular;
+         color: $color-gray-800;
       }
       &.highlighted {
-         background: #EAEAEA;
+         background: #eaeaea;
          span {
-            color: #312F2F;
+            color: #312f2f;
          }
          .icon {
-            color: #312F2F;
+            color: #312f2f;
          }
       }
       &.disabled {
@@ -205,10 +213,10 @@ hr {
          }
       }
       &:hover {
-         background: #EAEAEA;
+         background: #eaeaea;
       }
       &.red {
-         color: #FF6161;
+         color: #ff6161;
       }
    }
    .name + .item {

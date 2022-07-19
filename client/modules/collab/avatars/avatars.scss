@@ -1,3 +1,5 @@
+@import '@/styles/vars.scss';
+
 .avatars {
 	display: flex;
 	align-items: center;
@@ -13,7 +15,7 @@
 		font-style: normal;
 		font-weight: 600;
 		font-size: 11px;
-		color: #FFFFFF;
+		color: $color-white;
 
 		display: flex;
 		justify-content: center;

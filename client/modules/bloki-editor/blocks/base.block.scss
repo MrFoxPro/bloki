@@ -1,4 +1,6 @@
 @use 'sass:math';
+@import '@/styles/vars.scss';
+
 .draggable {
    // causes some artifacts in chrome. possibly cause of overlay or outline
    will-change: transform;
@@ -113,13 +115,13 @@
    }
    &:hover {
       .handy {
-         fill: #9ca5ab;
+         fill: $color-gray-700;
       }
    }
    &.selected {
       z-index: 25;
       .handy {
-         fill: #9ca5ab;
+         fill: $color-gray-700;
       }
    }
    &.dragging {
