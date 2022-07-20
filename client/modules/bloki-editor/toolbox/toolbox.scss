@@ -14,10 +14,10 @@
       width: 24px;
       height: 24px;
       cursor: pointer;
-      stroke: $color-gray-800;
+      stroke:var(--color-3);
 
       * {
-         stroke: $color-gray-800;
+         stroke:var(--color-3);
       }
 
       &.active {
@@ -33,8 +33,8 @@
       position: absolute;
       top: 40px;
 
-      background: $color-white;
-      border: 1px solid #d7dcdf;
+      background: var(--color-1);
+      border: 1px solid $color-gray-600;
       box-sizing: border-box;
       padding: 12px;
       box-shadow: 0px 54px 103px rgba(0, 0, 0, 0.03), 0px 22.5599px 43.0309px rgba(0, 0, 0, 0.0215656),
@@ -86,7 +86,7 @@
 }
 
 .vr {
-   border: 2px solid #d7dcdf;
+   border: 2px solid $color-gray-600;
    height: 36px;
    width: 0px;
 }

@@ -1,6 +1,7 @@
 import './layers.scss';
-import { Component, createContext, createRenderEffect, createSignal, For, onCleanup, onMount, ParentProps, useContext } from 'solid-js';
+import { Component, createContext, createSignal, For, onMount, ParentProps, Suspense, useContext } from 'solid-js';
 import { createMutable } from 'solid-js/store';
+import { Dynamic } from 'solid-js/web';
 
 type LayersContext<T extends string[] = string[]> = {
    push(path: T[number]): void;
@@ -43,6 +44,13 @@ export function LayersContextProvider<T extends string[]>(props: LayersContextPr
       const [closing, setClosing] = createSignal(false);
       onMount(() => {
          ref.showModal();
+         ref.addEventListener('cancel', (e) => {
+            e.preventDefault();
+            setClosing(true);
+         });
+         ref.onclose = () => {
+            context.toggle(props.viewName);
+         };
       });
       return (
          <div
@@ -62,7 +70,6 @@ export function LayersContextProvider<T extends string[]>(props: LayersContextPr
                      ref.close();
                   }
                }}
-               onClose={() => context.toggle(props.viewName)}
                ref={ref}
             >
                <svg
@@ -75,7 +82,9 @@ export function LayersContextProvider<T extends string[]>(props: LayersContextPr
                   <path d="M13 1L1 13" />
                   <path d="M1 1L13 13" />
                </svg>
-               {views[props.viewName]}
+               <Suspense fallback={'Loading'}>
+                  <Dynamic component={views[props.viewName]} />
+               </Suspense>
             </dialog>
          </div>
       );

@@ -115,13 +115,13 @@
    }
    &:hover {
       .handy {
-         fill: $color-gray-700;
+         fill: var(--color-2);
       }
    }
    &.selected {
       z-index: 25;
       .handy {
-         fill: $color-gray-700;
+         fill: var(--color-2);
       }
    }
    &.dragging {

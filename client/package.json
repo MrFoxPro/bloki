@@ -10,6 +10,7 @@
       "@microsoft/signalr": "^6.0.7",
       "@msgpack/msgpack": "^2.7.2",
       "@solid-primitives/date": "^2.0.0",
+      "@solid-primitives/keyed": "^1.0.0",
       "@solid-primitives/platform": "^0.0.100",
       "@solid-primitives/raf": "^2.1.0",
       "@solid-primitives/scheduled": "^1.0.0",

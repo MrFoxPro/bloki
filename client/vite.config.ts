@@ -98,7 +98,7 @@ export default async ({ mode }: ConfigEnv) => {
          // },
          postcss: {
             plugins: []
-         },
+         }
          // preprocessorOptions: {
          //    scss: {
          //       additionalData: '@use "@/styles/vars.scss";\n'
@@ -115,9 +115,9 @@ export default async ({ mode }: ConfigEnv) => {
          ]
       }
    };
-   // if (!dev) {
-   // @ts-ignore
-   config.css.postcss.plugins.push(cssnanoPlugin());
-   // }
+   if (!dev) {
+      // @ts-ignore
+      config.css.postcss.plugins.push(cssnanoPlugin());
+   }
    return config;
 };

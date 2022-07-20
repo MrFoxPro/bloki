@@ -17,6 +17,7 @@ importers:
       '@microsoft/signalr': ^6.0.7
       '@msgpack/msgpack': ^2.7.2
       '@solid-primitives/date': ^2.0.0
+      '@solid-primitives/keyed': ^1.0.0
       '@solid-primitives/platform': ^0.0.100
       '@solid-primitives/raf': ^2.1.0
       '@solid-primitives/scheduled': ^1.0.0
@@ -53,6 +54,7 @@ importers:
       '@microsoft/signalr': 6.0.7
       '@msgpack/msgpack': 2.7.2
       '@solid-primitives/date': 2.0.0_solid-js@1.4.7
+      '@solid-primitives/keyed': 1.0.0_solid-js@1.4.7
       '@solid-primitives/platform': 0.0.100_solid-js@1.4.7
       '@solid-primitives/raf': 2.1.0_solid-js@1.4.7
       '@solid-primitives/scheduled': 1.0.0_solid-js@1.4.7
@@ -1314,6 +1316,14 @@ packages:
     deprecated: debounce primitive moved to @solid-primitives/scheduled
     peerDependencies:
       solid-js: '>=1.0.0'
+    dependencies:
+      solid-js: 1.4.7
+    dev: false
+
+  /@solid-primitives/keyed/1.0.0_solid-js@1.4.7:
+    resolution: {integrity: sha512-9vznFq6xR1FLEcQH3S3aGZ3iWOY6EZmDEl0raNOXJxdgXnudHepcAOfx8G52bROHJ3AdPnIqv4ITIegPQOK2BA==}
+    peerDependencies:
+      solid-js: ^1.4.0
     dependencies:
       solid-js: 1.4.7
     dev: false

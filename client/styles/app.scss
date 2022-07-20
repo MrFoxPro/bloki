@@ -1,4 +1,6 @@
 @use 'sass:math';
+@use 'sass:map';
+@use 'sass:list';
 @import '@/styles/vars.scss';
 @import '@/styles/fonts.scss';
 
@@ -7,22 +9,30 @@ html {
    all: initial;
    font-family: $font-family--default;
 }
+@each $theme, $colors in $color-map {
+   .theme.#{$theme} {
+      @for $i from 1 through list.length($colors) {
+         $color: list.nth($colors, $i);
+         --color-#{$i}: #{$color};
+      }
+   }
+}
 
 h4 {
-   @include text(16px, $color-gray-800, 600);
+   @include text(16px, var(--color-3), 600);
 }
 
 .button {
    outline: none;
    border: none;
    cursor: pointer;
-   background: $color-orange-900;
+   background: $color-primary-orange-900;
    border-radius: 7px;
-   color: $color-white;
+   color: var(--color-1);
    text-align: center;
    padding: 11px 17px;
    &:disabled {
-      background: $color-orange-200;
+      background: $color-primary-orange-200;
       cursor: not-allowed;
    }
 }
@@ -44,19 +54,18 @@ h4 {
       width: 100%;
       border: 0.5px solid $color-gray-600;
       border-radius: 4px;
-      // @include text(12px, '', 600);
       &::placeholder {
          color: $color-gray-600;
       }
       &:hover:not(&:focus):not(&:disabled) {
-         border-color: $color-orange-200;
+         border-color: $color-primary-orange-200;
       }
       &:focus {
-         border-color: $color-orange-900;
+         border-color: $color-primary-orange-900;
       }
       &:disabled {
-         background: #d7dcdf0a;
-         color: rgba($color: $color-gray-800, $alpha: 0.7);
+         background: $color-gray-600;
+         color: rgba($color: var(--color-3), $alpha: 0.7);
          cursor: not-allowed;
       }
    }
@@ -67,8 +76,20 @@ h4 {
       cursor: pointer;
    }
 }
+fieldset {
+   padding: 0;
+   border: none;
+   legend {
+      padding: 0;
+      margin-bottom: 24px;
+      @include text(16px, var(--color-3), 600);
+   }
+   & + fieldset {
+      margin-top: 32px;
+   }
+}
 input[type='range'] {
-   $color-bg: #d7dcdf;
+   $color-bg: $color-gray-600;
    $color-active: #ffc632;
    $track-height: 4px;
    $thumb-height: 16px;
@@ -150,7 +171,7 @@ hr {
       border-bottom: 1px solid #edf2f4;
    }
    .name {
-      @include text(12px, $color-gray-700, 600);
+      @include text(12px, var(--color-2), 600);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -165,7 +186,7 @@ hr {
          > svg {
             width: 16px;
             height: 16px;
-            stroke: $color-gray-700 !important;
+            stroke: var(--color-2) !important;
          }
          &:hover > svg {
             stroke: #4281fa !important;
@@ -193,10 +214,10 @@ hr {
          background-position: center;
          background-repeat: no-repeat;
          background-size: contain;
-         color: $color-gray-800;
+         color: var(--color-3);
       }
       &.highlighted {
-         background: #eaeaea;
+         background: var(--color-4);
          span {
             color: #312f2f;
          }
@@ -214,7 +235,7 @@ hr {
          }
       }
       &:hover {
-         background: #eaeaea;
+         background: var(--color-4);
       }
       &.red {
          color: #ff6161;

@@ -11,13 +11,14 @@ export function ThemeContextProvider(props: ParentProps) {
    const [theme, setTheme] = createSignal(Theme.Light);
 
    createEffect(() => {
-      if (matchMedia('(prefers-color-scheme: dark)').matches) {
+      const match = matchMedia('(prefers-color-scheme: dark)');
+      if (match.matches) {
          setTheme(Theme.Dark);
       }
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+      match.onchange = (event) => {
          const newColorScheme = event.matches ? Theme.Dark : Theme.Light;
          setTheme(newColorScheme);
-      });
+      };
    });
 
    createEffect(

@@ -42,7 +42,6 @@ export function Switch(props: SwitchProps) {
          }
       }, 60)
    );
-
    createEffect(
       on(
          () => store.checked,
@@ -63,6 +62,7 @@ export function Switch(props: SwitchProps) {
             type="checkbox"
             {...props}
             onInput={(e) => {
+               // @ts-ignore
                props.onInput?.(e);
                if (!e.defaultPrevented) {
                   setStore('checked', e.currentTarget.checked);

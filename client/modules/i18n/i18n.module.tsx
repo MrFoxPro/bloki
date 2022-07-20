@@ -1,86 +1,106 @@
 import Cookies from 'js-cookie';
-import { Accessor, createContext, createSignal, createMemo, PropsWithChildren, createEffect, on, useContext, createRoot, runWithOwner, onCleanup, getOwner } from 'solid-js';
+import {
+   Accessor,
+   createContext,
+   createSignal,
+   createMemo,
+   createEffect,
+   on,
+   useContext,
+   createRoot,
+   onCleanup,
+   getOwner,
+   ParentProps
+} from 'solid-js';
 
 const LOCALE_COOKIE_KEY = 'locale';
 
 // https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B4%D1%8B_%D1%8F%D0%B7%D1%8B%D0%BA%D0%BE%D0%B2
-const languages = ['ru', 'en', 'zh'] as const;
+export const languages = ['ru', 'en', 'zh'] as const;
+export const LANGS_META: Record<typeof languages[number], { emoji: string; name_eng: string }> = {
+   ru: { emoji: '🇷🇺', name_eng: 'Russian' },
+   en: { emoji: '🇬🇧', name_eng: 'English' },
+   zh: { emoji: '🇨🇳', name_eng: 'Chineese' }
+};
 type Lang = typeof languages[number];
 
 function isSupportedLocale(locale: string): locale is Lang {
-	return languages.includes(locale as Lang);
+   return languages.includes(locale as Lang);
 }
 
 function getInitialLang() {
-	let locale = Cookies.get('locale') ?? '';
-	if (isSupportedLocale(locale)) {
-		return locale;
-	}
-	locale = navigator.language.slice(0, 2);
-	if (isSupportedLocale(locale)) {
-		return locale;
-	}
-	return 'en';
-};
+   let locale = Cookies.get('locale') ?? '';
+   if (isSupportedLocale(locale)) {
+      return locale;
+   }
+   locale = navigator.language.slice(0, 2);
+   if (isSupportedLocale(locale)) {
+      return locale;
+   }
+   return 'en';
+}
 
 const initialLocale = getInitialLang();
 
 type I18nContextType = {
-	lang: Accessor<Lang>;
-	setLang: (lang: Lang) => Promise<void>;
+   lang: Accessor<Lang>;
+   setLang: (lang: Lang) => Promise<void>;
 };
 const I18nContext = createContext<I18nContextType>({
-	lang: () => 'en',
-	setLang: () => void 0
+   lang: () => 'en',
+   setLang: () => void 0
 });
-
 
 type Primitive = string | number | boolean;
 type LangFunction = (...args: Primitive[]) => string;
-interface Dict extends Record<string, string | LangFunction | Dict> { }
+interface Dict extends Record<string, string | LangFunction | Dict> {}
 type LangDict = Partial<Record<Lang, Dict>>;
 
-type UnConst<T> = T extends string ? string : T extends (...args: infer A) => unknown ? T & { __length: A['length']; } : {
-	[K in keyof T]: UnConst<T[K]>
-};
+type UnConst<T> = T extends string
+   ? string
+   : T extends (...args: infer A) => unknown
+   ? T & { __length: A['length'] }
+   : {
+        [K in keyof T]: UnConst<T[K]>;
+     };
 
-type RemoveLength<T> = T extends string ? string : T extends (...args: infer A) => infer R ? ((...args: A) => R) : {
-	[K in keyof T]: RemoveLength<T[K]>
-};
+type RemoveLength<T> = T extends string
+   ? string
+   : T extends (...args: infer A) => infer R
+   ? (...args: A) => R
+   : {
+        [K in keyof T]: RemoveLength<T[K]>;
+     };
 
-type UnionToIntersection<U> =
-	(U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 
-const [{ lang, langs, setLang }, disposeLangRoot] = createRoot(d => {
-	const [lang, setLang] = createSignal(initialLocale);
-	function langs<T extends LangDict>(dict: T & Record<keyof T, RemoveLength<UnionToIntersection<UnConst<T[keyof T]>>>>) {
-		const handler = () => dict[lang()];
-		if (getOwner())
-			return createMemo(handler);
-		return handler;
-	};
-	return [{ lang, setLang, langs }, d] as const;
+const [{ lang, langs, setLang }, disposeLangRoot] = createRoot((d) => {
+   const [lang, setLang] = createSignal(initialLocale);
+   function langs<T extends LangDict>(dict: T & Record<keyof T, RemoveLength<UnionToIntersection<UnConst<T[keyof T]>>>>) {
+      const handler = () => dict[lang()];
+      if (getOwner()) return createMemo(handler);
+      return handler;
+   }
+   return [{ lang, setLang, langs }, d] as const;
 });
 
 export { langs, lang, setLang };
 
-type i18nProps = PropsWithChildren<{}>;
+type i18nProps = ParentProps<{}>;
 export function I18n(props: i18nProps) {
-	createEffect(on(
-		lang,
-		() => {
-			console.log('Locale saved to cookies');
-			Cookies.set(LOCALE_COOKIE_KEY, lang(), { sameSite: 'strict' });
-		},
-		{ defer: true })
-	);
-	(window as any).setLang = (lang: Lang) => setLang(lang);
-	onCleanup(disposeLangRoot);
-	return (
-		<I18nContext.Provider value={{ lang, setLang }}>
-			{props.children}
-		</I18nContext.Provider>
-	);
-};
+   createEffect(
+      on(
+         lang,
+         () => {
+            console.log('Locale saved to cookies');
+            Cookies.set(LOCALE_COOKIE_KEY, lang(), { sameSite: 'strict' });
+         },
+         { defer: true }
+      )
+   );
+   (window as any).setLang = (lang: Lang) => setLang(lang);
+   onCleanup(disposeLangRoot);
+   return <I18nContext.Provider value={{ lang, setLang }}>{props.children}</I18nContext.Provider>;
+}
 
 export const useI18n = () => useContext(I18nContext);

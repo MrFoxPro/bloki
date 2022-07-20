@@ -13,9 +13,9 @@
    font-weight: 400;
    font-size: 14px;
    line-height: 16px;
-   color: $color-gray-800;
-   border-right: 1px solid #edf2f4;
-   background: #fafafa;
+   color: $color-3;
+   border-right: 1px solid $color-4;
+   background: $color-6;
 }
 
 .workspace-bar {
@@ -43,7 +43,7 @@
 
 .menus {
    width: 207px;
-   margin-left: #{24 - 3}px;
+   margin-left: 24px - 3px;
    display: flex;
    flex-direction: column;
    align-items: center;

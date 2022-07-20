@@ -15,10 +15,11 @@
    }
    > .content {
       padding-inline: 40px;
+      width: 100%;
       .control-group {
          label {
             display: block;
-            @include text(16px, $color-gray-800, 600);
+            @include text(16px,var(--color-3), 600);
          }
          .panel {
             display: flex;
@@ -27,8 +28,8 @@
                width: 563px;
             }
             .numeric {
-               background: $color-white;
-               border: 0.5px solid #d7dcdf;
+               background: var(--color-1);
+               border: 0.5px solid $color-gray-600;
                border-radius: 4px;
                width: 78px;
                height: 40px;

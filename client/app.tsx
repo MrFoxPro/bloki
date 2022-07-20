@@ -2,10 +2,9 @@ import '@/styles/app.scss';
 
 import { RouteDefinition, Router, useRoutes } from 'solid-app-router';
 import { render } from 'solid-js/web';
-import { useConsoleBuildInfo } from './lib/build-info';
+import { useConsolePrintBuildInfo } from './lib/build-info';
 import { AppStoreProvider } from './modules/app.store';
 import { I18n } from './modules/i18n/i18n.module';
-import { ModalStoreProvider } from './modules/modals/modal';
 import { lazy } from 'solid-js';
 import { ThemeContextProvider } from './modules/theme.store';
 import { Toaster } from 'solid-toast';
@@ -34,7 +33,7 @@ const routes: RouteDefinition[] = [
 ];
 
 function App() {
-   useConsoleBuildInfo();
+   useConsolePrintBuildInfo();
    const Routes = useRoutes(routes);
    return (
       <AppStoreProvider>

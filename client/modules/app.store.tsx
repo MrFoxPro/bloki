@@ -1,4 +1,4 @@
-import { createContext, createResource, PropsWithChildren, useContext } from 'solid-js';
+import { createContext, createResource, useContext } from 'solid-js';
 import { createStore, SetStoreFunction } from 'solid-js/store';
 // import { IApiProvider } from "../lib/api-providers/api-provider.interface";
 // import Cookie from 'js-cookie';
@@ -6,8 +6,10 @@ import { gqlClient } from '@/lib/client';
 import { BlokiDocument, GridRenderMethod } from '@/lib/schema.auto';
 
 export type AppStoreValues = {
-   locale: any;
-   gridRenderMethod: GridRenderMethod;
+   settings: {
+      locale: string;
+      theme: string;
+   };
 };
 
 type AppStoreHandlers = {
@@ -101,16 +103,6 @@ const sampleDoc = {
          y: 45,
          id: 'e2926f94-71a4-4861-b13a-b555e2ab5f3a'
       },
-      // {
-      //    type: 7,
-      //    value: 'https://images.squarespace-cdn.com/content/v1/59ebb4b3cd39c3e3ae4822d5/e5e0b7b7-9131-40f1-9cc8-37d69c0c213e/Rebuild.gif',
-      //    fontFamily: 'Inter',
-      //    height: 16,
-      //    width: 26,
-      //    x: 27,
-      //    y: 1,
-      //    id: '2ba6971a-773e-46f1-a193-0bc60109dae0'
-      // },
       {
          type: 5,
          value: 'Don’t try to copy old models.',
@@ -190,35 +182,7 @@ const sampleDoc = {
          x: 27,
          y: 87,
          id: '5a1dc0cd-6dbf-46c2-bea3-73f85e73150c'
-      },
-      // {
-      //    type: 7,
-      //    value: 'https://miro.medium.com/max/600/1*V3oHLSi-LEn5C8bMbkMiiw.gif',
-      //    fontFamily: 'Inter',
-      //    height: 8,
-      //    width: 8,
-      //    x: 6,
-      //    y: 2,
-      //    id: 'ae89d98a-4d6f-42a3-a735-a5d8d5059d3b'
-      // },
-      // {
-      //    type: 7,
-      //    value: 'https://miro.medium.com/max/600/1*iujlFCYKXUCfomh1sPbdAA.gif',
-      //    width: 8,
-      //    height: 8,
-      //    x: 35,
-      //    y: 60,
-      //    id: '2fe69b6d-48d0-40fe-ab79-30bc44d4c530'
-      // },
-      // {
-      //    type: 7,
-      //    value: 'https://miro.medium.com/max/600/1*tTzIK1_rUqdbvZx60J3c1w.gif',
-      //    width: 8,
-      //    height: 8,
-      //    x: 43,
-      //    y: 60,
-      //    id: 'bc978c87-7eb0-494e-8b89-82619dafc4f5'
-      // }
+      }
    ],
    layoutOptions: {
       fGridWidth: 80,
