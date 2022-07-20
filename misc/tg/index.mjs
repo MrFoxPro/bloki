@@ -12,7 +12,7 @@ const branchDeployMap = {
 }
 if (!branchDeployMap[branchName]) process.exit();
 
-const commitDate = execSync('git log -1 --pretty="format:%cd" --date=format:"%H:%M:%S %Y-%m-%d"').toString().trimEnd();
+const commitDate = execSync('git log -1 --pretty="format:%cd" --date=format:"%H:%M:%S %d-%m-%Y"').toString().trimEnd();
 const commitHash = execSync('git rev-parse --short HEAD').toString().trimEnd();
 const lastCommitMessage = execSync('git show -s --format=%s').toString().trimEnd();
 
@@ -21,10 +21,9 @@ dotenv.config();
 const message = `
 Branch *${branchName}* was deployed
 ${branchDeployMap[branchName]}
-
-\`\`\`
 ${commitDate}
 
+\`\`\`
 Commit: ${lastCommitMessage} / ${commitHash}
 \`\`\`
 `;
