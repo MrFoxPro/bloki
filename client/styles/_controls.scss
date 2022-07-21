@@ -100,17 +100,18 @@ input[type='range'] {
    }
 }
 
-// .button {
-//    outline: none;
-//    border: none;
-//    cursor: pointer;
-//    background: $color-primary-orange-900;
-//    border-radius: 7px;
-//    color: var(--color-1);
-//    text-align: center;
-//    padding: 11px 17px;
-//    &:disabled {
-//       background: $color-primary-orange-200;
-//       cursor: not-allowed;
-//    }
-// }
+button {
+   box-sizing: border-box;
+   text-align: center;
+   outline: none;
+   border: none;
+   border-radius: 7px;
+   cursor: pointer;
+   &:disabled {
+      background: $color-primary-orange-200;
+      cursor: not-allowed;
+   }
+   &.primary {
+      background: $color-primary-orange-900;
+   }
+}

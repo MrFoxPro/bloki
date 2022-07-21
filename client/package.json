@@ -13,6 +13,7 @@
       "@solid-primitives/keyed": "^1.0.0",
       "@solid-primitives/platform": "^0.0.100",
       "@solid-primitives/raf": "^2.1.0",
+      "@solid-primitives/range": "^0.1.0",
       "@solid-primitives/scheduled": "^1.0.0",
       "@solid-primitives/tween": "^1.2.0",
       "graphql-request": "^4.3.0",

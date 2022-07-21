@@ -3,6 +3,7 @@
 @use 'sass:list';
 @import '@/styles/vars.scss';
 @import '@/styles/fonts.scss';
+@import './_controls.scss';
 
 @each $theme in (light, dark) {
    .theme.#{$theme} {
@@ -15,15 +16,20 @@
 
 body,
 html {
-   all: initial;
    font-family: $font-family-default;
+   margin: 0;
+   padding: 0;
+   width: 100%;
+   height: 100%;
 }
 h4 {
    @include text(16px, $color-text-main, 600);
 }
 .page {
    width: 100%;
+   height: 100%;
    position: absolute;
+   overflow: auto;
    &.colored {
       background: orange;
    }

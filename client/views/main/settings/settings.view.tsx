@@ -1,5 +1,4 @@
 import './settings.view.scss';
-import '@/styles/controls.scss';
 import ResetIcon from './assets/reset.svg';
 import { createStore } from 'solid-js/store';
 import { langs, languages, setLang, lang, LANGS_META } from '@/modules/i18n/i18n.module';

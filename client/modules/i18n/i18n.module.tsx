@@ -29,7 +29,7 @@ function isSupportedLocale(locale: string): locale is Lang {
 }
 
 function getInitialLang() {
-   let locale = Cookies.get('locale') ?? '';
+   let locale = Cookies.get(LOCALE_COOKIE_KEY);
    if (isSupportedLocale(locale)) {
       return locale;
    }
@@ -98,7 +98,6 @@ export function I18n(props: i18nProps) {
          { defer: true }
       )
    );
-   (window as any).setLang = (lang: Lang) => setLang(lang);
    onCleanup(disposeLangRoot);
    return <I18nContext.Provider value={{ lang, setLang }}>{props.children}</I18nContext.Provider>;
 }

@@ -1,5 +1,5 @@
 import './bloki-editor.scss';
-import { createEffect, For, on, onCleanup, onMount, Show } from 'solid-js';
+import { For, onCleanup, onMount, Show } from 'solid-js';
 import { useEditorContext } from './editor.store';
 import { Block, GhostBlock } from './blocks/base.block';
 import { AnyBlock, BlockTransform, BlockType, Dimension, isTextBlock, Point } from './types/blocks';
@@ -10,6 +10,8 @@ import { BlockContextMenu } from './context-menu/context-menu';
 import { Drawer } from './drawer/drawer';
 import { useDrawerStore } from './drawer.store';
 import { EditType, Instrument } from './types/editor';
+import { isFirefox } from '@solid-primitives/platform';
+import { Repeat } from '@solid-primitives/range';
 // import { Cursors } from '../collab/cursors/cursors.component';
 
 type BlokiEditorProps = {};
@@ -19,7 +21,6 @@ function BlokiEditor(props: BlokiEditorProps) {
    const [drawerStore] = useDrawerStore();
    const GRID_COLOR_CELL = '#005eff32';
    let containerRef: HTMLDivElement;
-
    // const blocksDomMap = new WeakMap<AnyBlock, HTMLElement>();
 
    function onKeyDown(e: KeyboardEvent) {
@@ -185,7 +186,14 @@ function BlokiEditor(props: BlokiEditorProps) {
    });
 
    return (
-      <div class="wrapper" id="wrapper" ref={wrapperRef}>
+      <div
+         class="wrapper"
+         id="wrapper"
+         ref={wrapperRef}
+         style={{
+            'scroll-snap-type': !isFirefox ? 'x mandatory' : undefined
+         }}
+      >
          <div
             class="container"
             ref={containerRef}
@@ -205,10 +213,9 @@ function BlokiEditor(props: BlokiEditorProps) {
             }}
          >
             {/* For scroll snap, but not working properly in ff */}
-
-            {/* <div class="zones">
-               <For each={new Array(3).fill(null)}>
-                  {() => (
+            <Show when={/*@once*/ !isFirefox}>
+               <div class="zones">
+                  <Repeat times={3}>
                      <div
                         class="zone"
                         style={{
@@ -216,9 +223,9 @@ function BlokiEditor(props: BlokiEditorProps) {
                            height: realSize().fGridHeight_px
                         }}
                      />
-                  )}
-               </For>
-            </div> */}
+                  </Repeat>
+               </div>
+            </Show>
             <Backlight />
             <div
                class="grid foreground"
