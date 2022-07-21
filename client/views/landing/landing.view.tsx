@@ -18,6 +18,7 @@ import { langs } from '@/modules/i18n/i18n.module';
 import { useYandexMetrica } from '@/lib/ym';
 import { Theme, useThemes } from '@/modules/theme.store';
 import { Dynamic } from 'solid-js/web';
+import { Loader } from '@/components/loader/loader';
 const Workspace = lazy(() => import('@/modules/workspace/workspace'));
 
 declare module 'solid-js' {
@@ -106,7 +107,7 @@ export function LandingView() {
                   </svg>
                </div>
                <div class="interactive">
-                  <Suspense fallback={'Loading'}>
+                  <Suspense fallback={<Loader size="medium" center />}>
                      <Workspace />
                   </Suspense>
                </div>

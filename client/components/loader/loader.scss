@@ -1,0 +1,25 @@
+div.loader {
+   background: url(./spinner_webp.webp) no-repeat center;
+   background-size: contain;
+   &.center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+   }
+   &.small {
+      $size: 100px;
+      width: $size;
+      height: $size;
+   }
+   &.medium {
+      $size: 300px;
+      width: $size;
+      height: $size;
+   }
+   &.large {
+      $size: 500px;
+      width: $size;
+      height: $size;
+   }
+}
