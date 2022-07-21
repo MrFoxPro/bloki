@@ -1,6 +1,5 @@
+@import '@/styles/vars.scss';
 $offset: 27;
-$inactive: #7f848c;
-$active: #d7d8d9;
 $left-offset: 14px;
 $dropdown-left-offset: 32px;
 $border-width: 1px;
@@ -8,16 +7,15 @@ $label-initial-top: -10px;
 
 .field-container {
    padding-top: 42px;
-   // width: fit-content;
    .field {
       position: relative;
       &:hover {
          border-width: $border-width;
-         border-color: #1e3556;
+         border-color: $color-border;
       }
       &:focus-within {
          border-width: $border-width;
-         border-color: #386ab0;
+         border-color: $color-border;
       }
       &.dropdown {
          max-height: 190px;
@@ -25,51 +23,45 @@ $label-initial-top: -10px;
             background: url(./assets/arrow.svg) no-repeat scroll 14px 21px;
             padding-left: $dropdown-left-offset;
          }
-         .input:placeholder-shown ~ .label {
-            padding-left: $dropdown-left-offset;
-         }
-         .input:focus ~ .label {
-            padding-left: 0;
-         }
          > .options {
             max-height: 110px;
             overflow: auto;
-         }
-         > .options option {
-            height: 43px;
-            box-sizing: border-box;
-            padding-left: 37px;
-            font-family: Averta CY;
-            font-style: normal;
-            font-weight: normal;
-            font-size: 20px;
-            color: #d7d8d9;
-            display: flex;
-            align-items: center;
-            margin: 0 14px 0 14px;
-            cursor: pointer;
-            &.active,
-            &:hover {
-               background: #19283f;
-               border-radius: 6px;
+            // position: absolute;
+            // left: 0;
+            // right: 0;
+            // top: 52px;
+            option {
+               height: 43px;
+               box-sizing: border-box;
+               padding-left: 37px;
+               font-size: 20px;
+               color: $color-text-item;
+               display: flex;
+               align-items: center;
+               margin-inline: 14px;
+               cursor: pointer;
+               &.active,
+               &:hover {
+                  background: $color-bg-item-highlighted;
+                  border-radius: 6px;
+               }
+               &:last-child {
+                  margin-bottom: 10px;
+               }
             }
-            &:last-child {
-               margin-bottom: 10px;
+            option + option {
+               margin-top: 4px;
             }
          }
       }
-
       width: 100%;
-      background: #121e2f;
-
+      background: transparent;
       border-radius: 7px;
       border-color: transparent;
       border-width: $border-width;
       border-style: solid;
-
       box-sizing: border-box;
       transition: border-color 0.2s;
-
       .input {
          width: 100%;
          height: 52px;
@@ -79,14 +71,11 @@ $label-initial-top: -10px;
          box-sizing: border-box;
          padding: $border-width 10px $border-width $left-offset;
          font-size: 20px;
-         font-family: Averta CY;
-         color: $active;
-         background: #121e2f;
-
+         color: $color-text-item;
+         background: transparent;
          &::placeholder {
             color: transparent;
          }
-
          &:required,
          &:invalid {
             box-shadow: none;
@@ -94,18 +83,12 @@ $label-initial-top: -10px;
          &:placeholder-shown ~ .label {
             font-size: 20px;
             cursor: text;
-            top: #{$offset + 12}px;
-            padding-left: $left-offset;
          }
          &:focus ~ .label {
-            top: $label-initial-top;
-            transition: 0.17s;
             font-size: 20px;
-            color: $inactive;
-            padding-left: 0px;
+            color: $color-text-main;
          }
       }
-
       .label {
          user-select: none;
          position: absolute;
@@ -115,12 +98,9 @@ $label-initial-top: -10px;
          transition: 0.2s;
          font-size: 1rem;
          pointer-events: none;
-
-         font-family: Averta CY;
          font-size: 20px;
          text-align: center;
-
-         color: $inactive;
+         color: $color-text-item;
       }
    }
    .field.loading {

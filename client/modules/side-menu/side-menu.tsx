@@ -49,8 +49,9 @@ export function SideMenu(props: SideMenuProps) {
 
    return (
       <div class="side-menu" classList={{ [props.class]: true }}>
-         <div class="top-bar workspace-bar">
+         <div class="workspace-bar">
             <div class="box" />
+            <h3 class="title">Workspace</h3>
          </div>
          <div class="menus">
             <div class="items">

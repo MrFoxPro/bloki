@@ -13,20 +13,23 @@
    font-weight: 400;
    font-size: 14px;
    line-height: 16px;
-   color: $color-3;
-   border-right: 1px solid $color-4;
-   background: $color-6;
+   border-right: 1px solid $color-border;
+   background: $color-bg-secondary;
 }
 
 .workspace-bar {
+   height: 40px;
+   box-sizing: border-box;
+   background: $color-bg-secondary;
    margin-bottom: 15px;
+   border-bottom: 1px solid $color-border;
+   padding-inline-start: 20px;
    display: flex;
-   align-items: center;
-   gap: 12px;
    justify-content: flex-start;
+   align-items: center;
    .box {
-      min-width: 24px;
-      min-height: 24px;
+      width: 24px;
+      height: 24px;
       border-radius: 6px;
       background-size: contain;
       background-position: center;
@@ -37,7 +40,8 @@
       font-style: normal;
       font-weight: 700;
       font-size: 18px;
-      color: #312f2f;
+      color: $color-text-main;
+      margin-left: 12px;
    }
 }
 
@@ -71,8 +75,5 @@
       border-radius: 4px;
       position: absolute;
       right: 3px;
-      &:hover {
-         background-color: #e2e2e2;
-      }
    }
 }

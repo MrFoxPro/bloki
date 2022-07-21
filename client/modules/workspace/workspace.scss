@@ -1,9 +1,23 @@
+@import '@/styles/vars.scss';
+
 .workspace {
    height: 100%;
    display: flex;
    flex-direction: column;
    position: relative;
 
+   .top-bar {
+      height: 40px;
+      background: $color-bg-main;
+      border-bottom: 1px solid $color-border;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-sizing: border-box;
+      z-index: 45;
+      min-width: 600px;
+   }
    > div:nth-child(1) {
       display: flex;
       align-items: center;
@@ -17,23 +31,13 @@
          background-size: contain;
 
          &:nth-child(1) {
-            background-image: url("@/modules/side-menu/assets/arrow.svg");
+            background-image: url('@/modules/side-menu/assets/arrow.svg');
             transform: rotate(180deg);
          }
 
          &:nth-child(2) {
-            background-image: url("@/modules/side-menu/assets/arrow.svg");
+            background-image: url('@/modules/side-menu/assets/arrow.svg');
          }
-      }
-
-      h4 {
-         font-family: Inter;
-         font-style: normal;
-         font-weight: 500;
-         font-size: 14px;
-         line-height: 16px;
-
-         color: #312F2F;
       }
    }
 
@@ -46,7 +50,6 @@
          cursor: pointer;
       }
    }
-
    .doc-title {
       margin-left: 15px;
       display: flex;

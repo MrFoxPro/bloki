@@ -6,7 +6,7 @@
    height: 800px;
    > .menu {
       padding-right: 21px;
-      border-right: 1px solid #edf2f4;
+      border-right: 1px solid $color-border;
       .items {
          &:not(:first-child) {
             margin-top: 24px;
@@ -19,7 +19,7 @@
       .control-group {
          label {
             display: block;
-            @include text(16px,var(--color-3), 600);
+            @include text(16px, $color-text-item, 600);
          }
          .panel {
             display: flex;
@@ -28,8 +28,8 @@
                width: 563px;
             }
             .numeric {
-               background: var(--color-1);
-               border: 0.5px solid $color-gray-600;
+               background: $color-bg-main;
+               border: 0.5px solid $color-border;
                border-radius: 4px;
                width: 78px;
                height: 40px;

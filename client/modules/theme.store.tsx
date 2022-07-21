@@ -1,11 +1,11 @@
-import { createContext, createEffect, createSignal, on, ParentProps, useContext } from 'solid-js';
+import { createContext, createEffect, createSignal, on, ParentProps, Setter, useContext } from 'solid-js';
 
 export enum Theme {
    Light = 'light',
    Dark = 'dark'
 }
 
-const ThemeContext = createContext({ theme: () => Theme.Light as Theme, setTheme: (theme: Theme) => void 0 });
+const ThemeContext = createContext({ theme: () => Theme.Light as Theme, setTheme: ((theme: Theme) => void 0) as Setter<Theme> });
 
 export function ThemeContextProvider(props: ParentProps) {
    const [theme, setTheme] = createSignal(Theme.Light);

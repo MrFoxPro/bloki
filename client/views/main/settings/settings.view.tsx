@@ -1,4 +1,5 @@
 import './settings.view.scss';
+import '@/styles/controls.scss';
 import ResetIcon from './assets/reset.svg';
 import { createStore } from 'solid-js/store';
 import { langs, languages, setLang, lang, LANGS_META } from '@/modules/i18n/i18n.module';
@@ -7,7 +8,7 @@ import { Dynamic, For, Show } from 'solid-js/web';
 import { useBuildInfo } from '@/lib/build-info';
 import { RadioLine } from '@/components/radio-line/radio-line';
 import { Theme, useThemes } from '@/modules/theme.store';
-import { DropdownInput } from '@/components/input/input-dropdown';
+import { DropdownInput } from '@/components/input-dropdown/input-dropdown';
 
 const Appearance = () => {
    const { theme, setTheme } = useThemes();

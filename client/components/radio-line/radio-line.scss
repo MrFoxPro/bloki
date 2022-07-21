@@ -3,7 +3,7 @@
 .radio-line {
    box-sizing: border-box;
    padding: 10px;
-   border: 0.5px solid #d7dcdf;
+   border: 0.5px solid $color-border;
    border-radius: 4px;
    width: 100%;
    cursor: pointer;
@@ -11,7 +11,7 @@
       appearance: none;
       width: 12px;
       height: 12px;
-      border: 2px solid var(--color-2);
+      border: 2px solid $color-item-secondary;
       border-radius: 50%;
       cursor: inherit;
    }
@@ -19,7 +19,7 @@
       margin-top: 24px;
    }
    &:hover {
-      background-color:var(--color-4);
+      background-color: $color-bg-secondary;
    }
    &.checked {
       background-color: $color-primary-orange-900;
@@ -28,11 +28,11 @@
          border-width: 2px;
       }
       > label {
-         color: var(--color-1);
+         color: $color-text-main;
       }
    }
    > label {
-      @include text(14px,var(--color-3), 600);
+      @include text(14px, $color-text-main, 600);
       margin-left: 12px;
    }
 }

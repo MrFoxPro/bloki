@@ -7,33 +7,27 @@
    flex-direction: row;
    justify-content: space-around;
    gap: 12px;
-   // padding: 0 12px;
    z-index: 35;
-
    > svg {
       width: 24px;
       height: 24px;
       cursor: pointer;
-      stroke:var(--color-3);
-
+      stroke: $color-item-secondary;
       * {
-         stroke:var(--color-3);
+         stroke: $color-item-secondary;
       }
-
       &.active {
          stroke: #4281fa;
-
          * {
             stroke: #4281fa;
          }
       }
    }
-
    .configurator {
       position: absolute;
       top: 40px;
 
-      background: var(--color-1);
+      background: $color-bg-secondary;
       border: 1px solid $color-gray-600;
       box-sizing: border-box;
       padding: 12px;

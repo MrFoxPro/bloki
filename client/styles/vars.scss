@@ -1,48 +1,67 @@
-// $color-orange-900: #ffa61f;
-// $color-orange-200: #f8dcb2;
+$color-gray-900: #1c1d1f;
+$color-gray-850: #27282b;
+$color-gray-800: #31373e;
+$color-gray-750: #323337;
+$color-gray-700: #51575e;
+$color-gray-650: #969596;
+$color-gray-600: #9ca5ab;
+$color-gray-500: #d8d8d8;
+$color-gray-400: #d7dcdf;
+$color-gray-300: #edf2f4;
+$color-gray-200: #f7f9fb;
+$color-gray-000: #ffffff;
+$color-primary-orange-900: #ffa61f;
+$color-primary-orange-200: #fdd08c;
+$color-alert-red-900: #da4929;
+$color-alert-red-800: #b56550;
+$color-alert-red-400: #f8ebe8;
+$color-alert-red-300: #fbebe7;
+// $color-alert-red-200: #f8ebe8;
 
-$color-gray-900: #31373e;
-// $color-gray-800: #51575e;
-// $color-gray-700: #9ca5ab;
-$color-gray-600: #d7dcdf;
-// $color-gray-400: #f8ebe8;
-// $color-gray-300: #edf2f4;
-// $color-gray-200: #f7f9fb;
+$font-family-default: 'Inter';
+$font-family-handwrited: 'Virgil';
 
-// $color-white: #ffffff;
-
-// $color-red-600: #b56550;
-
-// $color-light/gray 900: #30363d;
-// $color-light/gray 600: #d7dcdf;
-// $color-light/gray 400: #f8ebe8;
-// $color-light/gray 200: #f7f9fb;
-
-$color-map: (
-   light: (
-      #ffffff #9ca5ab #51575e #edf2f4 #b56550 #f7f9fb
+$theme-map: (
+   bg-main: (
+      light: $color-gray-000,
+      dark: $color-gray-900
    ),
-   dark: (
-      #1c1d1f #51575e #d8d8d8 #51575e #da4929 #27282b
+   bg-secondary: (
+      light: $color-gray-200,
+      dark: $color-gray-850
+   ),
+   bg-item-highlighted: (
+      light: $color-gray-300,
+      dark: $color-gray-750
+   ),
+   text-main: (
+      light: $color-gray-800,
+      dark: $color-gray-200
+   ),
+   text-item: (
+      light: $color-gray-700,
+      dark: $color-gray-400
+   ),
+   item-secondary: (
+      light: $color-gray-600,
+      dark: $color-gray-600
+   ),
+   border: (
+      light: $color-gray-400,
+      dark: $color-gray-800
    )
 );
 
-$color-primary-orange-900: #ffa61f;
-$color-primary-orange-200: #fdd08c;
+$color-bg-main: var(--color-bg-main);
+$color-bg-secondary: var(--color-bg-secondary);
+$color-bg-item-highlighted: var(--color-bg-item-highlighted);
+$color-text-main: var(--color-text-main);
+$color-text-item: var(--color-text-item);
+$color-text-secondary: var(--color-text-secondary);
+$color-border: var(--color-border);
+$color-item-secondary: var(--color-item-secondary);
 
-$color-alert-200: #f8ebe8;
-
-$color-1: var(--color-1);
-$color-2: var(--color-2);
-$color-3: var(--color-3);
-$color-4: var(--color-4);
-$color-5: var(--color-5);
-$color-6: var(--color-6);
-
-$font-family--default: 'Inter';
-$font-family--handwrited: 'Virgil';
-
-@mixin text($font-size: 14px, $color: var(--color-3), $font-weight: normal) {
+@mixin text($font-size: 14px, $color: var(--color-text-main), $font-weight: normal) {
    font-size: $font-size;
    color: $color;
    font-weight: $font-weight;
@@ -50,16 +69,16 @@ $font-family--handwrited: 'Virgil';
 
 @mixin text-regular() {
    font-size: 14px;
-   color: var(--color-3);
+   color: $color-text-main;
 }
 
 @mixin text-description1() {
    font-size: 14px;
-   color: var(--color2);
+   color: $color-text-secondary;
 }
 
 @mixin text-description2() {
    font-size: 14px;
    font-weight: 400;
-   color: $color-gray-600;
+   color: $color-text-secondary;
 }

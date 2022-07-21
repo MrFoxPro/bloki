@@ -1,7 +1,7 @@
-import { Input } from './input';
+import './input-dropdwon.scss';
+import { Input } from '../input/input';
 import { ComponentProps, createEffect, createSignal, For, JSX, on, onCleanup, Show, splitProps } from 'solid-js';
 import { mergeProps } from 'solid-js';
-import './input.scss';
 
 type Option = {
    key: string;
