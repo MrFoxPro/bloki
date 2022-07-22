@@ -22,7 +22,7 @@ export const LANGS_META: Record<typeof languages[number], { emoji: string; name_
    en: { emoji: '🇬🇧', name_eng: 'English' },
    zh: { emoji: '🇨🇳', name_eng: 'Chineese' }
 };
-type Lang = typeof languages[number];
+export type Lang = typeof languages[number];
 
 function isSupportedLocale(locale: string): locale is Lang {
    return languages.includes(locale as Lang);

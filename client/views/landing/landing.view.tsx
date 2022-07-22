@@ -1,6 +1,14 @@
 import './landing.view.scss';
 import { For, lazy, onCleanup, Suspense } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import { useNavigate } from 'solid-app-router';
+import { Loader } from '@/components/loader/loader';
+import { langs } from '@/modules/i18n/i18n.module';
+import { useYandexMetrica } from '@/lib/ym';
+import { Theme, useThemes } from '@/modules/theme.store';
+import { DrawerStoreProvider } from '@/modules/bloki-editor/drawer.store';
+import { EditorStoreProvider } from '@/modules/bloki-editor/editor.store';
+const BlokiEditor = lazy(() => import('@/modules/bloki-editor/bloki-editor'));
 
 import WorkspacesImage from './assets/workspaces.webp';
 import TeamWorkImage from './assets/cursors.webm';
@@ -14,12 +22,7 @@ import UnderLine3 from './assets/underline-3.svg';
 import SunIcon from './assets/sun.svg';
 import MoonIcon from './assets/moon.svg';
 import BackgroundBricks from './assets/background-bricks.svg';
-import { langs } from '@/modules/i18n/i18n.module';
-import { useYandexMetrica } from '@/lib/ym';
-import { Theme, useThemes } from '@/modules/theme.store';
-import { Dynamic } from 'solid-js/web';
-import { Loader } from '@/components/loader/loader';
-const Workspace = lazy(() => import('@/modules/workspace/workspace'));
+import { useAppStore } from '@/modules/app.store';
 
 declare module 'solid-js' {
    namespace JSX {
@@ -29,8 +32,11 @@ declare module 'solid-js' {
    }
 }
 
+const asset = (path: string) => new URL(path, import.meta.url).href;
+
 export function LandingView() {
    useYandexMetrica();
+   const [app] = useAppStore();
    const navigate = useNavigate();
    const { theme, setTheme } = useThemes();
 
@@ -56,12 +62,25 @@ export function LandingView() {
       }
       onCleanup(() => observer.disconnect());
    }
-
+   const WindowControls = () =>
+      [
+         ['#FC5753', '#DF4744'],
+         ['#FDBC40', '#DE9F34'],
+         ['#36C84B', '#27AA35']
+      ].map(([fill, border]) => (
+         <div
+            class="btn"
+            style={{
+               'background-color': fill,
+               'border-color': border
+            }}
+         />
+      ));
    return (
       <div class="page landing">
-         <BackgroundBricks class="background-bricks" />
-         <BackgroundBricks class="background-bricks" />
-         <BackgroundBricks class="background-bricks" />
+         <BackgroundBricks class="bg-bricks" />
+         <BackgroundBricks class="bg-bricks" />
+         <BackgroundBricks class="bg-bricks" />
          <div class="page-content">
             <header class="page-header">
                <LogoIcon class="logo" id="logo" />
@@ -106,14 +125,21 @@ export function LandingView() {
                      />
                   </svg>
                </div>
-               <div class="interactive">
+               {/* <div class="interactive">
                   <Suspense fallback={<Loader size="medium" center />}>
-                     <Workspace />
+                     <DrawerStoreProvider>
+                        <EditorStoreProvider document={app.selectedDocument}>
+                           <BlokiEditor />
+                        </EditorStoreProvider>
+                     </DrawerStoreProvider>
                   </Suspense>
-               </div>
+               </div> */}
             </section>
             <section class="feature">
-               <img class="demo" src={new URL('./assets/file-structure.webp', import.meta.url).href} decoding="async" loading="lazy" />
+               <div class="window">
+                  <WindowControls />
+                  <img class="demo" src={asset('./assets/file-structure.jpg')} decoding="async" loading="lazy" />
+               </div>
                <div class="text">
                   <div class="heading">
                      {t().fs.heading}
@@ -129,7 +155,12 @@ export function LandingView() {
                </div>
             </section>
             <section class="feature">
-               <img class="demo" src={WorkspacesImage} decoding="async" loading="lazy" />
+               <div class="window">
+                  <WindowControls />
+                  <video class="demo" controls={false} autoplay loop>
+                     <source src={asset('./assets/workspaces.webm')} type="video/webm" />
+                  </video>
+               </div>
                <div class="text">
                   <div class="heading">
                      <svg class="decoration workspaces-word" width="403" height="38" viewBox="0 0 403 38" fill="none">
@@ -150,7 +181,10 @@ export function LandingView() {
                </div>
             </section>
             <section class="feature">
-               <video class="demo" src={TeamWorkImage} controls={false} autoplay />
+               <div class="window">
+                  <WindowControls />
+                  <video class="demo" src={TeamWorkImage} controls={false} autoplay loop />
+               </div>
                <div class="text">
                   <div class="heading">
                      {t().teamwork.heading}
@@ -166,7 +200,10 @@ export function LandingView() {
                </div>
             </section>
             <section class="feature">
-               <img class="demo" src={LibImage} decoding="async" loading="lazy" />
+               <div class="window">
+                  <WindowControls />
+                  <img class="demo" src={LibImage} decoding="async" loading="lazy" />
+               </div>
                <div class="text">
                   <div class="heading">
                      {t().lib.heading}
@@ -200,7 +237,7 @@ export function LandingView() {
                   </svg>
                </div>
                <br />
-               <div class="end">
+               <a class="end" href="/demo">
                   {t().outro[1]}
                   <svg class="decoration templates-and-plugins" width="450" height="15" viewBox="0 0 450 15" fill="none">
                      <path
@@ -209,7 +246,7 @@ export function LandingView() {
                         d="M3.0918 11.1786C26.986 6.27725 51.4959 7.98764 75.7752 7.98764C137.914 7.98764 199.975 7.54926 262.093 5.68305C323.572 3.83604 385.13 3.20117 446.638 3.20117"
                      />
                   </svg>
-               </div>
+               </a>
             </section>
          </div>
          <footer>
@@ -293,7 +330,7 @@ const t = langs({
       intro: { 0: 'One place for', 1: 'all your tasks' },
       fs: {
          heading: 'File structure',
-         description: 'In bloki you can create a unique structure from the files, which will help you organize any taskin a convenient way'
+         description: 'In bloki you can create a unique structure from the files, which will help you organize any task in a convenient way'
       },
       workspaces: {
          heading: 'Workspaces',

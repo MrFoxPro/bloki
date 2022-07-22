@@ -1,31 +1,24 @@
-import { createContext, createResource, useContext } from 'solid-js';
+import { createContext, ParentProps, useContext } from 'solid-js';
 import { createStore, SetStoreFunction } from 'solid-js/store';
 // import { IApiProvider } from "../lib/api-providers/api-provider.interface";
 // import Cookie from 'js-cookie';
-import { gqlClient } from '@/lib/client';
-import { BlokiDocument, GridRenderMethod } from '@/lib/schema.auto';
+// import { gqlClient } from '@/lib/client';
+// import { BlokiDocument, GridRenderMethod } from '@/lib/schema.auto';
+import { Theme } from './theme.store';
+import { Lang } from './i18n/i18n.module';
+import { BlokiNetworkDocument } from '@/lib/network.types';
 
 export type AppStoreValues = {
    settings: {
-      locale: string;
+      locale: Lang;
       theme: string;
    };
+   selectedDocument: BlokiNetworkDocument;
 };
 
 type AppStoreHandlers = {
    setAppStore: SetStoreFunction<AppStoreValues>;
-   selectedDocument: () => BlokiDocument;
 };
-
-const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>([
-   {
-      locale: null,
-      gridRenderMethod: GridRenderMethod.Canvas
-   },
-   {
-      setAppStore: () => void 0
-   }
-]);
 
 const sampleDoc = {
    id: '1781f9ec-c470-47a5-922a-de9db7da6b85',
@@ -204,14 +197,24 @@ const sampleDoc = {
    }
 };
 
-type AppStoreProps = PropsWithChildren;
+const AppStore = createContext<[AppStoreValues, AppStoreHandlers]>([
+   {
+      settings: {
+         locale: 'en',
+         theme: Theme.Light
+      },
+      selectedDocument: sampleDoc
+   },
+   {
+      setAppStore: () => void 0
+   }
+]);
+
+type AppStoreProps = ParentProps;
 
 export function AppStoreProvider(props: AppStoreProps) {
    const [state, setAppStore] = createStore<AppStoreValues>(AppStore.defaultValue[0]);
-
-   const [meResource] = createResource(() => gqlClient.me());
-   const selectedDocument = () => sampleDoc;
-   return <AppStore.Provider value={[state, { setAppStore, selectedDocument }]}>{props.children}</AppStore.Provider>;
+   return <AppStore.Provider value={[state, { setAppStore }]}>{props.children}</AppStore.Provider>;
 }
 
 export const useAppStore = () => useContext(AppStore);
