@@ -1,6 +1,8 @@
-div.loader {
-   background: url(./spinner_webp.webp) no-repeat center;
-   background-size: contain;
+.loader {
+   > video {
+      width: inherit;
+   }
+      text-align: center;
    &.center {
       position: absolute;
       left: 50%;

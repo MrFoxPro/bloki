@@ -1,5 +1,4 @@
 {
-   "extends": "../tsconfig.base.json",
    "compilerOptions": {
       "target": "ESNext",
       "module": "ESNext",
@@ -8,24 +7,18 @@
       "jsx": "preserve",
       "jsxImportSource": "solid-js",
       "noEmit": true,
+      "allowSyntheticDefaultImports": true,
       "moduleResolution": "node",
       // Misc
       "forceConsistentCasingInFileNames": true,
+      "esModuleInterop": true,
+      "skipDefaultLibCheck": true,
+		"skipLibCheck": true,
+      "resolveJsonModule": true,
       "paths": {
-         "@/*": [
-            "./*"
-         ],
+         "@/*": ["./*"]
       },
-      "types": [
-         "vite/client",
-      ],
+      "types": ["vite/client"]
    },
-   "exclude": [
-      "node_modules",
-      ".vscode",
-      "assets",
-      ".git",
-      "temp",
-      "dist"
-   ]
+   "exclude": ["node_modules", ".vscode", "assets", ".git", "temp", "dist"]
 }

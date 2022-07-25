@@ -15,17 +15,20 @@
       0px 6.6501px 5.32008px rgba(0, 0, 0, 0.0282725), 0px 2.76726px 2.21381px rgba(0, 0, 0, 0.0196802);
    --color-bg-bricks: #30353b;
 }
-
 .page.landing {
    $content-width: 1305px;
-   background-color: var(--color-page-bg);
+   @mixin center-content {
+      position: relative;
+      z-index: 2;
+      max-width: $content-width;
+      margin-inline: auto;
+   }
+   color: $color-text-main;
+   background: left / cover no-repeat url('./assets/bricks.svg') var(--color-page-bg);
    &,
    *:not(img, video) {
       transition: background-color 100ms ease, color 100ms ease;
    }
-   color: $color-text-main;
-   scrollbar-width: auto;
-   scrollbar-color: $color-primary-orange-900 transparent;
    &::-webkit-scrollbar {
       appearance: none;
       width: 8px;
@@ -33,33 +36,42 @@
    &::-webkit-scrollbar-thumb {
       background: $color-primary-orange-900;
    }
-   > .page-content {
-      z-index: 2;
-      margin: 0 auto;
-      max-width: $content-width;
-      position: relative;
+   scrollbar-width: auto;
+   scrollbar-color: $color-primary-orange-900 transparent;
+
+   > .bricks-group {
+      > .bg-bricks {
+         position: absolute;
+         color: var(--color-bg-bricks);
+         z-index: 1;
+         &:nth-child(1) {
+            top: 50vh;
+         }
+         &:nth-child(2) {
+            top: 250vh;
+         }
+         &:nth-child(3) {
+            top: 400vh;
+         }
+      }
    }
-   > .bg-bricks {
-      position: absolute;
-      color: var(--color-bg-bricks);
-      z-index: 1;
-      &:nth-child(1) {
-         top: 50vh;
-      }
-      &:nth-child(2) {
-         top: 250vh;
-      }
-      &:nth-child(3) {
-         top: 400vh;
-      }
+   .line {
+      margin-top: -50px;
+      width: 100%;
+      stroke: $color-primary-orange-200;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 8 8;
    }
    header {
       height: 82px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-inline: 12px;
+      padding-inline: 12px;
       position: sticky;
+      max-width: $content-width;
+      margin: 0 auto;
       > .logo {
          cursor: pointer;
          min-width: 120px;
@@ -106,7 +118,7 @@
          top: -20px;
          left: -30px;
       }
-      &.libraries-word {
+      &.lib-word {
          left: 0;
          bottom: -20px;
       }
@@ -161,9 +173,9 @@
    }
    section {
       padding-inline: 14px;
-      width: 100%;
       margin-top: 26px;
       margin-bottom: 26px;
+      @include center-content();
    }
    section.feature {
       margin-top: 260px;
@@ -199,6 +211,8 @@
             margin: 0;
             width: 100%;
             height: auto;
+            border-bottom-left-radius: 11px;
+            border-bottom-right-radius: 11px;
          }
       }
       > .text {
@@ -214,7 +228,7 @@
             color: var(--color-text-description);
          }
       }
-      &:nth-child(2n + 1) {
+      &:nth-of-type(2n + 1) {
          flex-direction: row-reverse;
       }
    }
@@ -240,11 +254,13 @@
    }
    footer {
       max-width: $content-width;
-      margin: 0 auto;
-      margin-bottom: 50px;
+      padding-inline: 12px;
+      margin-inline: auto;
+      padding-bottom: 50px;
       display: flex;
       gap: 26px;
       flex-direction: column;
+      justify-content: center;
       > .navs {
          display: flex;
          flex: 3;
@@ -267,12 +283,22 @@
                   color: var(--color-text-regular);
                   text-decoration-line: underline;
                   font-size: 20px;
+                  display: flex;
+                  align-items: center;
+                  gap: 5px;
+                  > svg {
+                     height: 20px;
+                  }
                }
             }
          }
       }
       .gh {
          color: var(--color-text-regular);
+      }
+      .cc {
+         text-align: center;
+         color: $color-text-item;
       }
    }
 }

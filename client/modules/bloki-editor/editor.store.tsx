@@ -12,7 +12,7 @@ import {
    useContext
 } from 'solid-js';
 import { createStore, SetStoreFunction } from 'solid-js/store';
-import { AnyBlock, BlockTransform, Dimension, PlacementStatus, Point } from './types/blocks';
+import { AnyBlock, BlockTransform, Dimension, isTextBlock, PlacementStatus, Point } from './types/blocks';
 import { EditType, Instrument } from './types/editor';
 import { Roommate } from '@/lib/network.types';
 import { BlokiDocument } from '@/lib/schema.auto';
@@ -79,7 +79,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       props
    );
 
-   const [editorState, setEditorState] = createStore<EditorStoreValues>({
+   const [editorStore, setEditorState] = createStore<EditorStoreValues>({
       editingBlock: null,
       editingType: null,
       selectedBlocks: [],
@@ -101,24 +101,24 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       });
    });
 
-   const gridBoxSize = createMemo(() => editorState.document.layoutOptions.gap + editorState.document.layoutOptions.size);
+   const gridBoxSize = createMemo(() => editorStore.document.layoutOptions.gap + editorStore.document.layoutOptions.size);
 
    function gridSize(factor: number) {
       if (factor <= 0) return 0;
       return (
-         factor * (editorState.document.layoutOptions.size + editorState.document.layoutOptions.gap) -
-         editorState.document.layoutOptions.gap
+         factor * (editorStore.document.layoutOptions.size + editorStore.document.layoutOptions.gap) -
+         editorStore.document.layoutOptions.gap
       );
    }
 
    const realSize = createMemo(() => {
       const cellPx = {
-         gap_px: editorState.document.layoutOptions.gap + 'px',
-         size_px: editorState.document.layoutOptions.size + 'px',
-         sum_px: editorState.document.layoutOptions.size + editorState.document.layoutOptions.gap + 'px'
+         gap_px: editorStore.document.layoutOptions.gap + 'px',
+         size_px: editorStore.document.layoutOptions.size + 'px',
+         sum_px: editorStore.document.layoutOptions.size + editorStore.document.layoutOptions.gap + 'px'
       };
       const dimensionsKeys = ['fGridWidth', 'fGridHeight', 'mGridWidth', 'mGridHeight'];
-      const grid = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr]: gridSize(editorState.document.layoutOptions[curr]) }), {});
+      const grid = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr]: gridSize(editorStore.document.layoutOptions[curr]) }), {});
       const gridPx = dimensionsKeys.reduce((prev, curr) => ({ ...prev, [curr + '_px']: grid[curr] + 'px' }), {});
       return { ...cellPx, ...grid, ...gridPx } as CalculatedSize;
    });
@@ -149,7 +149,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       let correct = true;
       let outOfBorder = false;
 
-      const { fGridHeight, fGridWidth, blockMinSize, blockMaxSize } = editorState.document.layoutOptions;
+      const { fGridHeight, fGridWidth, blockMinSize, blockMaxSize } = editorStore.document.layoutOptions;
 
       if (width > blockMaxSize.width || width < blockMinSize.width || height > blockMaxSize.height || height < blockMinSize.height) {
          correct = false;
@@ -162,8 +162,8 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          outOfBorder = true;
       }
 
-      for (let i = 0; i < editorState.document.layout.length; i++) {
-         const sBlock = editorState.document.layout[i];
+      for (let i = 0; i < editorStore.document.layout.length; i++) {
+         const sBlock = editorStore.document.layout[i];
          if (sBlock.id === block.id) continue;
 
          const x1 = x;
@@ -243,11 +243,11 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
          });
 
          if (placement.correct) {
-            setEditorState('layout', editorState.layout.indexOf(block), { x, y, width, height });
+            setEditorState('layout', editorStore.layout.indexOf(block), { x, y, width, height });
             // send(WSMsgType.ChangeEnd, { block, rel: relTransofrm, type });
             return;
          }
-         setEditorState('layout', editorState.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
+         setEditorState('layout', editorStore.layout.indexOf(block), { x: block.x, y: block.y, width: block.width, height: block.height });
       });
 
       // staticEditorData.emit('changeend', block, {
@@ -258,13 +258,16 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       // });
    }
 
-   function selectBlock(selectedBlock: AnyBlock, type: EditType = EditType.Select) {
-      if (selectedBlock) {
+   function selectBlock(target: AnyBlock, type: EditType = EditType.Select) {
+      if (target) {
          setEditorState({
-            editingBlock: selectedBlock,
+            editingBlock: target,
             editingType: type
          });
       } else {
+         if (isTextBlock(editorStore.editingBlock) && editorStore.editingBlock.value === '') {
+            deleteBlock(editorStore.editingBlock);
+         }
          setEditorState({
             editingBlock: null,
             editingType: null
@@ -272,7 +275,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
       }
    }
    function deleteBlock(block: AnyBlock) {
-      if (editorState.editingBlock === block) {
+      if (editorStore.editingBlock === block) {
          setEditorState({
             editingBlock: null,
             editingType: null
@@ -285,7 +288,7 @@ export function EditorStoreProvider(props: EditorStoreProviderProps) {
    return (
       <EditorContext.Provider
          value={[
-            editorState,
+            editorStore,
             {
                onChangeStart,
                onChange,

@@ -1,6 +1,5 @@
 import Cookies from 'js-cookie';
 import { createContext, createEffect, createSignal, on, ParentProps, Setter, useContext } from 'solid-js';
-
 export enum Theme {
    Light = 'light',
    Dark = 'dark'
@@ -32,7 +31,7 @@ export function ThemeContextProvider(props: ParentProps) {
             document.body.classList.add(curr);
          }
          if (prev) {
-            Cookies.set(THEME_COOKIE_KEY, curr);
+            Cookies.set(THEME_COOKIE_KEY, curr, { sameSite: 'strict' });
          }
       })
    );

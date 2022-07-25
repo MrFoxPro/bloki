@@ -21,12 +21,12 @@
       "js-cookie": "^3.0.1",
       "solid-app-router": "0.4.1",
       "solid-dismiss": "^1.2.1",
-      "solid-element": "^1.4.7",
-      "solid-js": "1.4.7",
+      "solid-element": "^1.4.8",
+      "solid-js": "1.4.8",
       "solid-toast": "^0.3.2",
       "solid-transition-group": "^0.0.10",
       "ts-nameof": "^5.0.0",
-      "yjs": "^13.5.39"
+      "yjs": "^13.5.40"
    },
    "devDependencies": {
       "@graphql-codegen/cli": "^2.9.1",
@@ -41,14 +41,14 @@
       "prettier": "^2.7.1",
       "rollup": "^2.77.0",
       "rollup-plugin-visualizer": "^5.7.1",
-      "sass": "^1.53.0",
+      "sass": "^1.54.0",
       "type-expand": "^1.0.0",
       "typescript": "^4.7.4",
-      "vite": "3.0.1",
+      "vite": "3.0.2",
       "vite-plugin-compression": "^0.5.1",
-      "vite-plugin-image-presets": "^0.3.1",
+      "vite-plugin-image-presets": "^0.3.2",
       "vite-plugin-solid": "2.3.0",
-      "vite-plugin-solid-svg": "^0.2.0",
+      "vite-plugin-solid-svg": "^0.3.0",
       "vite-plugin-ts-nameof": "^1.1.0"
    }
 }

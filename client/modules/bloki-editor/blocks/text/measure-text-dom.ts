@@ -19,7 +19,7 @@ export class DOMTextMeasurer {
       // el.style.visibility = import.meta.env.PROD ? 'hidden' : 'unset';
       el.style.visibility = 'hidden';
       this.ruler = el;
-      document.body.appendChild(this.ruler);
+      document.documentElement.appendChild(this.ruler);
    }
 
    measureText(text: string, maxWidth = 'auto', width = 'auto') {

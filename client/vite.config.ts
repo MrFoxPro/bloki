@@ -25,7 +25,7 @@ export default async ({ mode }: ConfigEnv) => {
    const outDir = '../dist/client';
    const config: UserConfig = {
       base: dev ? './' : '/',
-      assetsInclude: ['*.gltf', /.gltf/],
+      assetsInclude: ['**/*.gltf', '**/*.mov'],
       clearScreen: false,
       // optimizeDeps: {},
       server: {
