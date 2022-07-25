@@ -91,12 +91,17 @@ export function LandingView() {
                <BricksIcon class="bricks" />
             </Repeat>
          </div>
-         {/* <svg class="line" width="1033" height="543" viewBox="0 0 1033 543" fill="none">
+         <div class="lines">
+            <svg class="line" width="1158" height="734" viewBox="0 0 1158 734" fill="none">
+               <path use:animatedash d="M1028.5 2C1200 42 1291.6 327.5 664 449.5C36.4 571.5 9 676 2 732" />
+            </svg>
+            <svg class="line" width="1033" height="543" viewBox="0 0 1033 543" fill="none">
                <path use:animatedash d="M1030.11 540.5C1030.11 379.5 870.855 305.268 588.608 267.5C174 212.02 -28.0005 83.5 6.50099 2" />
             </svg>
             <svg class="line" width="1152" height="657" viewBox="0 0 1152 657" fill="none">
                <path use:animatedash d="M1083 2C1209.48 84.4521 1208.59 296.927 581.071 390.5C78.5 465.442 2.57297 566.5 2.57227 655" />
-            </svg> */}
+            </svg>
+         </div>
          <header class="page-header">
             <LogoIcon class="logo" id="logo" />
             <div class="items-container">

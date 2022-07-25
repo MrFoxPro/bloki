@@ -140,11 +140,11 @@ function BlokiEditor(props: BlokiEditorProps) {
       }
       let { x, y } = getRelativePosition(e.offsetX, e.offsetY);
 
-      const { mGridWidth, fGridWidth } = store.document.layoutOptions;
+      // const { mGridWidth, fGridWidth } = store.document.layoutOptions;
 
       const newBlockTransform: BlockTransform = {
          height: 1,
-         width: grid === 'main' ? mGridWidth : 4,
+         width: 4,
          x,
          y
       };

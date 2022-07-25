@@ -5,42 +5,17 @@
          "name": "Client",
          "request": "launch",
          "cwd": "${workspaceFolder}/client",
-         "runtimeArgs": [
-            "dev"
-         ],
+         "runtimeArgs": ["dev"],
          "runtimeExecutable": "pnpm",
-         "skipFiles": [
-            "<node_internals>/**"
-         ],
-         "type": "pwa-node",
+         "skipFiles": ["<node_internals>/**"],
+         "type": "node",
          "console": "internalConsole"
-      },
-      {
-         "name": "Server",
-         "type": "coreclr",
-         "request": "launch",
-         "preLaunchTask": "build",
-         "program": "${workspaceFolder}/api/bin/Debug/bloki.dll",
-         "args": [],
-         "cwd": "${workspaceFolder}/api",
-         "stopAtEntry": false,
-         "console": "internalConsole",
-         "logging": {
-            "moduleLoad": false,
-            "engineLogging": false
-         },
-         "env": {
-            "ASPNETCORE_ENVIRONMENT": "Development"
-         }
       }
    ],
    "compounds": [
       {
          "name": "Start all",
-         "configurations": [
-            "Server",
-            "Client",
-         ],
+         "configurations": ["Client"],
          "stopAll": false,
          "presentation": {
             "hidden": false,

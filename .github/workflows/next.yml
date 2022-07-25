@@ -48,16 +48,6 @@ jobs:
     #     working-directory: ./tests
     #     run: pnpx playwright install --with-deps
 
-      - name: install dotnet
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: "6.0.x"
-
-      - name: dotnet restore
-        env:
-            DOTNET_NOLOGO: true
-        run: pnpm -F api restore
-
     #   - name: run tests
     #     run: pnpm test
 
@@ -80,14 +70,14 @@ jobs:
           command_timeout: 1m
           strip_components: 1
 
-      - name: Restart service bloki-next
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          key: ${{ secrets.SSHKEY }}
-          script: sudo systemctl restart bloki-next
+    #   - name: Restart service bloki-next
+    #     uses: appleboy/ssh-action@v0.1.4
+    #     with:
+    #       host: ${{ secrets.HOST }}
+    #       username: ${{ secrets.USERNAME }}
+    #       port: ${{ secrets.PORT }}
+    #       key: ${{ secrets.SSHKEY }}
+    #       script: sudo systemctl restart bloki-next
 
       - name: Notify telegram
         env:

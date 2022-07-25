@@ -51,13 +51,31 @@
          }
       }
    }
-   .line {
-      margin-top: -50px;
-      width: 100%;
-      stroke: $color-primary-orange-200;
-      stroke-width: 4;
-      stroke-linecap: round;
-      stroke-dasharray: 8 8;
+   .lines {
+      @media (max-width: $font-changing-bp) {
+         display: none;
+      }
+      > .line {
+         z-index: 2;
+         width: 100%;
+         position: absolute;
+         stroke: $color-primary-orange-200;
+         stroke-width: 4;
+         stroke-linecap: round;
+         stroke-dasharray: 8 8;
+         &:nth-child(1) {
+            top: 1490px;
+            left: 80px;
+         }
+         &:nth-child(2) {
+            top: 2432px;
+            left: -50px;
+         }
+         &:nth-child(3) {
+            top: 3167px;
+            left: 10px;
+         }
+      }
    }
    .logo {
       cursor: pointer;
@@ -119,14 +137,11 @@
       }
       &.structure {
          top: 48px;
-         left: -30px;
-         @media (max-width: $font-changing-bp) {
-            left: 0;
-         }
+         left: -25px;
+         width: 120%;
+
          @media (max-width: $mobile-bp) {
             top: 40px;
-            left: -25px;
-            width: 120%;
          }
       }
       &.workspaces {
@@ -145,13 +160,13 @@
          left: 0;
          top: 100%;
          @media (max-width: $mobile-bp) {
-           width: 90%;
-           left: 10px;
+            width: 90%;
+            left: 10px;
          }
       }
       &.smile {
          inset: unset;
-         right: 0;
+         margin-left: 50px;
          @media (max-width: 600px) {
             display: none;
          }
@@ -167,11 +182,12 @@
    }
    .intro {
       margin: 45px auto;
-      width: 350px;
       font-family: $font-family-handwrited;
       font-size: 48px;
       text-align: center;
       position: relative;
+      white-space: nowrap;
+      min-width: 295px;
       @media (max-width: $font-changing-bp) {
          font-size: 40px;
          .place-word {
@@ -200,7 +216,7 @@
       flex-wrap: wrap-reverse;
       align-items: center;
       justify-content: center;
-      gap: 96px;
+      gap: 95px;
       > .window {
          flex: 1;
          width: 100%;
@@ -252,7 +268,7 @@
          }
          > .description {
             margin-top: 40px;
-            font-size: 24px;
+            font-size: 20px;
             color: var(--color-text-description);
             @media (max-width: $mobile-bp) {
                font-size: 16px;
