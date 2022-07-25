@@ -66,10 +66,10 @@ export default async ({ mode }: ConfigEnv) => {
          outDir: outDir,
          rollupOptions: {
             output: {
-               manualChunks: {
-                  solid: ['solid-js'],
-                  graphql: ['graphql', 'graphql-tag', 'graphql-request']
-               },
+               // manualChunks: {
+               //    solid: ['solid-js'],
+               //    graphql: ['graphql-tag', 'graphql-request']
+               // },
                entryFileNames: '[name].js',
                chunkFileNames: '[name].js',
                assetFileNames: 'assets/[name].[ext]'
