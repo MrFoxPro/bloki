@@ -5,7 +5,7 @@
    --shadow-feature: 0px 100px 80px rgba(0, 0, 0, 0.02), 0px 41.7776px 33.4221px rgba(0, 0, 0, 0.0143771),
       0px 22.3363px 17.869px rgba(0, 0, 0, 0.0119221), 0px 12.5216px 10.0172px rgba(0, 0, 0, 0.01),
       0px 6.6501px 5.32008px rgba(0, 0, 0, 0.00807786), 0px 2.76726px 2.21381px rgba(0, 0, 0, 0.00562291);
-   --color-bg-bricks: #faf3f3;
+   --color-bg-bricks: #{$color-gray-300};
 }
 .theme.dark .page.landing {
    --color-page-bg: #{$color-gray-900};
@@ -17,6 +17,8 @@
 }
 .page.landing {
    $content-width: 1305px;
+   $font-changing-bp: 1440px;
+   $mobile-bp: 400px;
    @mixin center-content {
       position: relative;
       z-index: 2;
@@ -24,34 +26,28 @@
       margin-inline: auto;
    }
    color: $color-text-main;
-   background: left / cover no-repeat url('./assets/bricks.svg') var(--color-page-bg);
+   background-color: var(--color-page-bg);
    &,
    *:not(img, video) {
       transition: background-color 100ms ease, color 100ms ease;
    }
-   &::-webkit-scrollbar {
-      appearance: none;
-      width: 8px;
-   }
-   &::-webkit-scrollbar-thumb {
-      background: $color-primary-orange-900;
-   }
-   scrollbar-width: auto;
-   scrollbar-color: $color-primary-orange-900 transparent;
-
    > .bricks-group {
-      > .bg-bricks {
+      @media (max-width: $font-changing-bp) {
+         display: none;
+      }
+      > .bricks {
          position: absolute;
-         color: var(--color-bg-bricks);
+         fill: var(--color-bg-bricks);
+         transition: fill 100ms ease;
          z-index: 1;
          &:nth-child(1) {
             top: 50vh;
          }
          &:nth-child(2) {
-            top: 250vh;
+            top: 200vh;
          }
          &:nth-child(3) {
-            top: 400vh;
+            top: 350vh;
          }
       }
    }
@@ -63,6 +59,11 @@
       stroke-linecap: round;
       stroke-dasharray: 8 8;
    }
+   .logo {
+      cursor: pointer;
+      min-width: 120px;
+      width: 120px;
+   }
    header {
       height: 82px;
       display: flex;
@@ -72,11 +73,6 @@
       position: sticky;
       max-width: $content-width;
       margin: 0 auto;
-      > .logo {
-         cursor: pointer;
-         min-width: 120px;
-         width: 120px;
-      }
       > .items-container {
          display: flex;
          align-items: center;
@@ -107,27 +103,58 @@
    .decoration {
       position: absolute;
       pointer-events: none;
-      &.structure-word {
+      inset: 0;
+      &.place {
+         left: 5px;
+         @media (max-width: $font-changing-bp) {
+            height: 55px;
+         }
+      }
+      &.all {
+         left: -100px;
+         top: 120px;
+         @media (max-width: $font-changing-bp) {
+            top: 90px;
+         }
+      }
+      &.structure {
+         top: 48px;
          left: -30px;
-         bottom: -10px;
+         @media (max-width: $font-changing-bp) {
+            left: 0;
+         }
+         @media (max-width: $mobile-bp) {
+            top: 40px;
+            left: -25px;
+            width: 120%;
+         }
       }
-      &.workspaces-word {
-         bottom: -30px;
+      &.workspaces {
+         top: 48px;
       }
-      &.team-word {
+      &.collaboration {
+         left: -25px;
          top: -20px;
-         left: -30px;
+         width: 120%;
       }
-      &.lib-word {
+      &.lib {
          left: 0;
-         bottom: -20px;
+         top: 48px;
       }
-      &.templates-and-plugins {
+      &.create-account {
          left: 0;
-         bottom: -10px;
+         top: 100%;
+         @media (max-width: $mobile-bp) {
+           width: 90%;
+           left: 10px;
+         }
       }
       &.smile {
-         right: -90px;
+         inset: unset;
+         right: 0;
+         @media (max-width: 600px) {
+            display: none;
+         }
       }
    }
    .mark {
@@ -145,17 +172,7 @@
       font-size: 48px;
       text-align: center;
       position: relative;
-      .place-word {
-         width: 169px;
-         height: 75px;
-         top: -5px;
-         left: 98px;
-      }
-      .all-word {
-         left: 0;
-         bottom: -20px;
-      }
-      @media (max-width: 1440px) {
+      @media (max-width: $font-changing-bp) {
          font-size: 40px;
          .place-word {
             width: 125px;
@@ -187,9 +204,8 @@
       > .window {
          flex: 1;
          width: 100%;
-         min-width: 500px;
+         min-width: calc(min(500px, 90vw));
          max-width: 90vw;
-         // max-height: 400px;
          border-radius: 11px;
          box-shadow: var(--shadow-feature);
          background-color: $color-gray-000;
@@ -207,8 +223,6 @@
             }
          }
          .demo {
-            padding: 0;
-            margin: 0;
             width: 100%;
             height: auto;
             border-bottom-left-radius: 11px;
@@ -217,15 +231,35 @@
       }
       > .text {
          width: 370px;
+         @media (max-width: $content-width) {
+            > .heading {
+               margin-inline: auto;
+               text-align: center;
+            }
+            > .description {
+               text-align: center;
+            }
+         }
          > .heading {
             font-family: $font-family-handwrited;
-            font-size: 54px;
+            font-size: 48px;
             position: relative;
+            max-width: 300px;
+            width: min-content;
+            @media (max-width: $mobile-bp) {
+               font-size: 40px;
+            }
          }
          > .description {
             margin-top: 40px;
             font-size: 24px;
             color: var(--color-text-description);
+            @media (max-width: $mobile-bp) {
+               font-size: 16px;
+            }
+            @media (max-width: $content-width) {
+               text-align: center;
+            }
          }
       }
       &:nth-of-type(2n + 1) {
@@ -240,12 +274,13 @@
       font-size: 64px;
       display: block;
       text-align: center;
+      @media (max-width: $font-changing-bp) {
+         font-size: 40px;
+      }
       > .start,
       > .end {
-         display: inline;
+         display: block;
          position: relative;
-         cursor: pointer;
-         text-decoration: none;
       }
       > .end {
          font-size: 48px;
@@ -262,12 +297,14 @@
       flex-direction: column;
       justify-content: center;
       > .navs {
-         display: flex;
          flex: 3;
-         justify-content: space-between;
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+         grid-gap: 0.5rem;
          align-items: center;
          > nav {
             min-height: 150px;
+            margin: 0 auto;
             > h4 {
                font-size: 20px;
                font-weight: 600;

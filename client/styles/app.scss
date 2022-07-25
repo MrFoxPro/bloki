@@ -13,17 +13,25 @@
       }
    }
 }
-html,
-body {
-   height: 100%;
+html {
+   &::-webkit-scrollbar {
+      appearance: none;
+      width: 8px;
+   }
+   &::-webkit-scrollbar-thumb {
+      background: $color-primary-orange-900;
+   }
+   scrollbar-width: auto;
+   scrollbar-color: $color-primary-orange-900 transparent;
 }
 body {
    font-family: $font-family-default;
    margin: 0;
 }
+* {
+   box-sizing: border-box;
+}
 .page {
-   height: 100%;
-   overflow: auto;
    &.colored {
       background: orange;
    }

@@ -16,10 +16,10 @@ import {
 const LOCALE_COOKIE_KEY = 'locale';
 
 // https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B4%D1%8B_%D1%8F%D0%B7%D1%8B%D0%BA%D0%BE%D0%B2
-export const languages = ['ru', 'en', 'zh'] as const;
+export const languages = ['en'] as const;
 export const LANGS_META: Record<typeof languages[number], { emoji: string; name_eng: string }> = {
-   ru: { emoji: '🇷🇺', name_eng: 'Russian' },
    en: { emoji: '🇬🇧', name_eng: 'English' },
+   ru: { emoji: '🇷🇺', name_eng: 'Russian' },
    zh: { emoji: '🇨🇳', name_eng: 'Chineese' }
 };
 export type Lang = typeof languages[number];

@@ -1,4 +1,4 @@
-import './landing.view.scss';
+import './landing.scss';
 import { For, lazy, onCleanup, Suspense } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { useNavigate } from 'solid-app-router';
@@ -9,7 +9,6 @@ import { Theme, useThemes } from '@/modules/theme.store';
 import { DrawerStoreProvider } from '@/modules/bloki-editor/drawer.store';
 import { EditorStoreProvider } from '@/modules/bloki-editor/editor.store';
 const BlokiEditor = lazy(() => import('@/modules/bloki-editor/bloki-editor'));
-import { useAppStore } from '@/modules/app.store';
 import { landingDoc } from '@/lib/samples';
 
 import FileStructureImage from './assets/fs.webp';
@@ -23,13 +22,14 @@ import CursorsImageVP9 from './assets/cursors.vp9.webm';
 import LibImageVP9 from './assets/libs.vp9.webm';
 
 import LogoIcon from '@/assets/images/logo-orange.svg';
-import LogoDarkIcon from '@/assets/images/logo-dark.svg';
 import GithubIcon from '@/assets/images/github-logo.svg';
 import UnderLine1 from './assets/underline-1.svg';
 import UnderLine2 from './assets/underline-2.svg';
 import UnderLine3 from './assets/underline-3.svg';
 import SunIcon from './assets/sun.svg';
 import MoonIcon from './assets/moon.svg';
+import BricksIcon from './assets/bricks.svg';
+import { Repeat } from '@solid-primitives/range';
 
 declare module 'solid-js' {
    namespace JSX {
@@ -62,7 +62,6 @@ export function LandingView() {
    if (import.meta.env.PROD) {
       useYandexMetrica();
    }
-   const [app] = useAppStore();
    const navigate = useNavigate();
    const { theme, setTheme } = useThemes();
 
@@ -87,6 +86,11 @@ export function LandingView() {
 
    return (
       <div class="page landing">
+         <div class="bricks-group">
+            <Repeat times={3}>
+               <BricksIcon class="bricks" />
+            </Repeat>
+         </div>
          {/* <svg class="line" width="1033" height="543" viewBox="0 0 1033 543" fill="none">
                <path use:animatedash d="M1030.11 540.5C1030.11 379.5 870.855 305.268 588.608 267.5C174 212.02 -28.0005 83.5 6.50099 2" />
             </svg>
@@ -111,17 +115,16 @@ export function LandingView() {
          </header>
          <section>
             <div class="intro">
-               {t().intro[0]}
-               <br />
-               {t().intro[1]}
-               <svg class="decoration place-word" viewBox="0 0 169 75" fill="none">
+               <div>{t().intro[0]}</div>
+               <div>{t().intro[1]}</div>
+               <svg class="decoration place" width="100%" height="65" viewBox="0 0 169 75" fill="none">
                   <path
                      class="mark"
                      use:animatedash
                      d="M119.697 5.46326C98.3923 3.19962 76.2417 1.91175 54.8509 4.21184C40.5625 5.74822 21.6338 11.1228 11.5441 22.3006C7.21769 27.0936 3.84954 32.773 3.12548 39.2895C2.15738 48.0024 6.88914 52.133 13.9332 56.5819C30.9947 67.3576 50.1046 71.0811 70.0954 71.9781C82.3531 72.5282 94.6341 72.2189 106.766 70.2337C112.146 69.3534 117.413 67.9663 122.769 66.9725C129.555 65.7131 136.47 65.4293 143.209 63.8629C152.677 61.662 168.525 55.3585 165.658 42.5887C162.612 29.0174 146.964 21.345 135.093 16.9157C125.041 13.1649 115.335 8.72345 104.68 6.90429C95.9893 5.42049 86.8468 6.14586 78.059 6.14586"
                   />
                </svg>
-               <svg class="decoration all-word" width="188" height="31" viewBox="0 0 188 31" fill="none">
+               <svg class="decoration all" width="100%" height="31" viewBox="0 0 188 31" fill="none">
                   <path
                      class="mark"
                      use:animatedash
@@ -151,8 +154,8 @@ export function LandingView() {
             </div>
             <div class="text">
                <div class="heading">
-                  {t().fs.heading}
-                  <svg class="decoration structure-word" width="394" height="85" viewBox="0 0 394 85" fill="none">
+                  <div>{t().fs.heading}</div>
+                  <svg class="decoration structure" width="100%" height="85" viewBox="0 0 394 85" fill="none">
                      <path
                         class="mark"
                         use:animatedash
@@ -176,7 +179,7 @@ export function LandingView() {
             </div>
             <div class="text">
                <div class="heading">
-                  <svg class="decoration workspaces-word" width="403" height="38" viewBox="0 0 403 38" fill="none">
+                  <svg class="decoration workspaces" width="100%" height="38" viewBox="0 0 403 38" fill="none">
                      <path
                         class="mark"
                         use:animatedash
@@ -203,8 +206,8 @@ export function LandingView() {
             </div>
             <div class="text">
                <div class="heading">
-                  {t().teamwork.heading}
-                  <svg class="decoration team-word" width="334" height="105" viewBox="0 0 334 105" fill="none">
+                  <div>{t().teamwork.heading}</div>
+                  <svg class="decoration collaboration" width="100%" height="105" viewBox="0 0 334 105" fill="none">
                      <path
                         class="mark"
                         use:animatedash
@@ -225,8 +228,8 @@ export function LandingView() {
             </div>
             <div class="text">
                <div class="heading">
-                  {t().lib.heading}
-                  <svg class="decoration lib-word" width="371" height="31" viewBox="0 0 371 31" fill="none">
+                  <div> {t().lib.heading}</div>
+                  <svg class="decoration lib" width="100%" height="31" viewBox="0 0 371 31" fill="none">
                      <path
                         class="mark"
                         use:animatedash
@@ -244,7 +247,10 @@ export function LandingView() {
          </section>
          <section class="outro">
             <div class="start">
-               {t().outro[0]}
+               <div>{t().outro[0]}</div>
+            </div>
+            <div class="end">
+               <a href="/demo">{t().outro[1]}</a>
                <svg class="decoration smile" width="62" height="57" viewBox="0 0 62 57" fill="none">
                   <path class="mark" use:animatedash={800} d="M13.7129 3C15.1984 7.64236 16.3057 12.4269 17.8338 17.011" />
                   <path class="mark" use:animatedash={950} d="M32.6699 4.64844C33.3539 8.44837 33.9437 12.5908 35.1424 16.1869" />
@@ -254,28 +260,23 @@ export function LandingView() {
                      d="M3 41.7357C7.54615 45.2122 11.433 48.2118 17.1484 49.5654C24.2904 51.2569 39.4402 55.9261 45.9029 50.7559C51.0262 46.6572 54.528 42.6519 57.2125 36.5159C57.6626 35.487 58.9473 30.1973 58.2198 30.1973"
                   />
                </svg>
-            </div>
-            <br />
-            <a class="end" href="/demo">
-               {t().outro[1]}
-               <svg class="decoration templates-and-plugins" width="450" height="15" viewBox="0 0 450 15" fill="none">
+               <svg class="decoration create-account" width="100%" height="15" viewBox="0 0 450 15" fill="none">
                   <path
                      class="mark"
                      use:animatedash={350}
                      d="M3.0918 11.1786C26.986 6.27725 51.4959 7.98764 75.7752 7.98764C137.914 7.98764 199.975 7.54926 262.093 5.68305C323.572 3.83604 385.13 3.20117 446.638 3.20117"
                   />
                </svg>
-            </a>
+            </div>
          </section>
          <footer>
             <div class="navs">
-               <LogoDarkIcon class="logo" width="122px" />
                <For each={FOOTER_ITEMS}>
                   {([header, items, underline]) => (
                      <nav>
                         <h4>
                            {header}
-                           {underline}
+                           {underline({})}
                         </h4>
                         <ul>
                            <For each={items}>
