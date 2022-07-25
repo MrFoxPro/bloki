@@ -16,6 +16,7 @@
    --color-bg-bricks: #30353b;
 }
 .page.landing {
+   position: relative;
    $content-width: 1305px;
    $font-changing-bp: 1440px;
    $mobile-bp: 400px;
@@ -52,17 +53,19 @@
       }
    }
    .lines {
-      @media (max-width: $font-changing-bp) {
-         display: none;
-      }
       > .line {
          z-index: 2;
-         width: 100%;
          position: absolute;
+         left: 0;
+         right: 0;
+         margin-inline: auto;
          stroke: $color-primary-orange-200;
          stroke-width: 4;
          stroke-linecap: round;
          stroke-dasharray: 8 8;
+         @media (max-width: $font-changing-bp) {
+            display: none;
+         }
          &:nth-child(1) {
             top: 1490px;
             left: 80px;
@@ -74,6 +77,14 @@
          &:nth-child(3) {
             top: 3167px;
             left: 10px;
+         }
+         .mask {
+            fill: none;
+            stroke: white;
+            stroke-width: 4;
+            stroke-dasharray: 3000;
+            stroke-dashoffset: 3000;
+            transition: stroke-dashoffset 1.5s ease;
          }
       }
    }

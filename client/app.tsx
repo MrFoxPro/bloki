@@ -8,7 +8,7 @@ import { I18n } from './modules/i18n/i18n.module';
 import { lazy } from 'solid-js';
 import { ThemeContextProvider } from './modules/theme.store';
 
-const LandingView = lazy(() => import('./views/landing/landing.view'));
+const LandingView = lazy(() => import('./views/landing/landing'));
 const MainView = lazy(() => import('./views/main/main.view'));
 const WelcomeView = lazy(() => import('./views/welcome/welcome.view'));
 

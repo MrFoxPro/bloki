@@ -30,6 +30,7 @@ import SunIcon from './assets/sun.svg';
 import MoonIcon from './assets/moon.svg';
 import BricksIcon from './assets/bricks.svg';
 import { Repeat } from '@solid-primitives/range';
+import { isChromium, isWebKit } from '@solid-primitives/platform';
 
 declare module 'solid-js' {
    namespace JSX {
@@ -53,7 +54,7 @@ export function animatedash(el: HTMLElement, delay?: () => number) {
       }
    });
    // https://bugs.chromium.org/p/chromium/issues/detail?id=963246
-   let toObserve = el.parentElement.tagName === 'svg' ? el.parentElement : el;
+   let toObserve = el.tagName !== 'svg' ? el.closest('svg') : el;
    observer.observe(toObserve);
    onCleanup(() => observer.disconnect());
 }
@@ -93,13 +94,49 @@ export function LandingView() {
          </div>
          <div class="lines">
             <svg class="line" width="1158" height="734" viewBox="0 0 1158 734" fill="none">
-               <path use:animatedash d="M1028.5 2C1200 42 1291.6 327.5 664 449.5C36.4 571.5 9 676 2 732" />
+               <defs>
+                  <path id="path1" d="M1028.5 2C1200 42 1291.6 327.5 664 449.5C36.4 571.5 9 676 2 732" />
+                  <mask id="mask1">
+                     <use class="mask" href="#path1" use:animatedash={500} />
+                  </mask>
+               </defs>
+               <use
+                  class="paths"
+                  href="#path1"
+                  style={{
+                     mask: 'url(#mask1)'
+                  }}
+               />
             </svg>
             <svg class="line" width="1033" height="543" viewBox="0 0 1033 543" fill="none">
-               <path use:animatedash d="M1030.11 540.5C1030.11 379.5 870.855 305.268 588.608 267.5C174 212.02 -28.0005 83.5 6.50099 2" />
+               <defs>
+                  <path id="path2" d="M6.50099,2C-28.0005,83.5 174,212.02 588.608,267.5C870.855,305.268 1030.11,379.5 1030.11,540.5" />
+                  <mask id="mask2">
+                     <use class="mask" href="#path2" use:animatedash={500} />
+                  </mask>
+               </defs>
+               <use
+                  class="paths"
+                  href="#path2"
+                  style={{
+                     mask: 'url(#mask2)'
+                  }}
+               />
             </svg>
             <svg class="line" width="1152" height="657" viewBox="0 0 1152 657" fill="none">
-               <path use:animatedash d="M1083 2C1209.48 84.4521 1208.59 296.927 581.071 390.5C78.5 465.442 2.57297 566.5 2.57227 655" />
+               <defs>
+                  <path id="path3" d="M1083 2C1209.48 84.4521 1208.59 296.927 581.071 390.5C78.5 465.442 2.57297 566.5 2.57227 655" />
+                  <mask id="mask3">
+                     <use class="mask" href="#path3" use:animatedash={500} />
+                  </mask>
+               </defs>
+               <use
+                  class="paths"
+                  href="#path3"
+                  style={{
+                     mask: 'url(#mask3)'
+                  }}
+               />
             </svg>
          </div>
          <header class="page-header">
@@ -171,15 +208,12 @@ export function LandingView() {
                <div class="description">{t().fs.description}</div>
             </div>
          </section>
-         {/* <svg class="line" viewBox="0 0 1158 734" fill="none">
-            <path d="M1028.5 2C1200 42 1291.6 327.5 664 449.5C36.4 571.5 9 676 2 732" />
-         </svg> */}
          <section class="feature">
             <div class="window">
                {WindowControls}
                <video class="demo" autoplay muted loop playsinline>
-                  <source src={WorkspacesImageAV1} type="video/mp4; codecs=av01.0.05M.08,opus" />
                   <source src={WorkspacesImageVP9} type="video/webm; codecs=vp8, vorbis" />
+                  <source src={WorkspacesImageAV1} type="video/mp4; codecs=av01.0.05M.08,opus" />
                </video>
             </div>
             <div class="text">

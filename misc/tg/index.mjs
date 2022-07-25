@@ -61,7 +61,6 @@ for (const p of artifacts) {
    }
    other.push(at);
 }
-
 if (journey.length)
    await bot.telegram.sendMediaGroup(chatId, journey, { protect_content: true });
 
