@@ -1,0 +1,132 @@
+@use 'sass:math';
+@import '@/styles/vars.scss';
+
+fieldset {
+   padding: 0;
+   border: none;
+   legend {
+      padding: 0;
+      margin-bottom: 24px;
+      @include text(16px, $color-text-item, 600);
+   }
+   & + fieldset {
+      margin-top: 32px;
+   }
+}
+input[type='text'] {
+   background-color: $color-bg-main;
+}
+
+@mixin custom-input-range(
+   $track-height: 4px,
+   $thumb-height: 16px,
+   $thumb-border-radius: 2px,
+   $color: $color-primary-orange-900,
+   $color-bg: $color-gray-600
+) {
+   -webkit-appearance: none;
+   accent-color: $color;
+   // margin: math.div($track-height, 2) 0;
+   box-sizing: border-box;
+   background: transparent;
+   &.thumb {
+      background-color: $color;
+      border-radius: $thumb-border-radius;
+      border: none;
+      width: $thumb-height;
+      height: $thumb-height;
+      cursor: pointer;
+   }
+   &::-moz-range-thumb {
+      @extend .thumb;
+   }
+   &::-moz-range-track {
+      background-color: $color-bg;
+      height: $track-height;
+      cursor: pointer;
+
+   }
+   &::-moz-range-progress {
+      background-color: $color;
+      height: $track-height;
+      cursor: pointer;
+
+   }
+   &::-webkit-slider-runnable-track {
+      -webkit-appearance: none;
+      background-color: $color-bg;
+      height: $track-height;
+      border-radius: 2px;
+      margin-top: math.div($track-height, 2);
+      cursor: pointer;
+   }
+   &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      margin-top: math.div($track-height, 2) - math.div($thumb-height, 2);
+      cursor: pointer;
+
+      @extend .thumb;
+   }
+}
+input[type='range'] {
+   @include custom-input-range();
+   width: 100%;
+}
+.text-input-group {
+   max-width: 360px;
+   position: relative;
+   label {
+      display: block;
+      @include text-description1;
+      font-weight: 500;
+      margin-bottom: 8px;
+   }
+   input.text-input {
+      all: initial;
+      box-sizing: border-box;
+      height: 41px;
+      padding-left: 12px;
+      padding-right: 26px;
+      width: 100%;
+      border: 0.5px solid $color-gray-600;
+      border-radius: 4px;
+      &::placeholder {
+         color: $color-gray-600;
+      }
+      &:hover:not(&:focus):not(&:disabled) {
+         border-color: $color-primary-orange-200;
+      }
+      &:focus {
+         border-color: $color-primary-orange-900;
+      }
+      &:disabled {
+         background: $color-gray-600;
+         cursor: not-allowed;
+      }
+   }
+   .reset {
+      position: absolute;
+      bottom: 14px;
+      right: 11px;
+      cursor: pointer;
+   }
+}
+
+button {
+   display: flex;
+   justify-content: space-evenly;
+   align-items: center;
+   box-sizing: border-box;
+   text-align: center;
+   outline: none;
+   border: none;
+   border-radius: 7px;
+   cursor: pointer;
+   &:disabled {
+      background: $color-primary-orange-200;
+      cursor: not-allowed;
+   }
+   &.primary {
+      background: $color-primary-orange-900;
+   }
+}

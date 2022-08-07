@@ -1,11 +1,10 @@
 {
    "html.format.wrapLineLength": 120,
-   // typescript
-   "typescript.tsdk": "./client/node_modules/typescript/lib",
    "typescript.preferences.importModuleSpecifier": "shortest",
    "typescript.format.semicolons": "insert",
    // "typescript.preferences.quoteStyle": "single",
    "typescript.format.enable": true,
+   "typescript.preferences.useAliasesForRenames": false,
    "scss.format.spaceAroundSelectorSeparator": true,
    "scss.format.newlineBetweenSelectors": false,
    "scss.format.newlineBetweenRules": false,
@@ -13,12 +12,26 @@
    "editor.insertSpaces": true,
    "editor.tabSize": 3,
    "scss.format.enable": true,
-   "vscode-color-picker.languages": [
-      "typescript",
-      "typescriptreact",
-      "xml"
-   ],
+   "vscode-color-picker.languages": ["typescript", "typescriptreact", "xml"],
    "path-autocomplete.pathMappings": {
       "@": "${folder}/client"
    },
+   "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "**/node_modules": true
+   },
+   "emmet.includeLanguages": {
+      "javascriptreact": "xml",
+      "typescriptreact": "xml"
+   },
+   "emmet.syntaxProfiles": {
+      "xml": {
+         "attr_quotes": "double"
+      }
+   }
 }

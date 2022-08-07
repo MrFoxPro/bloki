@@ -1,0 +1,23 @@
+{
+   "compilerOptions": {
+      "baseUrl": "./",
+      "target": "ESNext",
+      "module": "ESNext",
+      "isolatedModules": true,
+      "jsx": "preserve",
+      "jsxImportSource": "solid-js",
+      "noEmit": true,
+      "allowSyntheticDefaultImports": true,
+      "moduleResolution": "node",
+      "noErrorTruncation": false,
+      // Misc
+      "forceConsistentCasingInFileNames": true,
+      "esModuleInterop": true,
+      "skipDefaultLibCheck": true,
+      "paths": {
+         "@/*": ["./*"]
+      },
+      "types": ["vite/client"]
+   },
+   "exclude": ["node_modules", ".vscode", "assets", ".git", "temp", "dist"]
+}

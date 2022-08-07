@@ -2,12 +2,12 @@
 	"homepage": "https://bloki.app",
 	"scripts": {
 		"test": "pnpm run -F tests start",
-		"dev": "pnpm run --parallel --stream -F client dev",
-		"build": "pnpm run --parallel -F client build"
+		"dev": "pnpm run --parallel --stream -F web -F api dev",
+		"build": "pnpm run --parallel -F web build"
 	},
 	"workspaces": [
 		"api",
-		"client",
+		"web",
 		"tests",
 		"./misc/tg"
 	]

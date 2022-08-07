@@ -1,0 +1,107 @@
+@import '@/styles/vars.scss';
+$offset: 27;
+$left-offset: 14px;
+$dropdown-left-offset: 32px;
+$border-width: 1px;
+$label-initial-top: -10px;
+
+.field-container {
+   padding-top: 42px;
+   .field {
+      position: relative;
+      &:hover {
+         border-width: $border-width;
+         border-color: $color-border;
+      }
+      &:focus-within {
+         border-width: $border-width;
+         border-color: $color-border;
+      }
+      &.dropdown {
+         max-height: 190px;
+         .input {
+            background: url(./assets/arrow.svg) no-repeat scroll 14px 21px;
+            padding-left: $dropdown-left-offset;
+         }
+         > .options {
+            max-height: 110px;
+            overflow: auto;
+            option {
+               height: 43px;
+               box-sizing: border-box;
+               padding-left: 37px;
+               font-size: 20px;
+               color: $color-text-item;
+               display: flex;
+               align-items: center;
+               margin-inline: 14px;
+               cursor: pointer;
+               &.active,
+               &:hover {
+                  background: $color-bg-item-highlighted;
+                  border-radius: 6px;
+               }
+               &:last-child {
+                  margin-bottom: 10px;
+               }
+            }
+            option + option {
+               margin-top: 4px;
+            }
+         }
+      }
+      width: 100%;
+      background: transparent;
+      border-radius: 7px;
+      border-color: transparent;
+      border-width: $border-width;
+      border-style: solid;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+      .input {
+         width: 100%;
+         height: 52px;
+         border-radius: 7px;
+         border: 0;
+         outline: 0;
+         box-sizing: border-box;
+         padding: $border-width 10px $border-width $left-offset;
+         font-size: 20px;
+         color: $color-text-item;
+         background: transparent;
+         &::placeholder {
+            color: transparent;
+         }
+         &:required,
+         &:invalid {
+            box-shadow: none;
+         }
+         &:placeholder-shown ~ .label {
+            font-size: 20px;
+            cursor: text;
+         }
+         &:focus ~ .label {
+            font-size: 20px;
+            color: $color-text-main;
+         }
+      }
+      .label {
+         user-select: none;
+         position: absolute;
+         top: $label-initial-top;
+         margin-top: -28px;
+         display: block;
+         transition: 0.2s;
+         font-size: 1rem;
+         pointer-events: none;
+         font-size: 20px;
+         text-align: center;
+         color: $color-text-item;
+      }
+   }
+   .field.loading {
+      > .input {
+         background: grey;
+      }
+   }
+}

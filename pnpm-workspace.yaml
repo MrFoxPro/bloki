@@ -1,5 +1,5 @@
-packages: 
+packages:
   - api
-  - client
+  - web
   - tests
   - ./misc/tg

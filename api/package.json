@@ -1,5 +1,8 @@
 {
-   "name": "api",
+   "name": "@bloki/api",
    "version": "0.0.1",
-   "scripts": {}
+   "scripts": {
+      "dev": "cargo run",
+      "build": "cargo build --release"
+   }
 }
