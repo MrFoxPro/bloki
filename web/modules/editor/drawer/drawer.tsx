@@ -1,20 +1,22 @@
 import './drawer.scss'
-import { createComputed, createEffect } from 'solid-js'
+import { createComputed, createEffect, onCleanup, onMount } from 'solid-js'
 import { isInsideRect, ToolType } from '../misc'
 
 import { toBlobAsync } from './helpers'
 import { Transform, Point } from '../types'
 import { useEditorContext } from '../toolbox/editor.store'
+import * as twgl from 'twgl.js'
 
 type Figure = {
    bound: Transform
    points: Point[]
 }
 
-type DrawerProps = {}
+import fs from './shaders/line.frag?raw'
+import vs from './shaders/line.vert?raw'
+
 export function Drawer(props: DrawerProps) {
    let canvasRef: HTMLCanvasElement
-   let ctx: CanvasRenderingContext2D
    let isMouseDown = false
    let lastPos: Point = {
       x: 0,
@@ -31,7 +33,7 @@ export function Drawer(props: DrawerProps) {
          const figure = figures.find((f) => isInsideRect(offsetX, offsetY, f.bound))
          console.log(figure)
       } else if (editor.tool === ToolType.Pen) {
-         onDrawStart(e)
+         // onDrawStart(e)
       }
    }
    function onDrawStart(e: PointerEvent) {
@@ -52,7 +54,7 @@ export function Drawer(props: DrawerProps) {
          y: e.offsetY,
       }
       wasDrawing = true
-      ctx.beginPath()
+      // gl.beginPath()
       drawMarker(lastPos, point)
       figures[figures.length - 1].points.push(point)
       lastPos = point
@@ -69,7 +71,7 @@ export function Drawer(props: DrawerProps) {
          maxY = Number.NEGATIVE_INFINITY
 
       for (const { x, y } of figure.points) {
-         ctx.fillRect(x, y, 5, 5)
+         // gl.fillRect(x, y, 5, 5)
 
          if (x < minX) minX = x
          if (x > maxX) maxX = x
@@ -90,42 +92,84 @@ export function Drawer(props: DrawerProps) {
    }
 
    function makeLine(figure: Figure, color) {
-      ctx.strokeStyle = color
-      for (let i = 1; i < figure.points.length; i++) {
-         ctx.moveTo(figure.points[i - 1].x, figure.points[i - 1].y)
-         ctx.lineTo(figure.points[i].x, figure.points[i].y)
-         ctx.stroke()
-      }
-
-      ctx.strokeStyle = 'navy'
-      const { x, y, width, height } = figure.bound
-      ctx.moveTo(x, y)
-      ctx.lineTo(x + width, y)
-      ctx.stroke()
-
-      ctx.moveTo(x + width, y)
-      ctx.lineTo(x + width, y + height)
-      ctx.stroke()
-
-      ctx.moveTo(x + width, y + height)
-      ctx.lineTo(x, y + height)
-      ctx.stroke()
-
-      ctx.moveTo(x, y + height)
-      ctx.lineTo(x, y)
-      ctx.stroke()
+      // gl.strokeStyle = color
+      // for (let i = 1; i < figure.points.length; i++) {
+      //    gl.moveTo(figure.points[i - 1].x, figure.points[i - 1].y)
+      //    gl.lineTo(figure.points[i].x, figure.points[i].y)
+      //    gl.stroke()
+      // }
+      // gl.strokeStyle = 'navy'
+      // const { x, y, width, height } = figure.bound
+      // gl.moveTo(x, y)
+      // gl.lineTo(x + width, y)
+      // gl.stroke()
+      // gl.moveTo(x + width, y)
+      // gl.lineTo(x + width, y + height)
+      // gl.stroke()
+      // gl.moveTo(x + width, y + height)
+      // gl.lineTo(x, y + height)
+      // gl.stroke()
+      // gl.moveTo(x, y + height)
+      // gl.lineTo(x, y)
+      // gl.stroke()
    }
 
    function drawMarker(prev: Point, curr: Point) {
-      ctx.lineCap = 'round'
-      ctx.lineJoin = 'round'
-      ctx.lineWidth = 2
-      ctx.strokeStyle = 'black'
-
-      ctx.moveTo(prev.x, prev.y)
-      ctx.lineTo(curr.x, curr.y)
-      ctx.stroke()
+      // gl.lineCap = 'round'
+      // gl.lineJoin = 'round'
+      // gl.lineWidth = 2
+      // gl.strokeStyle = 'black'
+      // gl.moveTo(prev.x, prev.y)
+      // gl.lineTo(curr.x, curr.y)
+      // gl.stroke()
    }
+
+   onMount(() => {
+      const gl = canvasRef.getContext('webgl2', { antialias: false, alpha: true })
+
+      twgl.resizeCanvasToDisplaySize(gl.canvas)
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+
+      const pInfo = twgl.createProgramInfo(gl, [vs, fs], {})
+      const bInfo = twgl.createBufferInfoFromArrays(gl, {
+         a_pos: {
+            data: new Float32Array([
+               0, 0, 100, 100, 0, 100,
+
+               0, 0, 100, 0, 100, 100,
+
+               100, 0, 100, 100, 200, 100,
+
+               // 100, 0, 200, 0, 200, 100,
+            ]),
+            numComponents: 2,
+         },
+      })
+      twgl.setBuffersAndAttributes(gl, pInfo, bInfo)
+
+      const success = gl.getProgramParameter(pInfo.program, gl.LINK_STATUS)
+      if (!success) console.log('Webgl error', success)
+
+      let stop = false
+      function render(time) {
+         if (stop) return
+
+         gl.clearColor(0, 0, 0, 0)
+         gl.clear(gl.COLOR_BUFFER_BIT)
+
+         gl.useProgram(pInfo.program)
+         twgl.setUniforms(pInfo, {
+            u_cam: [10, 0, 1],
+            u_res: [gl.canvas.width, gl.canvas.height],
+         })
+         twgl.drawBufferInfo(gl, bInfo, gl.TRIANGLES)
+
+         requestAnimationFrame(render)
+      }
+      requestAnimationFrame(render)
+
+      onCleanup(() => (stop = true))
+   })
 
    return (
       <canvas
@@ -137,12 +181,9 @@ export function Drawer(props: DrawerProps) {
          // classList={{
          //    ontop: editor.tool !== ToolType.Cursor,
          // }}
-         ref={(ref) => {
-            canvasRef = ref
-            ctx = canvasRef.getContext('2d')
-         }}
-         width={toAbs(editor.doc.gridOptions.width).px}
-         height={toAbs(editor.doc.gridOptions.height).px}
+         ref={canvasRef}
+         // width={toAbs(editor.doc.gridOptions.width).px}
+         // height={toAbs(editor.doc.gridOptions.height).px}
       />
    )
 }
