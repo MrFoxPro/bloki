@@ -14,6 +14,7 @@ type Figure = {
 
 import fs from './shaders/line.frag?raw'
 import vs from './shaders/line.vert?raw'
+import { buildNonNativeLine } from './line'
 
 export function Drawer(props: DrawerProps) {
    let canvasRef: HTMLCanvasElement
@@ -113,7 +114,6 @@ export function Drawer(props: DrawerProps) {
       // gl.lineTo(x, y)
       // gl.stroke()
    }
-
    function drawMarker(prev: Point, curr: Point) {
       // gl.lineCap = 'round'
       // gl.lineJoin = 'round'
@@ -124,53 +124,98 @@ export function Drawer(props: DrawerProps) {
       // gl.stroke()
    }
 
+   // onMount(() => {
+   // const gl = canvasRef.getContext('web', { antialias: false, alpha: true })
+   //    twgl.resizeCanvasToDisplaySize(gl.canvas)
+   //    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+
+   //    const pInfo = twgl.createProgramInfo(gl, [vs, fs], {})
+   //    const bInfo = twgl.createBufferInfoFromArrays(gl, {
+   //       a_pos: {
+   //          data: new Float32Array([
+   //             0, 0, 100, 100, 0, 100,
+
+   //             0, 0, 100, 0, 100, 100,
+
+   //             100, 0, 100, 100, 200, 100,
+
+   //             // 100, 0, 200, 0, 200, 100,
+   //          ]),
+   //          numComponents: 2,
+   //       },
+   //    })
+   //    twgl.setBuffersAndAttributes(gl, pInfo, bInfo)
+
+   //    const success = gl.getProgramParameter(pInfo.program, gl.LINK_STATUS)
+   //    if (!success) console.log('Webgl error', success)
+
+   //    let stop = false
+   //    function render(time) {
+   //       if (stop) return
+
+   //       gl.clearColor(0, 0, 0, 0)
+   //       gl.clear(gl.COLOR_BUFFER_BIT)
+
+   //       gl.useProgram(pInfo.program)
+   //       twgl.setUniforms(pInfo, {
+   //          u_cam: [10, 0, 1],
+   //          u_res: [gl.canvas.width, gl.canvas.height],
+   //       })
+   //       twgl.drawBufferInfo(gl, bInfo, gl.TRIANGLES)
+
+   //       requestAnimationFrame(render)
+   //    }
+   //    requestAnimationFrame(render)
+
+   //    onCleanup(() => (stop = true))
+   // })
+
    onMount(() => {
-      const gl = canvasRef.getContext('webgl2', { antialias: false, alpha: true })
-
-      twgl.resizeCanvasToDisplaySize(gl.canvas)
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-
-      const pInfo = twgl.createProgramInfo(gl, [vs, fs], {})
-      const bInfo = twgl.createBufferInfoFromArrays(gl, {
-         a_pos: {
-            data: new Float32Array([
-               0, 0, 100, 100, 0, 100,
-
-               0, 0, 100, 0, 100, 100,
-
-               100, 0, 100, 100, 200, 100,
-
-               // 100, 0, 200, 0, 200, 100,
-            ]),
-            numComponents: 2,
+      const data = {
+         shape: {},
+         points: [
+            // p1
+            0, 0,
+            // p2
+            5, 5,
+            // p3
+            5, 10,
+            // p4
+            10, 20,
+         ],
+         lineStyle: {
+            width: 2,
+            miterLimit: 1,
+            alignment: 0.5,
          },
-      })
-      twgl.setBuffersAndAttributes(gl, pInfo, bInfo)
-
-      const success = gl.getProgramParameter(pInfo.program, gl.LINK_STATUS)
-      if (!success) console.log('Webgl error', success)
-
-      let stop = false
-      function render(time) {
-         if (stop) return
-
-         gl.clearColor(0, 0, 0, 0)
-         gl.clear(gl.COLOR_BUFFER_BIT)
-
-         gl.useProgram(pInfo.program)
-         twgl.setUniforms(pInfo, {
-            u_cam: [10, 0, 1],
-            u_res: [gl.canvas.width, gl.canvas.height],
-         })
-         twgl.drawBufferInfo(gl, bInfo, gl.TRIANGLES)
-
-         requestAnimationFrame(render)
       }
-      requestAnimationFrame(render)
+      const geometry = {
+         closePointEps: 1e-4,
+         points: [],
+         indices: [],
+      }
+      buildNonNativeLine(data, geometry)
 
-      onCleanup(() => (stop = true))
+      console.log('graphicsData', data)
+      console.log('geometryData', geometry)
    })
+   onMount(async () => {
+      const { gpu } = navigator
+      if (!gpu) {
+         throw new Error('WebGPU is not supported on this browser.')
+      }
+      const adapter = await gpu.requestAdapter()
+      const device = await adapter.requestDevice()
 
+      const ctx = canvasRef.getContext('webgpu')
+      const canvasConfig: GPUCanvasConfiguration = {
+         device,
+         format: navigator.gpu.getPreferredCanvasFormat(),
+         usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+         alphaMode: 'premultiplied',
+      }
+      ctx.configure(canvasConfig)
+   })
    return (
       <canvas
          class="drawer"

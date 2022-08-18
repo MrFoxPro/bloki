@@ -17,7 +17,7 @@
       "paths": {
          "@/*": ["./*"]
       },
-      "types": ["vite/client"]
+      "types": ["vite/client", "@webgpu/types"]
    },
    "exclude": ["node_modules", ".vscode", "assets", ".git", "temp", "dist"]
 }

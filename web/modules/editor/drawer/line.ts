@@ -42,110 +42,20 @@ export const GRAPHICS_CURVES = {
    },
 }
 
-export class GraphicsData {
-   shape: IShape
-   lineStyle: LineStyle
-   fillStyle: FillStyle
-   matrix: Matrix
-   type: SHAPES
-   points: number[] = []
-   holes: Array<GraphicsData> = []
-   constructor(shape: IShape, fillStyle: FillStyle = null, lineStyle: LineStyle = null, matrix: Matrix = null) {
-      this.shape = shape
-      this.lineStyle = lineStyle
-      this.fillStyle = fillStyle
-      this.matrix = matrix
-      this.type = shape.type
-   }
-   public clone(): GraphicsData {
-      return new GraphicsData(this.shape, this.fillStyle, this.lineStyle, this.matrix)
-   }
-
-   public destroy(): void {
-      this.shape = null
-      this.holes.length = 0
-      this.holes = null
-      this.points.length = 0
-      this.points = null
-      this.lineStyle = null
-      this.fillStyle = null
-   }
-}
-
-export class Point implements IPoint {
-   /** Position of the point on the x axis */
+export class Point {
    public x = 0
-   /** Position of the point on the y axis */
    public y = 0
 
-   /**
-    * Creates a new `Point`
-    * @param {number} [x=0] - position of the point on the x axis
-    * @param {number} [y=0] - position of the point on the y axis
-    */
    constructor(x = 0, y = 0) {
       this.x = x
       this.y = y
    }
-
-   /**
-    * Creates a clone of this point
-    * @returns A clone of this point
-    */
-   clone(): Point {
-      return new Point(this.x, this.y)
-   }
-
-   /**
-    * Copies `x` and `y` from the given point into this point
-    * @param p - The point to copy from
-    * @returns The point instance itself
-    */
-   copyFrom(p: IPointData): this {
-      this.set(p.x, p.y)
-
-      return this
-   }
-
-   /**
-    * Copies this point's x and y into the given point (`p`).
-    * @param p - The point to copy to. Can be any of type that is or extends `IPointData`
-    * @returns The point (`p`) with values updated
-    */
-   copyTo<T extends IPoint>(p: T): T {
-      p.set(this.x, this.y)
-
-      return p
-   }
-
-   /**
-    * Accepts another point (`p`) and returns `true` if the given point is equal to this point
-    * @param p - The point to check
-    * @returns Returns `true` if both `x` and `y` are equal
-    */
-   equals(p: IPointData): boolean {
-      return p.x === this.x && p.y === this.y
-   }
-
-   /**
-    * Sets the point to a new `x` and `y` position.
-    * If `y` is omitted, both `x` and `y` will be set to `x`.
-    * @param {number} [x=0] - position of the point on the `x` axis
-    * @param {number} [y=x] - position of the point on the `y` axis
-    * @returns The point instance itself
-    */
    set(x = 0, y = x): this {
       this.x = x
       this.y = y
 
       return this
    }
-
-   // #if _DEBUG
-   toString(): string {
-      return `[@pixi/math:Point x=${this.x} y=${this.y}]`
-   }
-   // #endif
 }
 
 function round(
@@ -263,8 +173,9 @@ function square(
 
    return 2
 }
-export function buildNonNativeLine(graphicsData: GraphicsData, graphicsGeometry: GraphicsGeometry): void {
-   const shape = graphicsData.shape as Polygon
+export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
+   const shape = graphicsData.shape
+   // line coordinates
    let points = graphicsData.points || shape.points.slice()
    const eps = graphicsGeometry.closePointEps
 
@@ -307,6 +218,7 @@ export function buildNonNativeLine(graphicsData: GraphicsData, graphicsGeometry:
       points.push(midPointX, midPointY)
    }
 
+   // real points to draw with respect to width and other  stuff
    const verts = graphicsGeometry.points
    const length = points.length / 2
    let indexCount = points.length

@@ -2,6 +2,15 @@
    "version": "0.2.0",
    "configurations": [
       {
+         "type": "firefox",
+         "request": "launch",
+         "reAttach": true,
+         "name": "Debug FF",
+         "url": "http://localhost:3000",
+         "webRoot": "${workspaceFolder}/web",
+         "firefoxExecutable": "/opt/firefox-nightly/firefox-bin"
+      },
+      {
          "name": "Client",
          "request": "launch",
          "cwd": "${workspaceFolder}/client",

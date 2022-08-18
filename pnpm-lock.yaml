@@ -32,7 +32,7 @@ importers:
       '@solid-primitives/context': ^0.1.0
       '@solid-primitives/date': ^2.0.0
       '@solid-primitives/event-bus': ^0.1.0
-      '@solid-primitives/graphql': ^1.1.2
+      '@solid-primitives/graphql': ^1.2.0
       '@solid-primitives/keyed': ^1.0.0
       '@solid-primitives/platform': ^0.0.100
       '@solid-primitives/raf': ^2.1.0
@@ -42,13 +42,14 @@ importers:
       '@solidjs/meta': ^0.28.0
       '@solidjs/router': ^0.4.2
       '@types/js-cookie': ^3.0.2
+      '@webgpu/types': ^0.1.21
       cssnano: ^5.1.13
       cssnano-preset-advanced: ^5.3.8
       graphql: ^16.5.0
       js-cookie: ^3.0.1
       postcss: ^8.4.16
       prettier: ^2.7.1
-      rollup: ^2.77.3
+      rollup: ^2.78.0
       rollup-plugin-visualizer: ^5.7.1
       sass: ^1.54.4
       solid-dismiss: ^1.2.1
@@ -66,34 +67,35 @@ importers:
       vite-plugin-solid-svg: ^0.4.1
       vite-plugin-ts-nameof: ^1.2.0
     dependencies:
-      '@solid-primitives/context': 0.1.0
+      '@solid-primitives/context': 0.1.0_solid-js@1.4.8
       '@solid-primitives/date': 2.0.0_solid-js@1.4.8
       '@solid-primitives/event-bus': 0.1.0_solid-js@1.4.8
-      '@solid-primitives/graphql': 1.1.2_solid-js@1.4.8
-      '@solid-primitives/keyed': 1.0.0
-      '@solid-primitives/platform': 0.0.100
+      '@solid-primitives/graphql': 1.2.0_solid-js@1.4.8
+      '@solid-primitives/keyed': 1.0.0_solid-js@1.4.8
+      '@solid-primitives/platform': 0.0.100_solid-js@1.4.8
       '@solid-primitives/raf': 2.1.0_solid-js@1.4.8
       '@solid-primitives/range': 0.1.0_solid-js@1.4.8
-      '@solid-primitives/scheduled': 1.0.0
-      '@solid-primitives/tween': 1.2.0
-      '@solidjs/meta': 0.28.0
-      '@solidjs/router': 0.4.2
+      '@solid-primitives/scheduled': 1.0.0_solid-js@1.4.8
+      '@solid-primitives/tween': 1.2.0_solid-js@1.4.8
+      '@solidjs/meta': 0.28.0_solid-js@1.4.8
+      '@solidjs/router': 0.4.2_solid-js@1.4.8
       js-cookie: 3.0.1
-      solid-dismiss: 1.2.1
+      solid-dismiss: 1.2.1_solid-js@1.4.8
       solid-js: 1.4.8
       solid-toast: 0.3.4_solid-js@1.4.8
-      solid-transition-group: 0.0.10
+      solid-transition-group: 0.0.10_solid-js@1.4.8
       ts-nameof: 5.0.0_typescript@4.7.4
       twgl.js: 4.24.0
     devDependencies:
       '@types/js-cookie': 3.0.2
+      '@webgpu/types': 0.1.21
       cssnano: 5.1.13_postcss@8.4.16
       cssnano-preset-advanced: 5.3.8_postcss@8.4.16
       graphql: 16.5.0
       postcss: 8.4.16
       prettier: 2.7.1
-      rollup: 2.77.3
-      rollup-plugin-visualizer: 5.7.1_rollup@2.77.3
+      rollup: 2.78.0
+      rollup-plugin-visualizer: 5.7.1_rollup@2.78.0
       sass: 1.54.4
       type-expand: 1.0.0
       typescript: 4.7.4
@@ -330,6 +332,7 @@ packages:
   /@babel/parser/7.18.11:
     resolution: {integrity: sha512-9JKn5vN+hDt0Hdqn1PiJ2guflwP+B6Ga8qbDuoF0PzzVhrzsKIJo8yGqVk6CmMHiMei9w1C1Bp9IMJSIK+HPIQ==}
     engines: {node: '>=6.0.0'}
+    hasBin: true
     dependencies:
       '@babel/types': 7.18.10
     dev: true
@@ -432,6 +435,14 @@ packages:
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
     dev: false
 
+  /@graphql-typed-document-node/core/3.1.1_graphql@16.5.0:
+    resolution: {integrity: sha512-NQ17ii0rK1b34VZonlmT2QMJFI70m0TRwbknO/ihlbatXyaktDhN/98vBiUU6kNBPljqGqyIrl2T4nY2RpFANg==}
+    peerDependencies:
+      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      graphql: 16.5.0
+    dev: false
+
   /@jridgewell/gen-mapping/0.1.1:
     resolution: {integrity: sha512-sQXCasFk+U8lWYEe66WxRDOE9PjVz4vSM51fTu3Hw+ClTpUSQb718772vH3pyS5pShp6lvQM7SxgIDXXXmOX7w==}
     engines: {node: '>=6.0.0'}
@@ -495,13 +506,16 @@ packages:
   /@playwright/test/1.25.0:
     resolution: {integrity: sha512-j4EZhTTQI3dBeWblE21EV//swwmBtOpIrLdOIJIRv4uqsLdHgBg1z+JtTg+AeC5o2bAXIE26kDNW5A0TimG8Bg==}
     engines: {node: '>=14'}
+    hasBin: true
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.3
       playwright-core: 1.25.0
     dev: false
 
-  /@solid-primitives/context/0.1.0:
+  /@solid-primitives/context/0.1.0_solid-js@1.4.8:
     resolution: {integrity: sha512-OTPSv00OErONieh/rdvWXqgSB4EHIXHkwvnsgUX5kZO0A5BMbkjcbXzwCbx3hRlLDfNteHd8ovzyKFo5oqA5kA==}
+    peerDependencies:
+      solid-js: ^1.3.0
     dependencies:
       solid-js: 1.4.8
     dev: false
@@ -512,13 +526,16 @@ packages:
       solid-js: ^1.3.1
     dependencies:
       '@solid-primitives/memo': 0.1.1_solid-js@1.4.8
-      '@solid-primitives/timer': 1.3.1
-      '@solid-primitives/utils': 1.5.2
+      '@solid-primitives/timer': 1.3.1_solid-js@1.4.8
+      '@solid-primitives/utils': 1.5.2_solid-js@1.4.8
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/debounce/1.3.0:
+  /@solid-primitives/debounce/1.3.0_solid-js@1.4.8:
     resolution: {integrity: sha512-Cen4ccCPTuEtQM7o9aEKuOJ0LRlAnzKvN7loEBBOQ+zKdu7/7kYKr7HHE/WS8JAI3QeQr5v2ModYRIZLERw5zw==}
+    deprecated: debounce primitive moved to @solid-primitives/scheduled
+    peerDependencies:
+      solid-js: '>=1.0.0'
     dependencies:
       solid-js: 1.4.8
     dev: false
@@ -528,31 +545,37 @@ packages:
     peerDependencies:
       solid-js: ^1.3.1
     dependencies:
-      '@solid-primitives/immutable': 0.1.0
-      '@solid-primitives/utils': 1.5.2
+      '@solid-primitives/immutable': 0.1.0_solid-js@1.4.8
+      '@solid-primitives/utils': 1.5.2_solid-js@1.4.8
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/graphql/1.1.2_solid-js@1.4.8:
-    resolution: {integrity: sha512-R5c9qYRiqGOGB79nTwUjtdJDtJaJUXHSqFFfUEWu8OaiS5xohj6uSYDDLVI6qd79dESRpkswfjXVhif3Izs/9Q==}
+  /@solid-primitives/graphql/1.2.0_solid-js@1.4.8:
+    resolution: {integrity: sha512-YlHqsP8AE/f1MRD2uUrS2XQ03BwKYFDIEZO7MI4CrxNWBG50VPFGii7shD7aO1NdBeNS241QLQbV/MBjrkcstg==}
     peerDependencies:
       solid-js: ^1.4.3
     dependencies:
-      '@solid-primitives/utils': 3.0.1
+      '@graphql-typed-document-node/core': 3.1.1_graphql@16.5.0
+      '@solid-primitives/utils': 3.0.1_solid-js@1.4.8
+      graphql: 16.5.0
       node-fetch: 2.6.7
       solid-js: 1.4.8
     transitivePeerDependencies:
       - encoding
     dev: false
 
-  /@solid-primitives/immutable/0.1.0:
+  /@solid-primitives/immutable/0.1.0_solid-js@1.4.8:
     resolution: {integrity: sha512-vKA318tb65h6f9mizF/x7ep9CxhtCtD6HMm5XVpRE+KrujgwyWB3DAVxmJ0lM4v4cImc7jvwBWvYirpnupe11A==}
     dependencies:
-      '@solid-primitives/utils': 1.5.2
+      '@solid-primitives/utils': 1.5.2_solid-js@1.4.8
+    transitivePeerDependencies:
+      - solid-js
     dev: false
 
-  /@solid-primitives/keyed/1.0.0:
+  /@solid-primitives/keyed/1.0.0_solid-js@1.4.8:
     resolution: {integrity: sha512-9vznFq6xR1FLEcQH3S3aGZ3iWOY6EZmDEl0raNOXJxdgXnudHepcAOfx8G52bROHJ3AdPnIqv4ITIegPQOK2BA==}
+    peerDependencies:
+      solid-js: ^1.4.0
     dependencies:
       solid-js: 1.4.8
     dev: false
@@ -562,14 +585,16 @@ packages:
     peerDependencies:
       solid-js: ^1.3.1
     dependencies:
-      '@solid-primitives/debounce': 1.3.0
-      '@solid-primitives/throttle': 1.2.0
-      '@solid-primitives/utils': 1.5.2
+      '@solid-primitives/debounce': 1.3.0_solid-js@1.4.8
+      '@solid-primitives/throttle': 1.2.0_solid-js@1.4.8
+      '@solid-primitives/utils': 1.5.2_solid-js@1.4.8
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/platform/0.0.100:
+  /@solid-primitives/platform/0.0.100_solid-js@1.4.8:
     resolution: {integrity: sha512-TMGeDtjA8b7xlUQGq3QhdR8SSa49bvqhFJ0iD+iy4fsnEHr9xA5hIDyBX/ntmz70SbOVyz+z9IdXwBnqurr4bQ==}
+    peerDependencies:
+      solid-js: ^1.4.0
     dependencies:
       solid-js: 1.4.8
     dev: false
@@ -579,7 +604,7 @@ packages:
     peerDependencies:
       solid-js: ^1.3.0
     dependencies:
-      '@solid-primitives/utils': 1.5.2
+      '@solid-primitives/utils': 1.5.2_solid-js@1.4.8
       solid-js: 1.4.8
     dev: false
 
@@ -588,54 +613,71 @@ packages:
     peerDependencies:
       solid-js: ^1.3.0
     dependencies:
-      '@solid-primitives/utils': 1.5.2
+      '@solid-primitives/utils': 1.5.2_solid-js@1.4.8
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/scheduled/1.0.0:
+  /@solid-primitives/scheduled/1.0.0_solid-js@1.4.8:
     resolution: {integrity: sha512-FfzYoAkFCRGBuCuXF8G7fU4J4SK9PhKbwxZvzqk+VVBcowPS1eGlLAtlqW/29paSKlUSxuLuhZxq1sPzwmuvoQ==}
+    peerDependencies:
+      solid-js: ^1.4.0
     dependencies:
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/throttle/1.2.0:
+  /@solid-primitives/throttle/1.2.0_solid-js@1.4.8:
     resolution: {integrity: sha512-qYKYEgGl/nSCF+wq7H6zFFi8s2e/woFZJkZbCbyUrtbEIvCze4xSZRr64Xi067GlBE+T/N4LZX/htJmLfwkAeg==}
+    deprecated: throttle primitive moved to @solid-primitives/scheduled
+    peerDependencies:
+      solid-js: ^1.3.1
     dependencies:
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/timer/1.3.1:
+  /@solid-primitives/timer/1.3.1_solid-js@1.4.8:
     resolution: {integrity: sha512-OUxnq96WUCydpYHg8LYv/93Tjoz7jUgaXyNLZWfN9tZ7+QrOhHg4lntzQRBWK99mYCPqZF5IX0SAcY6IO9pRjw==}
+    peerDependencies:
+      solid-js: ^1.3.0
     dependencies:
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/tween/1.2.0:
+  /@solid-primitives/tween/1.2.0_solid-js@1.4.8:
     resolution: {integrity: sha512-TtBRegXxIQgeUpFlGmFpXVd8V2uaKHaaRy4grMorAHo7ddS25c3jOtKv+Qb7b9zBcrQsNfOPYhv0bD3/i2cfsQ==}
+    peerDependencies:
+      solid-js: ^1.3.1
     dependencies:
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/utils/1.5.2:
+  /@solid-primitives/utils/1.5.2_solid-js@1.4.8:
     resolution: {integrity: sha512-dZUHjzasuqS2lDO+PQCY1+jFmtWHlaP3tUvkX1Jr06LI/Ipa2P/ZNVSvuIoqQ0Bg+Ny27LvtrXxflZNeGtptvA==}
+    peerDependencies:
+      solid-js: ^1.3.1
     dependencies:
       solid-js: 1.4.8
     dev: false
 
-  /@solid-primitives/utils/3.0.1:
+  /@solid-primitives/utils/3.0.1_solid-js@1.4.8:
     resolution: {integrity: sha512-tQl0z8HG+iJ7eryq5KmRkr9xNk9oU06gOUQ37YKod0N5oPaWEvP+ATzi7Uo7w5L67wjaZuQCt80p9vlm1/J/Mg==}
+    peerDependencies:
+      solid-js: ^1.4.1
     dependencies:
       solid-js: 1.4.8
     dev: false
 
-  /@solidjs/meta/0.28.0:
+  /@solidjs/meta/0.28.0_solid-js@1.4.8:
     resolution: {integrity: sha512-x52VdB9RZJ1apDB/pAmf58oeJsJ0lGKFXWjnm/TE/MlENIBPg3JaW8H5v2HnGpQC0WUbgiIsDFWpLWVNBo5t6g==}
+    peerDependencies:
+      solid-js: '>=1.4.0'
     dependencies:
       solid-js: 1.4.8
     dev: false
 
-  /@solidjs/router/0.4.2:
+  /@solidjs/router/0.4.2_solid-js@1.4.8:
     resolution: {integrity: sha512-RswymVhqnGVHMCo/01X9wE+u98pzYZQ/b23SgjO/PK+8oTgdY1f83OrsWR1A01LieTySkCSw7nunWTi+VOQyWA==}
+    peerDependencies:
+      solid-js: ^1.3.5
     dependencies:
       solid-js: 1.4.8
     dev: false
@@ -663,9 +705,13 @@ packages:
     resolution: {integrity: sha512-6+0ekgfusHftJNYpihfkMu8BWdeHs9EOJuGcSofErjstGPfPGEu9yTu4t460lTzzAMl2cM5zngQJqPMHbbnvYA==}
     dev: true
 
-  /@types/node/18.7.2:
-    resolution: {integrity: sha512-ce7MIiaYWCFv6A83oEultwhBXb22fxwNOQf5DIxWA4WXvDQ7K+L0fbWl/YOfCzlR5B/uFkSnVBhPcOfOECcWvA==}
+  /@types/node/18.7.3:
+    resolution: {integrity: sha512-LJgzOEwWuMTBxHzgBR/fhhBOWrvBjvO+zPteUgbbuQi80rYIZHrk1mNbRUqPZqSLP2H7Rwt1EFLL/tNLD1Xx/w==}
     dev: false
+
+  /@webgpu/types/0.1.21:
+    resolution: {integrity: sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow==}
+    dev: true
 
   /abort-controller/3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -704,11 +750,12 @@ packages:
   /autoprefixer/10.4.8_postcss@8.4.16:
     resolution: {integrity: sha512-75Jr6Q/XpTqEf6D2ltS5uMewJIx5irCU1oBYJrWjFenq/m12WRRrz6g15L1EIoYvPLXTbEry7rDOwrcYNj77xw==}
     engines: {node: ^10 || ^12 || >=14}
+    hasBin: true
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.21.3
-      caniuse-lite: 1.0.30001375
+      caniuse-lite: 1.0.30001376
       fraction.js: 4.2.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -776,9 +823,10 @@ packages:
   /browserslist/4.21.3:
     resolution: {integrity: sha512-898rgRXLAyRkM1GryrrBHGkqA5hlpkV5MhtZwg9QXeiyLUYs2k00Un05aX5l2/yJIOObYKOpS2JNo8nJDE7fWQ==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001375
-      electron-to-chromium: 1.4.218
+      caniuse-lite: 1.0.30001376
+      electron-to-chromium: 1.4.219
       node-releases: 2.0.6
       update-browserslist-db: 1.0.5_browserslist@4.21.3
     dev: true
@@ -809,13 +857,13 @@ packages:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
       browserslist: 4.21.3
-      caniuse-lite: 1.0.30001375
+      caniuse-lite: 1.0.30001376
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
     dev: true
 
-  /caniuse-lite/1.0.30001375:
-    resolution: {integrity: sha512-kWIMkNzLYxSvnjy0hL8w1NOaWNr2rn39RTAVyIwcw8juu60bZDWiF1/loOYANzjtJmy6qPgNmn38ro5Pygagdw==}
+  /caniuse-lite/1.0.30001376:
+    resolution: {integrity: sha512-I27WhtOQ3X3v3it9gNs/oTpoE5KpwmqKR5oKPA8M0G7uMXh9Ty81Q904HpKUrM30ei7zfcL5jE7AXefgbOfMig==}
     dev: true
 
   /chalk/2.4.2:
@@ -916,9 +964,11 @@ packages:
       safe-buffer: 5.1.2
     dev: true
 
-  /css-declaration-sorter/6.3.0:
+  /css-declaration-sorter/6.3.0_postcss@8.4.16:
     resolution: {integrity: sha512-OGT677UGHJTAVMRhPO+HJ4oKln3wkBTwtDFH0ojbqm+MJm6xuDMHp2nkhh/ThaBqq20IbraBQSWKfSLNHQO9Og==}
     engines: {node: ^10 || ^12 || >=14}
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       postcss: 8.4.16
     dev: true
@@ -949,6 +999,7 @@ packages:
   /cssesc/3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
+    hasBin: true
     dev: true
 
   /cssnano-preset-advanced/5.3.8_postcss@8.4.16:
@@ -963,7 +1014,7 @@ packages:
       postcss-discard-unused: 5.1.0_postcss@8.4.16
       postcss-merge-idents: 5.1.1_postcss@8.4.16
       postcss-reduce-idents: 5.2.0_postcss@8.4.16
-      postcss-zindex: 5.1.0
+      postcss-zindex: 5.1.0_postcss@8.4.16
     dev: true
 
   /cssnano-preset-default/5.2.12_postcss@8.4.16:
@@ -972,23 +1023,23 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      css-declaration-sorter: 6.3.0
-      cssnano-utils: 3.1.0
+      css-declaration-sorter: 6.3.0_postcss@8.4.16
+      cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
       postcss-calc: 8.2.4_postcss@8.4.16
       postcss-colormin: 5.3.0_postcss@8.4.16
       postcss-convert-values: 5.1.2_postcss@8.4.16
-      postcss-discard-comments: 5.1.2
-      postcss-discard-duplicates: 5.1.0
-      postcss-discard-empty: 5.1.1
-      postcss-discard-overridden: 5.1.0
+      postcss-discard-comments: 5.1.2_postcss@8.4.16
+      postcss-discard-duplicates: 5.1.0_postcss@8.4.16
+      postcss-discard-empty: 5.1.1_postcss@8.4.16
+      postcss-discard-overridden: 5.1.0_postcss@8.4.16
       postcss-merge-longhand: 5.1.6_postcss@8.4.16
       postcss-merge-rules: 5.1.2_postcss@8.4.16
       postcss-minify-font-values: 5.1.0_postcss@8.4.16
       postcss-minify-gradients: 5.1.1_postcss@8.4.16
       postcss-minify-params: 5.1.3_postcss@8.4.16
       postcss-minify-selectors: 5.2.1_postcss@8.4.16
-      postcss-normalize-charset: 5.1.0
+      postcss-normalize-charset: 5.1.0_postcss@8.4.16
       postcss-normalize-display-values: 5.1.0_postcss@8.4.16
       postcss-normalize-positions: 5.1.1_postcss@8.4.16
       postcss-normalize-repeat-style: 5.1.1_postcss@8.4.16
@@ -1004,9 +1055,11 @@ packages:
       postcss-unique-selectors: 5.1.1_postcss@8.4.16
     dev: true
 
-  /cssnano-utils/3.1.0:
+  /cssnano-utils/3.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-JQNR19/YZhz4psLX/rQ9M83e3z2Wf/HdJbryzte4a3NSuafyp9w/I4U+hx5C2S9g41qlstH7DEWnZaaj83OuEA==}
     engines: {node: ^10 || ^12 || >=14.0}
+    peerDependencies:
+      postcss: ^8.2.15
     dependencies:
       postcss: 8.4.16
     dev: true
@@ -1062,6 +1115,7 @@ packages:
   /detect-libc/1.0.3:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
     engines: {node: '>=0.10'}
+    hasBin: true
     dev: true
 
   /detect-libc/2.0.1:
@@ -1101,8 +1155,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /electron-to-chromium/1.4.218:
-    resolution: {integrity: sha512-INDylKH//YIf2w67D+IjkfVnGVrZ/D94DAU/FPPm6T4jEPbEDQvo9r2wTj0ncFdtJH8+V8BggZTaN8Rzk5wkgw==}
+  /electron-to-chromium/1.4.219:
+    resolution: {integrity: sha512-zoQJsXOUw0ZA0YxbjkmzBumAJRtr6je5JySuL/bAoFs0DuLiLJ+5FzRF7/ZayihxR2QcewlRZVm5QZdUhwjOgA==}
     dev: true
 
   /emoji-regex/8.0.0:
@@ -1302,6 +1356,7 @@ packages:
   /esbuild/0.14.54:
     resolution: {integrity: sha512-Cy9llcy8DvET5uznocPyqL3BFRrFXSVqbgpMJ9Wz8oVjZlh/zUSNbPRbov0VX7VxN2JH1Oa0uNxZ7eLRb62pJA==}
     engines: {node: '>=12'}
+    hasBin: true
     requiresBuild: true
     optionalDependencies:
       '@esbuild/linux-loong64': 0.14.54
@@ -1442,7 +1497,6 @@ packages:
   /graphql/16.5.0:
     resolution: {integrity: sha512-qbHgh8Ix+j/qY+a/ZcJnFQ+j8ezakqPiHwPiZhV/3PgGlgf96QMBB5/f2rkiC9sgLoy/xvT6TSiaf2nTHJh5iA==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
-    dev: true
 
   /has-flag/3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
@@ -1506,6 +1560,7 @@ packages:
   /is-docker/2.2.1:
     resolution: {integrity: sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ==}
     engines: {node: '>=8'}
+    hasBin: true
     dev: true
 
   /is-extglob/2.1.1:
@@ -1551,11 +1606,13 @@ packages:
   /jsesc/2.5.2:
     resolution: {integrity: sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA==}
     engines: {node: '>=4'}
+    hasBin: true
     dev: true
 
   /json5/2.2.1:
     resolution: {integrity: sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==}
     engines: {node: '>=6'}
+    hasBin: true
     dev: true
 
   /jsonfile/6.1.0:
@@ -1638,6 +1695,7 @@ packages:
   /nanoid/3.3.4:
     resolution: {integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
     dev: true
 
   /napi-build-utils/1.0.2:
@@ -1733,6 +1791,7 @@ packages:
   /playwright-core/1.25.0:
     resolution: {integrity: sha512-kZ3Jwaf3wlu0GgU0nB8UMQ+mXFTqBIFz9h1svTlNduNKjnbPXFxw7mJanLVjqxHJRn62uBfmgBj93YHidk2N5Q==}
     engines: {node: '>=14'}
+    hasBin: true
     dev: false
 
   /postcss-calc/8.2.4_postcss@8.4.16:
@@ -1769,30 +1828,38 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /postcss-discard-comments/5.1.2:
+  /postcss-discard-comments/5.1.2_postcss@8.4.16:
     resolution: {integrity: sha512-+L8208OVbHVF2UQf1iDmRcbdjJkuBF6IS29yBDSiWUIzpYaAhtNl6JYnYm12FnkeCwQqF5LeklOu6rAqgfBZqQ==}
     engines: {node: ^10 || ^12 || >=14.0}
+    peerDependencies:
+      postcss: ^8.2.15
     dependencies:
       postcss: 8.4.16
     dev: true
 
-  /postcss-discard-duplicates/5.1.0:
+  /postcss-discard-duplicates/5.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-zmX3IoSI2aoenxHV6C7plngHWWhUOV3sP1T8y2ifzxzbtnuhk1EdPwm0S1bIUNaJ2eNbWeGLEwzw8huPD67aQw==}
     engines: {node: ^10 || ^12 || >=14.0}
+    peerDependencies:
+      postcss: ^8.2.15
     dependencies:
       postcss: 8.4.16
     dev: true
 
-  /postcss-discard-empty/5.1.1:
+  /postcss-discard-empty/5.1.1_postcss@8.4.16:
     resolution: {integrity: sha512-zPz4WljiSuLWsI0ir4Mcnr4qQQ5e1Ukc3i7UfE2XcrwKK2LIPIqE5jxMRxO6GbI3cv//ztXDsXwEWT3BHOGh3A==}
     engines: {node: ^10 || ^12 || >=14.0}
+    peerDependencies:
+      postcss: ^8.2.15
     dependencies:
       postcss: 8.4.16
     dev: true
 
-  /postcss-discard-overridden/5.1.0:
+  /postcss-discard-overridden/5.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-21nOL7RqWR1kasIVdKs8HNqQJhFxLsyRfAnUDm4Fe4t4mCWL9OJiHvlHPjcd8zc5Myu89b/7wZDnOSjFgeWRtw==}
     engines: {node: ^10 || ^12 || >=14.0}
+    peerDependencies:
+      postcss: ^8.2.15
     dependencies:
       postcss: 8.4.16
     dev: true
@@ -1813,7 +1880,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      cssnano-utils: 3.1.0
+      cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
       postcss-value-parser: 4.2.0
     dev: true
@@ -1837,7 +1904,7 @@ packages:
     dependencies:
       browserslist: 4.21.3
       caniuse-api: 3.0.0
-      cssnano-utils: 3.1.0
+      cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
       postcss-selector-parser: 6.0.10
     dev: true
@@ -1859,7 +1926,7 @@ packages:
       postcss: ^8.2.15
     dependencies:
       colord: 2.9.3
-      cssnano-utils: 3.1.0
+      cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
       postcss-value-parser: 4.2.0
     dev: true
@@ -1871,7 +1938,7 @@ packages:
       postcss: ^8.2.15
     dependencies:
       browserslist: 4.21.3
-      cssnano-utils: 3.1.0
+      cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
       postcss-value-parser: 4.2.0
     dev: true
@@ -1886,9 +1953,11 @@ packages:
       postcss-selector-parser: 6.0.10
     dev: true
 
-  /postcss-normalize-charset/5.1.0:
+  /postcss-normalize-charset/5.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-mSgUJ+pd/ldRGVx26p2wz9dNZ7ji6Pn8VWBajMXFf8jk7vUoSrZ2lt/wZR7DtlZYKesmZI680qjr2CeFF2fbUg==}
     engines: {node: ^10 || ^12 || >=14.0}
+    peerDependencies:
+      postcss: ^8.2.15
     dependencies:
       postcss: 8.4.16
     dev: true
@@ -1981,7 +2050,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      cssnano-utils: 3.1.0
+      cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
       postcss-value-parser: 4.2.0
     dev: true
@@ -2050,9 +2119,11 @@ packages:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
     dev: true
 
-  /postcss-zindex/5.1.0:
+  /postcss-zindex/5.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-fgFMf0OtVSBR1va1JNHYgMxYk73yhn/qb4uQDq1DLGYolz8gHCyr/sesEuGUaYs58E3ZJRcpoGuPVoB7Meiq9A==}
     engines: {node: ^10 || ^12 || >=14.0}
+    peerDependencies:
+      postcss: ^8.2.15
     dependencies:
       postcss: 8.4.16
     dev: true
@@ -2069,6 +2140,7 @@ packages:
   /prebuild-install/7.1.1:
     resolution: {integrity: sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==}
     engines: {node: '>=10'}
+    hasBin: true
     dependencies:
       detect-libc: 2.0.1
       expand-template: 2.0.3
@@ -2087,6 +2159,7 @@ packages:
   /prettier/2.7.1:
     resolution: {integrity: sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
     dev: true
 
   /pump/3.0.0:
@@ -2101,6 +2174,7 @@ packages:
 
   /rc/1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
+    hasBin: true
     dependencies:
       deep-extend: 0.6.0
       ini: 1.3.8
@@ -2131,6 +2205,7 @@ packages:
 
   /resolve/1.22.1:
     resolution: {integrity: sha512-nBpuuYuY5jFsli/JIs1oldw6fOQCBioohqWZg/2hiaOybXOft4lonv85uDOKXdf8rhyK159cxU5cDcK/NKk8zw==}
+    hasBin: true
     dependencies:
       is-core-module: 2.10.0
       path-parse: 1.0.7
@@ -2141,15 +2216,16 @@ packages:
     resolution: {integrity: sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
-  /rollup-plugin-visualizer/5.7.1_rollup@2.77.3:
+  /rollup-plugin-visualizer/5.7.1_rollup@2.78.0:
     resolution: {integrity: sha512-E/IgOMnmXKlc6ICyf53ok1b6DxPeNVUs3R0kYYPuDpGfofT4bkiG+KtSMlGjMACFmfwbbqTVDZBIF7sMZVKJbA==}
     engines: {node: '>=14'}
+    hasBin: true
     peerDependencies:
       rollup: ^2.0.0
     dependencies:
       nanoid: 3.3.4
       open: 8.4.0
-      rollup: 2.77.3
+      rollup: 2.78.0
       source-map: 0.7.4
       yargs: 17.5.1
     dev: true
@@ -2157,6 +2233,15 @@ packages:
   /rollup/2.77.3:
     resolution: {integrity: sha512-/qxNTG7FbmefJWoeeYJFbHehJ2HNWnjkAFRKzWN/45eNBBF/r8lo992CwcJXEzyVxs5FmfId+vTSTQDb+bxA+g==}
     engines: {node: '>=10.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /rollup/2.78.0:
+    resolution: {integrity: sha512-4+YfbQC9QEVvKTanHhIAFVUFSRsezvQF8vFOJwtGfb9Bb+r014S+qryr9PSmw8x6sMnPkmFBGAvIFVQxvJxjtg==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -2188,6 +2273,7 @@ packages:
   /sass/1.54.4:
     resolution: {integrity: sha512-3tmF16yvnBwtlPrNBHw/H907j8MlOX8aTBnlNX1yrKx24RKcJGPyLhFUwkoKBKesR3unP93/2z14Ll8NicwQUA==}
     engines: {node: '>=12.0.0'}
+    hasBin: true
     dependencies:
       chokidar: 3.5.3
       immutable: 4.1.0
@@ -2196,11 +2282,13 @@ packages:
 
   /semver/6.3.0:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
+    hasBin: true
     dev: true
 
   /semver/7.3.7:
     resolution: {integrity: sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==}
     engines: {node: '>=10'}
+    hasBin: true
     dependencies:
       lru-cache: 6.0.0
     dev: true
@@ -2238,8 +2326,10 @@ packages:
       is-arrayish: 0.3.2
     dev: true
 
-  /solid-dismiss/1.2.1:
+  /solid-dismiss/1.2.1_solid-js@1.4.8:
     resolution: {integrity: sha512-/2DKasY3/4ECnqxHueC2hq6bYxZ1Yyn/TtbeKDKV57Sox0HhHm8rPJLzqwn/9KxY3VhizJbmTABTZiKG0l7pNw==}
+    peerDependencies:
+      solid-js: '1'
     dependencies:
       solid-js: 1.4.8
     dev: false
@@ -2266,8 +2356,10 @@ packages:
       solid-js: 1.4.8
     dev: false
 
-  /solid-transition-group/0.0.10:
+  /solid-transition-group/0.0.10_solid-js@1.4.8:
     resolution: {integrity: sha512-b3O9z6BUP60CG1WnTdqFuvHms0reDNYwQF+eAEEaSaoDEmiOu9+Lu7zQgWGySJjaAdSAClhmFCmx/eAjQgfIoA==}
+    peerDependencies:
+      solid-js: ^1.0.0
     dependencies:
       solid-js: 1.4.8
     dev: false
@@ -2289,6 +2381,7 @@ packages:
 
   /stable/0.1.8:
     resolution: {integrity: sha512-ji9qxRnOVfcuLDySj9qzhGSEFVobyt1kIOSkj1qZzYLzq7Tos/oUUWvotUPQLlrsidqsK6tBH89Bc9kL5zHA6w==}
+    deprecated: 'Modern JS already guarantees Array#sort() is a stable sort, so this library is deprecated. See the compatibility table on MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#browser_compatibility'
     dev: true
 
   /string-width/4.2.3:
@@ -2351,6 +2444,7 @@ packages:
   /svgo/2.8.0:
     resolution: {integrity: sha512-+N/Q9kV1+F+UeWYoSiULYo4xYSDQlTgb+ayMobAXPwMnLvop7oxKMo9OzIrX5x3eS4L4f2UHhc9axXwY8DpChg==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
     dependencies:
       '@trysound/sax': 0.2.0
       commander: 7.2.0
@@ -2384,6 +2478,7 @@ packages:
   /telegraf/4.8.6:
     resolution: {integrity: sha512-FixxnJBrS8ECk/Wmo3VXzkTOlY2A1gsdIORJ//cdh3PcVqAL7wgcvLKjkEPI0IyxdFfRqTrWQEOn9h++revQaA==}
     engines: {node: ^12.20.0 || >=14.13.1}
+    hasBin: true
     dependencies:
       abort-controller: 3.0.0
       debug: 4.3.4
@@ -2448,6 +2543,7 @@ packages:
   /typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
     engines: {node: '>=4.2.0'}
+    hasBin: true
 
   /universalify/2.0.0:
     resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
@@ -2456,6 +2552,7 @@ packages:
 
   /update-browserslist-db/1.0.5_browserslist@4.21.3:
     resolution: {integrity: sha512-dteFFpCyvuDdr9S/ff1ISkKt/9YZxKjI9WlRR99c180GaztJtRa/fn18FdxGVKVsnPY7/a/FDN68mcvUmP4U7Q==}
+    hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
     dependencies:
@@ -2535,6 +2632,7 @@ packages:
   /vite/3.0.7_sass@1.54.4:
     resolution: {integrity: sha512-dILhvKba1mbP1wCezVQx/qhEK7/+jVn9ciadEcyKMMhZpsuAi/eWZfJRMkmYlkSFG7Qq9NvJbgFq4XOBxugJsA==}
     engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
     peerDependencies:
       less: '*'
       sass: '*'
