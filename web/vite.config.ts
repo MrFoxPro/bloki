@@ -25,7 +25,7 @@ export default async ({ mode }: ConfigEnv) => {
    const outDir = '../dist/web'
    const config: UserConfig = {
       base: dev ? './' : '/',
-      assetsInclude: ['**/*.gltf', '**/*.mov', '**/*.vert', '**/*.frag'],
+      assetsInclude: ['**/*.gltf', '**/*.mov'],
       clearScreen: false,
       // optimizeDeps: {},
       server: {
@@ -49,13 +49,8 @@ export default async ({ mode }: ConfigEnv) => {
                      pretty: true, // boolean, false by default
                   },
                   plugins: [
-                     // set of built-in plugins enabled by default
                      'preset-default',
-
-                     // enable built-in plugins by name
                      'prefixIds',
-
-                     // or by expanded notation which allows to configure plugin
                      {
                         name: 'sortAttrs',
                         params: {
