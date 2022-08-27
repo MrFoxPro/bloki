@@ -162,7 +162,7 @@ function BlokiEditor() {
                   width: toAbs(editor.doc.gridOptions.width).px,
                   height: toAbs(editor.doc.gridOptions.height).px,
                   'user-select': editor.tool !== ToolType.Cursor ? 'none' : 'initial',
-                  cursor: cursor(),
+                  // cursor: cursor(),
                }}
             >
                <Show when={/*@once*/ !isFirefox}>
@@ -178,8 +178,8 @@ function BlokiEditor() {
                   </div>
                </Show>
                <Backlight />
-               <div class="grid main" onClick={(e) => onGridClick(e)} onContextMenu={(e) => e.preventDefault()} />
-               <div
+               {/* <div class="grid main" onClick={(e) => onGridClick(e)} onContextMenu={(e) => e.preventDefault()} /> */}
+               {/* <div
                   class="grid flow"
                   style={{
                      width: toAbs(editor.doc.gridOptions.flowWidth).px,
@@ -190,7 +190,7 @@ function BlokiEditor() {
                   onMouseMove={onMainGridMouseMove}
                   onMouseOut={onMainGridMouseOut}
                   onContextMenu={(e) => e.preventDefault()}
-               />
+               /> */}
                <BlockContextMenu />
                <Drawer />
                {/* <Cursors /> */}

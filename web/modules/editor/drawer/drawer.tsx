@@ -1,5 +1,5 @@
 import './drawer.scss'
-import { createComputed, createEffect, onCleanup, onMount } from 'solid-js'
+import { createComputed, createEffect, For, onCleanup, onMount } from 'solid-js'
 import { isInsideRect, ToolType } from '../misc'
 
 import { toBlobAsync } from './helpers'
@@ -14,220 +14,69 @@ type Figure = {
 
 import triangleShader from './triangle.wgsl?raw'
 import { buildNonNativeLine } from './line'
+import { WebGPUSeed } from './test2'
+import { createStore } from 'solid-js/store'
+import { Repeat } from '@solid-primitives/range'
+
+export async function ensureShaderCompiled(shaderModule: GPUShaderModule) {
+   const shaderCompileInfo = await shaderModule.compilationInfo()
+
+   if (shaderCompileInfo.messages.length > 0) {
+      let hadError = false
+      for (const msg of shaderCompileInfo.messages) {
+         console.log(`${msg.lineNum}:${msg.linePos} - ${msg.message}`)
+         if (msg.type == 'error') hadError = true
+      }
+      if (hadError) throw new Error('Shader failed to compile')
+   }
+}
 
 export function Drawer(props: DrawerProps) {
    let canvasRef: HTMLCanvasElement
-   let isMouseDown = false
-   let lastPos: Point = {
-      x: 0,
-      y: 0,
-   }
-   let wasDrawing = false
+   const [store, setStore] = createStore({
+      v0: {
+         pos: { x: -1, y: 0, z: 0, w: 1 },
+         color: { r: 1, g: 0, b: 0, a: 1 },
+      },
+      v1: {
+         pos: { x: 1, y: 0, z: 0, w: 1 },
+         color: { r: 0, g: 1, b: 0, a: 1 },
+      },
+      v2: {
+         pos: { x: 0, y: 0.5, z: 0, w: 1 },
+         color: { r: 0, g: 0, b: 1, a: 1 },
+      },
+   })
 
-   const figures: Figure[] = []
-   const { editor, setEditorStore, toAbs } = useEditorContext()
+   const clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
+   let vBuffer: GPUBuffer
+   let viewPortBuffer: GPUBuffer
+   let uniformBindGroup: GPUBindGroup
+   let device: GPUDevice
+   let passEncoder: GPURenderPassEncoder
+   let renderPipeline: GPURenderPipeline
+   let commandEncoder: GPUCommandEncoder
+   let ctx: GPUCanvasContext
 
-   function onPointerDown(e: PointerEvent) {
-      // if (editor.tool === ToolType.Cursor) {
-      //    const { offsetX, offsetY } = e
-      //    const figure = figures.find((f) => isInsideRect(offsetX, offsetY, f.bound))
-      //    console.log(figure)
-      // } else if (editor.tool === ToolType.Pen) {
-      //    // onDrawStart(e)
-      // }
-   }
-   function onDrawStart(e: PointerEvent) {
-      isMouseDown = true
-      lastPos.x = e.offsetX
-      lastPos.y = e.offsetY
-      figures.push({
-         bound: null,
-         points: [lastPos],
-      })
-   }
+   const viewPort = [100, 100, 100]
 
-   function onDraw(e: PointerEvent) {
-      if (e.buttons !== 1) return
-      if (!isMouseDown) return
-      const point = {
-         x: e.offsetX,
-         y: e.offsetY,
-      }
-      wasDrawing = true
-      // gl.beginPath()
-      drawMarker(lastPos, point)
-      figures[figures.length - 1].points.push(point)
-      lastPos = point
-   }
-
-   function onDrawEnd(e: PointerEvent) {
-      if (!isMouseDown) return
-      isMouseDown = false
-      const figure = figures[figures.length - 1]
-
-      let minX = Number.POSITIVE_INFINITY,
-         minY = Number.POSITIVE_INFINITY,
-         maxX = Number.NEGATIVE_INFINITY,
-         maxY = Number.NEGATIVE_INFINITY
-
-      for (const { x, y } of figure.points) {
-         // gl.fillRect(x, y, 5, 5)
-
-         if (x < minX) minX = x
-         if (x > maxX) maxX = x
-
-         if (y < minY) minY = y
-         if (y > maxY) maxY = y
-      }
-      figure.bound = { x: minX, width: maxX - minX, y: minY, height: maxY - minY }
-      wasDrawing = false
-
-      const mirrored = {
-         points: figure.points.map((p) => ({ x: p.x + 150, y: p.y })),
-         bound: { x: minX + 150, width: maxX - minX, y: minY, height: maxY - minY },
-      }
-
-      makeLine(mirrored, 'blue')
-      figures[figures.length - 1] = mirrored
-   }
-
-   function makeLine(figure: Figure, color) {
-      // gl.strokeStyle = color
-      // for (let i = 1; i < figure.points.length; i++) {
-      //    gl.moveTo(figure.points[i - 1].x, figure.points[i - 1].y)
-      //    gl.lineTo(figure.points[i].x, figure.points[i].y)
-      //    gl.stroke()
-      // }
-      // gl.strokeStyle = 'navy'
-      // const { x, y, width, height } = figure.bound
-      // gl.moveTo(x, y)
-      // gl.lineTo(x + width, y)
-      // gl.stroke()
-      // gl.moveTo(x + width, y)
-      // gl.lineTo(x + width, y + height)
-      // gl.stroke()
-      // gl.moveTo(x + width, y + height)
-      // gl.lineTo(x, y + height)
-      // gl.stroke()
-      // gl.moveTo(x, y + height)
-      // gl.lineTo(x, y)
-      // gl.stroke()
-   }
-   function drawMarker(prev: Point, curr: Point) {
-      // gl.lineCap = 'round'
-      // gl.lineJoin = 'round'
-      // gl.lineWidth = 2
-      // gl.strokeStyle = 'black'
-      // gl.moveTo(prev.x, prev.y)
-      // gl.lineTo(curr.x, curr.y)
-      // gl.stroke()
-   }
-
-   // onMount(() => {
-   // const gl = canvasRef.getContext('web', { antialias: false, alpha: true })
-   //    twgl.resizeCanvasToDisplaySize(gl.canvas)
-   //    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-
-   //    const pInfo = twgl.createProgramInfo(gl, [vs, fs], {})
-   //    const bInfo = twgl.createBufferInfoFromArrays(gl, {
-   //       a_pos: {
-   //          data: new Float32Array([
-   //             0, 0, 100, 100, 0, 100,
-
-   //             0, 0, 100, 0, 100, 100,
-
-   //             100, 0, 100, 100, 200, 100,
-
-   //             // 100, 0, 200, 0, 200, 100,
-   //          ]),
-   //          numComponents: 2,
-   //       },
-   //    })
-   //    twgl.setBuffersAndAttributes(gl, pInfo, bInfo)
-
-   //    const success = gl.getProgramParameter(pInfo.program, gl.LINK_STATUS)
-   //    if (!success) console.log('Webgl error', success)
-
-   //    let stop = false
-   //    function render(time) {
-   //       if (stop) return
-
-   //       gl.clearColor(0, 0, 0, 0)
-   //       gl.clear(gl.COLOR_BUFFER_BIT)
-
-   //       gl.useProgram(pInfo.program)
-   //       twgl.setUniforms(pInfo, {
-   //          u_cam: [10, 0, 1],
-   //          u_res: [gl.canvas.width, gl.canvas.height],
-   //       })
-   //       twgl.drawBufferInfo(gl, bInfo, gl.TRIANGLES)
-
-   //       requestAnimationFrame(render)
-   //    }
-   //    requestAnimationFrame(render)
-
-   //    onCleanup(() => (stop = true))
-   // })
-
-   // onMount(() => {
-   //    const data = {
-   //       shape: {},
-   //       points: [
-   //          // p1
-   //          0, 0,
-   //          // p2
-   //          5, 5,
-   //          // p3
-   //          5, 10,
-   //          // p4
-   //          10, 20,
-   //       ],
-   //       lineStyle: {
-   //          width: 2,
-   //          miterLimit: 1,
-   //          alignment: 0.5,
-   //       },
-   //    }
-   //    const geometry = {
-   //       closePointEps: 1e-4,
-   //       points: [],
-   //       indices: [],
-   //    }
-   //    buildNonNativeLine(data, geometry)
-
-   //    console.log('graphicsData', data)
-   //    console.log('geometryData', geometry)
-   // })
-
-   async function ensureShaderCompiled(shaderModule: GPUShaderModule) {
-      const shaderCompileInfo = await shaderModule.compilationInfo()
-
-      if (shaderCompileInfo.messages.length > 0) {
-         let hadError = false
-         for (const msg of shaderCompileInfo.messages) {
-            console.log(`${msg.lineNum}:${msg.linePos} - ${msg.message}`)
-            if (msg.type == 'error') hadError = true
-         }
-         if (hadError) throw new Error('Shader failed to compile')
-      }
-   }
-
-   onMount(async () => {
+   async function initRenderer() {
       const { gpu } = navigator
       if (!gpu) throw new Error('WebGPU is not supported on this browser.')
 
       const adapter = await gpu.requestAdapter()
-      if (!adapter) throw new Error('WebGPU supported by disabled')
 
-      const device = await adapter.requestDevice()
+      if (!adapter) throw new Error('WebGPU supported but disabled')
 
-      const ctx = canvasRef.getContext('webgpu')
+      device = await adapter.requestDevice()
+
+      ctx = canvasRef.getContext('webgpu')
 
       let textureFormat: GPUTextureFormat
       if (gpu.getPreferredCanvasFormat) textureFormat = gpu.getPreferredCanvasFormat()
       // @ts-ignore FF
       else textureFormat = ctx.getPreferredFormat(adapter)
-      console.log('Preffered format for device', device, 'is', textureFormat)
+      // console.log('Preffered format for device', device, 'is', textureFormat)
 
       ctx.configure({
          device,
@@ -245,45 +94,71 @@ export function Drawer(props: DrawerProps) {
       // Since we are doing triangle, we need pass 2 vec4<f32> attributes for three vertices:
       // [pos1, color1], [pos2, color2], [pos3, color3]
       // So we need buffer of size 3(vertices) * 2(attributes) * (4 * 4)(sizeof vec4<f32>) = 96 bytes!
-      const buffer = device.createBuffer({
+      vBuffer = device.createBuffer({
          size: 3 * 2 * 4 * 4,
-         usage: GPUBufferUsage.VERTEX,
+         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
          mappedAtCreation: true,
       })
-
-      // Map buffer to CPU control
-      const mappedRange = buffer.getMappedRange()
-
+      // Map buffer to CPU and
       // Set mapped buffer values
       // Interleaved positions and colors
       // 96 bytes total!
-      new Float32Array(mappedRange).set([
-         // position 0 (4 * 4 bytes)
-         1, -1, 0, 1,
-         // color 0 (4 * 4 bytes)
-         1, 0, 0, 1,
-         // position 1 (4 * 4 bytes)
-         -1, -1, 0, 1,
-         // color 1 (4 * 4 bytes)
-         0, 1, 0, 1,
-         // position 2 (4 * 4 bytes)
-         0, 1, 0, 1,
-         // color 2 (4 * 4 bytes)
-         0, 0, 1, 1,
-      ])
+      new Float32Array(vBuffer.getMappedRange()).set(dataToBuffer())
       // Give control over the buffer to GPU again
-      buffer.unmap()
+      vBuffer.unmap()
 
-      // float32 is 4 bytes
-      // float32x4 is 4 numbers for 4 bytes = 4 * 4
-      // we have 2 atributes, so arrayStride will be sum of all offsets: 4 * 4 + 4 * 4 = 2 * 4 * 4
-      const renderPipeline = await device.createRenderPipelineAsync({
-         layout: device.createPipelineLayout({ bindGroupLayouts: [] }),
+      viewPortBuffer = device.createBuffer({
+         size: 4 * 4, //(sizeof vec4<f32>)
+         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+         mappedAtCreation: true,
+      })
+      new Float32Array(viewPortBuffer.getMappedRange()).set(viewPort)
+
+      const viewProjBindGroupLayout = device.createBindGroupLayout({
+         entries: [
+            {
+               binding: 0,
+               visibility: GPUShaderStage.VERTEX,
+               buffer: {
+                  type: 'uniform',
+                  hasDynamicOffset: false,
+                  minBindingSize: null,
+               },
+            },
+         ],
+      })
+      uniformBindGroup = device.createBindGroup({
+         layout: viewProjBindGroupLayout,
+         entries: [
+            {
+               binding: 0,
+               resource: {
+                  buffer: viewPortBuffer,
+                  offset: 0,
+                  size: viewPortBuffer.size,
+               },
+            },
+         ],
+      })
+      renderPipeline = await device.createRenderPipelineAsync({
+         // layout: 'auto',
+         // layout: device.createPipelineLayout({
+         //    bindGroupLayouts: []
+         // }),
+         layout: device.createPipelineLayout({
+            bindGroupLayouts: [viewProjBindGroupLayout],
+         }),
+         primitive: {
+            topology: 'triangle-strip',
+         },
          vertex: {
             module: shaderModule,
             entryPoint: 'vertex',
             buffers: [
                {
+                  // float32 is 4 bytes
+                  // float32x4 is 4 numbers for 4 bytes = 4 * 4
+                  // we have 2 atributes, so arrayStride will be sum of all offsets: 4 * 4 + 4 * 4 = 2 * 4 * 4
                   arrayStride: 2 * 4 * 4,
                   attributes: [
                      { format: 'float32x4', offset: 0, shaderLocation: 0 },
@@ -298,12 +173,23 @@ export function Drawer(props: DrawerProps) {
             targets: [{ format: textureFormat }],
          },
       })
+      frame()
+   }
 
-      const commandEncoder = device.createCommandEncoder()
+   const dataToBuffer = () => {
+      const arr = []
+      for (const vertId in store) {
+         const vert = store[vertId]
 
-      const clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
-      // frame rendering stage
-      const renderPassEncoder = commandEncoder.beginRenderPass({
+         arr.push(vert.pos.x, vert.pos.y, vert.pos.z, vert.pos.w)
+         arr.push(vert.color.r, vert.color.g, vert.color.b, vert.color.a)
+      }
+      return arr
+   }
+
+   function frame() {
+      commandEncoder = device.createCommandEncoder()
+      passEncoder = commandEncoder.beginRenderPass({
          colorAttachments: [
             {
                view: ctx.getCurrentTexture().createView(),
@@ -315,30 +201,78 @@ export function Drawer(props: DrawerProps) {
             },
          ],
       })
-      renderPassEncoder.setPipeline(renderPipeline)
-      renderPassEncoder.setVertexBuffer(0, buffer)
-      renderPassEncoder.draw(3, 1, 0, 0)
-      if ('end' in renderPassEncoder) renderPassEncoder.end()
+      passEncoder.setPipeline(renderPipeline)
+      passEncoder.setBindGroup(0, uniformBindGroup)
+
+      passEncoder.setVertexBuffer(0, vBuffer)
+      passEncoder.draw(3, 1, 0, 0)
+
+      if ('end' in passEncoder) passEncoder.end()
       // @ts-ignore FF
-      else renderPassEncoder.endPass()
+      else passEncoder.endPass()
+      device.queue.submit([commandEncoder.finish()])
+   }
 
-      const commandsBuffer = commandEncoder.finish()
-
-      device.queue.submit([commandsBuffer])
+   createEffect(async () => {
+      const buffer = dataToBuffer()
+      if (!vBuffer) return
+      device.queue.writeBuffer(vBuffer, 0, new Float32Array(buffer))
+      frame()
    })
+
+   onMount(initRenderer)
+
+   const data = {
+      shape: {},
+      points: [
+         // p1
+         0, 0,
+         // p2
+         5, 5,
+         // p3
+         5, 10,
+         // p4
+         10, 20,
+      ],
+      lineStyle: {
+         width: 2,
+         miterLimit: 1,
+         alignment: 0.5,
+      },
+   }
+   const geometry = {
+      closePointEps: 1e-4,
+      points: [],
+      indices: [],
+   }
+   buildNonNativeLine(data, geometry)
+
+   console.log('points', geometry.points, 'indices', geometry.indices)
+
    return (
-      <canvas
-         class="drawer"
-         onPointerDown={onPointerDown}
-         onPointerMove={onDraw}
-         onPointerUp={onDrawEnd}
-         onPointerLeave={onDrawEnd}
-         // classList={{
-         //    ontop: editor.tool !== ToolType.Cursor,
-         // }}
-         ref={canvasRef}
-         // width={toAbs(editor.doc.gridOptions.width).px}
-         // height={toAbs(editor.doc.gridOptions.height).px}
-      />
+      <div>
+         <div
+            style={{
+               width: '200px',
+            }}
+         ></div>
+         <canvas
+            // onPointerDown={onPointerDown}
+            // onPointerMove={onDraw}
+            // onPointerUp={onDrawEnd}
+            // onPointerLeave={onDrawEnd}
+            // classList={{
+            //    ontop: editor.tool !== ToolType.Cursor,
+            // }}
+            ref={canvasRef}
+            style={{
+               'margin-left': '5px',
+            }}
+            width="350px"
+            height="350px"
+            // width={toAbs(editor.doc.gridOptions.width).px}
+            // height={toAbs(editor.doc.gridOptions.height).px}
+         />
+      </div>
    )
 }

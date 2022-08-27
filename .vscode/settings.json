@@ -25,10 +25,10 @@
       "**/Thumbs.db": true,
       "**/node_modules": true
    },
-   "emmet.includeLanguages": {
-      "javascriptreact": "xml",
-      "typescriptreact": "xml"
-   },
+   // "emmet.includeLanguages": {
+   //    "javascriptreact": "xml",
+   //    "typescriptreact": "xml"
+   // },
    "emmet.syntaxProfiles": {
       "xml": {
          "attr_quotes": "double"

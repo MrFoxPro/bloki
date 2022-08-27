@@ -8,11 +8,16 @@ struct FragmentInput {
     @location(0) color: vec4<f32>,
 }
 
+struct Uniforms {
+   viewPort: vec4<f32>
+}
+@binding(0) @group(0) var<uniform> uniforms : Uniforms;
+
 @vertex
 fn vertex(vert: VertexInput) -> FragmentInput {
     var out: FragmentInput;
     out.color = vert.color;
-    out.position = vert.position;
+    out.position = vert.position / uniforms.viewPort;
     return out;
 }
 
