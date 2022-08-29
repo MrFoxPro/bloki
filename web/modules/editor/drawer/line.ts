@@ -186,7 +186,7 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
    // commenting this out fixes #711 and #1620
    // if (graphicsData.lineWidth%2)
    // {
-   //     for (i = 0; i < points.length; i++)
+   //     for (let i = 0; i < points.length; i++)
    //     {
    //         points[i] += 0.5;
    //     }
@@ -273,6 +273,7 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
    }
 
    // Push first point (below & above vertices)
+
    verts.push(x0 - perpx * innerWeight, y0 - perpy * innerWeight)
    verts.push(x0 + perpx * outerWeight, y0 + perpy * outerWeight)
 
@@ -497,6 +498,7 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
 
       x2 = verts[(i + 2) * 2]
       y2 = verts[(i + 2) * 2 + 1]
+
 
       /* Skip zero area triangles */
       if (Math.abs(x0 * (y1 - y2) + x1 * (y2 - y0) + x2 * (y0 - y1)) < eps2) {

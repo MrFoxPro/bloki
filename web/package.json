@@ -20,6 +20,7 @@
       "@solidjs/meta": "^0.28.0",
       "@solidjs/router": "^0.4.2",
       "js-cookie": "^3.0.1",
+      "pixi.js": "^6.5.2",
       "solid-dismiss": "^1.2.1",
       "solid-js": "1.5.1",
       "solid-toast": "^0.3.4",
@@ -29,6 +30,7 @@
    },
    "devDependencies": {
       "@types/js-cookie": "^3.0.2",
+      "@types/offscreencanvas": "^2019.7.0",
       "@webgpu/types": "^0.1.21",
       "cssnano": "^5.1.13",
       "cssnano-preset-advanced": "^5.3.8",

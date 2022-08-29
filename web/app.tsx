@@ -1,4 +1,5 @@
 import '@/styles/app.scss'
+import './lib/ext'
 
 import { render } from 'solid-js/web'
 import { MetaProvider, Title } from '@solidjs/meta'
@@ -7,8 +8,6 @@ import { I18n } from './modules/i18n/i18n.module'
 import { ThemeContextProvider } from './modules/theme.store'
 import { BlokiAppRouter } from './views/router'
 import { SettingsProvider } from './modules/settings.store'
-import { registerExtensions } from '@/lib/ext'
-registerExtensions()
 
 function App() {
    if (import.meta.env.PROD) printBuildInfo()

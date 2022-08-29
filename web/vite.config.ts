@@ -38,6 +38,9 @@ export default async ({ mode }: ConfigEnv) => {
             },
          },
       },
+      worker: {
+         format: 'es',
+      },
       plugins: [
          solidSvg({
             defaultExport: 'component',

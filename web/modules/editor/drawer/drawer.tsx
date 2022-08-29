@@ -1,82 +1,104 @@
 import './drawer.scss'
-import { createComputed, createEffect, For, onCleanup, onMount } from 'solid-js'
-import { isInsideRect, ToolType } from '../misc'
-
-import { toBlobAsync } from './helpers'
+import { createComputed, createEffect, createMemo, onCleanup, onMount } from 'solid-js'
 import { Transform, Point } from '../types'
 import { useEditorContext } from '../toolbox/editor.store'
-import * as twgl from 'twgl.js'
+import triangleShader from './triangle.wgsl?raw'
+import { buildNonNativeLine, LINE_CAP, LINE_JOIN, SHAPES } from './line'
+import { createStore } from 'solid-js/store'
+import { BlokiGPU } from '@/lib/gpu'
+
+import { Application } from '@pixi/app';
 
 type Figure = {
    bound: Transform
    points: Point[]
 }
 
-import triangleShader from './triangle.wgsl?raw'
-import { buildNonNativeLine } from './line'
-import { WebGPUSeed } from './test2'
-import { createStore } from 'solid-js/store'
-import { Repeat } from '@solid-primitives/range'
+const clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
 
-export async function ensureShaderCompiled(shaderModule: GPUShaderModule) {
-   const shaderCompileInfo = await shaderModule.compilationInfo()
-
-   if (shaderCompileInfo.messages.length > 0) {
-      let hadError = false
-      for (const msg of shaderCompileInfo.messages) {
-         console.log(`${msg.lineNum}:${msg.linePos} - ${msg.message}`)
-         if (msg.type == 'error') hadError = true
-      }
-      if (hadError) throw new Error('Shader failed to compile')
-   }
+const defaultLineStyle = {
+   width: 4,
+   miterLimit: 1,
+   alignment: 0.1,
+   cap: LINE_CAP.BUTT,
+   join: LINE_JOIN.ROUND,
+   color: [0.5, 1, 0.5, 1],
 }
 
-export function Drawer(props: DrawerProps) {
-   let canvasRef: HTMLCanvasElement
-   const [store, setStore] = createStore({
-      v0: {
-         pos: { x: -1, y: 0, z: 0, w: 1 },
-         color: { r: 1, g: 0, b: 0, a: 1 },
+function calcLine(points: number[], style = defaultLineStyle) {
+   const data = {
+      shape: {
+         closeStroke: false,
+         type: SHAPES.POLY
       },
-      v1: {
-         pos: { x: 1, y: 0, z: 0, w: 1 },
-         color: { r: 0, g: 1, b: 0, a: 1 },
-      },
-      v2: {
-         pos: { x: 0, y: 0.5, z: 0, w: 1 },
-         color: { r: 0, g: 0, b: 1, a: 1 },
-      },
-   })
+      points,
+      lineStyle: style,
+   }
+   const geometry = {
+      closePointEps: 1e-4,
+      points: [] as number[],
+      indices: [] as number[],
+   }
+   buildNonNativeLine(data, geometry)
+   console.log('Geometry:', geometry)
+   return geometry
+}
 
-   const clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
-   let vBuffer: GPUBuffer
-   let viewPortBuffer: GPUBuffer
-   let uniformBindGroup: GPUBindGroup
+export function Drawer() {
+   let canvasRef: HTMLCanvasElement
    let device: GPUDevice
-   let passEncoder: GPURenderPassEncoder
-   let renderPipeline: GPURenderPipeline
-   let commandEncoder: GPUCommandEncoder
    let ctx: GPUCanvasContext
 
-   const viewPort = [100, 100, 100]
+   let vBuffer: GPUBuffer
+   let iBuffer: GPUBuffer
+   let viewPortUniformBuffer: GPUBuffer
+   let uniformBindGroup: GPUBindGroup
+   let pipeline: GPURenderPipeline
+
+   const { editor, toAbs } = useEditorContext()
+   const [store, setStore] = createStore({
+      points: [-85, 70, 5, 70, -25, 58],
+   })
+
+   const vbo = new Float32Array(2 ** 14)
+   const ibo = new Uint32Array(vbo.length * 3)
+
+   const line = createMemo(() => calcLine(store.points))
+
+   const computeBuffers = () => {
+      let verts = []
+      for (let i = 1; i < line().points.length; i += 2) {
+         verts.push(line().points[i - 1], line().points[i])
+         verts.push(0, 1)
+         verts.push(...defaultLineStyle.color)
+      }
+      vbo.fill(0)
+      vbo.set(verts)
+
+      ibo.fill(0)
+      ibo.set(line().indices)
+
+      if (!vBuffer || !iBuffer) return
+      console.log('Writing VBO')
+      device.queue.writeBuffer(vBuffer, 0, vbo)
+      console.log('Writing IBO')
+      device.queue.writeBuffer(iBuffer, 0, ibo)
+   }
+
+   createComputed(computeBuffers)
 
    async function initRenderer() {
-      const { gpu } = navigator
-      if (!gpu) throw new Error('WebGPU is not supported on this browser.')
-
-      const adapter = await gpu.requestAdapter()
-
-      if (!adapter) throw new Error('WebGPU supported but disabled')
-
-      device = await adapter.requestDevice()
-
+      const gpu = await BlokiGPU.aquireGPU({ powerPreference: 'low-power' })
+      device = gpu.device
       ctx = canvasRef.getContext('webgpu')
 
       let textureFormat: GPUTextureFormat
-      if (gpu.getPreferredCanvasFormat) textureFormat = gpu.getPreferredCanvasFormat()
-      // @ts-ignore FF
-      else textureFormat = ctx.getPreferredFormat(adapter)
-      // console.log('Preffered format for device', device, 'is', textureFormat)
+      if ('getPreferredCanvasFormat' in navigator.gpu) {
+         textureFormat = navigator.gpu.getPreferredCanvasFormat()
+      } else {
+         // @ts-ignore FF https://bugzilla.mozilla.org/show_bug.cgi?id=1785576
+         textureFormat = ctx.getPreferredFormat(gpu.adapter)
+      }
 
       ctx.configure({
          device,
@@ -85,36 +107,22 @@ export function Drawer(props: DrawerProps) {
          alphaMode: 'opaque',
       })
 
-      const shaderModule = device.createShaderModule({ code: triangleShader })
-      await ensureShaderCompiled(shaderModule)
+      const shaderModule = await BlokiGPU.compileShader(device, triangleShader)
 
-      // Create buffer in GPU
-      // We are setting position and color via vec4<f32> in shader
-      // sizeof(f32) is 32bit => 4 bytes
-      // Since we are doing triangle, we need pass 2 vec4<f32> attributes for three vertices:
-      // [pos1, color1], [pos2, color2], [pos3, color3]
-      // So we need buffer of size 3(vertices) * 2(attributes) * (4 * 4)(sizeof vec4<f32>) = 96 bytes!
-      vBuffer = device.createBuffer({
-         size: 3 * 2 * 4 * 4,
-         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-         mappedAtCreation: true,
-      })
-      // Map buffer to CPU and
-      // Set mapped buffer values
-      // Interleaved positions and colors
-      // 96 bytes total!
-      new Float32Array(vBuffer.getMappedRange()).set(dataToBuffer())
-      // Give control over the buffer to GPU again
-      vBuffer.unmap()
+      computeBuffers()
+      console.log(vbo, ibo)
 
-      viewPortBuffer = device.createBuffer({
-         size: 4 * 4, //(sizeof vec4<f32>)
-         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-         mappedAtCreation: true,
-      })
-      new Float32Array(viewPortBuffer.getMappedRange()).set(viewPort)
+      vBuffer = BlokiGPU.createBufferFromArray(device, vbo, GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST)
 
-      const viewProjBindGroupLayout = device.createBindGroupLayout({
+      iBuffer = BlokiGPU.createBufferFromArray(device, ibo, GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST)
+
+      viewPortUniformBuffer = BlokiGPU.createBufferFromArray(
+         device,
+         Float32Array.from([canvasRef.width / 2, canvasRef.height / 2, 10, 1]),
+         GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      )
+
+      const uniformBGL = device.createBindGroupLayout({
          entries: [
             {
                binding: 0,
@@ -122,35 +130,27 @@ export function Drawer(props: DrawerProps) {
                buffer: {
                   type: 'uniform',
                   hasDynamicOffset: false,
-                  minBindingSize: null,
                },
             },
          ],
       })
+
       uniformBindGroup = device.createBindGroup({
-         layout: viewProjBindGroupLayout,
+         layout: uniformBGL,
          entries: [
             {
                binding: 0,
                resource: {
-                  buffer: viewPortBuffer,
-                  offset: 0,
-                  size: viewPortBuffer.size,
+                  buffer: viewPortUniformBuffer,
                },
             },
          ],
       })
-      renderPipeline = await device.createRenderPipelineAsync({
-         // layout: 'auto',
-         // layout: device.createPipelineLayout({
-         //    bindGroupLayouts: []
-         // }),
+
+      pipeline = await device.createRenderPipelineAsync({
          layout: device.createPipelineLayout({
-            bindGroupLayouts: [viewProjBindGroupLayout],
+            bindGroupLayouts: [uniformBGL],
          }),
-         primitive: {
-            topology: 'triangle-strip',
-         },
          vertex: {
             module: shaderModule,
             entryPoint: 'vertex',
@@ -159,10 +159,14 @@ export function Drawer(props: DrawerProps) {
                   // float32 is 4 bytes
                   // float32x4 is 4 numbers for 4 bytes = 4 * 4
                   // we have 2 atributes, so arrayStride will be sum of all offsets: 4 * 4 + 4 * 4 = 2 * 4 * 4
-                  arrayStride: 2 * 4 * 4,
+                  arrayStride: 2 * 4 * Float32Array.BYTES_PER_ELEMENT,
                   attributes: [
                      { format: 'float32x4', offset: 0, shaderLocation: 0 },
-                     { format: 'float32x4', offset: 4 * 4, shaderLocation: 1 },
+                     {
+                        format: 'float32x4',
+                        offset: 4 * Float32Array.BYTES_PER_ELEMENT,
+                        shaderLocation: 1,
+                     },
                   ],
                },
             ],
@@ -172,24 +176,20 @@ export function Drawer(props: DrawerProps) {
             entryPoint: 'fragment',
             targets: [{ format: textureFormat }],
          },
+         primitive: {
+            topology: 'triangle-list',
+         },
+         multisample: {
+            // https://github.com/gpuweb/gpuweb/pull/932#issuecomment-892819099
+            count: 1,
+         },
       })
       frame()
    }
 
-   const dataToBuffer = () => {
-      const arr = []
-      for (const vertId in store) {
-         const vert = store[vertId]
-
-         arr.push(vert.pos.x, vert.pos.y, vert.pos.z, vert.pos.w)
-         arr.push(vert.color.r, vert.color.g, vert.color.b, vert.color.a)
-      }
-      return arr
-   }
-
    function frame() {
-      commandEncoder = device.createCommandEncoder()
-      passEncoder = commandEncoder.beginRenderPass({
+      const commandEncoder = device.createCommandEncoder()
+      const pass = commandEncoder.beginRenderPass({
          colorAttachments: [
             {
                view: ctx.getCurrentTexture().createView(),
@@ -201,78 +201,66 @@ export function Drawer(props: DrawerProps) {
             },
          ],
       })
-      passEncoder.setPipeline(renderPipeline)
-      passEncoder.setBindGroup(0, uniformBindGroup)
+      pass.setPipeline(pipeline)
+      pass.setBindGroup(0, uniformBindGroup)
+      pass.setIndexBuffer(iBuffer, 'uint32')
+      pass.setVertexBuffer(0, vBuffer)
+      pass.drawIndexed(ibo.length, 1)
+      pass.end()
 
-      passEncoder.setVertexBuffer(0, vBuffer)
-      passEncoder.draw(3, 1, 0, 0)
-
-      if ('end' in passEncoder) passEncoder.end()
-      // @ts-ignore FF
-      else passEncoder.endPass()
-      device.queue.submit([commandEncoder.finish()])
+      const commands = commandEncoder.finish()
+      device.queue.submit([commands])
    }
-
-   createEffect(async () => {
-      const buffer = dataToBuffer()
-      if (!vBuffer) return
-      device.queue.writeBuffer(vBuffer, 0, new Float32Array(buffer))
-      frame()
-   })
 
    onMount(initRenderer)
 
-   const data = {
-      shape: {},
-      points: [
-         // p1
-         0, 0,
-         // p2
-         5, 5,
-         // p3
-         5, 10,
-         // p4
-         10, 20,
-      ],
-      lineStyle: {
-         width: 2,
-         miterLimit: 1,
-         alignment: 0.5,
-      },
-   }
-   const geometry = {
-      closePointEps: 1e-4,
-      points: [],
-      indices: [],
-   }
-   buildNonNativeLine(data, geometry)
+   onCleanup(() => {
+      vBuffer.destroy()
+      iBuffer.destroy()
+      viewPortUniformBuffer.destroy()
+      device.destroy()
+   })
 
-   console.log('points', geometry.points, 'indices', geometry.indices)
+   let isMouseDown = false
+
+   function onPointerDown() {
+      isMouseDown = true
+   }
+
+   function onPointerMove(e: PointerEvent) {
+      if (!isMouseDown) return
+
+      const gpuX = e.offsetX - canvasRef.width / 2
+      const gpuY = canvasRef.height / 2 - e.offsetY
+
+      setStore('points', (v) => v.concat(gpuX, gpuY))
+      setTimeout(frame)
+      frame()
+   }
+
+   function onPointerUp() {
+      isMouseDown = false
+   }
 
    return (
-      <div>
-         <div
-            style={{
-               width: '200px',
-            }}
-         ></div>
-         <canvas
-            // onPointerDown={onPointerDown}
-            // onPointerMove={onDraw}
-            // onPointerUp={onDrawEnd}
-            // onPointerLeave={onDrawEnd}
-            // classList={{
-            //    ontop: editor.tool !== ToolType.Cursor,
-            // }}
-            ref={canvasRef}
-            style={{
-               'margin-left': '5px',
-            }}
-            width="350px"
-            height="350px"
-            // width={toAbs(editor.doc.gridOptions.width).px}
-            // height={toAbs(editor.doc.gridOptions.height).px}
-         />
-      </div>
+      <canvas
+         class="drawer"
+         onPointerDown={onPointerDown}
+         onPointerMove={onPointerMove}
+         onPointerUp={onPointerUp}
+         // onPointerLeave={onDrawEnd}
+         // classList={{
+         //    ontop: editor.tool !== ToolType.Cursor,
+         // }}
+         onWheel={(e) => {
+            // let s = -1
+            // if (e.deltaY < 0) s = 1
+            // setStore('viewPort', 'w', (w) => w + s)
+            // e.preventDefault()
+         }}
+         ref={canvasRef}
+         width="800"
+         height="800"
+      />
    )
 }
