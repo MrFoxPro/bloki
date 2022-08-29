@@ -6,9 +6,10 @@
          "request": "launch",
          "reAttach": true,
          "name": "Debug FF",
-         "url": "http://localhost:3000",
+         "url": "http://localhost:3000/playground",
          "webRoot": "${workspaceFolder}/web",
-         "firefoxExecutable": "/opt/firefox-nightly/firefox-bin"
+         "firefoxExecutable": "/home/foxpro/Apps/firefox-nightly/firefox-bin",
+         "profile": "nightly-default"
       },
       {
          "name": "Client",

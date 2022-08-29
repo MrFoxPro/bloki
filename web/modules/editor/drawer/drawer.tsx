@@ -7,7 +7,7 @@ import { buildNonNativeLine, LINE_CAP, LINE_JOIN, SHAPES } from './line'
 import { createStore } from 'solid-js/store'
 import { BlokiGPU } from '@/lib/gpu'
 
-import { Application } from '@pixi/app';
+import * as PIXI from 'pixi.js'
 
 type Figure = {
    bound: Transform
@@ -29,7 +29,7 @@ function calcLine(points: number[], style = defaultLineStyle) {
    const data = {
       shape: {
          closeStroke: false,
-         type: SHAPES.POLY
+         type: SHAPES.POLY,
       },
       points,
       lineStyle: style,
@@ -40,12 +40,13 @@ function calcLine(points: number[], style = defaultLineStyle) {
       indices: [] as number[],
    }
    buildNonNativeLine(data, geometry)
-   console.log('Geometry:', geometry)
+   // console.log('Geometry:', geometry)
    return geometry
 }
 
 export function Drawer() {
    let canvasRef: HTMLCanvasElement
+   let pixiCanvasRef: HTMLCanvasElement
    let device: GPUDevice
    let ctx: GPUCanvasContext
 
@@ -55,34 +56,76 @@ export function Drawer() {
    let uniformBindGroup: GPUBindGroup
    let pipeline: GPURenderPipeline
 
+   // onMount(() => {
+   //    const pix = new PIXI.Application({
+   //       width: pixiCanvasRef.width,
+   //       height: pixiCanvasRef.height,
+   //       context: pixiCanvasRef.getContext('webgl2'),
+   //    })
+
+   //    const pixGraphics = new PIXI.Graphics()
+   //    pixGraphics.lineStyle(2, 0xffffff, 1)
+   //    pixGraphics.moveTo(0, 0)
+   //    pixGraphics.lineTo(100, 200)
+   //    pixGraphics.lineTo(200, 200)
+   //    pix.stage.addChild(pixGraphics)
+
+   //    let isMouseDown = false
+   //    let lastPost = [0, 0]
+   //    pixiCanvasRef.onpointerdown = (e) => {
+   //       isMouseDown = true
+   //       lastPost[0] = e.offsetX
+   //       lastPost[1] = e.offsetY
+   //    }
+   //    pixiCanvasRef.onpointerup = () => {
+   //       isMouseDown = false
+   //    }
+
+   //    pixiCanvasRef.onpointermove = (e) => {
+   //       if (!isMouseDown) return
+   //       pixGraphics.moveTo(lastPost[0], lastPost[1])
+   //       pixGraphics.lineTo(e.offsetX, e.offsetY)
+   //       lastPost[0] = e.offsetX
+   //       lastPost[1] = e.offsetY
+   //    }
+   // })
+
    const { editor, toAbs } = useEditorContext()
    const [store, setStore] = createStore({
       points: [-85, 70, 5, 70, -25, 58],
    })
 
-   const vbo = new Float32Array(2 ** 14)
-   const ibo = new Uint32Array(vbo.length * 3)
+   let vbo = new Float32Array()
+   let ibo = new Uint32Array()
 
    const line = createMemo(() => calcLine(store.points))
 
-   const computeBuffers = () => {
+   const computeBuffers = async () => {
       let verts = []
       for (let i = 1; i < line().points.length; i += 2) {
          verts.push(line().points[i - 1], line().points[i])
          verts.push(0, 1)
          verts.push(...defaultLineStyle.color)
       }
-      vbo.fill(0)
-      vbo.set(verts)
+      vbo = new Float32Array(verts)
 
-      ibo.fill(0)
-      ibo.set(line().indices)
+      ibo = new Uint32Array(line().indices)
+      // line().indices
 
       if (!vBuffer || !iBuffer) return
-      console.log('Writing VBO')
+      // await vBuffer.mapAsync(GPUMapMode.WRITE)
+      // new Float32Array(vBuffer.getMappedRange()).set(verts)
+      // vBuffer.unmap()
+
+      // await iBuffer.mapAsync(GPUMapMode.WRITE)
+      // new Uint32Array(iBuffer.getMappedRange()).set(line().indices)
+      // iBuffer.unmap()
+
       device.queue.writeBuffer(vBuffer, 0, vbo)
-      console.log('Writing IBO')
       device.queue.writeBuffer(iBuffer, 0, ibo)
+      // console.log('Updated buffer')
+      frame()
+
    }
 
    createComputed(computeBuffers)
@@ -110,11 +153,19 @@ export function Drawer() {
       const shaderModule = await BlokiGPU.compileShader(device, triangleShader)
 
       computeBuffers()
-      console.log(vbo, ibo)
+      // console.log(vbo, ibo)
 
-      vBuffer = BlokiGPU.createBufferFromArray(device, vbo, GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST)
+      vBuffer = BlokiGPU.createBufferFromArray(
+         device,
+         vbo,
+         GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_WRITE
+      )
 
-      iBuffer = BlokiGPU.createBufferFromArray(device, ibo, GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST)
+      iBuffer = BlokiGPU.createBufferFromArray(
+         device,
+         ibo,
+         GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_WRITE
+      )
 
       viewPortUniformBuffer = BlokiGPU.createBufferFromArray(
          device,
@@ -215,10 +266,10 @@ export function Drawer() {
    onMount(initRenderer)
 
    onCleanup(() => {
-      vBuffer.destroy()
-      iBuffer.destroy()
-      viewPortUniformBuffer.destroy()
-      device.destroy()
+      vBuffer?.destroy()
+      iBuffer?.destroy()
+      viewPortUniformBuffer?.destroy()
+      device?.destroy()
    })
 
    let isMouseDown = false
@@ -234,8 +285,7 @@ export function Drawer() {
       const gpuY = canvasRef.height / 2 - e.offsetY
 
       setStore('points', (v) => v.concat(gpuX, gpuY))
-      setTimeout(frame)
-      frame()
+      // frame()
    }
 
    function onPointerUp() {
@@ -243,24 +293,28 @@ export function Drawer() {
    }
 
    return (
-      <canvas
-         class="drawer"
-         onPointerDown={onPointerDown}
-         onPointerMove={onPointerMove}
-         onPointerUp={onPointerUp}
-         // onPointerLeave={onDrawEnd}
-         // classList={{
-         //    ontop: editor.tool !== ToolType.Cursor,
-         // }}
-         onWheel={(e) => {
-            // let s = -1
-            // if (e.deltaY < 0) s = 1
-            // setStore('viewPort', 'w', (w) => w + s)
-            // e.preventDefault()
-         }}
-         ref={canvasRef}
-         width="800"
-         height="800"
-      />
+      <>
+         <canvas ref={pixiCanvasRef} width="900" height="900" />
+         <canvas
+            // class="drawer"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={() => (isMouseDown = false)}
+            // onPointerLeave={onDrawEnd}
+            // classList={{
+            //    ontop: editor.tool !== ToolType.Cursor,
+            // }}
+            onWheel={(e) => {
+               // let s = -1
+               // if (e.deltaY < 0) s = 1
+               // setStore('viewPort', 'w', (w) => w + s)
+               // e.preventDefault()
+            }}
+            ref={canvasRef}
+            width="800"
+            height="800"
+         />
+      </>
    )
 }
