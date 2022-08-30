@@ -1,7 +1,6 @@
 import './drawer.scss'
 import { createComputed, createMemo, onCleanup, onMount } from 'solid-js'
 import { createStore } from 'solid-js/store'
-import { isFirefox } from '@solid-primitives/platform'
 import * as PIXI from 'pixi.js'
 import { BlokiGPU } from '@/lib/gpu'
 import { Transform, Point } from '../types'
@@ -97,34 +96,36 @@ export function Drawer() {
       points: [-85, 70, 5, 70, -25, 58],
    })
 
-   let vbo = new Float32Array(1)
-   let ibo = new Uint32Array(2 * 10)
+   let vboSource = []
+   let iboSource = []
 
    let lastVBOSize = 0
    let lastIBOSize = 0
 
-   const line = createMemo(() => calcLine(store.points))
+   function computeBuffers() {
+      const lastPoints = store.points.slice(-10)
+      const line = calcLine(lastPoints)
 
-   const computeBuffers = async () => {
       let verts = []
-      for (let i = 1; i < line().points.length; i += 2) {
-         verts.push(line().points[i - 1], line().points[i])
+      for (let i = 1; i < line.points.length; i += 2) {
+         verts.push(line.points[i - 1], line.points[i])
          verts.push(0, 1)
          verts.push(...defaultLineStyle.color)
       }
-      vbo = new Float32Array(verts)
-      ibo = new Uint32Array(line().indices)
+      vboSource = verts
+      iboSource = line.indices
       if (!vBuffer || !iBuffer) return
 
-      if (vbo.byteLength > lastVBOSize) {
-         lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
-         vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
-      } else device.queue.writeBuffer(vBuffer, 0, vbo)
+      const vbo = new Float32Array(vboSource)
+      // vBuffer.destroy()
+      lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
+      vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
 
-      if (ibo.byteLength > lastIBOSize) {
-         lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
-         iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
-      } else device.queue.writeBuffer(iBuffer, 0, ibo)
+      const ibo = new Uint32Array(iboSource)
+      // iBuffer.destroy()
+      lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
+      iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
+
       frame()
    }
 
@@ -152,14 +153,14 @@ export function Drawer() {
 
       const shaderModule = await BlokiGPU.compileShader(device, triangleShader)
 
-      await computeBuffers()
+      computeBuffers()
 
-      if (vbo.byteLength) {
-         lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
-         lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
+      if (vboSource.byteLength) {
+         lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vboSource)
+         lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(iboSource)
 
-         vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
-         iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
+         vBuffer = BlokiGPU.createBufferFromArray(device, vboSource, VBOUsage, lastVBOSize)
+         iBuffer = BlokiGPU.createBufferFromArray(device, iboSource, IBOUsage, lastIBOSize)
       } else {
          vBuffer = device.createBuffer({
             size: 0,
@@ -238,6 +239,7 @@ export function Drawer() {
             count: 1,
          },
       })
+
       frame()
    }
 
@@ -260,9 +262,9 @@ export function Drawer() {
       pass.setIndexBuffer(iBuffer, 'uint32')
       pass.setVertexBuffer(0, vBuffer)
 
-      pass.drawIndexed(ibo.length, 1)
-      if (isFirefox) pass.endPass()
-      else pass.end()
+      pass.drawIndexed(iboSource.length, 1)
+      if ('end' in pass) pass.end()
+      else pass.endPass()
 
       const commands = commandEncoder.finish()
       device.queue.submit([commands])
@@ -282,15 +284,15 @@ export function Drawer() {
    function onPointerDown() {
       isMouseDown = true
    }
-
+   const halfCanvasWidth = 900 / 2
+   const halfCanvasHeight = 900 / 2
    function onPointerMove(e: PointerEvent) {
       if (!isMouseDown) return
 
-      const gpuX = e.offsetX - canvasRef.width / 2
-      const gpuY = canvasRef.height / 2 - e.offsetY
+      const gpuX = e.offsetX - halfCanvasWidth
+      const gpuY = halfCanvasHeight - e.offsetY
 
       setStore('points', (v) => v.concat(gpuX, gpuY))
-      // frame()
    }
 
    function onPointerUp() {
