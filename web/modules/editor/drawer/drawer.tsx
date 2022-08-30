@@ -1,5 +1,5 @@
 import './drawer.scss'
-import { createComputed, createMemo, onCleanup, onMount } from 'solid-js'
+import { createComputed, createEffect, onCleanup, onMount } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import * as PIXI from 'pixi.js'
 import { BlokiGPU } from '@/lib/gpu'
@@ -16,15 +16,15 @@ type Figure = {
 const clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
 
 const defaultLineStyle = {
-   width: 4,
-   miterLimit: 1,
-   alignment: 0.1,
-   cap: LINE_CAP.BUTT,
+   width: 2,
+   miterLimit: 0.01,
+   alignment: 0.01,
+   cap: LINE_CAP.ROUND,
    join: LINE_JOIN.ROUND,
    color: [0.5, 1, 0.5, 1],
 }
 
-function calcLine(points: number[], style = defaultLineStyle) {
+function computeLineMesh(points: number[], style = defaultLineStyle) {
    const data = {
       shape: {
          closeStroke: false,
@@ -47,6 +47,8 @@ export function Drawer() {
    let pixiCanvasRef: HTMLCanvasElement
    let device: GPUDevice
    let ctx: GPUCanvasContext
+   let canvasWidthHalf: number
+   let canvasHeightHalf: number
 
    let vBuffer: GPUBuffer
    let iBuffer: GPUBuffer
@@ -57,54 +59,67 @@ export function Drawer() {
    const VBOUsage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
    const IBOUsage = GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
 
-   onMount(() => {
-      const pix = new PIXI.Application({
-         width: pixiCanvasRef.width,
-         height: pixiCanvasRef.height,
-         context: pixiCanvasRef.getContext('webgl2'),
-      })
-
-      const pixGraphics = new PIXI.Graphics()
-      pixGraphics.lineStyle(2, 0xffffff, 1)
-      pixGraphics.moveTo(0, 0)
-      pixGraphics.lineTo(100, 200)
-      pixGraphics.lineTo(200, 200)
-      pix.stage.addChild(pixGraphics)
-
-      let isMouseDown = false
-      let lastPost = [0, 0]
-      pixiCanvasRef.onpointerdown = (e) => {
-         isMouseDown = true
-         lastPost[0] = e.offsetX
-         lastPost[1] = e.offsetY
-      }
-      pixiCanvasRef.onpointerup = () => {
-         isMouseDown = false
-      }
-
-      pixiCanvasRef.onpointermove = (e) => {
-         if (!isMouseDown) return
-         pixGraphics.moveTo(lastPost[0], lastPost[1])
-         pixGraphics.lineTo(e.offsetX, e.offsetY)
-         lastPost[0] = e.offsetX
-         lastPost[1] = e.offsetY
-      }
-   })
-
-   const { editor, toAbs } = useEditorContext()
-   const [store, setStore] = createStore({
-      points: [-85, 70, 5, 70, -25, 58],
-   })
-
    let vboSource = []
    let iboSource = []
 
    let lastVBOSize = 0
    let lastIBOSize = 0
 
+   let isMouseDown = false
+
+   const paintings = [
+      {
+         id: 0,
+         points: [] as number[],
+         bounds: {},
+         vboPtr: [0, 10],
+         iboPtr: [0, 24],
+      },
+   ]
+
+   // onMount(() => {
+   //    const pix = new PIXI.Application({
+   //       width: pixiCanvasRef.width,
+   //       height: pixiCanvasRef.height,
+   //       context: pixiCanvasRef.getContext('webgl2'),
+   //    })
+
+   //    const pixGraphics = new PIXI.Graphics()
+   //    pixGraphics.lineStyle(2, 0xffffff, 1)
+   //    pixGraphics.moveTo(0, 0)
+   //    pixGraphics.lineTo(100, 200)
+   //    pixGraphics.lineTo(200, 200)
+   //    pix.stage.addChild(pixGraphics)
+
+   //    let isMouseDown = false
+   //    let lastPost = [0, 0]
+   //    pixiCanvasRef.onpointerdown = (e) => {
+   //       isMouseDown = true
+   //       lastPost[0] = e.offsetX
+   //       lastPost[1] = e.offsetY
+   //    }
+   //    pixiCanvasRef.onpointerup = () => {
+   //       isMouseDown = false
+   //    }
+
+   //    pixiCanvasRef.onpointermove = (e) => {
+   //       if (!isMouseDown) return
+   //       pixGraphics.moveTo(lastPost[0], lastPost[1])
+   //       pixGraphics.lineTo(e.offsetX, e.offsetY)
+   //       lastPost[0] = e.offsetX
+   //       lastPost[1] = e.offsetY
+   //    }
+   // })
+
+   const { editor, toAbs } = useEditorContext()
+
+   const [store, setStore] = createStore({
+      points: [-85, 70, 5, 70, -25, 58],
+   })
+
    function computeBuffers() {
-      const lastPoints = store.points.slice(-10)
-      const line = calcLine(lastPoints)
+      // const lastPoints = store.points.slice(-10)
+      const line = computeLineMesh(store.points)
 
       let verts = []
       for (let i = 1; i < line.points.length; i += 2) {
@@ -117,19 +132,15 @@ export function Drawer() {
       if (!vBuffer || !iBuffer) return
 
       const vbo = new Float32Array(vboSource)
-      // vBuffer.destroy()
+      vBuffer.destroy()
       lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
       vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
 
       const ibo = new Uint32Array(iboSource)
-      // iBuffer.destroy()
+      iBuffer.destroy()
       lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
       iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
-
-      frame()
    }
-
-   createComputed(computeBuffers)
 
    async function initRenderer() {
       const gpu = await BlokiGPU.aquireGPU({ powerPreference: 'low-power' })
@@ -155,22 +166,15 @@ export function Drawer() {
 
       computeBuffers()
 
-      if (vboSource.byteLength) {
-         lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vboSource)
-         lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(iboSource)
+      const vbo = new Float32Array(vboSource)
+      const ibo = new Uint32Array(iboSource)
 
-         vBuffer = BlokiGPU.createBufferFromArray(device, vboSource, VBOUsage, lastVBOSize)
-         iBuffer = BlokiGPU.createBufferFromArray(device, iboSource, IBOUsage, lastIBOSize)
-      } else {
-         vBuffer = device.createBuffer({
-            size: 0,
-            usage: VBOUsage,
-         })
-         iBuffer = device.createBuffer({
-            size: 0,
-            usage: IBOUsage,
-         })
-      }
+      lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
+      lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
+
+      vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
+      iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
+
       viewPortUniformBuffer = BlokiGPU.createBufferFromArray(
          device,
          Float32Array.from([canvasRef.width / 2, canvasRef.height / 2, 10, 1]),
@@ -240,7 +244,7 @@ export function Drawer() {
          },
       })
 
-      frame()
+      requestAnimationFrame(frame)
    }
 
    function frame() {
@@ -270,7 +274,13 @@ export function Drawer() {
       device.queue.submit([commands])
    }
 
-   onMount(initRenderer)
+   createComputed(computeBuffers)
+
+   onMount(() => {
+      initRenderer()
+      canvasWidthHalf = canvasRef.width / 2
+      canvasHeightHalf = canvasRef.height / 2
+   })
 
    onCleanup(() => {
       vBuffer?.destroy()
@@ -279,30 +289,28 @@ export function Drawer() {
       device?.destroy()
    })
 
-   let isMouseDown = false
-
    function onPointerDown() {
       isMouseDown = true
    }
-   const halfCanvasWidth = 900 / 2
-   const halfCanvasHeight = 900 / 2
+
    function onPointerMove(e: PointerEvent) {
       if (!isMouseDown) return
 
-      const gpuX = e.offsetX - halfCanvasWidth
-      const gpuY = halfCanvasHeight - e.offsetY
+      const gpuX = e.offsetX - canvasWidthHalf
+      const gpuY = -e.offsetY + canvasHeightHalf
 
       setStore('points', (v) => v.concat(gpuX, gpuY))
+      requestAnimationFrame(frame)
    }
 
    function onPointerUp() {
       isMouseDown = false
+      setStore('points', [])
    }
 
    return (
       <div>
          <div>
-            <h3>Родное</h3>
             <canvas
                // class="drawer"
                onPointerDown={onPointerDown}
@@ -321,13 +329,13 @@ export function Drawer() {
                }}
                ref={canvasRef}
                width="900"
-               height="900"
+               height="800"
             />
          </div>
-         <div>
+         {/* <div>
             <h3>Pixi.js - Miro, CloverApp</h3>
             <canvas ref={pixiCanvasRef} width="900" height="900" />
-         </div>
+         </div> */}
       </div>
    )
 }
