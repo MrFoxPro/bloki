@@ -24,7 +24,7 @@
       "solid-dismiss": "^1.2.1",
       "solid-js": "1.5.1",
       "solid-toast": "^0.3.4",
-      "solid-transition-group": "^0.0.10",
+      "solid-transition-group": "^0.0.11",
       "ts-nameof": "^5.0.0",
       "twgl.js": "^4.24.0"
    },

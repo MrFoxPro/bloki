@@ -1,2 +1,1 @@
 import './number'
-import './webgpu'

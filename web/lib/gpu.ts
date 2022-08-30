@@ -19,10 +19,17 @@ export class BlokiGPU {
       const device = await adapter.requestDevice(deviceDescriptor)
       return { adapter, device }
    }
-
-   static createBufferFromArray(device: GPUDevice, arr: TypedArray, usage: number) {
+   static getTypedArrayAlignedSize(arr: TypedArray) {
+      return (arr.byteLength + 3) & ~3
+   }
+   static createBufferFromArray(
+      device: GPUDevice,
+      arr: TypedArray,
+      usage: number,
+      size = BlokiGPU.getTypedArrayAlignedSize(arr)
+   ) {
       const buffer = device.createBuffer({
-         size: (arr.byteLength + 3) & ~3,
+         size,
          usage,
          mappedAtCreation: true,
       })

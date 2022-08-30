@@ -41,6 +41,14 @@ body {
       background: orange;
    }
 }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+   color: $color-text-main;
+}
 h4 {
    @include text(16px, $color-text-main, 600);
 }
