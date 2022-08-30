@@ -64,7 +64,7 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
           # This is important to keep "/"
-          source: "dist/api,dist/client"
+          source: "dist/api,dist/web"
           target: "/home/deploy/bloki-next"
           overwrite: true
           command_timeout: 1m
