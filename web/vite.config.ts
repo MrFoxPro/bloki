@@ -26,7 +26,7 @@ export default async ({ mode }: ConfigEnv) => {
    const config: UserConfig = {
       base: dev ? './' : '/',
       assetsInclude: ['**/*.gltf', '**/*.mov'],
-      clearScreen: false,
+      clearScreen: true,
       // optimizeDeps: {},
       server: {
          host: '0.0.0.0',

@@ -19,7 +19,7 @@ import { BlockContextMenu } from './context-menu/ctx_menu'
 import { Toolbox, toolsIconMap } from './toolbox/toolbox'
 import { EditorContextProvider, useEditorContext } from './toolbox/editor.store'
 import { useThemeContext } from '../theme.store'
-import { Drawer } from './drawer/drawer'
+import { DrawerSinglePipeline } from './drawer/drawer-single'
 
 function BlokiEditor() {
    let wrapperRef: HTMLDivElement
@@ -192,7 +192,7 @@ function BlokiEditor() {
                   onContextMenu={(e) => e.preventDefault()}
                /> */}
                <BlockContextMenu />
-               <Drawer />
+               <DrawerSinglePipeline />
                {/* <Cursors /> */}
             </div>
          </div>

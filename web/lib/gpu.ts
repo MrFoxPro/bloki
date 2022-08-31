@@ -17,6 +17,7 @@ export class BlokiGPU {
       const adapter = await gpu.requestAdapter(adapterOptions)
       if (!adapter) throw new Error('WebGPU supported but disabled')
       const device = await adapter.requestDevice(deviceDescriptor)
+      console.log(device.limits)
       return { adapter, device }
    }
    static getTypedArrayAlignedSize(arr: TypedArray) {

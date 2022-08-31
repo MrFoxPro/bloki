@@ -1,5 +1,5 @@
 import { onMount } from 'solid-js'
-import { ensureShaderCompiled } from './drawer'
+import { ensureShaderCompiled } from './drawer-single'
 import shaderCode from './seed.wgsl?raw'
 
 // 📈 Position Vertex Buffer Data

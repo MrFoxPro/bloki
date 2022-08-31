@@ -219,7 +219,7 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
    }
 
    // real points to draw with respect to width and other  stuff
-   const verts = graphicsGeometry.points
+   const verts = graphicsGeometry.verts
    const length = points.length / 2
    let indexCount = points.length
    const indexStart = verts.length / 2

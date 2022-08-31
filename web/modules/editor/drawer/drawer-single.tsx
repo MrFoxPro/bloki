@@ -1,13 +1,12 @@
-import './drawer.scss'
 import { createComputed, createEffect, onCleanup, onMount } from 'solid-js'
 import { createStore } from 'solid-js/store'
-import * as PIXI from 'pixi.js'
 import { BlokiGPU } from '@/lib/gpu'
 import { Transform, Point } from '../types'
-import { useEditorContext } from '../toolbox/editor.store'
+// import { useEditorContext } from '../toolbox/editor.store'
 import triangleShader from './triangle.wgsl?raw'
 import { buildNonNativeLine, LINE_CAP, LINE_JOIN, SHAPES } from './line'
 
+console.clear()
 type Figure = {
    bound: Transform
    points: Point[]
@@ -15,8 +14,16 @@ type Figure = {
 
 const clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
 
-const defaultLineStyle = {
-   width: 2,
+type LineStyle = {
+   width: number
+   miterLimit: number
+   alignment: number
+   cap: LINE_CAP
+   join: LINE_JOIN
+   color: [r: number, g: number, b: number, a: number]
+}
+const defaultLineStyle: LineStyle = {
+   width: 3,
    miterLimit: 0.01,
    alignment: 0.01,
    cap: LINE_CAP.ROUND,
@@ -24,27 +31,14 @@ const defaultLineStyle = {
    color: [0.5, 1, 0.5, 1],
 }
 
-function computeLineMesh(points: number[], style = defaultLineStyle) {
-   const data = {
-      shape: {
-         closeStroke: false,
-         type: SHAPES.POLY,
-      },
-      points,
-      lineStyle: style,
-   }
-   const geometry = {
-      closePointEps: 1e-4,
-      points: [] as number[],
-      indices: [] as number[],
-   }
-   buildNonNativeLine(data, geometry)
-   return geometry
+type Mesh = {
+   verts: number[]
+   indices: number[]
+   closePointEps?: number
 }
 
-export function Drawer() {
+export function DrawerSinglePipeline() {
    let canvasRef: HTMLCanvasElement
-   let pixiCanvasRef: HTMLCanvasElement
    let device: GPUDevice
    let ctx: GPUCanvasContext
    let canvasWidthHalf: number
@@ -59,91 +53,65 @@ export function Drawer() {
    const VBOUsage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
    const IBOUsage = GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
 
-   let vboSource = []
-   let iboSource = []
+   GPUBufferUsage.STORAGE
+   let vboSource: number[] = []
+   let iboSource: number[] = []
 
    let lastVBOSize = 0
    let lastIBOSize = 0
 
    let isMouseDown = false
 
-   const paintings = [
-      {
-         id: 0,
-         points: [] as number[],
-         bounds: {},
-         vboPtr: [0, 10],
-         iboPtr: [0, 24],
-      },
-   ]
+   // const { editor, toAbs } = useEditorContext()
 
-   // onMount(() => {
-   //    const pix = new PIXI.Application({
-   //       width: pixiCanvasRef.width,
-   //       height: pixiCanvasRef.height,
-   //       context: pixiCanvasRef.getContext('webgl2'),
-   //    })
-
-   //    const pixGraphics = new PIXI.Graphics()
-   //    pixGraphics.lineStyle(2, 0xffffff, 1)
-   //    pixGraphics.moveTo(0, 0)
-   //    pixGraphics.lineTo(100, 200)
-   //    pixGraphics.lineTo(200, 200)
-   //    pix.stage.addChild(pixGraphics)
-
-   //    let isMouseDown = false
-   //    let lastPost = [0, 0]
-   //    pixiCanvasRef.onpointerdown = (e) => {
-   //       isMouseDown = true
-   //       lastPost[0] = e.offsetX
-   //       lastPost[1] = e.offsetY
-   //    }
-   //    pixiCanvasRef.onpointerup = () => {
-   //       isMouseDown = false
-   //    }
-
-   //    pixiCanvasRef.onpointermove = (e) => {
-   //       if (!isMouseDown) return
-   //       pixGraphics.moveTo(lastPost[0], lastPost[1])
-   //       pixGraphics.lineTo(e.offsetX, e.offsetY)
-   //       lastPost[0] = e.offsetX
-   //       lastPost[1] = e.offsetY
-   //    }
+   // const [store, setStore] = createStore({
+   //    points: [-85, 70, 5, 70, -25, 58],
    // })
 
-   const { editor, toAbs } = useEditorContext()
-
-   const [store, setStore] = createStore({
-      points: [-85, 70, 5, 70, -25, 58],
-   })
-
-   function computeBuffers() {
-      // const lastPoints = store.points.slice(-10)
-      const line = computeLineMesh(store.points)
-
-      let verts = []
-      for (let i = 1; i < line.points.length; i += 2) {
-         verts.push(line.points[i - 1], line.points[i])
-         verts.push(0, 1)
-         verts.push(...defaultLineStyle.color)
+   function computeLineMesh(points: number[], style = defaultLineStyle) {
+      const data = {
+         shape: {
+            closeStroke: false,
+            type: SHAPES.POLY,
+         },
+         points,
+         lineStyle: style,
       }
-      vboSource = verts
-      iboSource = line.indices
-      if (!vBuffer || !iBuffer) return
+      const geometry: Mesh = {
+         closePointEps: 1e-4,
+         verts: [] as number[],
+         indices: [] as number[],
+      }
+      buildNonNativeLine(data, geometry)
+      return geometry
+   }
 
-      const vbo = new Float32Array(vboSource)
+   function meshToVBOArray(line: Mesh, style: LineStyle) {
+      const vbo: number[] = []
+      for (let i = 1; i < line.verts.length; i += 2) {
+         vbo.push(line.verts[i - 1], line.verts[i], 0, 1, ...style.color)
+      }
+      return vbo
+   }
+
+   function meshToIBOArray(line: Mesh) {
+      return line.indices
+   }
+
+   function resetBuffers() {
       vBuffer.destroy()
+      const vbo = new Float32Array(vboSource)
       lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
       vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
 
-      const ibo = new Uint32Array(iboSource)
       iBuffer.destroy()
+      const ibo = new Uint32Array(iboSource)
       lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
       iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
    }
 
    async function initRenderer() {
-      const gpu = await BlokiGPU.aquireGPU({ powerPreference: 'low-power' })
+      const gpu = await BlokiGPU.aquireGPU({ powerPreference: 'high-performance' })
       device = gpu.device
       ctx = canvasRef.getContext('webgpu')
 
@@ -164,16 +132,16 @@ export function Drawer() {
 
       const shaderModule = await BlokiGPU.compileShader(device, triangleShader)
 
-      computeBuffers()
+      // computeMesh()
 
-      const vbo = new Float32Array(vboSource)
-      const ibo = new Uint32Array(iboSource)
+      // const vbo = new Float32Array(vboSource)
+      // const ibo = new Uint32Array(iboSource)
 
-      lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
-      lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
+      // lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
+      // lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
 
-      vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
-      iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
+      vBuffer = BlokiGPU.createBufferFromArray(device, new Float32Array(2 ** 14), VBOUsage)
+      iBuffer = BlokiGPU.createBufferFromArray(device, new Float32Array(2 ** 14 * 3), IBOUsage)
 
       viewPortUniformBuffer = BlokiGPU.createBufferFromArray(
          device,
@@ -243,11 +211,10 @@ export function Drawer() {
             count: 1,
          },
       })
-
-      requestAnimationFrame(frame)
    }
 
    function frame() {
+      const start = performance.now()
       const commandEncoder = device.createCommandEncoder()
       const pass = commandEncoder.beginRenderPass({
          colorAttachments: [
@@ -265,32 +232,60 @@ export function Drawer() {
       pass.setBindGroup(0, uniformBindGroup)
       pass.setIndexBuffer(iBuffer, 'uint32')
       pass.setVertexBuffer(0, vBuffer)
-
       pass.drawIndexed(iboSource.length, 1)
       if ('end' in pass) pass.end()
+      // @ts-ignore Firefox
       else pass.endPass()
-
       const commands = commandEncoder.finish()
       device.queue.submit([commands])
+      window.frameTime = performance.now() - start
    }
 
-   createComputed(computeBuffers)
+   // createComputed(computeMesh)
 
    onMount(() => {
-      initRenderer()
       canvasWidthHalf = canvasRef.width / 2
       canvasHeightHalf = canvasRef.height / 2
+
+      initRenderer().then(frame)
    })
 
    onCleanup(() => {
-      vBuffer?.destroy()
-      iBuffer?.destroy()
-      viewPortUniformBuffer?.destroy()
-      device?.destroy()
+      setTimeout(() => {
+         vBuffer?.destroy()
+         iBuffer?.destroy()
+         viewPortUniformBuffer?.destroy()
+         device?.destroy()
+         console.log('Cleared')
+      })
    })
 
-   function onPointerDown() {
+   type PaintData = {
+      id: number
+      vboLoc: [start: number, length: number]
+      iboLoc: [start: number, length: number]
+      lineStyle: LineStyle
+      // x y, x y ...
+      points: number[]
+   }
+
+   const paintings = []
+   let currentPainting: PaintData | null = null
+
+   function onPointerDown(e: PointerEvent) {
+      if (e.button === 1) e.preventDefault()
       isMouseDown = true
+
+      currentPainting = {
+         id: paintings.length,
+         vboLoc: [0, 0],
+         iboLoc: [0, 0],
+         lineStyle: {
+            ...defaultLineStyle,
+         },
+         points: [-85, 70, 5, 70, -25, 58],
+      }
+      paintings.push(currentPainting)
    }
 
    function onPointerMove(e: PointerEvent) {
@@ -298,44 +293,59 @@ export function Drawer() {
 
       const gpuX = e.offsetX - canvasWidthHalf
       const gpuY = -e.offsetY + canvasHeightHalf
+      currentPainting.points.push(gpuX, gpuY)
 
-      setStore('points', (v) => v.concat(gpuX, gpuY))
+      const lineMesh = computeLineMesh(currentPainting.points, currentPainting.lineStyle)
+
+      const VBOSlice = new Float32Array(meshToVBOArray(lineMesh, currentPainting.lineStyle))
+      currentPainting.vboLoc[1] = VBOSlice.length
+      const vboWriteOffset = Float32Array.BYTES_PER_ELEMENT * currentPainting.vboLoc[0]
+      device.queue.writeBuffer(vBuffer, vboWriteOffset, VBOSlice)
+
+      // lastVBOSize =
+
+      const IBOSlice = new Uint32Array(meshToIBOArray(lineMesh))
+      currentPainting.iboLoc[1] = IBOSlice.length
+      const iboWriteOffset = Uint32Array.BYTES_PER_ELEMENT * currentPainting.iboLoc[0]
+      device.queue.writeBuffer(iBuffer, iboWriteOffset, IBOSlice)
+
+      iboSource = IBOSlice
+      // vboSource.splice(_currentPainting.vboLoc[0], 0, ...newVBOArr)
+      // iboSource.splice(_currentPainting.iboLoc[0], 0, ...newIBOArr)
+
+      // vBuffer.destroy()
+      // const vbo = new Float32Array(vboSource)
+      // lastVBOSize = BlokiGPU.getTypedArrayAlignedSize(vbo)
+      // vBuffer = BlokiGPU.createBufferFromArray(device, vbo, VBOUsage, lastVBOSize)
+
+      // iBuffer.destroy()
+      // const ibo = new Uint32Array(iboSource)
+      // lastIBOSize = BlokiGPU.getTypedArrayAlignedSize(ibo)
+      // iBuffer = BlokiGPU.createBufferFromArray(device, ibo, IBOUsage, lastIBOSize)
+
+      // resetBuffers()
+
       requestAnimationFrame(frame)
    }
 
    function onPointerUp() {
       isMouseDown = false
-      setStore('points', [])
+      // setStore('points', [])
    }
 
    return (
       <div>
          <div>
             <canvas
-               // class="drawer"
                onPointerDown={onPointerDown}
                onPointerMove={onPointerMove}
                onPointerUp={onPointerUp}
                onPointerLeave={() => (isMouseDown = false)}
-               // onPointerLeave={onDrawEnd}
-               // classList={{
-               //    ontop: editor.tool !== ToolType.Cursor,
-               // }}
-               onWheel={(e) => {
-                  // let s = -1
-                  // if (e.deltaY < 0) s = 1
-                  // setStore('viewPort', 'w', (w) => w + s)
-                  // e.preventDefault()
-               }}
                ref={canvasRef}
-               width="900"
+               width="1000"
                height="800"
             />
          </div>
-         {/* <div>
-            <h3>Pixi.js - Miro, CloverApp</h3>
-            <canvas ref={pixiCanvasRef} width="900" height="900" />
-         </div> */}
       </div>
    )
 }
