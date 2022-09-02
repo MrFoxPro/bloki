@@ -1,7 +1,6 @@
 import { lazy, Show } from 'solid-js'
 import { Route, Router, Routes } from '@solidjs/router'
-import { DrawerSinglePipeline } from '@/modules/editor/drawer/drawer-single'
-import { DrawerMultiplePipeline } from '@/modules/editor/drawer/drawer-multi'
+import { DrawerSinglePipeline } from '@/modules/editor/drawer/drawer1'
 const LandingView = lazy(() => import('./landing/landing'))
 const MainView = lazy(() => import('./playground/playground'))
 const WelcomeView = lazy(() => import('./welcome/welcome.view'))
@@ -21,7 +20,6 @@ export const BlokiAppRouter = () => (
          <Route path={UrlPath.Welcome_Confirm} component={WelcomeView} />
          <Route path={UrlPath.Playground} component={MainView} />
          <Route path={'/single-pipeline'} component={DrawerSinglePipeline} />
-         <Route path={'/multi-pipeline'} component={DrawerMultiplePipeline} />
       </Routes>
    </Router>
 )

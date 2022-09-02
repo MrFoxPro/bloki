@@ -5,7 +5,7 @@
 		"test": "pnpm test"
 	},
 	"dependencies": {
-		"@faker-js/faker": "^7.4.0",
+		"@faker-js/faker": "^7.5.0",
 		"@playwright/test": "^1.25.1"
 	}
 }

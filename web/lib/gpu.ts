@@ -10,6 +10,18 @@ export type TypedArray =
    | Float32Array
    | Float64Array
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray
+export type TypedArrayConstructor =
+   | Int8ArrayConstructor
+   | Uint8ArrayConstructor
+   | Uint8ClampedArrayConstructor
+   | Int16ArrayConstructor
+   | Uint16ArrayConstructor
+   | Int32ArrayConstructor
+   | Uint32ArrayConstructor
+   | Float32ArrayConstructor
+   | Float64ArrayConstructor
+
 export class BlokiGPU {
    static async aquireGPU(adapterOptions?: GPURequestAdapterOptions, deviceDescriptor?: GPUDeviceDescriptor) {
       const { gpu } = navigator

@@ -8,7 +8,7 @@
 		"telegraf": "^4.9.1"
 	},
 	"dependencies": {
-		"dotenv": "^16.0.1",
+		"dotenv": "^16.0.2",
 		"fast-glob": "^3.2.11"
 	}
 }

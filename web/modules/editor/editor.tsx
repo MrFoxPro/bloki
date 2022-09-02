@@ -19,7 +19,7 @@ import { BlockContextMenu } from './context-menu/ctx_menu'
 import { Toolbox, toolsIconMap } from './toolbox/toolbox'
 import { EditorContextProvider, useEditorContext } from './toolbox/editor.store'
 import { useThemeContext } from '../theme.store'
-import { DrawerSinglePipeline } from './drawer/drawer-single'
+import { DrawerSinglePipeline } from './drawer/drawer1'
 
 function BlokiEditor() {
    let wrapperRef: HTMLDivElement
