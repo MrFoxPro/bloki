@@ -2,7 +2,7 @@ import { CodeBlockTheme } from './blocks/code/types'
 import type { TextBlockFontFamily } from './blocks/text/types'
 import type { BlockType } from './misc'
 
-export type Point = { x: number; y: number }
+export type Point = [x: number, y: number]
 
 export type Dimension = { width: number; height: number }
 

@@ -43,6 +43,7 @@ importers:
       '@solidjs/router': ^0.4.3
       '@types/js-cookie': ^3.0.2
       '@types/offscreencanvas': ^2019.7.0
+      '@types/stats.js': ^0.17.0
       '@webgpu/types': ^0.1.21
       cssnano: ^5.1.13
       cssnano-preset-advanced: ^5.3.8
@@ -57,6 +58,7 @@ importers:
       solid-js: 1.5.3
       solid-toast: ^0.3.4
       solid-transition-group: ^0.0.11
+      stats.js: ^0.17.0
       type-expand: ^1.0.0
       typescript: ^4.8.2
       vite: 3.0.9
@@ -84,10 +86,12 @@ importers:
       solid-js: 1.5.3
       solid-toast: 0.3.4_solid-js@1.5.3
       solid-transition-group: 0.0.11_solid-js@1.5.3
+      stats.js: 0.17.0
       yjs: 13.5.41
     devDependencies:
       '@types/js-cookie': 3.0.2
       '@types/offscreencanvas': 2019.7.0
+      '@types/stats.js': 0.17.0
       '@webgpu/types': 0.1.21
       cssnano: 5.1.13_postcss@8.4.16
       cssnano-preset-advanced: 5.3.8_postcss@8.4.16
@@ -687,6 +691,10 @@ packages:
 
   /@types/offscreencanvas/2019.7.0:
     resolution: {integrity: sha512-PGcyveRIpL1XIqK8eBsmRBt76eFgtzuPiSTyKHZxnGemp2yzGzWpjYKAfK3wIMiU7eH+851yEpiuP8JZerTmWg==}
+    dev: true
+
+  /@types/stats.js/0.17.0:
+    resolution: {integrity: sha512-9w+a7bR8PeB0dCT/HBULU2fMqf6BAzvKbxFboYhmDtDkKPiyXYbjoe2auwsXlEFI7CFNMF1dCv3dFH5Poy9R1w==}
     dev: true
 
   /@webgpu/types/0.1.21:
@@ -2390,6 +2398,10 @@ packages:
     resolution: {integrity: sha512-ji9qxRnOVfcuLDySj9qzhGSEFVobyt1kIOSkj1qZzYLzq7Tos/oUUWvotUPQLlrsidqsK6tBH89Bc9kL5zHA6w==}
     deprecated: 'Modern JS already guarantees Array#sort() is a stable sort, so this library is deprecated. See the compatibility table on MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#browser_compatibility'
     dev: true
+
+  /stats.js/0.17.0:
+    resolution: {integrity: sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==}
+    dev: false
 
   /string-width/4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}

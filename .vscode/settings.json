@@ -33,5 +33,9 @@
       "xml": {
          "attr_quotes": "double"
       }
+   },
+   "editor.tokenColorCustomizations": {
+      "comments": "",
+      "textMateRules": []
    }
 }
