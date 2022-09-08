@@ -10,8 +10,8 @@ const IBO_ARRAY = Uint16Array
 
 const ELEMENTS_PER_VERTEX = 2 + 4 // x y + color
 const INDEX_FORMAT: GPUIndexFormat = 'uint16'
-const VBO_CHUNK_LENGTH = 55 * ELEMENTS_PER_VERTEX ** 3
-const IBO_CHUNK_LENGTH = 55 * ELEMENTS_PER_VERTEX ** 3
+const VBO_CHUNK_LENGTH = 3 * ELEMENTS_PER_VERTEX ** 3
+const IBO_CHUNK_LENGTH = 3 * ELEMENTS_PER_VERTEX ** 3
 
 export type LineSkeleton = {
    points: number[]
