@@ -3,6 +3,16 @@ import TriangleShader from './triangle.wgsl?raw'
 import { LineStyle, TypedArray } from './types'
 import { aquireGPU, compileShader, computeLineMesh, createBufferFromArray, defaultLineStyle } from './utils'
 
+export type IDrawing = InstanceType<typeof Drawing>
+
+const VBO_ARRAY = Float32Array
+const IBO_ARRAY = Uint16Array
+
+const ELEMENTS_PER_VERTEX = 2 + 4 // x y + color
+const INDEX_FORMAT: GPUIndexFormat = 'uint16'
+const VBO_CHUNK_LENGTH = 55 * ELEMENTS_PER_VERTEX ** 3
+const IBO_CHUNK_LENGTH = 55 * ELEMENTS_PER_VERTEX ** 3
+
 export type LineSkeleton = {
    points: number[]
    style: LineStyle
@@ -11,53 +21,59 @@ export type LineSkeleton = {
 class Drawing implements LineSkeleton {
    points: number[] = []
    style: LineStyle = structuredClone(defaultLineStyle)
-   readonly renderer: WebGPURenderer
    vOffset: number
    vLength: number
    iOffset: number
    iLength: number
-   constructor(renderer: WebGPURenderer, { vOffset, vLength, iOffset, iLength }) {
+   vertIndexToStartFrom: number
+
+   readonly renderer: WebGPURenderer
+   constructor(renderer: WebGPURenderer, { vOffset, vLength, iOffset, iLength, indexToStartFrom }) {
       this.renderer = renderer
       this.vOffset = vOffset
       this.vLength = vLength
       this.iOffset = iOffset
       this.iLength = iLength
+      this.vertIndexToStartFrom = indexToStartFrom
    }
    public continue(point: Point) {
+      const from = this.points.slice(-2)
       this.points.push(...point)
 
-      const mesh = computeLineMesh(this.points, this.style)
-      // console.log(mesh);
+      const mesh = computeLineMesh([...from, ...point], this.style)
 
       const { vOffset, vLength, iOffset, iLength } = this
 
-      if (mesh.vertices.length > vLength) {
+      const vbo = []
+
+      for (let i = 1; i < mesh.verts.length; i += 2) {
+         vbo.push(mesh.verts[i - 1], mesh.verts[i], ...this.style.color)
+      }
+      const ibo = mesh.indices.map((i) => i + this.vertIndexToStartFrom)
+      if (vbo.length > VBO_CHUNK_LENGTH || ibo.length > IBO_CHUNK_LENGTH) {
          this.points.pop()
          this.points.pop()
-         return
+         return false
       }
 
-      this.renderer.mem.VBO.set(mesh.vertices, vOffset)
+      this.renderer.mem.VBO.set(vbo, vOffset)
       this.renderer.queue.writeBuffer(
          this.renderer.mem.vboBuffer,
          vOffset * VBO_ARRAY.BYTES_PER_ELEMENT,
          this.renderer.mem.VBO.slice(vOffset, vOffset + vLength)
       )
 
-      this.renderer.mem.IBO.set(mesh.indices, iOffset)
+      this.renderer.mem.IBO.set(ibo, iOffset)
       this.renderer.queue.writeBuffer(
          this.renderer.mem.iboBuffer,
          iOffset * IBO_ARRAY.BYTES_PER_ELEMENT,
          this.renderer.mem.IBO.slice(iOffset, iOffset + iLength)
       )
+
       this.renderer.render(this.renderer.mem)
+      return true
    }
 }
-export type IDrawing = InstanceType<typeof Drawing>
-
-const VBO_ARRAY = Float32Array
-const IBO_ARRAY = Uint32Array
-const INDEX_FORMAT: GPUIndexFormat = 'uint32'
 
 type RenderMemoryGroup = {
    VBO: TypedArray
@@ -66,26 +82,8 @@ type RenderMemoryGroup = {
    iboBuffer: GPUBuffer
 }
 
-// class MeshBuffer {
-//    vbo: TypedArray
-//    vboBuffer: GPUBuffer
-
-//    constructor() {}
-
-//    realloc(lenghtToAdd) {
-
-//       const newIBO = new IBO_ARRAY(this.mem.IBO.length + DRAW_VBO_CHUNK_LENGTH)
-//       newIBO.set(this.mem.IBO)
-//       this.mem.IBO = newIBO
-//       this.vbo = new
-//    }
-// }
-
 export class WebGPURenderer {
    private readonly drawings: Drawing[] = []
-
-   public readonly VBO_CHUNK_LENGTH = 2 ** 12
-   public readonly IBO_CHUNK_LENGTH = 2 ** 12
 
    private readonly VBO_USAGE = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
    private readonly IBO_USAGE = GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST
@@ -95,11 +93,13 @@ export class WebGPURenderer {
 
    private ctx: GPUCanvasContext
    private device: GPUDevice
-   private viewport_uniform_buffer: GPUBuffer
+   public viewport_uniform_buffer: GPUBuffer
    private uniform_bind_group: GPUBindGroup
    private pipeline: GPURenderPipeline
+   private stats: Stats | null
 
    public queue: GPUQueue
+   public readonly clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
 
    mem: RenderMemoryGroup = {
       VBO: new VBO_ARRAY(),
@@ -107,8 +107,6 @@ export class WebGPURenderer {
       vboBuffer: null as GPUBuffer,
       iboBuffer: null as GPUBuffer,
    }
-
-   public readonly clearValue: GPUColor = [0.3, 0.3, 0.3, 1.0]
 
    basicColorAttachment: GPURenderPassColorAttachment = {
       loadOp: 'clear',
@@ -118,9 +116,10 @@ export class WebGPURenderer {
       loadValue: this.clearValue,
    }
 
-   public async init(canvas: HTMLCanvasElement) {
+   public async init(canvas: HTMLCanvasElement, stats?: Stats) {
       this.canvas_width_half = canvas.width / 2
       this.canvas_height_half = canvas.height / 2
+      this.stats = stats
 
       this.ctx = canvas.getContext('webgpu')
       const { device, adapter } = await aquireGPU({ powerPreference: 'high-performance' })
@@ -188,12 +187,14 @@ export class WebGPURenderer {
                   // float32 is 4 bytes
                   // float32x4 is 4 numbers for 4 bytes = 4 * 4
                   // we have 2 atributes, so arrayStride will be sum of all offsets: 4 * 4 + 4 * 4 = 2 * 4 * 4
-                  arrayStride: 2 * 4 * VBO_ARRAY.BYTES_PER_ELEMENT,
+                  arrayStride: 2 * VBO_ARRAY.BYTES_PER_ELEMENT + 4 * VBO_ARRAY.BYTES_PER_ELEMENT,
                   attributes: [
-                     { format: 'float32x4', offset: 0, shaderLocation: 0 },
+                     // pos X Y
+                     { format: 'float32x2', offset: 0, shaderLocation: 0 },
+                     // color rgba
                      {
                         format: 'float32x4',
-                        offset: 4 * VBO_ARRAY.BYTES_PER_ELEMENT,
+                        offset: 2 * VBO_ARRAY.BYTES_PER_ELEMENT,
                         shaderLocation: 1,
                      },
                   ],
@@ -220,18 +221,27 @@ export class WebGPURenderer {
    }
 
    public createDrawing(start: [number, number]) {
+      this.alloc_item()
       const lastDrawing = this.drawings.at(-1)
 
-      const vOffset = lastDrawing ? lastDrawing.vOffset + lastDrawing.vLength : 0
-      const vLength = this.VBO_CHUNK_LENGTH
+      const vLength = VBO_CHUNK_LENGTH
+      const iLength = IBO_CHUNK_LENGTH
 
-      const iOffset = lastDrawing ? lastDrawing.iOffset + lastDrawing.iLength : 0
-      const iLength = this.IBO_CHUNK_LENGTH
+      let vOffset = 0
+      let iOffset = 0
 
-      this.alloc_item()
+      let indexToStartFrom = 0
 
-      const drawing = new Drawing(this, { vOffset, vLength, iOffset, iLength })
+      if (lastDrawing) {
+         vOffset = lastDrawing.vOffset + lastDrawing.vLength
+         iOffset = lastDrawing.iOffset + lastDrawing.iLength
+         indexToStartFrom = (this.drawings.length * VBO_CHUNK_LENGTH) / ELEMENTS_PER_VERTEX
+      }
+
+      const drawing = new Drawing(this, { vOffset, vLength, iOffset, iLength, indexToStartFrom })
+
       drawing.points.push(...start)
+
       this.drawings.push(drawing)
       return drawing
    }
@@ -240,22 +250,60 @@ export class WebGPURenderer {
       console.log('[WebGPURenderer]', ...msg)
    }
 
-private alloc_item(times = 1) {
-   console.time('alloc')
-   const newVBO = new VBO_ARRAY(this.mem.VBO.length + this.VBO_CHUNK_LENGTH * times)
-   newVBO.set(this.mem.VBO)
-   this.mem.VBO = newVBO
-   this.mem.vboBuffer = createBufferFromArray(this.device, this.mem.VBO, this.VBO_USAGE)
+   private alloc_item(times = 1) {
+      console.time('Alloc time')
+      const newVBO = new VBO_ARRAY(this.mem.VBO.length + VBO_CHUNK_LENGTH * times)
+      newVBO.set(this.mem.VBO)
+      this.mem.VBO = newVBO
+      this.mem.vboBuffer = createBufferFromArray(this.device, this.mem.VBO, this.VBO_USAGE)
 
-   const newIBO = new IBO_ARRAY(this.mem.IBO.length + this.IBO_CHUNK_LENGTH * times)
-   newIBO.set(this.mem.IBO)
-   this.mem.IBO = newIBO
-   this.mem.iboBuffer = createBufferFromArray(this.device, this.mem.IBO, this.IBO_USAGE)
-   console.timeEnd('alloc')
-}
+      const newIBO = new IBO_ARRAY(this.mem.IBO.length + IBO_CHUNK_LENGTH * times)
+      newIBO.set(this.mem.IBO)
+      this.mem.IBO = newIBO
 
-   public render(memGroup: RenderMemoryGroup | null) {
-      const start = performance.now()
+      this.mem.iboBuffer = createBufferFromArray(this.device, this.mem.IBO, this.IBO_USAGE)
+      console.timeEnd('Alloc time')
+
+      // this.stats?.vbo.update(this.mem.VBO.byteLength / 1024, 256 * 1024)
+      // this.stats?.ibo.update(this.mem.IBO.byteLength / 1024, 256 * 1024)
+      // console.log('VBO:', this.mem.VBO.byteLength, 'bytes', 'IBO:', this.mem.IBO.byteLength, 'bytes')
+   }
+
+   // public writeBuffers() {
+   //    // const vbo = this.drawings.flatMap((d) => d.vbo)
+   //    // const ibo =  this.drawings.flatMap((d) => d.ibo)
+
+   //    // prettier-ignore
+   //    const cube1vbo = [
+   //       0, 0,   1, 1, 1, 1,
+   //       0, 10,  1, 1, 1, 1,
+   //       10, 10, 1, 1, 1, 1,
+   //       10, 0,  1, 1, 1, 1,
+   //    ]
+   //    // prettier-ignore
+   //    const cube2vbo = [
+   //       20, 0,  1, 0.5, 1, 1,
+   //       20, 10, 1, 0.5, 0.5, 1,
+   //       30, 10, 1, 0.5, 1, 1,
+   //       30, 0,  1, 1, 0.5, 1,
+   //    ]
+
+   //    const cubeibo = [0, 1, 3, 1, 2, 3]
+   //    const pad = new Array(12).fill(0)
+
+   //    const lastIndex = Math.max(...cubeibo)
+   //    const vbo: number[] = [...cube1vbo, ...pad, ...cube2vbo]
+   //    const ibo: number[] = [...cubeibo, ...cubeibo.map((i) => i + lastIndex + 1 + pad.length / 6)]
+
+   //    this.mem.VBO = new VBO_ARRAY(vbo)
+   //    this.mem.IBO = new IBO_ARRAY(ibo)
+   //    this.mem.vboBuffer = createBufferFromArray(this.device, this.mem.VBO, this.VBO_USAGE)
+   //    this.mem.iboBuffer = createBufferFromArray(this.device, this.mem.IBO, this.IBO_USAGE)
+   // }
+
+   public render(memGroup: RenderMemoryGroup | null = this.mem) {
+      // const start = performance.now()
+      // this.stats?.begin()
       const commandEncoder = this.device.createCommandEncoder()
 
       this.basicColorAttachment.view = this.ctx.getCurrentTexture().createView()
@@ -265,15 +313,17 @@ private alloc_item(times = 1) {
 
       pass.setPipeline(this.pipeline)
       pass.setBindGroup(0, this.uniform_bind_group)
-      if (memGroup !== null) {
-         pass.setVertexBuffer(0, memGroup.vboBuffer)
+      if (memGroup) {
          pass.setIndexBuffer(memGroup.iboBuffer, INDEX_FORMAT)
-         pass.drawIndexed(memGroup.IBO.length, 1)
+         pass.setVertexBuffer(0, memGroup.vboBuffer)
+         pass.drawIndexed(memGroup.IBO.length)
       }
       'end' in pass ? pass.end() : pass.endPass()
       this.device.queue.submit([commandEncoder.finish()])
+      // this.stats?.end()
+
       // @ts-ignore DEV
-      window.staticFrameTime = performance.now() - start
+      // window.staticFrameTime = performance.now() - start
    }
 
    public canvas_coords_to_webgpu(p: Point) {

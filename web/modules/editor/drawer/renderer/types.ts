@@ -33,7 +33,7 @@ export type LineStyle = {
 }
 
 export type Mesh = {
-   vertices: number[]
+   verts: number[]
    indices: number[]
 }
 

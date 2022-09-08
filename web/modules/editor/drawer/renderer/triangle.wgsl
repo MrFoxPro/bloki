@@ -1,5 +1,5 @@
 struct VertexInput {
-   @location(0) position: vec4<f32>,
+   @location(0) position: vec2<f32>,
    @location(1) color: vec4<f32>,
 }
 
@@ -17,7 +17,8 @@ struct Uniforms {
 fn vertex(vert: VertexInput) -> VSOutput {
    var out: VSOutput;
    out.color = vert.color;
-   out.position = vert.position / uniforms.viewPort;
+   // TODO: move w and z to uniform
+   out.position = vec4(vert.position.x, vert.position.y, 0.0, 1.0) / uniforms.viewPort;
    return out;
 }
 

@@ -4,6 +4,7 @@ import { LineStyle, Mesh, TypedArray } from './types'
 export function getTypedArrayAlignedSize(arr: TypedArray) {
    return (arr.byteLength + 3) & ~3
 }
+
 export function createBufferFromArray(device: GPUDevice, arr: TypedArray, usage: number, size?: number) {
    if (!size) size = getTypedArrayAlignedSize(arr)
    const buffer = device.createBuffer({
@@ -17,6 +18,7 @@ export function createBufferFromArray(device: GPUDevice, arr: TypedArray, usage:
    buffer.unmap()
    return buffer
 }
+
 export async function aquireGPU(adapterOptions?: GPURequestAdapterOptions, descriptor?: GPUDeviceDescriptor) {
    const { gpu } = navigator
    if (!gpu) throw new Error('WebGPU is not supported on this browser.')
@@ -41,11 +43,11 @@ export async function compileShader(device: GPUDevice, code: string) {
 }
 
 export const defaultLineStyle: LineStyle = {
-   width: 2,
+   width: 3,
    miterLimit: 0.01,
    alignment: 0.01,
-   cap: LINE_CAP.ROUND,
-   join: LINE_JOIN.ROUND,
+   cap: LINE_CAP.SQUARE,
+   join: LINE_JOIN.BEVEL,
    color: [0.5, 1, 0.5, 1],
 }
 
@@ -67,12 +69,8 @@ export function computeLineMesh(points: number[], lineStyle = defaultLineStyle) 
       },
       geometry
    )
-   const vbo: number[] = []
-   for (let i = 1; i < geometry.verts.length; i += 2) {
-      vbo.push(geometry.verts[i - 1], geometry.verts[i], 0, 1, ...lineStyle.color)
-   }
    const mesh: Mesh = {
-      vertices: vbo,
+      verts: geometry.verts,
       indices: geometry.indices,
    }
    return mesh
