@@ -92,7 +92,6 @@ export class GPUBufferManager {
          chunk.offset = prev.offset + prev.length
          prev = chunk
       }
-      console.log('Resized chunk to length', length, Array.from(this.chunks.values()))
    }
    removeChunk(chunk: GPUBufferChunk) {
       this.chunks.delete(chunk)

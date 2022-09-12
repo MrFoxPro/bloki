@@ -35,15 +35,11 @@ export class Line extends Mesh {
    }
    private addPoint(p: Point2DTupleView) {
       this.points.push(...p)
-      if (this.points.length < 4) return
+      if (this.points.length < 8) return
       this.calcMesh()
    }
    private calcMesh() {
       const mesh = computeLineMesh(this.points, this.style)
-      if(mesh.verts.includes(NaN)) {
-         console.warn('There are nans')
-         return
-      }
       const verts = []
       for (let i = 1; i < mesh.verts.length; i += 2) {
          verts.push(mesh.verts[i - 1], mesh.verts[i], ...this._color)

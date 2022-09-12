@@ -1,15 +1,16 @@
 import { Point2DTupleView } from '../../types'
 import { DynamicMeshGroup, MeshGroup } from './chunk_system/mesh'
-import { ELEMENT_PER_VERTEX, ELEMENT_PER_VERTEX_POS, UBO_ARRAY, VBO_ARRAY } from './constants';
+import { ELEMENT_PER_VERTEX, ELEMENT_PER_VERTEX_POS, UBO_ARRAY, VBO_ARRAY } from './constants'
 import TriangleShader from './triangle.wgsl?raw'
-import { aquireGPU, compileShader, createBufferFromArray } from './utils'
+import { TypedArray } from './types'
+import { aquireGPU, createBufferFromArray } from './utils'
 
 export class WebGPURenderer {
-   private canvasHalfWidth: number
-   private canvasHalfHeight: number
+   canvasHalfWidth: number
+   canvasHalfHeight: number
    private ctx: GPUCanvasContext
    private device: GPUDevice
-   viewportUniformBuffer: GPUBuffer
+   private viewportUniformBuffer: GPUBuffer
    private uniformBindGroup: GPUBindGroup
    private pipeline: GPURenderPipeline
    readonly clearValue: GPUColor = [0, 0, 0, 0]
@@ -36,7 +37,7 @@ export class WebGPURenderer {
          alphaMode: 'premultiplied',
       })
 
-      const shaderModule = await compileShader(this.device, TriangleShader)
+      const shaderModule = device.createShaderModule({ code: TriangleShader })
 
       this.sMem = new MeshGroup(this.device)
       this.dMem = new DynamicMeshGroup(this.device)
@@ -68,7 +69,7 @@ export class WebGPURenderer {
             },
          ],
       })
-      this.pipeline = await this.device.createRenderPipelineAsync({
+      this.pipeline = this.device.createRenderPipeline({
          layout: this.device.createPipelineLayout({
             bindGroupLayouts: [uniformBGL],
          }),
@@ -107,6 +108,9 @@ export class WebGPURenderer {
       // clear screen
       this.render()
    }
+   writeUBO(data: TypedArray) {
+      this.device.queue.writeBuffer(this.viewportUniformBuffer, 0, data)
+   }
    render() {
       const commandEncoder = this.device.createCommandEncoder()
       this.basicColorAttachment.view = this.ctx.getCurrentTexture().createView()
@@ -126,16 +130,16 @@ export class WebGPURenderer {
       return p
    }
    dispose() {
-      this.dMem.dispose()
-      this.dMem = null
+      // this.dMem.dispose()
+      // this.dMem = null
 
-      this.sMem.dispose()
-      this.sMem = null
+      // this.sMem.dispose()
+      // this.sMem = null
 
-      this.viewportUniformBuffer?.destroy()
-      this.viewportUniformBuffer = null
-      this.device?.destroy()
-      this.device = null
-      console.log('Disposed!')
+      // this.viewportUniformBuffer?.destroy()
+      // this.viewportUniformBuffer = null
+      // this.device?.destroy()
+      // this.device = null
+      // console.log('Disposed!')
    }
 }

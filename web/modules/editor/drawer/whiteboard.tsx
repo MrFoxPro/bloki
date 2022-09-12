@@ -4,37 +4,46 @@ import { useEditorContext } from '../toolbox/editor.store'
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { WebGPURenderer } from './renderer'
-import { Point2D, Point2DTupleView } from '../types'
+import { Point2DTupleView } from '../types'
 import { ToolType } from '../misc'
 import { Line } from './renderer/line/line'
+import { UBO_ARRAY } from './renderer/constants'
 
 export function Whiteboard() {
    let canvasRef: HTMLCanvasElement
 
-   let whiteboard: WebGPURenderer
+   let renderer: WebGPURenderer
 
    const { editor, toAbs } = useEditorContext()
 
    const [store, setStore] = createStore({
       paintings: [] as Painting[],
+      zoom: 0,
    })
    let stop = false
 
    createEffect(async () => {
       if (!canvasRef) return
-
       document.addEventListener('keydown', (e) => {
-         if (e.key === '+') {
-            // zoom
-            // whiteboard.re
+         let go = false
+         if (e.key === '=') {
+            setStore('zoom', (zoom) => zoom + 1)
+            go = true
          } else if (e.key === '-') {
-            // zoom
+            setStore('zoom', (zoom) => zoom - 1)
+            go = true
+         }
+         if (go) {
+            renderer.writeUBO(
+               new UBO_ARRAY([renderer.canvasHalfWidth, renderer.canvasHalfHeight, 10, 1 + store.zoom / 40])
+            )
+            renderer.render()
          }
       })
 
-      whiteboard = new WebGPURenderer()
+      renderer = new WebGPURenderer()
 
-      await whiteboard.init(canvasRef)
+      await renderer.init(canvasRef)
 
       // const m = new Mesh()
       // prettier-ignore
@@ -47,9 +56,14 @@ export function Whiteboard() {
             -20+ dx, -20,
             -20 +dx, 20
          ])
-         whiteboard.sMem.addMesh(staticLine)
+         renderer.sMem.addMesh(staticLine)
       }
-
+      function r() {
+         renderer.render()
+         requestAnimationFrame(r)
+      }
+      r()
+      // renderer.render()
       // whiteboard.render()
       // const staticLine = new Line([
       //       -20, 20,
@@ -76,7 +90,7 @@ export function Whiteboard() {
 
    onCleanup(() => {
       stop = true
-      whiteboard.dispose()
+      renderer.dispose()
    })
 
    let lastPointMouseDown: [number, number] | null = null
@@ -92,13 +106,13 @@ export function Whiteboard() {
    function onPointerMove(e: PointerEvent) {
       if (!lastPointMouseDown) return
       const point: Point2DTupleView = [e.offsetX, e.offsetY]
-      whiteboard.canvasCoordsToWebgpu(lastPointMouseDown)
-      whiteboard.canvasCoordsToWebgpu(point)
+      renderer.canvasCoordsToWebgpu(lastPointMouseDown)
+      renderer.canvasCoordsToWebgpu(point)
       if (!currentLine) {
          currentLine = new Line([...lastPointMouseDown, ...point])
-         whiteboard.dMem.addMesh(currentLine)
+         renderer.dMem.addMesh(currentLine)
       } else currentLine.lineTo(point)
-      whiteboard.render()
+      // renderer.render()
    }
 
    function onPointerUp() {
@@ -113,6 +127,7 @@ export function Whiteboard() {
 
    return (
       <>
+         <h2>Zoom: {store.zoom}</h2>
          <canvas
             ref={canvasRef}
             class="drawer"
