@@ -1,27 +1,7 @@
-import { Transform } from '../../types'
-import { LINE_CAP, LINE_JOIN, Point } from '../line'
+import { LINE_CAP, LINE_JOIN } from './line/algo'
 
-export type TypedArray =
-   | Int8Array
-   | Uint8Array
-   | Uint8ClampedArray
-   | Int16Array
-   | Uint16Array
-   | Int32Array
-   | Uint32Array
-   | Float32Array
-   | Float64Array
-
-export type TypedArrayConstructor =
-   | Int8ArrayConstructor
-   | Uint8ArrayConstructor
-   | Uint8ClampedArrayConstructor
-   | Int16ArrayConstructor
-   | Uint16ArrayConstructor
-   | Int32ArrayConstructor
-   | Uint32ArrayConstructor
-   | Float32ArrayConstructor
-   | Float64ArrayConstructor
+export type TypedArray = Float32Array | Uint32Array
+export type TypedArrayConstructor = Float32ArrayConstructor | Uint32ArrayConstructor
 
 export type LineStyle = {
    width: number
@@ -29,15 +9,9 @@ export type LineStyle = {
    alignment: number
    cap: LINE_CAP
    join: LINE_JOIN
-   color: [r: number, g: number, b: number, a: number]
 }
 
-export type Mesh = {
-   verts: number[]
-   indices: number[]
-}
-
-export type Figure = {
-   bound: Transform
-   points: Point[]
+export interface IMesh {
+   verts: Array<number> | ReadonlyArray<number> | TypedArray
+   indices: Array<number> | ReadonlyArray<number> | TypedArray
 }

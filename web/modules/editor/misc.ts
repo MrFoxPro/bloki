@@ -1,4 +1,4 @@
-import type { AnyBlock, Transform, CodeBlock, Dimension, ImageBlock, Point, TextBlock } from './types'
+import type { AnyBlock, Transform, CodeBlock, Dimension, ImageBlock, Point2D, TextBlock } from './types'
 
 export const GRID_COLOR_CELL = '#005eff32'
 export const BLOCK_SETTINGS = {
@@ -17,6 +17,7 @@ export enum EditType {
 export enum ToolType {
    Cursor = 1,
    Pen,
+   BezierPen,
    Lastik,
    Circle,
    Triangle,
@@ -76,7 +77,7 @@ export const toBase64 = (file) =>
       reader.onload = () => resolve(reader.result as string)
       reader.onerror = (error) => reject(error)
    })
-export function distanceBetweenPoints(p1: Point, p2: Point) {
+export function distanceBetweenPoints(p1: Point2D, p2: Point2D) {
    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
 }
 export function isInsideRect(x: number, y: number, rect: Transform | DOMRect) {

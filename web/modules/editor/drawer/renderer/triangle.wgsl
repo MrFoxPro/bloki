@@ -11,14 +11,14 @@ struct VSOutput {
 struct Uniforms {
    viewPort: vec4<f32>
 }
+
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 
 @vertex
 fn vertex(vert: VertexInput) -> VSOutput {
    var out: VSOutput;
    out.color = vert.color;
-   // TODO: move w and z to uniform
-   out.position = vec4(vert.position.x, vert.position.y, 0.0, 1.0) / uniforms.viewPort;
+   out.position = vec4(vert.position.xy, 0.0, 1.0) / uniforms.viewPort;
    return out;
 }
 

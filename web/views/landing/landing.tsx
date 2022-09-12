@@ -28,7 +28,7 @@ import SunIcon from './assets/sun.svg'
 import MoonIcon from './assets/moon.svg'
 import BricksIcon from './assets/bricks.svg'
 import { Repeat } from '@solid-primitives/range'
-import { UrlPath } from '../router'
+import { AppPath } from '../router'
 
 declare module 'solid-js' {
    namespace JSX {
@@ -145,10 +145,10 @@ export function LandingView() {
                   class="change-theme"
                   onClick={[setTheme, (t) => (t === Theme.Dark ? Theme.Light : Theme.Dark)]}
                />
-               <a class="login" onClick={[navigate, UrlPath.Welcome]}>
+               <a class="login" onClick={[navigate, AppPath.Welcome]}>
                   {t().login}
                </a>
-               <button class="try primary" onClick={[navigate, UrlPath.Playground]}>
+               <button class="try primary" onClick={[navigate, AppPath.Playground]}>
                   {t().try}
                </button>
             </div>

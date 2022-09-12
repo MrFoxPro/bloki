@@ -21,6 +21,7 @@
       //    0px 3.59106px 6.84961px rgba(0, 0, 0, 0.0121168), 0px 1.49432px 2.85027px rgba(0, 0, 0, 0.00843437);
       border-radius: 10px;
       // content: 'hello world';
+      background: $color-bg-main;
    }
    .tools {
       grid-area: tools;
@@ -28,8 +29,8 @@
       display: flex;
       gap: $items-gap;
       padding-inline: math.div($items-gap, 2);
-      background: $color-bg-main;
-      > svg {
+       svg {
+         height: 100%;
          width: 24px;
          cursor: pointer;
          stroke: $color-text-item;
@@ -41,7 +42,6 @@
             order: 2;
          }
          &:nth-child(1) {
-            // stroke: red;
             content: url(./assets/cursor.svg);
          }
       }

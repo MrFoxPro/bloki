@@ -29,6 +29,7 @@ const initialPenPresets: ReadonlyArray<PenDrawConfig> = [
 export const toolsIconMap = [
    [ToolType.Cursor, CursorIcon],
    [ToolType.Pen, PenIcon],
+   [ToolType.BezierPen, PenIcon],
    [ToolType.Lastik, LastikIcon],
    [ToolType.Rect, RectIcon],
    [ToolType.Arrow, ArrowIcon],
@@ -53,7 +54,13 @@ export function Toolbox() {
    const { editor, setEditorStore } = useEditorContext()
    const [showInstrSettings, setShowInstrSettings] = createSignal(false)
    const [presets, setPresets] = createSignal(initialPenPresets)
-   const [colorPalette, setColorPalette] = createSignal(['#0057FF', '#F8E327', '#F14725', '#000000', '#10A689'])
+   const [colorPalette, setColorPalette] = createSignal([
+      '#0057FF',
+      '#F8E327',
+      '#F14725',
+      '#000000',
+      '#10A689',
+   ])
 
    function onClick(tool: ToolType) {
       if (showInstrSettings()) {
@@ -97,6 +104,8 @@ export function Toolbox() {
                         active: editor.tool === type,
                      }}
                      onClick={[onClick, type]}
+                     aria-label="This"
+                     aria-labelledby="This"
                   />
                )}
             </For>

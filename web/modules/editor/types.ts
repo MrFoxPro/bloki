@@ -2,11 +2,13 @@ import { CodeBlockTheme } from './blocks/code/types'
 import type { TextBlockFontFamily } from './blocks/text/types'
 import type { BlockType } from './misc'
 
-export type Point = [x: number, y: number]
+export type Point2D = { x: number; y: number }
+export type Point2DTupleView = [x: number, y: number]
+export type Point2DArray = number[]
 
 export type Dimension = { width: number; height: number }
 
-export type Transform = Point & Dimension
+export type Transform = Point2D & Dimension
 
 export type PlacementStatus = {
    correct: boolean

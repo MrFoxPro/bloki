@@ -1,12 +1,14 @@
-import { buildNonNativeLine, LINE_CAP, LINE_JOIN, SHAPES } from '../line'
-import { LineStyle, Mesh, TypedArray } from './types'
+import { Point2DArray } from '../../types'
+import { buildNonNativeLine, LINE_CAP, LINE_JOIN, SHAPES } from './line/algo'
+import { IMesh, LineStyle, TypedArray } from './types'
 
 export function getTypedArrayAlignedSize(arr: TypedArray) {
    return (arr.byteLength + 3) & ~3
 }
 
 export function createBufferFromArray(device: GPUDevice, arr: TypedArray, usage: number, size?: number) {
-   if (!size) size = getTypedArrayAlignedSize(arr)
+   // if (!size) size = getTypedArrayAlignedSize(arr)
+   if (!size) size = arr.byteLength
    const buffer = device.createBuffer({
       size,
       usage,
@@ -43,15 +45,26 @@ export async function compileShader(device: GPUDevice, code: string) {
 }
 
 export const defaultLineStyle: LineStyle = {
-   width: 3,
+   width: 2,
    miterLimit: 0.01,
    alignment: 0.01,
-   cap: LINE_CAP.SQUARE,
-   join: LINE_JOIN.BEVEL,
-   color: [0.5, 1, 0.5, 1],
+   cap: LINE_CAP.ROUND,
+   join: LINE_JOIN.ROUND,
 }
 
-export function computeLineMesh(points: number[], lineStyle = defaultLineStyle) {
+// export function prepareMesh(raw: RawMesh, style: LineStyle): IMesh {
+//    const vbo = raw.verts
+//    const ibo = raw.indices
+//    // for (let i = 1; i < raw.verts.length; i += 2) {
+//    //    vbo.push(raw.verts[i - 1], raw.verts[i], ...style.color)
+//    // }
+//    return {
+//       vbo: new VBO_ARRAY(vbo),
+//       ibo: new IBO_ARRAY(ibo),
+//    }
+// }
+
+export function computeLineMesh(points: Point2DArray, lineStyle = defaultLineStyle) {
    const geometry = {
       closePointEps: 1e-4,
       verts: [] as number[],
@@ -69,9 +82,15 @@ export function computeLineMesh(points: number[], lineStyle = defaultLineStyle) 
       },
       geometry
    )
-   const mesh: Mesh = {
+   // const mesh = prepareMesh(
+   //    {
+   //       verts: geometry.verts,
+   //       indices: geometry.indices,
+   //    },
+   //    lineStyle
+   // )
+   return {
       verts: geometry.verts,
       indices: geometry.indices,
    }
-   return mesh
 }

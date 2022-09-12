@@ -19,14 +19,15 @@ import { BlockContextMenu } from './context-menu/ctx_menu'
 import { Toolbox, toolsIconMap } from './toolbox/toolbox'
 import { EditorContextProvider, useEditorContext } from './toolbox/editor.store'
 import { useThemeContext } from '../theme.store'
-import { Drawer } from './drawer/drawer'
+import { Whiteboard } from './drawer/whiteboard'
 
 function BlokiEditor() {
    let wrapperRef: HTMLDivElement
    let containerRef: HTMLDivElement
 
    const { createCSSColorMemo } = useThemeContext()
-   const { editor, createBlock, selectBlock, boxSize, getRelPos, findNextSpaceBelow, check, toAbs } = useEditorContext()
+   const { editor, createBlock, selectBlock, boxSize, getRelPos, findNextSpaceBelow, check, toAbs } =
+      useEditorContext()
 
    const containerBg = createMemo(() => {
       const {
@@ -158,11 +159,12 @@ function BlokiEditor() {
                class="container"
                ref={containerRef}
                style={{
-                  'background-image': containerBg(),
+                  // 'background-image': containerBg(),
                   width: toAbs(editor.doc.gridOptions.width).px,
                   height: toAbs(editor.doc.gridOptions.height).px,
                   'user-select': editor.tool !== ToolType.Cursor ? 'none' : 'initial',
-                  // cursor: cursor(),
+                  cursor: cursor(),
+                  // background: 'url(https://wikipet.ru/uploads/posts/2017-07/1501225372_20170708_010.jpg)',
                }}
             >
                <Show when={/*@once*/ !isFirefox}>
@@ -192,7 +194,7 @@ function BlokiEditor() {
                   onContextMenu={(e) => e.preventDefault()}
                /> */}
                <BlockContextMenu />
-               <Drawer />
+               <Whiteboard />
                {/* <Cursors /> */}
             </div>
          </div>

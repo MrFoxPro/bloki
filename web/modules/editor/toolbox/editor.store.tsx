@@ -2,7 +2,7 @@ import { BlokiDocument } from '@/lib/samples'
 import { batch, createContext, createMemo, createUniqueId, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { BLOCK_SETTINGS, EditType, isTextBlock, ToolType } from '../misc'
-import { AnyBlock, Transform, Point, PlacementStatus, Dimension } from '../types'
+import { AnyBlock, Transform, Point2D, PlacementStatus, Dimension } from '../types'
 
 type ChangeHandler = (block: AnyBlock, absTransform: Transform, type: EditType) => void
 
@@ -24,7 +24,7 @@ function makeEditorProvider(props) {
       doc: props.document as BlokiDocument,
       layout: [] as AnyBlock[],
       rommates: [] as any[],
-      cursor: { x: 0, y: 0 } as Point,
+      cursor: { x: 0, y: 0 } as Point2D,
       connected: false,
       placement: null as PlacementStatus,
    })
@@ -50,12 +50,12 @@ function makeEditorProvider(props) {
    }
 
    // Todo: sort vertically in createComputed and find space between blocks too.
-   function findNextSpaceBelow(requiredSpace: Dimension, startFrom: Point = { x: 0, y: 0 }): Point {
+   function findNextSpaceBelow(requiredSpace: Dimension, startFrom: Point2D = { x: 0, y: 0 }): Point2D {
       const sorted = store.layout
          .filter((b) => isInMainGrid(b.x) || isInMainGrid(b.x + b.width))
          .sort((a, b) => -b.y - b.height + a.y + a.height)
 
-      let pos: Point
+      let pos: Point2D
       for (let i = 1; i < sorted.length; i++) {
          const prev = sorted[i - 1]
          const curr = sorted[i]

@@ -66,6 +66,10 @@ hr {
    background: $color-border;
 }
 
+.themed-bg {
+   background-color: $color-bg-main;
+}
+
 .items {
    width: 100%;
    display: flex;
