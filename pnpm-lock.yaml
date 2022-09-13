@@ -68,25 +68,23 @@ importers:
       vite-plugin-solid: 2.3.0
       vite-plugin-solid-svg: ^0.4.1
       vite-plugin-ts-nameof: ^1.2.0
-      yjs: ^13.5.41
     dependencies:
       '@solid-primitives/context': 0.1.1
-      '@solid-primitives/date': 2.0.2_solid-js@1.5.1
-      '@solid-primitives/event-bus': 0.1.2_solid-js@1.5.1
-      '@solid-primitives/graphql': 1.3.0_solid-js@1.5.1
+      '@solid-primitives/date': 2.0.2_solid-js@1.5.3
+      '@solid-primitives/event-bus': 0.1.2_solid-js@1.5.3
+      '@solid-primitives/graphql': 1.3.0_solid-js@1.5.3
       '@solid-primitives/keyed': 1.0.2
       '@solid-primitives/platform': 0.0.101
-      '@solid-primitives/raf': 2.1.2_solid-js@1.5.1
-      '@solid-primitives/range': 0.1.2_solid-js@1.5.1
+      '@solid-primitives/raf': 2.1.2_solid-js@1.5.3
+      '@solid-primitives/range': 0.1.2_solid-js@1.5.3
       '@solid-primitives/scheduled': 1.0.1
       '@solid-primitives/tween': 1.2.1
       '@solidjs/meta': 0.28.0
-      '@solidjs/router': 0.4.2
+      '@solidjs/router': 0.4.3
       js-cookie: 3.0.1
-      pixi.js: 6.5.2
       solid-dismiss: 1.2.1
-      solid-js: 1.5.1
-      solid-toast: 0.3.4_solid-js@1.5.1
+      solid-js: 1.5.3
+      solid-toast: 0.3.4_solid-js@1.5.3
       solid-transition-group: 0.0.11
       ts-nameof: 5.0.0_typescript@4.8.2
       twgl.js: 4.24.0
@@ -525,10 +523,10 @@ packages:
     peerDependencies:
       solid-js: ^1.3.1
     dependencies:
-      '@solid-primitives/memo': 1.0.2_solid-js@1.5.1
+      '@solid-primitives/memo': 1.0.2_solid-js@1.5.3
       '@solid-primitives/timer': 1.3.2
       '@solid-primitives/utils': 3.0.2
-      solid-js: 1.5.1
+      solid-js: 1.5.3
     dev: false
 
   /@solid-primitives/event-bus/0.1.2_solid-js@1.5.3:
@@ -538,7 +536,7 @@ packages:
     dependencies:
       '@solid-primitives/immutable': 0.1.2
       '@solid-primitives/utils': 3.0.2
-      solid-js: 1.5.1
+      solid-js: 1.5.3
     dev: false
 
   /@solid-primitives/graphql/1.3.0_solid-js@1.5.3:
@@ -574,7 +572,7 @@ packages:
     dependencies:
       '@solid-primitives/scheduled': 1.0.1
       '@solid-primitives/utils': 3.0.2
-      solid-js: 1.5.1
+      solid-js: 1.5.3
     dev: false
 
   /@solid-primitives/platform/0.0.101:
@@ -589,7 +587,7 @@ packages:
       solid-js: ^1.3.0
     dependencies:
       '@solid-primitives/utils': 3.0.2
-      solid-js: 1.5.1
+      solid-js: 1.5.3
     dev: false
 
   /@solid-primitives/range/0.1.2_solid-js@1.5.3:
@@ -598,7 +596,7 @@ packages:
       solid-js: ^1.3.0
     dependencies:
       '@solid-primitives/utils': 3.0.2
-      solid-js: 1.5.1
+      solid-js: 1.5.3
     dev: false
 
   /@solid-primitives/scheduled/1.0.1:
@@ -631,8 +629,8 @@ packages:
       solid-js: 1.5.3
     dev: false
 
-  /@solidjs/router/0.4.2:
-    resolution: {integrity: sha512-RswymVhqnGVHMCo/01X9wE+u98pzYZQ/b23SgjO/PK+8oTgdY1f83OrsWR1A01LieTySkCSw7nunWTi+VOQyWA==}
+  /@solidjs/router/0.4.3:
+    resolution: {integrity: sha512-mYpd4HxpH/3UZjHGTr2dhvPGXu034Ktxd05CJGA6nRjRGYCgUfhCQHRdEivyqJyb4LhHyDht4ny5xmwEOkUTaQ==}
     dependencies:
       solid-js: 1.5.3
     dev: false
@@ -644,20 +642,17 @@ packages:
 
   /@ts-nameof/common/4.2.1:
     resolution: {integrity: sha512-bWwYOFTTd6Nq7RUqJalIii1su3OyR+N1W0smp5PzHGUVycHuJ7MRiyCQrWgMt1lbbp3GY6cvCttm7Zo5E7A1xQ==}
-    dev: true
 
   /@ts-nameof/transforms-common/4.2.1:
     resolution: {integrity: sha512-mg6nkkHqNlKU1B15pEtiikSKadJSOxFFWpi7tEVB7Yhjx0PhoTcSe7oxK0fXHZGeoTGF2SMZjmCsGnbtfcgk6w==}
     dependencies:
       '@ts-nameof/common': 4.2.1
-    dev: true
 
   /@ts-nameof/transforms-ts/4.2.1:
     resolution: {integrity: sha512-/zI2+DEQ1wvM0UQY5znG4efGbNSyBp+h4pzQZssGcst1748Np92RCWUnGfyV1qDlpIVma4S8Rx5HgkoDLPfMMg==}
     dependencies:
       '@ts-nameof/common': 4.2.1
       '@ts-nameof/transforms-common': 4.2.1
-    dev: true
 
   /@types/js-cookie/3.0.2:
     resolution: {integrity: sha512-6+0ekgfusHftJNYpihfkMu8BWdeHs9EOJuGcSofErjstGPfPGEu9yTu4t460lTzzAMl2cM5zngQJqPMHbbnvYA==}
@@ -728,8 +723,8 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /babel-plugin-jsx-dom-expressions/0.34.1_@babel+core@7.18.13:
-    resolution: {integrity: sha512-PBmcfLw3U1PqHDqaRPgHLK7z4Se41iX95GlBKWbaf5eKeRLFvPzQHP13m9auilREaNCNrVDMYVkpZ4ixOZ72Bg==}
+  /babel-plugin-jsx-dom-expressions/0.34.7_@babel+core@7.18.13:
+    resolution: {integrity: sha512-jTxBhu/MQscWdOcLfqKAY8lIiRsv1ivrMQShlePoa4G8S2cFNb93HTWN4FFdp3SpILaibygFXWU3H+aHpoGH/w==}
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
@@ -746,12 +741,11 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/core': 7.18.13
-      babel-plugin-jsx-dom-expressions: 0.34.1_@babel+core@7.18.13
+      babel-plugin-jsx-dom-expressions: 0.34.7_@babel+core@7.18.13
     dev: true
 
   /balanced-match/1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
-    dev: true
 
   /base64-js/1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
@@ -779,7 +773,6 @@ packages:
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
-    dev: true
 
   /braces/3.0.2:
     resolution: {integrity: sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==}
@@ -792,7 +785,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     dependencies:
       caniuse-lite: 1.0.30001384
-      electron-to-chromium: 1.4.233
+      electron-to-chromium: 1.4.239
       node-releases: 2.0.6
       update-browserslist-db: 1.0.5_browserslist@4.21.3
     dev: true
@@ -923,7 +916,6 @@ packages:
 
   /concat-map/0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
-    dev: true
 
   /convert-source-map/1.8.0:
     resolution: {integrity: sha512-+OQdjP49zViI/6i7nIJpA8rAl4sV/JdPfU9nZs3VqOwGIgizICvuN2ru6fMd+4llL0tar18UYJXfZ/TWtmhUjA==}
@@ -1405,7 +1397,6 @@ packages:
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
-    dev: true
 
   /fsevents/2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
@@ -1448,7 +1439,6 @@ packages:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
-    dev: true
 
   /globals/11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -1497,11 +1487,9 @@ packages:
     dependencies:
       once: 1.4.0
       wrappy: 1.0.2
-    dev: true
 
   /inherits/2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
-    dev: true
 
   /ini/1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
@@ -1560,10 +1548,6 @@ packages:
       is-docker: 2.2.1
     dev: true
 
-  /isomorphic.js/0.2.5:
-    resolution: {integrity: sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==}
-    dev: false
-
   /js-cookie/3.0.1:
     resolution: {integrity: sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==}
     engines: {node: '>=12'}
@@ -1590,13 +1574,6 @@ packages:
     optionalDependencies:
       graceful-fs: 4.2.10
     dev: true
-
-  /lib0/0.2.52:
-    resolution: {integrity: sha512-CjxlM7UgICfN6b2OPALBXchIBiNk6jE+1g7JP8ha+dh1xKRDSYpH0WQl1+rMqCju49xUnwPG34v4CR5/rPOZhg==}
-    engines: {node: '>=14'}
-    dependencies:
-      isomorphic.js: 0.2.5
-    dev: false
 
   /lilconfig/2.0.6:
     resolution: {integrity: sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==}
@@ -1650,7 +1627,6 @@ packages:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
     dependencies:
       brace-expansion: 1.1.11
-    dev: true
 
   /minimist/1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
@@ -1729,7 +1705,6 @@ packages:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
     dependencies:
       wrappy: 1.0.2
-    dev: true
 
   /open/8.4.0:
     resolution: {integrity: sha512-XgFPPM+B28FtCCgSb9I+s9szOC1vZRSwgWsRUA5ylIxRTgKozqjOCrVOqGsYABPYK5qnfqClxZTFBa8PKt2v6Q==}
@@ -1748,7 +1723,6 @@ packages:
   /path-is-absolute/1.0.1:
     resolution: {integrity: sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==}
     engines: {node: '>=0.10.0'}
-    dev: true
 
   /path-parse/1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
@@ -2336,10 +2310,6 @@ packages:
     resolution: {integrity: sha512-ji9qxRnOVfcuLDySj9qzhGSEFVobyt1kIOSkj1qZzYLzq7Tos/oUUWvotUPQLlrsidqsK6tBH89Bc9kL5zHA6w==}
     dev: true
 
-  /stats.js/0.17.0:
-    resolution: {integrity: sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==}
-    dev: false
-
   /string-width/4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
     engines: {node: '>=8'}
@@ -2470,7 +2440,6 @@ packages:
       '@ts-nameof/transforms-ts': 4.2.1
       glob: 7.2.3
       typescript: 4.8.2
-    dev: true
 
   /ts-toolbelt/9.6.0:
     resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
@@ -2481,6 +2450,10 @@ packages:
     dependencies:
       safe-buffer: 5.2.1
     dev: true
+
+  /twgl.js/4.24.0:
+    resolution: {integrity: sha512-JGVTxuV9dqaBmajXyvuZIlhCHrTbIaoNjQvtdoLHyK74OtbmNwZUj6rfdp+pz9htitI/tVxiVQ2nuw+KmD29vg==}
+    dev: false
 
   /type-expand/1.0.0:
     resolution: {integrity: sha512-1fO/mIOl7QRreOBn83x07v8TL6OqhYKr/CHwFOI70D9cIr9YJ2PM/57Uazi9GbKSQJHB9yNXzYaE14wqQ4kmeQ==}
@@ -2624,7 +2597,6 @@ packages:
 
   /wrappy/1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
-    dev: true
 
   /y18n/5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
