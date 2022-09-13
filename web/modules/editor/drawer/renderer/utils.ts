@@ -1,10 +1,11 @@
 import { Point2DArray } from '../../types'
+import { defaultLineStyle } from './constants';
 import { buildNonNativeLine, LINE_CAP, LINE_JOIN, SHAPES } from './line/algo'
 import { IMesh, LineStyle, TypedArray } from './types'
 
-export function getTypedArrayAlignedSize(arr: TypedArray) {
-   return (arr.byteLength + 3) & ~3
-}
+// export function getTypedArrayAlignedSize(arr: TypedArray) {
+//    return (arr.byteLength + 3) & ~3
+// }
 
 export function createBufferFromArray(device: GPUDevice, arr: TypedArray, usage: number, size?: number) {
    // if (!size) size = getTypedArrayAlignedSize(arr)
@@ -44,14 +45,6 @@ export async function compileShader(device: GPUDevice, code: string) {
    return shaderModule
 }
 
-export const defaultLineStyle: LineStyle = {
-   width: 2,
-   miterLimit: 0.01,
-   alignment: 0.01,
-   cap: LINE_CAP.ROUND,
-   join: LINE_JOIN.ROUND,
-}
-
 // export function prepareMesh(raw: RawMesh, style: LineStyle): IMesh {
 //    const vbo = raw.verts
 //    const ibo = raw.indices
@@ -64,7 +57,7 @@ export const defaultLineStyle: LineStyle = {
 //    }
 // }
 
-export function computeLineMesh(points: Point2DArray, lineStyle = defaultLineStyle) {
+export function computeLineMesh(points: Point2DArray, lineStyle: LineStyle) {
    const geometry = {
       closePointEps: 1e-4,
       verts: [] as number[],

@@ -1,13 +1,20 @@
 import { Point2DTupleView, Point2DArray } from '@/modules/editor/types'
 import { Mesh } from '../chunk_system/mesh'
 import { LineStyle } from '../types'
-import { defaultLineStyle, computeLineMesh } from '../utils'
+import { computeLineMesh } from '../utils'
+import { LINE_CAP, LINE_JOIN } from './algo'
 
 export class Line extends Mesh {
    anchor: Point2DTupleView = [0, 0]
    points: Point2DArray = []
-   style: LineStyle = structuredClone(defaultLineStyle)
-   _color = [1, 0.5, 0, 1]
+   style: LineStyle = {
+      width: 5,
+      miterLimit: 0.1,
+      alignment: 0.1,
+      cap: LINE_CAP.ROUND,
+      join: LINE_JOIN.ROUND,
+   }
+   _color = [1, 0, 0, 1]
    constructor()
    constructor(points?: Point2DArray)
    constructor(points: Point2DArray = []) {
@@ -35,7 +42,7 @@ export class Line extends Mesh {
    }
    private addPoint(p: Point2DTupleView) {
       this.points.push(...p)
-      if (this.points.length < 8) return
+      if (this.points.length < 6) return
       this.calcMesh()
    }
    private calcMesh() {

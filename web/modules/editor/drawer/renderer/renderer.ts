@@ -1,5 +1,5 @@
 import { Point2DTupleView } from '../../types'
-import { DynamicMeshGroup, MeshGroup } from './chunk_system/mesh'
+import { DynamicMeshGroup, Mesh, StaticMeshGroup } from './chunk_system/mesh'
 import { ELEMENT_PER_VERTEX, ELEMENT_PER_VERTEX_POS, UBO_ARRAY, VBO_ARRAY } from './constants'
 import TriangleShader from './triangle.wgsl?raw'
 import { TypedArray } from './types'
@@ -14,8 +14,8 @@ export class WebGPURenderer {
    private uniformBindGroup: GPUBindGroup
    private pipeline: GPURenderPipeline
    readonly clearValue: GPUColor = [0, 0, 0, 0]
-   sMem: MeshGroup
-   dMem: DynamicMeshGroup
+   private static: StaticMeshGroup
+   private dynamic: DynamicMeshGroup
    basicColorAttachment: GPURenderPassColorAttachment = {
       loadOp: 'clear',
       clearValue: this.clearValue,
@@ -39,8 +39,8 @@ export class WebGPURenderer {
 
       const shaderModule = device.createShaderModule({ code: TriangleShader })
 
-      this.sMem = new MeshGroup(this.device)
-      this.dMem = new DynamicMeshGroup(this.device)
+      this.static = new StaticMeshGroup(this.device)
+      this.dynamic = new DynamicMeshGroup(this.device)
 
       this.viewportUniformBuffer = createBufferFromArray(
          this.device,
@@ -111,6 +111,15 @@ export class WebGPURenderer {
    writeUBO(data: TypedArray) {
       this.device.queue.writeBuffer(this.viewportUniformBuffer, 0, data)
    }
+   addStatic(mesh: Mesh) {
+      this.dynamic.addMesh(mesh)
+   }
+   addDynamic(mesh: Mesh) {
+      this.dynamic.addMesh(mesh)
+   }
+   makeStatic(mesh: Mesh) {
+      this.static.addMesh(this.dynamic.removeMesh(mesh))
+   }
    render() {
       const commandEncoder = this.device.createCommandEncoder()
       this.basicColorAttachment.view = this.ctx.getCurrentTexture().createView()
@@ -119,27 +128,14 @@ export class WebGPURenderer {
       })
       pass.setPipeline(this.pipeline)
       pass.setBindGroup(0, this.uniformBindGroup)
-      this.sMem.setRenderCommands(pass)
-      this.dMem.setRenderCommands(pass)
+      this.static.recordRenderPass(pass)
+      this.dynamic.recordRenderPass(pass)
       pass.end()
       this.device.queue.submit([commandEncoder.finish()])
    }
-   canvasCoordsToWebgpu(p: Point2DTupleView) {
+   webCoordsToWebgpu(p: Point2DTupleView) {
       p[0] = p[0] - this.canvasHalfWidth
       p[1] = -p[1] + this.canvasHalfHeight
       return p
-   }
-   dispose() {
-      // this.dMem.dispose()
-      // this.dMem = null
-
-      // this.sMem.dispose()
-      // this.sMem = null
-
-      // this.viewportUniformBuffer?.destroy()
-      // this.viewportUniformBuffer = null
-      // this.device?.destroy()
-      // this.device = null
-      // console.log('Disposed!')
    }
 }
