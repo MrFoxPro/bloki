@@ -1,5 +1,5 @@
 console.clear()
-import './whiteboard.scss'
+import './canvas.scss'
 import { useEditorContext } from '../toolbox/editor.store'
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { createStore } from 'solid-js/store'

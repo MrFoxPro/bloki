@@ -16,7 +16,7 @@ const layersViews = {
 export function Playground() {
    return (
       <main class="main">
-         <Title>Bloki | Playground | Single Pipeline</Title>
+         <Title>Bloki | Playground</Title>
          <WindowsContextProvider graph={layersGraph} views={layersViews}>
             <Workspace />
          </WindowsContextProvider>
