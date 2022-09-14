@@ -1,4 +1,3 @@
-console.clear()
 import './canvas.scss'
 import { useEditorContext } from '../toolbox/editor.store'
 import { createEffect, createSignal, onCleanup } from 'solid-js'
