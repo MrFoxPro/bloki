@@ -5,17 +5,17 @@ import {
    INDEX_FORMAT,
    VBO_ARRAY,
    VBO_CHUNK_LENGTH,
-} from '../constants'
-import { TypedArray } from '../types'
+} from './constants'
+import { TypedArray } from './types'
 import { GPUBufferChunk, GPUBufferManager } from './gpu'
 
 /**
  * Smart entity
  */
-abstract class MeshGroup {
+export abstract class MeshGroup {
    vbo: GPUBufferManager
    ibo: GPUBufferManager
-   protected readonly objects = new Set<Mesh>()
+   readonly objects = new Set<Mesh>()
    constructor(device: GPUDevice) {
       this.vbo = new GPUBufferManager(device, new VBO_ARRAY(), GPUBufferUsage.VERTEX)
       this.ibo = new GPUBufferManager(device, new IBO_ARRAY(), GPUBufferUsage.INDEX)
@@ -49,6 +49,9 @@ abstract class MeshGroup {
          chunk.resize(chunk.length + chunk.allocLength, data)
       } else chunk.write(data)
    }
+   public get skipRender() {
+      return this.objects.size === 0
+   }
 }
 
 export class StaticMeshGroup extends MeshGroup {
@@ -63,6 +66,7 @@ export class StaticMeshGroup extends MeshGroup {
       this.writeStatic(chunk, data)
    }
    public override recordRenderPass(pass: GPURenderPassEncoder) {
+      if (this.skipRender) return
       pass.setVertexBuffer(0, this.vbo.buffer)
       pass.setIndexBuffer(this.ibo.buffer, INDEX_FORMAT)
       pass.drawIndexed(this.ibo.array.length, 1)
@@ -78,6 +82,7 @@ export class DynamicMeshGroup extends MeshGroup {
       this.writeDynamic(chunk, data)
    }
    public override recordRenderPass(pass: GPURenderPassEncoder) {
+      if (this.skipRender) return
       pass.setVertexBuffer(0, this.vbo.buffer)
       pass.setIndexBuffer(this.ibo.buffer, INDEX_FORMAT)
       for (const mesh of this.objects) {

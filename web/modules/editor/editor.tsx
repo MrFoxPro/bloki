@@ -41,7 +41,7 @@ function BlokiEditor() {
    const cursorStrokeColor = createCSSColorMemo('--color-text-main')
    const cursor = createMemo(() => {
       const [toolType, ToolIcon] = toolsIconMap.find(([t]) => editor.tool === t)
-      if (!toolType) return undefined
+      if (!toolType || toolType === ToolType.Cursor) return undefined
 
       const stroke = encodeURIComponent(cursorStrokeColor())
       const icon = ToolIcon({ stroke, width: 24, height: 24 }).outerHTML

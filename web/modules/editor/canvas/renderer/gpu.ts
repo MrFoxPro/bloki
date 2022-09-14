@@ -1,5 +1,5 @@
-import { TypedArray, TypedArrayConstructor } from '../types'
-import { createBufferFromArray } from '../utils'
+import { TypedArray, TypedArrayConstructor } from './types'
+import { createBufferFromArray } from './utils'
 
 /**
  * You become responsible, forever, for what you have tamed (Smart entity)

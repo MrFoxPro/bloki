@@ -44,7 +44,6 @@ input[type='text'] {
       background-color: $color-bg;
       height: $track-height;
       cursor: pointer;
-
    }
    &::-moz-range-progress {
       background-color: $color;
@@ -53,7 +52,7 @@ input[type='text'] {
 
    }
    &::-webkit-slider-runnable-track {
-      -webkit-appearance: none;
+      // -webkit-appearance: none;
       background-color: $color-bg;
       height: $track-height;
       border-radius: 2px;
@@ -61,7 +60,7 @@ input[type='text'] {
       cursor: pointer;
    }
    &::-webkit-slider-thumb {
-      -webkit-appearance: none;
+      // -webkit-appearance: none;
       margin-top: math.div($track-height, 2) - math.div($thumb-height, 2);
       cursor: pointer;
 

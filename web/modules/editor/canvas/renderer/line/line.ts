@@ -1,8 +1,32 @@
 import { Point2DTupleView, Point2DArray } from '@/modules/editor/types'
-import { Mesh } from '../chunk_system/mesh'
+import { Mesh } from '../mesh'
 import { LineStyle } from '../types'
-import { computeLineMesh } from '../utils'
+import { buildNonNativeLine, SHAPES } from './algo'
 import { LINE_CAP, LINE_JOIN } from './algo'
+
+export function computeLineMesh(points: Point2DArray, lineStyle: LineStyle) {
+   const geometry = {
+      closePointEps: 1e-4,
+      verts: [] as number[],
+      indices: [] as number[],
+      lineStyle,
+   }
+   buildNonNativeLine(
+      {
+         shape: {
+            closeStroke: false,
+            type: SHAPES.POLY,
+         },
+         points,
+         lineStyle,
+      },
+      geometry
+   )
+   return {
+      verts: geometry.verts,
+      indices: geometry.indices,
+   }
+}
 
 export class Line extends Mesh {
    anchor: Point2DTupleView = [0, 0]
@@ -16,10 +40,10 @@ export class Line extends Mesh {
    }
    _color = [1, 0, 0, 1]
    constructor()
-   constructor(points?: Point2DArray)
-   constructor(points: Point2DArray = []) {
+   constructor(points: Point2DArray = [], style?: LineStyle) {
       super()
       this.points = points
+      this.style ??= style
       if (this.points) {
          this.calcMesh()
       }

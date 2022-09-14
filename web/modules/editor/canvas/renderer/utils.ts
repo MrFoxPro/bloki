@@ -1,7 +1,5 @@
-import { Point2DArray } from '../../types'
-import { defaultLineStyle } from './constants';
-import { buildNonNativeLine, LINE_CAP, LINE_JOIN, SHAPES } from './line/algo'
-import { IMesh, LineStyle, TypedArray } from './types'
+import { Point2DTupleView } from '../../types'
+import { TypedArray } from './types'
 
 // export function getTypedArrayAlignedSize(arr: TypedArray) {
 //    return (arr.byteLength + 3) & ~3
@@ -22,13 +20,16 @@ export function createBufferFromArray(device: GPUDevice, arr: TypedArray, usage:
    return buffer
 }
 
-export async function aquireGPU(adapterOptions?: GPURequestAdapterOptions, descriptor?: GPUDeviceDescriptor) {
+export async function aquireGPUDevice(
+   adapterOptions?: GPURequestAdapterOptions,
+   descriptor?: GPUDeviceDescriptor
+) {
    const { gpu } = navigator
    if (!gpu) throw new Error('WebGPU is not supported on this browser.')
    const adapter = await gpu.requestAdapter(adapterOptions)
    if (!adapter) throw new Error('WebGPU supported but disabled')
    const device = await adapter.requestDevice(descriptor)
-   return { gpu, adapter, device }
+   return { device, adapter }
 }
 
 export async function compileShader(device: GPUDevice, code: string) {
@@ -45,45 +46,8 @@ export async function compileShader(device: GPUDevice, code: string) {
    return shaderModule
 }
 
-// export function prepareMesh(raw: RawMesh, style: LineStyle): IMesh {
-//    const vbo = raw.verts
-//    const ibo = raw.indices
-//    // for (let i = 1; i < raw.verts.length; i += 2) {
-//    //    vbo.push(raw.verts[i - 1], raw.verts[i], ...style.color)
-//    // }
-//    return {
-//       vbo: new VBO_ARRAY(vbo),
-//       ibo: new IBO_ARRAY(ibo),
-//    }
-// }
-
-export function computeLineMesh(points: Point2DArray, lineStyle: LineStyle) {
-   const geometry = {
-      closePointEps: 1e-4,
-      verts: [] as number[],
-      indices: [] as number[],
-      lineStyle,
-   }
-   buildNonNativeLine(
-      {
-         shape: {
-            closeStroke: false,
-            type: SHAPES.POLY,
-         },
-         points,
-         lineStyle,
-      },
-      geometry
-   )
-   // const mesh = prepareMesh(
-   //    {
-   //       verts: geometry.verts,
-   //       indices: geometry.indices,
-   //    },
-   //    lineStyle
-   // )
-   return {
-      verts: geometry.verts,
-      indices: geometry.indices,
-   }
+export function convertCoords(canvas: HTMLCanvasElement, p: Point2DTupleView) {
+   p[0] = p[0] - canvas.width / 2
+   p[1] = -p[1] + canvas.height / 2
+   return p
 }
