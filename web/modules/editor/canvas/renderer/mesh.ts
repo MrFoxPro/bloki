@@ -134,4 +134,5 @@ export class Mesh {
    clone() {
       return new Mesh(this._verts, this._indices)
    }
+   buildMesh() {}
 }

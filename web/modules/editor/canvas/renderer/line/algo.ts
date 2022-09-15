@@ -1,3 +1,5 @@
+import { LineStyle } from '../types'
+
 export enum SHAPES {
    POLY = 0,
    RECT = 1,
@@ -7,14 +9,14 @@ export enum SHAPES {
 }
 
 export enum LINE_JOIN {
-   MITER = 'miter',
-   BEVEL = 'bevel',
-   ROUND = 'round',
+   MITER,
+   BEVEL,
+   ROUND,
 }
 export enum LINE_CAP {
-   BUTT = 'butt',
-   ROUND = 'round',
-   SQUARE = 'square',
+   BUTT,
+   ROUND,
+   SQUARE,
 }
 
 export const GRAPHICS_CURVES = {
@@ -41,23 +43,22 @@ export const GRAPHICS_CURVES = {
       return result
    },
 }
-
-export class Point {
-   public x = 0
-   public y = 0
-
-   constructor(x = 0, y = 0) {
-      this.x = x
-      this.y = y
-   }
-   set(x = 0, y = x): this {
-      this.x = x
-      this.y = y
-
-      return this
-   }
-}
-
+/**
+ * Buffers vertices to draw an arc at the line joint or cap.
+ *
+ * Ignored from docs since it is not directly exposed.
+ * @ignore
+ * @private
+ * @param {number} cx - X-coord of center
+ * @param {number} cy - Y-coord of center
+ * @param {number} sx - X-coord of arc start
+ * @param {number} sy - Y-coord of arc start
+ * @param {number} ex - X-coord of arc end
+ * @param {number} ey - Y-coord of arc end
+ * @param {Array<number>} verts - buffer of vertices
+ * @param {boolean} clockwise - orientation of vertices
+ * @returns {number} - no. of vertices pushed
+ */
 function round(
    cx: number,
    cy: number,
@@ -134,6 +135,23 @@ function round(
 
    return segCount * 2
 }
+
+/**
+ * Buffers vertices to draw a square cap.
+ *
+ * Ignored from docs since it is not directly exposed.
+ * @ignore
+ * @private
+ * @param {number} x - X-coord of end point
+ * @param {number} y - Y-coord of end point
+ * @param {number} nx - X-coord of line normal pointing inside
+ * @param {number} ny - Y-coord of line normal pointing inside
+ * @param {number} innerWeight - Weight of inner points
+ * @param {number} outerWeight - Weight of outer points
+ * @param {boolean} clockwise - Whether the cap is drawn clockwise
+ * @param {Array<number>} verts - vertex buffer
+ * @returns {number} - no. of vertices pushed
+ */
 function square(
    x: number,
    y: number,
@@ -173,11 +191,33 @@ function square(
 
    return 2
 }
-export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
-   const shape = graphicsData.shape
+type Geometry = {
+   /** VBO */
+   verts: number[]
+   /** IBO */
+   indices: number[]
+   /** Minimal distance between points that are considered different. Affects line tesselation. */
+   closePointEps: number
+}
+type LineBuildOptions = {
+   points: number[]
+   shape: {
+      closeStroke: boolean
+      type: SHAPES
+   }
+   lineStyle: LineStyle
+}
+// https://github.com/evanw/theta/blob/master/src/core/smooth.sk
+// https://github.com/m-schuetz/Potree2/blob/prototyping/src/modules/mesh/WireframeMaterial.js
+// https://registry.khronos.org/webgl/sdk/tests/conformance/limits/gl-line-width.html
+// gl.getParameter(gl.ALIASED_LINE_WIDTH_RANGE)
+// https://github.com/gpuweb/gpuweb/issues/1546
+// http://output.jsbin.com/ApitIxo/2/
+export function buildNonNativeLine(options: LineBuildOptions, output: Geometry): void {
+   const shape = options.shape
    // line coordinates
-   let points = graphicsData.points || shape.points.slice()
-   const eps = graphicsGeometry.closePointEps
+   let points = options.points
+   const eps = output.closePointEps
 
    if (points.length === 0) {
       return
@@ -192,13 +232,14 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
    //     }
    // }
 
-   const style = graphicsData.lineStyle
+   const style = options.lineStyle
 
    // get first and last point.. figure out the middle!
-   const firstPoint = new Point(points[0], points[1])
-   const lastPoint = new Point(points[points.length - 2], points[points.length - 1])
+   const firstPoint = points.slice(0, 2)
+   const lastPoint = points.slice(-2)
    const closedShape = shape.type !== SHAPES.POLY || shape.closeStroke
-   const closedPath = Math.abs(firstPoint.x - lastPoint.x) < eps && Math.abs(firstPoint.y - lastPoint.y) < eps
+   const closedPath =
+      Math.abs(firstPoint[0] - lastPoint[0]) < eps && Math.abs(firstPoint[1] - lastPoint[1]) < eps
 
    // if the first point is the last point - gonna have issues :)
    if (closedShape) {
@@ -208,18 +249,19 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
       if (closedPath) {
          points.pop()
          points.pop()
-         lastPoint.set(points[points.length - 2], points[points.length - 1])
+         lastPoint[0] = points[points.length - 2]
+         lastPoint[1] = points[points.length - 1]
       }
 
-      const midPointX = (firstPoint.x + lastPoint.x) * 0.5
-      const midPointY = (lastPoint.y + firstPoint.y) * 0.5
+      const midPointX = (firstPoint[0] + lastPoint[0]) * 0.5
+      const midPointY = (lastPoint[1] + firstPoint[1]) * 0.5
 
       points.unshift(midPointX, midPointY)
       points.push(midPointX, midPointY)
    }
 
    // real points to draw with respect to width and other  stuff
-   const verts = graphicsGeometry.verts
+   const verts = output.verts
    const length = points.length / 2
    let indexCount = points.length
    const indexStart = verts.length / 2
@@ -485,7 +527,7 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
       }
    }
 
-   const indices = graphicsGeometry.indices
+   const indices = output.indices
    const eps2 = GRAPHICS_CURVES.epsilon * GRAPHICS_CURVES.epsilon
 
    // indices.push(indexStart);
@@ -509,124 +551,40 @@ export function buildNonNativeLine(graphicsData, graphicsGeometry): void {
 }
 
 /**
- * Utilities for bezier curves
+ * Builds a line to draw using the gl.drawArrays(gl.LINES) method
+ *
+ * Ignored from docs since it is not directly exposed.
+ * @ignore
  * @private
+ * @param {PIXI.GraphicsData} options - The graphics object containing all the necessary properties
+ * @param {PIXI.GraphicsGeometry} output - Geometry where to append output
  */
-export class BezierUtils {
-   /**
-    * Calculate length of bezier curve.
-    * Analytical solution is impossible, since it involves an integral that does not integrate in general.
-    * Therefore numerical solution is used.
-    * @private
-    * @param fromX - Starting point x
-    * @param fromY - Starting point y
-    * @param cpX - Control point x
-    * @param cpY - Control point y
-    * @param cpX2 - Second Control point x
-    * @param cpY2 - Second Control point y
-    * @param toX - Destination point x
-    * @param toY - Destination point y
-    * @returns - Length of bezier curve
-    */
-   static curveLength(
-      fromX: number,
-      fromY: number,
-      cpX: number,
-      cpY: number,
-      cpX2: number,
-      cpY2: number,
-      toX: number,
-      toY: number
-   ): number {
-      const n = 10
-      let result = 0.0
-      let t = 0.0
-      let t2 = 0.0
-      let t3 = 0.0
-      let nt = 0.0
-      let nt2 = 0.0
-      let nt3 = 0.0
-      let x = 0.0
-      let y = 0.0
-      let dx = 0.0
-      let dy = 0.0
-      let prevX = fromX
-      let prevY = fromY
+export function buildNativeLine(options: LineBuildOptions, output: Geometry): void {
+   let i = 0
 
-      for (let i = 1; i <= n; ++i) {
-         t = i / n
-         t2 = t * t
-         t3 = t2 * t
-         nt = 1.0 - t
-         nt2 = nt * nt
-         nt3 = nt2 * nt
+   const shape = options.shape
+   const points = options.points
+   const closedShape = shape.type !== SHAPES.POLY || shape.closeStroke
 
-         x = nt3 * fromX + 3.0 * nt2 * t * cpX + 3.0 * nt * t2 * cpX2 + t3 * toX
-         y = nt3 * fromY + 3.0 * nt2 * t * cpY + 3 * nt * t2 * cpY2 + t3 * toY
-         dx = prevX - x
-         dy = prevY - y
-         prevX = x
-         prevY = y
+   if (points.length === 0) return
 
-         result += Math.sqrt(dx * dx + dy * dy)
-      }
+   const verts = output.verts
+   const indices = output.indices
+   const length = points.length / 2
 
-      return result
+   const startIndex = verts.length / 2
+   let currentIndex = startIndex
+
+   verts.push(points[0], points[1])
+
+   for (i = 1; i < length; i++) {
+      verts.push(points[i * 2], points[i * 2 + 1])
+      indices.push(currentIndex, currentIndex + 1)
+
+      currentIndex++
    }
 
-   /**
-    * Calculate the points for a bezier curve and then draws it.
-    *
-    * Ignored from docs since it is not directly exposed.
-    * @ignore
-    * @param cpX - Control point x
-    * @param cpY - Control point y
-    * @param cpX2 - Second Control point x
-    * @param cpY2 - Second Control point y
-    * @param toX - Destination point x
-    * @param toY - Destination point y
-    * @param points - Path array to push points into
-    */
-   static curveTo(
-      cpX: number,
-      cpY: number,
-      cpX2: number,
-      cpY2: number,
-      toX: number,
-      toY: number,
-      points: Array<number>
-   ): void {
-      const fromX = points[points.length - 2]
-      const fromY = points[points.length - 1]
-
-      points.length -= 2
-
-      const n = GRAPHICS_CURVES._segmentsCount(
-         BezierUtils.curveLength(fromX, fromY, cpX, cpY, cpX2, cpY2, toX, toY)
-      )
-
-      let dt = 0
-      let dt2 = 0
-      let dt3 = 0
-      let t2 = 0
-      let t3 = 0
-
-      points.push(fromX, fromY)
-
-      for (let i = 1, j = 0; i <= n; ++i) {
-         j = i / n
-
-         dt = 1 - j
-         dt2 = dt * dt
-         dt3 = dt2 * dt
-
-         t2 = j * j
-         t3 = t2 * j
-
-         points.push(
-            dt3 * fromX + 3 * dt2 * j * cpX + 3 * dt * t2 * cpX2 + t3 * toX,
-            dt3 * fromY + 3 * dt2 * j * cpY + 3 * dt * t2 * cpY2 + t3 * toY
-         )
-      }
+   if (closedShape) {
+      indices.push(currentIndex, startIndex)
    }
 }

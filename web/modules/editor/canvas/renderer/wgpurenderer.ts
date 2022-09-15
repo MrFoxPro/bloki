@@ -60,8 +60,10 @@ export class WebGPURenderer {
    public set sampleCount(value: number) {
       if (this._sampleCount === value) return
       this._sampleCount = value
-      this.buildPipeline()
-      this.buildUniforms()
+      if (this.device) {
+         this.buildPipeline()
+         this.buildUniforms()
+      }
       this.updateSampling(value)
    }
 
