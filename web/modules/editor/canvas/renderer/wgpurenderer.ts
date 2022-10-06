@@ -1,14 +1,15 @@
 import { DynamicMeshGroup, StaticMeshGroup } from './mesh'
-import { ELEMENT_PER_VERTEX, ELEMENT_PER_VERTEX_POS, UBO_ARRAY, VBO_ARRAY } from './constants'
-import TriangleShader from './triangle.wgsl?raw'
-import { aquireGPUDevice, createBufferFromArray } from './utils'
+import SimpleShader from './shaders/simple.wgsl?raw'
+import { GPUBufferChunk, GPUBufferPool } from './bufferpool'
+import { UBO_ARRAY, ELEMENT_PER_VERTEX, VBO_ARRAY, ELEMENT_PER_VERTEX_POS } from './utils'
+import { isBlink, isGecko } from '@solid-primitives/platform'
 
 // TODO: split to scene and renderer
 export class WebGPURenderer {
    // scene
    public static: StaticMeshGroup
    public dynamic: DynamicMeshGroup
-   private viewportBuffer: GPUBuffer
+   private viewPortChunk: GPUBufferChunk
    private shaderModule: GPUShaderModule
 
    // target
@@ -18,8 +19,8 @@ export class WebGPURenderer {
    private pxRatio = window.devicePixelRatio | 1
 
    // settings
-   private powerPreference: GPURequestAdapterOptions['powerPreference'] = 'low-power'
-   private _sampleCount = 1
+   private powerPreference: GPUPowerPreference = 'low-power'
+   private _sampleCount = 4
    private _zoom = 1
 
    // realtime
@@ -34,6 +35,7 @@ export class WebGPURenderer {
    // internal
    private uniformBindGroup: GPUBindGroup
    private pipeline: GPURenderPipeline
+   uniformBindGroupLayout: GPUBindGroupLayout;
 
    public get objects() {
       const s = this.static.objects.values()
@@ -47,8 +49,9 @@ export class WebGPURenderer {
       if (this._zoom === value) return
 
       this._zoom = value
+
       this.device.queue.writeBuffer(
-         this.viewportBuffer,
+         this.viewPortChunk.manager.buffer,
          3 * UBO_ARRAY.BYTES_PER_ELEMENT,
          new UBO_ARRAY([value])
       )
@@ -68,18 +71,29 @@ export class WebGPURenderer {
    }
 
    public async init(canvas: HTMLCanvasElement) {
-      const { device, adapter } = await aquireGPUDevice({ powerPreference: this.powerPreference })
-      this.printAdapterInfo(adapter)
-      this.device = device
-      this.mainFormat = navigator.gpu.getPreferredCanvasFormat()
+      if (!navigator.gpu) throw new Error('WebGPU is not supported on this browser.')
+      const adapter = await navigator.gpu.requestAdapter({ powerPreference: this.powerPreference })
+      if (!adapter) throw new Error('WebGPU supported but disabled')
+      this.device = await adapter.requestDevice()
+
       this.ctx = canvas.getContext('webgpu')
+
+      if (isGecko) {
+         // @ts-ignore
+         this.ctx.canvas = canvas
+         this.mainFormat = this.ctx.getPreferredFormat(adapter)
+         // @ts-ignore
+         this.attachment.loadValue = this.attachment.clearValue
+      } else if (isBlink) {
+         this.mainFormat = navigator.gpu.getPreferredCanvasFormat()
+      } else throw new Error('Unsupported browser')
+
       this.ctx.configure({
          device: this.device,
          format: this.mainFormat,
          alphaMode: 'premultiplied',
       })
       this.initScene()
-
       this.buildPipeline()
       this.buildUniforms()
       this.render()
@@ -91,21 +105,18 @@ export class WebGPURenderer {
       this.dynamic = new DynamicMeshGroup(this.device)
 
       const viewPort = [this.ctx.canvas.width / 2, this.ctx.canvas.height / 2, 10, this._zoom]
-      this.viewportBuffer = createBufferFromArray(
-         this.device,
-         new UBO_ARRAY(viewPort),
-         GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-      )
+      const ubo = new GPUBufferPool(this.device, new UBO_ARRAY(viewPort), GPUBufferUsage.UNIFORM)
+      this.viewPortChunk = ubo.createChunk(viewPort)
    }
 
    private buildUniforms() {
       this.uniformBindGroup = this.device.createBindGroup({
-         layout: this.pipeline.getBindGroupLayout(0),
+         layout: this.uniformBindGroupLayout,
          entries: [
             {
                binding: 0,
                resource: {
-                  buffer: this.viewportBuffer,
+                  buffer: this.viewPortChunk.manager.buffer,
                },
             },
          ],
@@ -113,23 +124,22 @@ export class WebGPURenderer {
    }
 
    private buildPipeline() {
-      this.shaderModule ??= this.device.createShaderModule({ code: TriangleShader })
+      this.shaderModule ??= this.device.createShaderModule({ code: SimpleShader })
       this.updateSampling()
+      this.uniformBindGroupLayout = this.device.createBindGroupLayout({
+         entries: [
+            {
+               binding: 0,
+               visibility: GPUShaderStage.VERTEX,
+               buffer: {
+                  type: 'uniform',
+               },
+            },
+         ],
+      })
       this.pipeline = this.device.createRenderPipeline({
          layout: this.device.createPipelineLayout({
-            bindGroupLayouts: [
-               this.device.createBindGroupLayout({
-                  entries: [
-                     {
-                        binding: 0,
-                        visibility: GPUShaderStage.VERTEX,
-                        buffer: {
-                           type: 'uniform',
-                        },
-                     },
-                  ],
-               }),
-            ],
+            bindGroupLayouts: [this.uniformBindGroupLayout],
          }),
          vertex: {
             module: this.shaderModule,
@@ -164,9 +174,11 @@ export class WebGPURenderer {
 
    public async printAdapterInfo(adapter: GPUAdapter) {
       console.log('Limits', adapter.limits)
-      const info = await adapter.requestAdapterInfo()
-      // @ts-ignore
-      console.log(info.description, '|', info.driver, '|', this.powerPreference)
+      if (adapter.requestAdapterInfo) {
+         const info = await adapter.requestAdapterInfo()
+         // @ts-ignore
+         console.log(info.description, '|', info.driver, '|', this.powerPreference)
+      }
    }
 
    public updateSampling(sampleCount: number = this._sampleCount) {
@@ -199,7 +211,9 @@ export class WebGPURenderer {
       pass.setPipeline(this.pipeline)
       this.dynamic.recordRenderPass(pass)
       this.static.recordRenderPass(pass)
-      pass.end()
+      if (isBlink) pass.end()
+      // @ts-ignore
+      else if (isGecko) pass.endPass()
       this.device.queue.submit([commandEncoder.finish()])
    }
 }

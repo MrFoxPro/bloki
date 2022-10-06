@@ -1,27 +1,26 @@
-import { TypedArray, TypedArrayConstructor } from './types'
-import { createBufferFromArray } from './utils'
+import { TypedArray, TypedArrayConstructor } from './utils'
 
-/**
- * You become responsible, forever, for what you have tamed (Smart entity)
- */
-export class GPUBufferManager {
-   // Fuck typescript
+export class GPUBufferPool {
    array: TypedArray
    buffer: GPUBuffer
    readonly purpose: GPUFlagsConstant
    readonly device: GPUDevice
    readonly chunks = new Set<GPUBufferChunk>()
-   readonly ArrayCtor: TypedArrayConstructor
+   readonly ArrayConstructor: TypedArrayConstructor
    constructor(device: GPUDevice, arr: TypedArray, purpose: GPUFlagsConstant) {
       this.device = device
       this.array = arr
       this.purpose = purpose
-      this.ArrayCtor = arr.constructor as TypedArrayConstructor
+      this.ArrayConstructor = arr.constructor as TypedArrayConstructor
       this.respawn()
    }
    createChunk(data: ArrayLike<number>, alloc_length: number = data.length) {
       const offset = this.array.length
-      const new_array = new this.ArrayCtor(offset + alloc_length)
+      if (data.length > alloc_length) {
+         // console.warn('alloc_length not fit for data')
+         alloc_length = data.length
+      }
+      const new_array = new this.ArrayConstructor(offset + alloc_length)
       new_array.set(this.array)
       new_array.set(data, offset)
       this.array = new_array
@@ -36,14 +35,14 @@ export class GPUBufferManager {
       return this.array.slice(start, start + len)
    }
    writeChunk(chunk: GPUBufferChunk, arr: ArrayLike<number>) {
-      const data = new this.ArrayCtor(arr)
+      const data = new this.ArrayConstructor(arr)
       this.array.set(data, chunk.offset)
       this.device.queue.writeBuffer(this.buffer, chunk.offset * this.array.BYTES_PER_ELEMENT, data)
       chunk.dataLength = data.length
    }
    resizeChunk(chunk: GPUBufferChunk, length: number, displacedData: ArrayLike<number> = []) {
       const dLen = length - chunk.length
-      const new_array = new this.ArrayCtor(this.array.length + dLen)
+      const new_array = new this.ArrayConstructor(this.array.length + dLen)
       new_array.set(this.array.slice(0, chunk.offset))
       new_array.set(this.array.slice(chunk.end, this.array.length), chunk.end + dLen)
 
@@ -63,30 +62,31 @@ export class GPUBufferManager {
       }
       this.respawn()
    }
-
    removeChunk(chunk: GPUBufferChunk) {
       this.resizeChunk(chunk, 0)
       this.chunks.delete(chunk)
    }
    respawn() {
       this.buffer?.destroy()
-      this.buffer = createBufferFromArray(this.device, this.array, this.purpose | GPUBufferUsage.COPY_DST)
-   }
-   dispose() {
-      this.buffer?.destroy()
+      const buffer = this.device.createBuffer({
+         size: this.array.byteLength,
+         usage: this.purpose | GPUBufferUsage.COPY_DST,
+         mappedAtCreation: true,
+      })
+      const mappedRange = Reflect.construct(this.ArrayConstructor, [buffer.getMappedRange()])
+      mappedRange.set(this.array)
+      this.buffer = buffer
+      buffer.unmap()
    }
 }
 
-/**
- * Stupid entity
- */
 export class GPUBufferChunk {
-   manager: GPUBufferManager
+   manager: GPUBufferPool
    offset: number
    length: number
    dataLength: number
    readonly allocLength: number
-   constructor(manager: GPUBufferManager, offset: number, dataLength: number, allocLength: number) {
+   constructor(manager: GPUBufferPool, offset: number, dataLength: number, allocLength: number) {
       this.manager = manager
       this.offset = offset
       this.dataLength = dataLength

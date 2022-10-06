@@ -1,8 +1,9 @@
 import { Point2DTupleView, Point2DArray } from '@/modules/editor/types'
-import { Mesh } from '../mesh'
+import { MeshBase } from '../mesh'
 import { buildNativeLine, buildNonNativeLine, SHAPES } from './algo'
 import { LINE_CAP, LINE_JOIN } from './algo'
 import { getCurvePoints } from './cardinal_spline'
+import { simplify } from './simplify'
 
 export type LineStyle = {
    /** The width (thickness) of any lines drawn. */
@@ -55,7 +56,7 @@ export function computeLineMesh(points: Point2DArray, lineStyle: LineStyle) {
    }
 }
 
-export class Line extends Mesh {
+export class Line extends MeshBase {
    anchor: Point2DTupleView = [0, 0]
    points: Point2DArray = []
    style: LineStyle = {
@@ -108,5 +109,14 @@ export class Line extends Mesh {
       }
       this.verts = verts
       this.indices = mesh.indices
+   }
+   public optimize(tolerance: number) {
+      const twon: Point2DTupleView[] = []
+      for (let i = 1; i < this.points.length; i += 2) {
+         twon.push([this.points[i - 1], this.points[i]])
+      }
+      const result = simplify(twon, tolerance)
+      this.points = result.flat()
+      this.buildMesh()
    }
 }

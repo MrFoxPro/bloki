@@ -1,16 +1,12 @@
 import './canvas.scss'
 import { useEditorContext } from '../toolbox/editor.store'
-import { createEffect, onMount, Show } from 'solid-js'
-import { createStore, unwrap } from 'solid-js/store'
-import { WebGPURenderer } from './renderer'
+import { createEffect, onMount } from 'solid-js'
+import { createMutable } from 'solid-js/store'
 import { Point2DTupleView } from '../types'
 import { ToolType } from '../misc'
 import { Line } from './renderer/line/line'
-import { convertCoords } from './renderer/utils'
-
-if (import.meta.env.DEV) {
-   console.clear()
-}
+import { WebGPURenderer } from './renderer/wgpurenderer'
+import { Tweakpane, TWPBindGroup, TWPButton, TWPInput } from 'solid-tweakpane'
 
 const SCENE_KEY = 'scene'
 function loadScene(r: WebGPURenderer) {
@@ -27,62 +23,37 @@ function saveScene(r: WebGPURenderer) {
    localStorage.setItem(SCENE_KEY, json)
 }
 
-const S_KEY = 'settings'
-function saveSettings(s) {
-   const json = JSON.stringify(unwrap(s))
-   localStorage.setItem(S_KEY, json)
+function convertCoords(canvas: HTMLCanvasElement, p: Point2DTupleView) {
+   p[0] = p[0] - canvas.width / 2
+   p[1] = -p[1] + canvas.height / 2
+   return p
 }
-function loadSettings() {
-   let item = localStorage.getItem(S_KEY)
-   if (item) item = JSON.parse(item)
-   else return null
-   return item as unknown as ReturnType<typeof getInitialSettings>
-}
-
-const initialCardinalSetting = {
-   tension: 0.5,
-   numOfSeg: 4,
-}
-const getInitialSettings = (r: WebGPURenderer) => ({
-   zoom: r.sampleCount,
-   msaa: r.zoom,
-   lockLineToFPS: true,
-   cardinal: initialCardinalSetting,
-})
 
 export function Whiteboard() {
    let canvasRef: HTMLCanvasElement
 
    const r = new WebGPURenderer()
-   const rr = r.render.bind(r)
-   const rafRender = () => requestAnimationFrame(rr)
 
    const { editor, toAbs } = useEditorContext()
+   const store = createMutable({
+      msaa: r.sampleCount,
+      zoom: r.zoom,
+      cardinal: {
+         enable: true,
+         tension: 0.5,
+         numOfSeg: 4,
+      },
+   })
 
-   const [store, setStore] = createStore(loadSettings() ?? getInitialSettings(r))
+   function resetScene() {
+      r.objects.forEach((o) => o.remove())
+      loadScene(r)
+      r.render()
+   }
 
    onMount(async () => {
       await r.init(canvasRef)
-      r.zoom = store.zoom
-      r.sampleCount = store.msaa
-      loadScene(r)
-      r.render()
-   })
-
-   function rebuildScene() {
-      r.objects.forEach((m) => {
-         const l = m as Line
-         l.style.cardinal = store.cardinal
-         l.buildMesh()
-      })
-      r.render()
-   }
-   createEffect(() => {
-      saveSettings({
-         zoom: store.zoom,
-         msaa: store.msaa,
-         lockLineToFPS: store.lockLineToFPS,
-      })
+      resetScene()
    })
 
    let mouseDown = false
@@ -104,12 +75,6 @@ export function Whiteboard() {
 
    function onPointerMove(e: PointerEvent) {
       mousePos = [e.offsetX, e.offsetY]
-
-      if (!store.lockLineToFPS) {
-         draw()
-         return
-      }
-
       if (!frameBusy) {
          frameBusy = true
          requestAnimationFrame(draw)
@@ -127,130 +92,39 @@ export function Whiteboard() {
    function endDrawing() {
       canvasRef.onpointermove = null
       mouseDown = false
-      // r.dynamic.removeMesh(currentLine)
-      // if (currentLine?.points.length > 4) r.static.addMesh(currentLine)
-
+      r.dynamic.removeMesh(currentLine)
+      if (currentLine?.points.length > 4) {
+         currentLine.optimize(settings.tolerance)
+         r.dynamic.addMesh(currentLine)
+         r.render()
+      }
       currentLine = null
       saveScene(r)
    }
-
+   const settings = createMutable({
+      tolerance: 1,
+   })
    return (
       <>
-         <div
-            style={{
-               position: 'fixed',
-               margin: '15px',
-               right: '0',
-               width: '250px',
-               'z-index': '99999',
-               background: 'rgba(255,255,255,0.5)',
-               padding: '10px',
-               display: 'flex',
-               'flex-direction': 'column',
-               'row-gap': '10px',
-               'align-items': 'start',
-            }}
-         >
-            <div>
-               <label>MSAA x{store.msaa}</label>
-               <input
-                  type="range"
-                  value={store.msaa}
-                  step={3}
-                  min={1}
-                  max={4}
-                  onInput={(e) => {
-                     setStore('msaa', e.currentTarget.valueAsNumber)
-                     r.sampleCount = e.currentTarget.valueAsNumber
-                     rafRender()
+         <Tweakpane>
+            <TWPBindGroup target={settings}>
+               <TWPInput
+                  key="tolerance"
+                  params={{
+                     step: 1,
+                     max: 200,
+                     min: 1,
                   }}
                />
-            </div>
-            <div>
-               <label>Zoom {store.zoom}</label>
-               <input
-                  type="range"
-                  value={store.zoom}
-                  step={0.01}
-                  min={0.1}
-                  max={2}
-                  onInput={(e) => {
-                     setStore('zoom', e.currentTarget.valueAsNumber)
-                     r.zoom = e.currentTarget.valueAsNumber
-                     rafRender()
-                  }}
-               />
-            </div>
-            <div>
-               <label>Lock drawing to FPS</label>
-               <input
-                  type="checkbox"
-                  checked={store.lockLineToFPS}
-                  onInput={(e) => {
-                     setStore('lockLineToFPS', e.currentTarget.checked)
-                  }}
-               />
-            </div>
-            <div>
-               <label>Enable cardinal spline</label>
-               <input
-                  type="checkbox"
-                  checked={store.cardinal != null}
-                  onInput={(e) => {
-                     if (e.currentTarget.checked) {
-                        setStore('cardinal', initialCardinalSetting)
-                     } else setStore('cardinal', null)
-                  }}
-               />
-            </div>
-            <Show when={!!store.cardinal}>
-               <div>
-                  <label>Cardinal tension {store.cardinal.tension}</label>
-                  <input
-                     type="range"
-                     value={store.cardinal.tension}
-                     step={0.01}
-                     min={0}
-                     max={1}
-                     onInput={(e) => {
-                        setStore('cardinal', 'tension', e.currentTarget.valueAsNumber)
-                        rebuildScene()
-                     }}
-                  />
-               </div>
-               <div>
-                  <label>Cardinal N. of segments {store.cardinal.numOfSeg}</label>
-                  <input
-                     type="range"
-                     value={store.cardinal.numOfSeg}
-                     step={1}
-                     min={4}
-                     max={45}
-                     onInput={(e) => {
-                        setStore('cardinal', 'numOfSeg', e.currentTarget.valueAsNumber)
-                        rebuildScene()
-                     }}
-                  />
-               </div>
-            </Show>
-            <button onClick={rebuildScene}>Rebuild scene & rerender</button>
-            <button
-               onClick={() => {
+            </TWPBindGroup>
+            <TWPButton
+               title="Flush drawings"
+               onClick={(e) => {
                   localStorage.removeItem(SCENE_KEY)
-                  location.reload()
+                  resetScene()
                }}
-            >
-               Flush drawings
-            </button>
-            <button
-               onClick={() => {
-                  localStorage.removeItem(S_KEY)
-                  location.reload()
-               }}
-            >
-               Flush settings
-            </button>
-         </div>
+            />
+         </Tweakpane>
          <canvas
             ref={canvasRef}
             class="drawer"

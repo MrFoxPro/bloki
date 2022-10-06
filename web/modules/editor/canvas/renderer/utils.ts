@@ -1,53 +1,17 @@
-import { Point2DTupleView } from '../../types'
-import { TypedArray } from './types'
+export const ELEMENT_PER_VERTEX_POS = 2
+export const ELEMENT_PER_VERTEX_COLOR = 4
+export const ELEMENT_PER_VERTEX = ELEMENT_PER_VERTEX_POS + ELEMENT_PER_VERTEX_COLOR
+export const INDICES_PER_TRIANGLE = 3
+export const VBO_ARRAY = Float32Array
+export const IBO_ARRAY = Uint32Array
+export const UBO_ARRAY = Float32Array
+export const CMD_ARRAY = Uint32Array
+export const INDEX_FORMAT: GPUIndexFormat = 'uint32'
+export const VBO_CHUNK_LENGTH = 200 * ELEMENT_PER_VERTEX
+export const IBO_CHUNK_LENGTH = 200 * INDICES_PER_TRIANGLE
 
-// export function getTypedArrayAlignedSize(arr: TypedArray) {
-//    return (arr.byteLength + 3) & ~3
-// }
+// https://www.w3.org/TR/webgpu/#dom-gpurendercommandsmixin-drawindexedindirect
+export const CMD_CHUNK_LENGTH = 5
 
-export function createBufferFromArray(device: GPUDevice, arr: TypedArray, usage: number, size?: number) {
-   // if (!size) size = getTypedArrayAlignedSize(arr)
-   if (!size) size = arr.byteLength
-   const buffer = device.createBuffer({
-      size,
-      usage,
-      mappedAtCreation: true,
-   })
-   const TypedArrayCtor = Object.getPrototypeOf(arr).constructor
-   const mappedRange = new TypedArrayCtor(buffer.getMappedRange())
-   mappedRange.set(arr)
-   buffer.unmap()
-   return buffer
-}
-
-export async function aquireGPUDevice(
-   adapterOptions?: GPURequestAdapterOptions,
-   descriptor?: GPUDeviceDescriptor
-) {
-   const { gpu } = navigator
-   if (!gpu) throw new Error('WebGPU is not supported on this browser.')
-   const adapter = await gpu.requestAdapter(adapterOptions)
-   if (!adapter) throw new Error('WebGPU supported but disabled')
-   const device = await adapter.requestDevice(descriptor)
-   return { device, adapter }
-}
-
-export async function compileShader(device: GPUDevice, code: string) {
-   const shaderModule = device.createShaderModule({ code })
-   const shaderCompileInfo = await shaderModule.compilationInfo()
-   if (shaderCompileInfo.messages.length > 0) {
-      let hadError = false
-      for (const msg of shaderCompileInfo.messages) {
-         console.error(`${msg.lineNum}:${msg.linePos} - ${msg.message}`)
-         if (msg.type == 'error') hadError = true
-      }
-      if (hadError) throw new Error('Shader failed to compile')
-   }
-   return shaderModule
-}
-
-export function convertCoords(canvas: HTMLCanvasElement, p: Point2DTupleView) {
-   p[0] = p[0] - canvas.width / 2
-   p[1] = -p[1] + canvas.height / 2
-   return p
-}
+export type TypedArrayConstructor = typeof VBO_ARRAY | typeof IBO_ARRAY | typeof UBO_ARRAY | typeof CMD_ARRAY
+export type TypedArray = InstanceType<TypedArrayConstructor>
