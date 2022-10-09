@@ -1,7 +1,13 @@
 import { PiecewiseIndexedMeshGroup, TightIndexedMeshGroup } from './mesh_group'
 import SimpleShader from './shaders/simple.wgsl?raw'
 import { Pool } from './buffer/pool'
-import { UBO_ARRAY, ELEMENT_PER_VERTEX, VBO_ARRAY, ELEMENT_PER_VERTEX_POS } from './utils'
+import {
+   UBO_ARRAY,
+   ELEMENT_PER_VERTEX,
+   VBO_ARRAY,
+   ELEMENT_PER_VERTEX_POS,
+   ELEMENT_PER_VERTEX_COLOR,
+} from './utils'
 import { isBlink, isGecko } from '@solid-primitives/platform'
 import { Chunk } from './buffer/chunk'
 
@@ -140,12 +146,23 @@ export class WebGPURenderer {
             entryPoint: 'vertex',
             buffers: [
                {
-                  arrayStride: ELEMENT_PER_VERTEX * VBO_ARRAY.BYTES_PER_ELEMENT,
+                  arrayStride: 2 * VBO_ARRAY.BYTES_PER_ELEMENT,
+                  stepMode: 'vertex',
                   attributes: [
-                     { format: 'float32x2', offset: 0, shaderLocation: 0 },
+                     {
+                        format: 'float32x2',
+                        offset: 0,
+                        shaderLocation: 0,
+                     },
+                  ],
+               },
+               {
+                  arrayStride: 4 * VBO_ARRAY.BYTES_PER_ELEMENT,
+                  stepMode: 'instance',
+                  attributes: [
                      {
                         format: 'float32x4',
-                        offset: ELEMENT_PER_VERTEX_POS * VBO_ARRAY.BYTES_PER_ELEMENT,
+                        offset: 0,
                         shaderLocation: 1,
                      },
                   ],

@@ -1,16 +1,9 @@
 import { Pool } from './pool'
 
 export class Chunk {
-   manager: Pool
-   offset: number
-   length: number
-   constructor(manager: Pool, offset: number, length: number) {
-      this.manager = manager
-      this.offset = offset
-      this.length = length
-   }
+   constructor(readonly manager: Pool, public offset: number, public size: number) {}
    get end() {
-      return this.offset + this.length
+      return this.offset + this.size
    }
    set(data: ArrayLike<number>, offset: number = 0) {
       return this.manager.set(this, data, offset)

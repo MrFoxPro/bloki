@@ -14,7 +14,7 @@ export class Pool {
       const new_array = new this.ArrayConstructor(this.array.length + dLen)
       new_array.set(this.array.slice(0, chunk.offset))
       new_array.set(this.array.slice(chunk.end, this.array.length), chunk.end + dLen)
-      chunk.length = modified.length
+      chunk.size = modified.length
       new_array.set(modified, chunk.offset)
       this.array = new_array
    }
@@ -26,7 +26,7 @@ export class Pool {
             prev = chunk
             continue
          }
-         chunk.offset = prev.offset + prev.length
+         chunk.offset = prev.offset + prev.size
          prev = chunk
       }
    }
@@ -53,7 +53,7 @@ export class Pool {
       this.respawn()
       return chunk
    }
-   slice(chunk: Chunk, localStart: number = 0, localEnd: number = chunk.length) {
+   slice(chunk: Chunk, localStart: number = 0, localEnd: number = chunk.size) {
       return this.array.slice(chunk.offset + localStart, chunk.offset + localEnd)
    }
    set(chunk: Chunk, _data: ArrayLike<number>, lOffset: number = 0) {
@@ -65,7 +65,7 @@ export class Pool {
    splice(chunk: Chunk, start: number, deleteCount: number, ...items: number[]) {
       const modified = Array.from(chunk.slice())
       const deleted = modified.splice(start, deleteCount, ...items)
-      const dLen = modified.length - chunk.length
+      const dLen = modified.length - chunk.size
       if (dLen === 0) {
          // just rewrite existing data
          chunk.set(modified, start)
@@ -77,7 +77,7 @@ export class Pool {
       return deleted
    }
    remove(chunk: Chunk) {
-      this.splice(chunk, 0, chunk.length)
+      this.splice(chunk, 0, chunk.size)
       return this.chunks.delete(chunk)
    }
 }

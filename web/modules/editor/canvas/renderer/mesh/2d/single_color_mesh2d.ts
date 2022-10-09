@@ -1,10 +1,11 @@
 import { Point2DTupleView } from '@/modules/editor/types'
+import { Chunk } from '../../buffer/chunk';
 import { BoundingBox2D, IMesh2DBase, IndexedMeshBase } from '../mesh'
 
 export class SingleColorMesh2D extends IndexedMeshBase implements IMesh2DBase {
    readonly position: Point2DTupleView
    readonly color = [1, 0, 0, 1]
-
+   clrChunk: Chunk
    #bounds: BoundingBox2D | null
    bounds() {
       if (this.#bounds) return this.#bounds

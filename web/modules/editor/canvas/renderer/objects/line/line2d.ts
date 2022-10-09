@@ -73,16 +73,24 @@ export class FatLine2D extends SingleColorMesh2D {
    build() {
       const splined = getCurvePoints(this.points, CARDINAL_TENSION, CARDINAL_SEGEMENTS, false)
       const mesh = FatLineBuilder.build(Array.from(splined), this.style)
-      const vbo: number[] = []
-      for (let i = 1; i < mesh.vertices.length; i += 2) {
-         vbo.push(mesh.vertices[i - 1], mesh.vertices[i], ...this.color)
-      }
-      this.layout.vbo = vbo
+      // const vbo: number[] = []
+      // for (let i = 1; i < mesh.vertices.length; i += 2) {
+      //    vbo.push(mesh.vertices[i - 1], mesh.vertices[i], ...this.color)
+      // }
+      this.layout.vbo = mesh.vertices
       this.layout.ibo = mesh.indices
+      this.layout.clrbo = this.color
       if (!this.isAttached) return
       this.vChunk.splice(0, this.layout.vbo.length, ...this.layout.vbo)
       this.iChunk.splice(0, this.layout.ibo.length, ...this.layout.ibo)
 
+      // setInterval(() => {
+      //    const clr = new Array(4).fill(0)
+      //    for (let i = 0; i < 3; i++) {
+      //       clr[i] = Math.random()
+      //    }
+      //    this.clrChunk?.splice(0, 4, ...clr)
+      // }, 1500)
       // const baseVert = this.vchunk.offset / ELEMENT_PER_VERTEX
       // this.iChunk.splice(0, this.layout.ibo.length, ...this.layout.ibo.map((i) => baseVert + i))
    }

@@ -16,13 +16,13 @@ struct Uniforms {
 
 @vertex
 fn vertex(vert: VertexInput) -> VSOutput {
-   var out: VSOutput;
-   out.color = vert.color;
-   out.position = vec4(vert.position.xy, 0.0, 1.0) / uniforms.viewPort;
-   return out;
+    var out: VSOutput;
+    out.color = vert.color;
+    out.position = vec4(vert.position.xy, 0.0, 1.0) / uniforms.viewPort;
+    return out;
 }
 
 @fragment
 fn fragment(in: VSOutput) -> @location(0) vec4<f32> {
-   return in.color;
+    return in.color;
 }
