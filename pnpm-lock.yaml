@@ -29,6 +29,7 @@ importers:
 
   web:
     specifiers:
+      '@babel/plugin-proposal-decorators': ^7.19.3
       '@solid-primitives/context': ^0.1.1
       '@solid-primitives/date': ^2.0.3
       '@solid-primitives/event-bus': ^0.1.2
@@ -81,6 +82,7 @@ importers:
       solid-transition-group: 0.0.11_solid-js@1.5.7
       solid-tweakpane: 0.5.5_solid-js@1.5.7
     devDependencies:
+      '@babel/plugin-proposal-decorators': 7.19.3
       '@types/js-cookie': 3.0.2
       '@types/offscreencanvas': 2019.7.0
       '@webgpu/types': 0.1.22
@@ -170,6 +172,23 @@ packages:
       '@babel/helper-validator-option': 7.18.6
       browserslist: 4.21.4
       semver: 6.3.0
+    dev: true
+
+  /@babel/helper-create-class-features-plugin/7.19.0:
+    resolution: {integrity: sha512-NRz8DwF4jT3UfrmUoZjd0Uph9HQnP30t7Ash+weACcyNkiYTywpIjDBgReJMKgr+n86sn2nPVVmJ28Dm053Kqw==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+    dependencies:
+      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-environment-visitor': 7.18.9
+      '@babel/helper-function-name': 7.19.0
+      '@babel/helper-member-expression-to-functions': 7.18.9
+      '@babel/helper-optimise-call-expression': 7.18.6
+      '@babel/helper-replace-supers': 7.19.1
+      '@babel/helper-split-export-declaration': 7.18.6
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@babel/helper-create-class-features-plugin/7.19.0_@babel+core@7.19.3:
@@ -327,6 +346,30 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.19.3
+    dev: true
+
+  /@babel/plugin-proposal-decorators/7.19.3:
+    resolution: {integrity: sha512-MbgXtNXqo7RTKYIXVchVJGPvaVufQH3pxvQyfbGvNw1DObIhph+PesYXJTcd8J4DdWibvf6Z2eanOyItX8WnJg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/helper-create-class-features-plugin': 7.19.0
+      '@babel/helper-plugin-utils': 7.19.0
+      '@babel/helper-replace-supers': 7.19.1
+      '@babel/helper-split-export-declaration': 7.18.6
+      '@babel/plugin-syntax-decorators': 7.19.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /@babel/plugin-syntax-decorators/7.19.0:
+    resolution: {integrity: sha512-xaBZUEDntt4faL1yN8oIFlhfXeQAWJW7CLKYsHTUqriCUbj8xOra8bfxxKGi/UwExPFBuPdH4XfHc9rGQhrVkQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/helper-plugin-utils': 7.19.0
     dev: true
 
   /@babel/plugin-syntax-jsx/7.18.6_@babel+core@7.19.3:

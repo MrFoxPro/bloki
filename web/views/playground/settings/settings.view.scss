@@ -1,4 +1,5 @@
 @import '@/styles/vars.scss';
+@import '@/styles/_controls.scss';
 
 .modal.settings {
    display: flex;
@@ -26,6 +27,7 @@
             align-items: center;
             .range {
                width: 563px;
+               @include custom-input-range();
             }
             .numeric {
                background: $color-bg-main;

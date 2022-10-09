@@ -26,6 +26,7 @@
       "solid-tweakpane": "^0.5.5"
    },
    "devDependencies": {
+      "@babel/plugin-proposal-decorators": "^7.19.3",
       "@types/js-cookie": "^3.0.2",
       "@types/offscreencanvas": "^2019.7.0",
       "@webgpu/types": "^0.1.22",

@@ -9,11 +9,13 @@
    transform: translateX(-50%);
    display: grid;
    grid-template:
-      '.  palette picker'
+      '. palette picker'
       'tools presets picker';
    gap: 4px;
+   pointer-events: none;
    $items-gap: 16px;
    .block {
+      pointer-events: all;
       padding-inline: 10px;
       border: 0.5px solid $color-gray-400;
       // box-shadow: 0px 54px 103px rgba(0, 0, 0, 0.03), 0px 22.5599px 43.0309px rgba(0, 0, 0, 0.0215656),
@@ -29,7 +31,7 @@
       display: flex;
       gap: $items-gap;
       padding-inline: math.div($items-gap, 2);
-       svg {
+      svg {
          height: 100%;
          width: 24px;
          cursor: pointer;
@@ -55,6 +57,9 @@
       gap: $items-gap;
    }
    .palette {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
       grid-area: palette;
       width: 126px;
       height: 96px;
@@ -73,7 +78,7 @@
          }
       }
       > input[type='range'] {
-         @include controls.custom-input-range(4px, 8px);
+         @include controls.custom-input-range(4px, 10px);
       }
    }
    .color {

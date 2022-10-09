@@ -1,6 +1,6 @@
 import { Point2DTupleView } from '@/modules/editor/types'
 
-function getSqDist(p1, p2) {
+function getSqDist(p1: Point2DTupleView, p2: Point2DTupleView) {
    const dx = p1[0] - p2[0]
    const dy = p1[1] - p2[1]
    return dx * dx + dy * dy

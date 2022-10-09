@@ -17,28 +17,28 @@ input[type='text'] {
    background-color: $color-bg-main;
 }
 
+@mixin thumb($thumb-size, $color, $thumb-border-radius) {
+   background-color: $color;
+   border-radius: $thumb-border-radius;
+   border: none;
+   width: $thumb-size;
+   height: $thumb-size;
+   cursor: pointer;
+}
 @mixin custom-input-range(
    $track-height: 4px,
-   $thumb-height: 16px,
-   $thumb-border-radius: 2px,
+   $thumb-size: 16px,
+   $thumb-border-radius: 50%,
    $color: $color-primary-orange-900,
    $color-bg: $color-gray-600
 ) {
    -webkit-appearance: none;
    accent-color: $color;
-   // margin: math.div($track-height, 2) 0;
-   box-sizing: border-box;
+   // margin: math.div($thumb-size, 2) 0;
    background: transparent;
-   &.thumb {
-      background-color: $color;
-      border-radius: $thumb-border-radius;
-      border: none;
-      width: $thumb-height;
-      height: $thumb-height;
-      cursor: pointer;
-   }
+   width: 100%;
    &::-moz-range-thumb {
-      @extend .thumb;
+      @include thumb($thumb-size, $color, $thumb-border-radius);
    }
    &::-moz-range-track {
       background-color: $color-bg;
@@ -49,10 +49,9 @@ input[type='text'] {
       background-color: $color;
       height: $track-height;
       cursor: pointer;
-
    }
    &::-webkit-slider-runnable-track {
-      // -webkit-appearance: none;
+      -webkit-appearance: none;
       background-color: $color-bg;
       height: $track-height;
       border-radius: 2px;
@@ -60,16 +59,11 @@ input[type='text'] {
       cursor: pointer;
    }
    &::-webkit-slider-thumb {
-      // -webkit-appearance: none;
-      margin-top: math.div($track-height, 2) - math.div($thumb-height, 2);
+      -webkit-appearance: none;
+      @include thumb($thumb-size, $color, $thumb-border-radius);
+      margin-top: math.div($track-height, 2) - math.div($thumb-size, 2);
       cursor: pointer;
-
-      @extend .thumb;
    }
-}
-input[type='range'] {
-   @include custom-input-range();
-   width: 100%;
 }
 .text-input-group {
    max-width: 360px;

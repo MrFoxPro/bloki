@@ -1,12 +1,12 @@
 import './canvas.scss'
 import { useEditorContext } from '../toolbox/editor.store'
-import { createEffect, onMount } from 'solid-js'
+import { onMount } from 'solid-js'
 import { createMutable } from 'solid-js/store'
 import { Point2DTupleView } from '../types'
 import { ToolType } from '../misc'
-import { Line } from './renderer/line/line'
 import { WebGPURenderer } from './renderer/wgpurenderer'
-import { Tweakpane, TWPBindGroup, TWPButton, TWPInput } from 'solid-tweakpane'
+import { Tweakpane, TWPButton } from 'solid-tweakpane'
+import { FatLine2D } from './renderer/objects/line/line2d'
 
 const SCENE_KEY = 'scene'
 function loadScene(r: WebGPURenderer) {
@@ -14,11 +14,12 @@ function loadScene(r: WebGPURenderer) {
    if (!item) return
    const data = JSON.parse(item)
    data?.forEach((line) => {
-      const mesh = new Line(line.points, line.style)
-      r.dynamic.addMesh(mesh)
+      const mesh = new FatLine2D(line.points, line.style)
+      r.piecewise.addMesh(mesh)
    })
 }
 function saveScene(r: WebGPURenderer) {
+   // @ts-ignore
    const json = JSON.stringify(r.objects.map((o) => ({ points: o.points, style: o.style })))
    localStorage.setItem(SCENE_KEY, json)
 }
@@ -36,17 +37,11 @@ export function Whiteboard() {
 
    const { editor, toAbs } = useEditorContext()
    const store = createMutable({
-      msaa: r.sampleCount,
       zoom: r.zoom,
-      cardinal: {
-         enable: true,
-         tension: 0.5,
-         numOfSeg: 4,
-      },
    })
 
    function resetScene() {
-      r.objects.forEach((o) => o.remove())
+      r.objects.forEach((o) => o.group?.removeMesh(o))
       loadScene(r)
       r.render()
    }
@@ -59,7 +54,7 @@ export function Whiteboard() {
    let mouseDown = false
    let mousePos: Point2DTupleView
    let frameBusy = false
-   let currentLine: Line = null
+   let currentLine: FatLine2D = null
 
    function onPointerDown(e: PointerEvent) {
       if (e.button === 1) e.preventDefault()
@@ -67,9 +62,8 @@ export function Whiteboard() {
       mouseDown = true
       const pos: Point2DTupleView = [e.offsetX, e.offsetY]
       convertCoords(canvasRef, pos)
-      currentLine = new Line(pos)
-      currentLine.style.cardinal = store.cardinal
-      r.dynamic.addMesh(currentLine)
+      currentLine = new FatLine2D(pos)
+      r.piecewise.addMesh(currentLine)
       canvasRef.onpointermove = onPointerMove
    }
 
@@ -92,34 +86,20 @@ export function Whiteboard() {
    function endDrawing() {
       canvasRef.onpointermove = null
       mouseDown = false
-      r.dynamic.removeMesh(currentLine)
-      if (currentLine?.points.length > 4) {
-         currentLine.optimize(settings.tolerance)
-         r.dynamic.addMesh(currentLine)
-         r.render()
-      }
-      currentLine = null
+      // r.dynamic.removeMesh(currentLine)
+      // if (currentLine?.points.length > 4) {
+      //    r.dynamic.addMesh(currentLine)
+      //    r.render()
+      // }
       saveScene(r)
+      currentLine = null
    }
-   const settings = createMutable({
-      tolerance: 1,
-   })
    return (
       <>
          <Tweakpane>
-            <TWPBindGroup target={settings}>
-               <TWPInput
-                  key="tolerance"
-                  params={{
-                     step: 1,
-                     max: 200,
-                     min: 1,
-                  }}
-               />
-            </TWPBindGroup>
             <TWPButton
                title="Flush drawings"
-               onClick={(e) => {
+               onClick={() => {
                   localStorage.removeItem(SCENE_KEY)
                   resetScene()
                }}

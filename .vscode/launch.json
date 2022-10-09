@@ -2,14 +2,12 @@
    "version": "0.2.0",
    "configurations": [
       {
-         "type": "firefox",
+         "name": "Launch Chrome",
          "request": "launch",
-         "reAttach": true,
-         "name": "Debug FF",
+         "type": "chrome",
          "url": "http://localhost:3000/playground",
          "webRoot": "${workspaceFolder}/web",
-         "firefoxExecutable": "/home/foxpro/Apps/firefox-nightly/firefox-bin",
-         "profile": "nightly-default"
+         "userDataDir": false
       },
       {
          "name": "Client",
