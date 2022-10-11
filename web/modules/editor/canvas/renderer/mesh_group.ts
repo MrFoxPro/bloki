@@ -1,27 +1,37 @@
 import { Pool } from './buffer/pool'
 import { SingleColorMesh2D } from './mesh/2d/single_color_mesh2d'
-import {
-   VBO_ARRAY,
-   IBO_ARRAY,
-   INDEX_FORMAT,
-   TypedArray,
-   ELEMENT_PER_VERTEX,
-   VBO_CHUNK_LENGTH,
-   IBO_CHUNK_LENGTH,
-} from './utils'
+import { Mesh2D } from './mesh/mesh'
+import { VBO_ARRAY, IBO_ARRAY, INDEX_FORMAT, ELEMENT_PER_VERTEX } from './utils'
 
-export abstract class IndexedMeshGroupBase {
+export abstract class MeshGroup<T extends Mesh2D = Mesh2D> {
+   readonly objects = new Set<T>()
+   abstract recordRenderPass(pass: GPURenderPassEncoder): void
+   abstract addMesh(mesh: T): void
+   abstract removeMesh(mesh: T): T
+}
+
+export class IndexedMeshGroup extends MeshGroup<SingleColorMesh2D> {
    vbo: Pool
    ibo: Pool
    clrbo: Pool
-   readonly objects = new Set<SingleColorMesh2D>()
    constructor(device: GPUDevice) {
+      super()
       this.vbo = new Pool(device, new VBO_ARRAY(), GPUBufferUsage.VERTEX)
       this.ibo = new Pool(device, new IBO_ARRAY(), GPUBufferUsage.INDEX)
       this.clrbo = new Pool(device, new VBO_ARRAY(), GPUBufferUsage.VERTEX)
    }
-   protected abstract initChunks(mesh: SingleColorMesh2D): void
-   protected abstract draw(pass: GPURenderPassEncoder): void
+   protected initChunks(mesh: SingleColorMesh2D) {
+      mesh.vChunk = this.vbo.create(mesh.layout.vbo)
+      mesh.iChunk = this.ibo.create(mesh.layout.ibo)
+      mesh.clrChunk = this.clrbo.create(mesh.layout.clrbo)
+   }
+   protected draw(pass: GPURenderPassEncoder) {
+      const values = [...this.objects]
+      for (let i = 0, n = values.length; i < n; i++) {
+         const mesh = values[i]
+         pass.drawIndexed(mesh.iChunk.size, 1, mesh.iChunk.offset, mesh.vChunk.offset / ELEMENT_PER_VERTEX, i)
+      }
+   }
    public addMesh(mesh: SingleColorMesh2D) {
       mesh.group = this
       this.initChunks(mesh)
@@ -39,18 +49,15 @@ export abstract class IndexedMeshGroupBase {
       }
    }
    public recordRenderPass(pass: GPURenderPassEncoder) {
-      if (!this.shouldRender) return
+      if (!this.objects.size) return
       pass.setVertexBuffer(0, this.vbo.buffer)
       pass.setVertexBuffer(1, this.clrbo.buffer)
       pass.setIndexBuffer(this.ibo.buffer, INDEX_FORMAT)
       this.draw(pass)
    }
-   public get shouldRender() {
-      return this.objects.size > 0
-   }
 }
 
-export class TightIndexedMeshGroup extends IndexedMeshGroupBase {
+export class BatchedIndexedMeshGroup extends IndexedMeshGroup {
    protected override initChunks(mesh: SingleColorMesh2D) {
       mesh.vChunk = this.vbo.create(mesh.layout.vbo)
       this.align_ibo(mesh)
@@ -62,19 +69,6 @@ export class TightIndexedMeshGroup extends IndexedMeshGroupBase {
       mesh.layout.ibo = mesh.indices.map((index) => baseVert + index)
    }
    protected override draw(pass: GPURenderPassEncoder) {
-      pass.drawIndexed(this.ibo.array.length, 1)
-   }
-}
-
-export class PiecewiseIndexedMeshGroup extends IndexedMeshGroupBase {
-   protected override initChunks(mesh: SingleColorMesh2D) {
-      mesh.vChunk = this.vbo.create(mesh.layout.vbo)
-      mesh.iChunk = this.ibo.create(mesh.layout.ibo)
-      mesh.clrChunk = this.clrbo.create(mesh.layout.clrbo)
-   }
-   protected override draw(pass: GPURenderPassEncoder) {
-      for (const mesh of this.objects) {
-         pass.drawIndexed(mesh.iChunk.size, 1, mesh.iChunk.offset, mesh.vChunk.offset / ELEMENT_PER_VERTEX)
-      }
+      pass.drawIndexed(this.ibo.array.length, 10)
    }
 }

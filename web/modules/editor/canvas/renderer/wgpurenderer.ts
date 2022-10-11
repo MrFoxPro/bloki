@@ -1,27 +1,19 @@
-import { PiecewiseIndexedMeshGroup, TightIndexedMeshGroup } from './mesh_group'
-import SimpleShader from './shaders/simple.wgsl?raw'
+import SimpleShader from './mesh/shaders/single_color.wgsl?raw'
 import { Pool } from './buffer/pool'
-import {
-   UBO_ARRAY,
-   ELEMENT_PER_VERTEX,
-   VBO_ARRAY,
-   ELEMENT_PER_VERTEX_POS,
-   ELEMENT_PER_VERTEX_COLOR,
-} from './utils'
-import { isBlink, isGecko } from '@solid-primitives/platform'
+import { UBO_ARRAY, VBO_ARRAY } from './utils'
+import { isBlink } from '@solid-primitives/platform'
 import { Chunk } from './buffer/chunk'
+import { BatchedIndexedMeshGroup, IndexedMeshGroup, MeshGroup } from './mesh_group'
 
 // TODO: split to scene and renderer
 export class WebGPURenderer {
-   // scene
-   public tight: TightIndexedMeshGroup
-   public piecewise: PiecewiseIndexedMeshGroup
+   public readonly mGroups: MeshGroup[] = []
    private viewPortChunk: Chunk
    private shaderModule: GPUShaderModule
 
    // target
    private ctx: GPUCanvasContext
-   private device: GPUDevice
+   public device: GPUDevice
    private mainFormat: GPUTextureFormat
    private pxRatio = window.devicePixelRatio | 1
 
@@ -44,10 +36,11 @@ export class WebGPURenderer {
    private pipeline: GPURenderPipeline
    uniformBindGroupLayout: GPUBindGroupLayout
 
-   public get objects() {
-      const s = this.tight.objects.values()
-      const d = this.piecewise.objects.values()
-      return Array.from(s).concat(Array.from(d))
+   public get inited() {
+      return !!this.device
+   }
+   public addMeshGroup(group: MeshGroup) {
+      this.mGroups.push(group)
    }
    public get zoom() {
       return this._zoom
@@ -70,7 +63,7 @@ export class WebGPURenderer {
    public set sampleCount(value: number) {
       if (this._sampleCount === value) return
       this._sampleCount = value
-      if (this.device) {
+      if (this.inited) {
          this.build2DPipeline()
          this.buildUniforms()
       }
@@ -79,11 +72,12 @@ export class WebGPURenderer {
 
    public async init(canvas: HTMLCanvasElement) {
       if (!isBlink) throw new Error('Unsupported browser')
-
       if (!navigator.gpu) throw new Error('WebGPU is not supported on this browser.')
       const adapter = await navigator.gpu.requestAdapter({ powerPreference: this.powerPreference })
       if (!adapter) throw new Error('WebGPU supported but disabled')
       this.device = await adapter.requestDevice()
+
+      if (import.meta.env.DEV) this.printAdapterInfo(adapter)
 
       this.ctx = canvas.getContext('webgpu')
       this.mainFormat = navigator.gpu.getPreferredCanvasFormat()
@@ -101,9 +95,6 @@ export class WebGPURenderer {
    }
 
    private initScene() {
-      this.tight = new TightIndexedMeshGroup(this.device)
-      this.piecewise = new PiecewiseIndexedMeshGroup(this.device)
-
       const viewPort = [this.ctx.canvas.width / 2, this.ctx.canvas.height / 2, 10, this._zoom]
       const ubo = new Pool(this.device, new UBO_ARRAY(viewPort), GPUBufferUsage.UNIFORM)
       this.viewPortChunk = ubo.create(viewPort)
@@ -220,8 +211,9 @@ export class WebGPURenderer {
       })
       pass.setBindGroup(0, this.uniformBindGroup)
       pass.setPipeline(this.pipeline)
-      this.piecewise.recordRenderPass(pass)
-      this.tight.recordRenderPass(pass)
+      for (const mGroup of this.mGroups) {
+         mGroup.recordRenderPass(pass)
+      }
       pass.end()
       this.device.queue.submit([commandEncoder.finish()])
    }

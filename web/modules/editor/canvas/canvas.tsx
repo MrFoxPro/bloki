@@ -1,28 +1,11 @@
 import './canvas.scss'
 import { useEditorContext } from '../toolbox/editor.store'
 import { onMount } from 'solid-js'
-import { createMutable } from 'solid-js/store'
 import { Point2DTupleView } from '../types'
 import { ToolType } from '../misc'
-import { WebGPURenderer } from './renderer/wgpurenderer'
 import { Tweakpane, TWPButton } from 'solid-tweakpane'
 import { FatLine2D } from './renderer/objects/line/line2d'
-
-const SCENE_KEY = 'scene'
-function loadScene(r: WebGPURenderer) {
-   const item = localStorage.getItem(SCENE_KEY)
-   if (!item) return
-   const data = JSON.parse(item)
-   data?.forEach((line) => {
-      const mesh = new FatLine2D(line.points, line.style)
-      r.piecewise.addMesh(mesh)
-   })
-}
-function saveScene(r: WebGPURenderer) {
-   // @ts-ignore
-   const json = JSON.stringify(r.objects.map((o) => ({ points: o.points, style: o.style })))
-   localStorage.setItem(SCENE_KEY, json)
-}
+import { Scene2D } from './renderer/scene2d'
 
 function convertCoords(canvas: HTMLCanvasElement, p: Point2DTupleView) {
    p[0] = p[0] - canvas.width / 2
@@ -33,22 +16,14 @@ function convertCoords(canvas: HTMLCanvasElement, p: Point2DTupleView) {
 export function Whiteboard() {
    let canvasRef: HTMLCanvasElement
 
-   const r = new WebGPURenderer()
+   const scene = new Scene2D()
 
    const { editor, toAbs } = useEditorContext()
-   const store = createMutable({
-      zoom: r.zoom,
-   })
-
-   function resetScene() {
-      r.objects.forEach((o) => o.group?.removeMesh(o))
-      loadScene(r)
-      r.render()
-   }
 
    onMount(async () => {
-      await r.init(canvasRef)
-      resetScene()
+      await scene.init(canvasRef)
+      scene.load()
+      scene.render()
    })
 
    let mouseDown = false
@@ -63,7 +38,12 @@ export function Whiteboard() {
       const pos: Point2DTupleView = [e.offsetX, e.offsetY]
       convertCoords(canvasRef, pos)
       currentLine = new FatLine2D(pos)
-      r.piecewise.addMesh(currentLine)
+      for (let i = 0; i < 3; i++) {
+         currentLine.color[i] = Math.random()
+      }
+      currentLine.build()
+      scene.addObject(currentLine)
+
       canvasRef.onpointermove = onPointerMove
    }
 
@@ -80,18 +60,13 @@ export function Whiteboard() {
       if (!mouseDown) return
       convertCoords(canvasRef, mousePos)
       currentLine.lineTo(mousePos)
-      r.render()
+      scene.render()
    }
 
    function endDrawing() {
       canvasRef.onpointermove = null
       mouseDown = false
-      // r.dynamic.removeMesh(currentLine)
-      // if (currentLine?.points.length > 4) {
-      //    r.dynamic.addMesh(currentLine)
-      //    r.render()
-      // }
-      saveScene(r)
+      scene.save()
       currentLine = null
    }
    return (
@@ -100,8 +75,7 @@ export function Whiteboard() {
             <TWPButton
                title="Flush drawings"
                onClick={() => {
-                  localStorage.removeItem(SCENE_KEY)
-                  resetScene()
+                  scene.flush()
                }}
             />
          </Tweakpane>

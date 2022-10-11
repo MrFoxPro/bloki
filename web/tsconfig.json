@@ -1,6 +1,7 @@
 {
    "compilerOptions": {
       // "strict": true,
+      "noImplicitOverride": true,
       "baseUrl": "./",
       "target": "ESNext",
       "module": "ESNext",

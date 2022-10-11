@@ -1,6 +1,5 @@
 import { Point2DArray, Point2DTupleView } from '@/modules/editor/types'
 import { SingleColorMesh2D } from '../../mesh/2d/single_color_mesh2d'
-import { ELEMENT_PER_VERTEX } from '../../utils'
 import { ObjectKind } from '../object_kind'
 import { FatLineBuilder } from './fat/builder'
 import { getCurvePoints } from './processing/cardinal_spline'
@@ -49,7 +48,7 @@ export class FatLine2D extends SingleColorMesh2D {
       super()
       this.style = style ?? this.style
 
-      if (this.points.length) this.build()
+      // if (this.points.length) this.build()
 
       // this.addSegment(this.points)
 
@@ -80,9 +79,11 @@ export class FatLine2D extends SingleColorMesh2D {
       this.layout.vbo = mesh.vertices
       this.layout.ibo = mesh.indices
       this.layout.clrbo = this.color
+
       if (!this.isAttached) return
       this.vChunk.splice(0, this.layout.vbo.length, ...this.layout.vbo)
       this.iChunk.splice(0, this.layout.ibo.length, ...this.layout.ibo)
+      this.clrChunk.splice(0, this.layout.clrbo.length, ...this.layout.clrbo)
 
       // setInterval(() => {
       //    const clr = new Array(4).fill(0)
