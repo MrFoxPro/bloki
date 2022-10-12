@@ -1,5 +1,5 @@
 import { Point2DArray, Point2DTupleView } from '@/modules/editor/types'
-import { SingleColorMesh2D } from '../../mesh/2d/single_color_mesh2d'
+import { IndexedMesh, Mesh2D, SerializableMesh } from '../../mesh'
 import { ObjectKind } from '../object_kind'
 import { FatLineBuilder } from './fat/builder'
 import { getCurvePoints } from './processing/cardinal_spline'
@@ -18,6 +18,7 @@ export enum LineCap {
 const CARDINAL_SEGEMENTS = 4
 const CARDINAL_TENSION = 0.5
 
+type RGBAColorArray = [number, number, number, number]
 export type FatLineStyle = {
    width: number
    cap: LineCap
@@ -26,7 +27,22 @@ export type FatLineStyle = {
    alignment: number
    closePointEps: number
 }
-export class FatLine2D extends SingleColorMesh2D {
+type FatLine2DSerialized = {
+   points: number[]
+   style: FatLine2D['style']
+   color: RGBAColorArray
+}
+
+export class FatLine2D extends IndexedMesh implements Mesh2D, SerializableMesh<FatLine2DSerialized> {
+   serialize() {
+      return { points: this.points, style: this.style, color: this.color }
+   }
+   deserialize({ points, color, style }: FatLine2DSerialized) {
+      this.points = points
+      this.color = color
+      Object.assign(this.style, style)
+      this.build()
+   }
    /** The width (thickness) of any lines drawn. */
    readonly style: FatLineStyle = {
       width: 3,
@@ -43,17 +59,11 @@ export class FatLine2D extends SingleColorMesh2D {
       closeStroke: false,
       type: ObjectKind.POLY,
    }
-
+   readonly position: Point2DTupleView
+   color: RGBAColorArray = [1, 0, 0, 1]
    constructor(public points: Point2DArray = [], style?: FatLineStyle) {
       super()
       this.style = style ?? this.style
-
-      // if (this.points.length) this.build()
-
-      // this.addSegment(this.points)
-
-      // this.vertices = mesh.vertices
-      // this.indices = mesh.indices
    }
    // addSegment(segment: Point2DArray) {
    //    const splined = getCurvePoints(segment, CARDINAL_TENSION, CARDINAL_SEGEMENTS, false)
@@ -65,6 +75,12 @@ export class FatLine2D extends SingleColorMesh2D {
    //    }
    //    this.vertices = this.vertices.concat()
    // }
+   public get isAttached() {
+      return !!this.group
+   }
+   public remove() {
+      return this.group?.removeMesh(this)
+   }
    lineTo(p: Point2DTupleView) {
       this.points.push(...p)
       if (this.points.length > 6) this.build()
@@ -76,14 +92,10 @@ export class FatLine2D extends SingleColorMesh2D {
       // for (let i = 1; i < mesh.vertices.length; i += 2) {
       //    vbo.push(mesh.vertices[i - 1], mesh.vertices[i], ...this.color)
       // }
-      this.layout.vbo = mesh.vertices
-      this.layout.ibo = mesh.indices
-      this.layout.clrbo = this.color
 
       if (!this.isAttached) return
-      this.vChunk.splice(0, this.layout.vbo.length, ...this.layout.vbo)
-      this.iChunk.splice(0, this.layout.ibo.length, ...this.layout.ibo)
-      this.clrChunk.splice(0, this.layout.clrbo.length, ...this.layout.clrbo)
+      this.vChunk.splice(0, mesh.vertices.length, ...mesh.vertices)
+      this.iChunk.splice(0, mesh.indices.length, ...mesh.indices)
 
       // setInterval(() => {
       //    const clr = new Array(4).fill(0)
@@ -109,3 +121,32 @@ export class FatLine2D extends SingleColorMesh2D {
    //    this.buildMesh()
    // }
 }
+
+export const SingleColorStrokeShaderCode = /*wgsl*/ `
+   struct VertexInput {
+      @location(0) position: vec2<f32>,
+      // @location(1) color: vec4<f32>,
+   }
+   struct VSOutput {
+      @builtin(position) position: vec4<f32>,
+      @location(0) color: vec4<f32>,
+   }
+   struct Uniforms {
+      viewPort: vec4<f32>,
+      color: vec4<f32>,
+   }
+   @binding(0) @group(0) var<uniform> uniforms : Uniforms;
+   @vertex
+   fn vertex(vert: VertexInput) -> VSOutput {
+      var out: VSOutput;
+      //  out.color = vert.color;
+      // out.color = vec4(1.0, 1.0, 1.0, 1.0);
+      out.color = uniforms.color;
+      out.position = vec4(vert.position.xy, 0.0, 1.0) / uniforms.viewPort;
+      return out;
+   }
+   @fragment
+   fn fragment(in: VSOutput) -> @location(0) vec4<f32> {
+      return in.color;
+   }
+`

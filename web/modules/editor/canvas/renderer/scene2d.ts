@@ -1,4 +1,4 @@
-import { Mesh2D } from './mesh/mesh'
+import { SerializableMesh } from './mesh'
 import { IndexedMeshGroup, MeshGroup } from './mesh_group'
 import { FatLine2D } from './objects/line/line2d'
 import { WebGPURenderer } from './wgpurenderer'
@@ -6,7 +6,8 @@ import { WebGPURenderer } from './wgpurenderer'
 const SCENE_KEY = 'scene'
 export class Scene2D {
    renderer: WebGPURenderer
-   mgroup: MeshGroup
+   mgroup: MeshGroup<SerializableMesh>
+   viewport: [x0: number, y0: number, wtf: number, zoom: number] = [0, 0, 10, 1]
    async init(canvas: HTMLCanvasElement) {
       const r = new WebGPURenderer()
       this.renderer = await r.init(canvas)
@@ -16,7 +17,7 @@ export class Scene2D {
    get objects() {
       return Array.from(this.mgroup?.objects ?? [])
    }
-   addObject(mesh: Mesh2D) {
+   addObject(mesh: SerializableMesh) {
       this.mgroup.addMesh(mesh)
    }
    load(key: string = 'scene') {
@@ -25,17 +26,14 @@ export class Scene2D {
       const meshes = JSON.parse(item)
       if (!meshes) return
       for (const obj of meshes) {
-         const mesh = new FatLine2D(obj.points, obj.style)
-         mesh.color = obj.color
-         mesh.build()
+         const mesh = new FatLine2D()
          this.addObject(mesh)
+         mesh.deserialize(obj)
       }
    }
    save() {
-      const json = JSON.stringify(
-         // @ts-ignore
-         this.objects.map((o) => ({ points: o.points, style: o.style, color: o.color }))
-      )
+      const serialized = this.objects.map((o) => o.serialize())
+      const json = JSON.stringify(serialized)
       localStorage.setItem(SCENE_KEY, json)
    }
    flush() {

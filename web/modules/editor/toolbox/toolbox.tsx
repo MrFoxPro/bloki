@@ -83,12 +83,12 @@ export function Toolbox() {
       }
    }
 
-   createEffect(() => {
-      window.addEventListener('keydown', onKeyDown, false)
-      onCleanup(() => {
-         window.removeEventListener('keydown', onKeyDown, false)
-      })
-   })
+   // createEffect(() => {
+   //    window.addEventListener('keydown', onKeyDown, false)
+   //    onCleanup(() => {
+   //       window.removeEventListener('keydown', onKeyDown, false)
+   //    })
+   // })
 
    onError((e) => {
       reportBlokiError(e)

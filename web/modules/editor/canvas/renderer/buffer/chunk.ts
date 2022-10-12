@@ -1,7 +1,7 @@
-import { Pool } from './pool'
+import { BufferPool } from './pool'
 
 export class Chunk {
-   constructor(readonly manager: Pool, public offset: number, public size: number) {}
+   constructor(readonly manager: BufferPool, public offset: number, public size: number) {}
    get end() {
       return this.offset + this.size
    }

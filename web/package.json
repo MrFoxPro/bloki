@@ -23,7 +23,7 @@
       "solid-js": "1.5.7",
       "solid-toast": "^0.3.5",
       "solid-transition-group": "^0.0.11",
-      "solid-tweakpane": "^0.5.5"
+      "solid-tweakpane": "^0.6.0"
    },
    "devDependencies": {
       "@babel/plugin-proposal-decorators": "^7.19.3",

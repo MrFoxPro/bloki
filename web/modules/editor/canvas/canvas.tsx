@@ -3,10 +3,9 @@ import { useEditorContext } from '../toolbox/editor.store'
 import { onMount } from 'solid-js'
 import { Point2DTupleView } from '../types'
 import { ToolType } from '../misc'
-import { Tweakpane, TWPButton } from 'solid-tweakpane'
+import { Tweakpane, TWPButton, TWPInput } from 'solid-tweakpane'
 import { FatLine2D } from './renderer/objects/line/line2d'
 import { Scene2D } from './renderer/scene2d'
-
 function convertCoords(canvas: HTMLCanvasElement, p: Point2DTupleView) {
    p[0] = p[0] - canvas.width / 2
    p[1] = -p[1] + canvas.height / 2
@@ -72,6 +71,18 @@ export function Whiteboard() {
    return (
       <>
          <Tweakpane>
+            <TWPInput
+               params={{
+                  step: 0.1,
+                  max: 2,
+                  min: -2,
+               }}
+               initialValue={1}
+               onChange={(e) => {
+                  scene.renderer.zoom = +e.value
+                  scene.render()
+               }}
+            />
             <TWPButton
                title="Flush drawings"
                onClick={() => {

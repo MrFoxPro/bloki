@@ -1,7 +1,7 @@
 import { TypedArray, TypedArrayConstructor } from '../utils'
 import { Chunk } from './chunk'
 
-export class Pool {
+export class BufferPool {
    buffer: GPUBuffer
    readonly chunks = new Set<Chunk>()
    readonly ArrayConstructor: TypedArrayConstructor
