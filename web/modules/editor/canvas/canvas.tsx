@@ -4,7 +4,7 @@ import { onMount } from 'solid-js'
 import { Point2DTupleView } from '../types'
 import { ToolType } from '../misc'
 import { Tweakpane, TWPButton } from 'solid-tweakpane'
-import { FatLine2D } from './renderer/objects/line/line2d'
+import { FatLine2D } from './renderer/mesh/line/line2d'
 import { Scene2D } from './renderer/scene2d'
 
 function convertCoords(canvas: HTMLCanvasElement, p: Point2DTupleView) {

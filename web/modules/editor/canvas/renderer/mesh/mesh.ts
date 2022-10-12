@@ -18,11 +18,23 @@ export interface IndexedRenderLayout {
    ibo: readonly number[]
 }
 
-export interface Mesh2D extends IndexedRenderData {
+export interface Mesh2D {
    bounds(): BoundingBox2D
+   chunks: Chunk[]
 }
 
-export abstract class IndexedMeshBase implements Mesh2D {
+export abstract class IndexedMeshBase implements Mesh2D, IndexedRenderData {
+   vertices: readonly number[] = []
+   indices: readonly number[] = []
+   group: IndexedMeshGroup | null
+   vChunk: Chunk | null
+   iChunk: Chunk | null
+   layout = {
+      vbo: [],
+      ibo: [],
+      clrbo: [],
+   }
+   abstract chunks: Chunk[]
    #bounds: BoundingBox2D | null
    bounds() {
       if (this.#bounds) return this.#bounds
@@ -45,14 +57,5 @@ export abstract class IndexedMeshBase implements Mesh2D {
          height: maxY - minY,
       }
       return this.#bounds
-   }
-   vertices: readonly number[] = []
-   indices: readonly number[] = []
-   group: IndexedMeshGroup | null
-   vChunk: Chunk | null
-   iChunk: Chunk | null
-   layout: IndexedRenderLayout = {
-      vbo: [],
-      ibo: [],
    }
 }

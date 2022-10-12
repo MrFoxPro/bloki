@@ -1,16 +1,8 @@
-import SimpleShader from './mesh/shaders/single_color.wgsl?raw'
-import { Pool } from './buffer/pool'
-import { UBO_ARRAY, VBO_ARRAY } from './utils'
 import { isBlink } from '@solid-primitives/platform'
-import { Chunk } from './buffer/chunk'
-import { BatchedIndexedMeshGroup, IndexedMeshGroup, MeshGroup } from './mesh_group'
+import { PipelineAgent } from './pipelines/pipeline_agent'
 
 // TODO: split to scene and renderer
 export class WebGPURenderer {
-   public readonly mGroups: MeshGroup[] = []
-   private viewPortChunk: Chunk
-   private shaderModule: GPUShaderModule
-
    // target
    private ctx: GPUCanvasContext
    public device: GPUDevice
@@ -20,7 +12,6 @@ export class WebGPURenderer {
    // settings
    private powerPreference: GPUPowerPreference = 'low-power'
    private _sampleCount = 4
-   private _zoom = 1
 
    // realtime
    private attachment: GPURenderPassColorAttachment = {
@@ -32,31 +23,11 @@ export class WebGPURenderer {
    }
 
    // internal
-   private uniformBindGroup: GPUBindGroup
-   private pipeline: GPURenderPipeline
-   uniformBindGroupLayout: GPUBindGroupLayout
+   public readonly pipelines: PipelineAgent<any>[] = []
 
    public get inited() {
       return !!this.device
    }
-   public addMeshGroup(group: MeshGroup) {
-      this.mGroups.push(group)
-   }
-   public get zoom() {
-      return this._zoom
-   }
-   public set zoom(value: number) {
-      if (this._zoom === value) return
-
-      this._zoom = value
-
-      this.device.queue.writeBuffer(
-         this.viewPortChunk.manager.buffer,
-         3 * UBO_ARRAY.BYTES_PER_ELEMENT,
-         new UBO_ARRAY([value])
-      )
-   }
-
    public get sampleCount() {
       return this._sampleCount
    }
@@ -64,8 +35,7 @@ export class WebGPURenderer {
       if (this._sampleCount === value) return
       this._sampleCount = value
       if (this.inited) {
-         this.build2DPipeline()
-         this.buildUniforms()
+         this.buildPipelines()
       }
       this.updateSampling(value)
    }
@@ -75,7 +45,7 @@ export class WebGPURenderer {
       if (!navigator.gpu) throw new Error('WebGPU is not supported on this browser.')
       const adapter = await navigator.gpu.requestAdapter({ powerPreference: this.powerPreference })
       if (!adapter) throw new Error('WebGPU supported but disabled')
-      this.device = await adapter.requestDevice()
+      this.device = await adapter.requestDevice({ requiredFeatures: ['indirect-first-instance'] })
 
       if (import.meta.env.DEV) this.printAdapterInfo(adapter)
 
@@ -87,95 +57,20 @@ export class WebGPURenderer {
          format: this.mainFormat,
          alphaMode: 'premultiplied',
       })
-      this.initScene()
-      this.build2DPipeline()
-      this.buildUniforms()
+      this.buildPipelines()
       this.render()
       return this
    }
 
-   private initScene() {
-      const viewPort = [this.ctx.canvas.width / 2, this.ctx.canvas.height / 2, 10, this._zoom]
-      const ubo = new Pool(this.device, new UBO_ARRAY(viewPort), GPUBufferUsage.UNIFORM)
-      this.viewPortChunk = ubo.create(viewPort)
-   }
-
-   private buildUniforms() {
-      this.uniformBindGroup = this.device.createBindGroup({
-         layout: this.uniformBindGroupLayout,
-         entries: [
-            {
-               binding: 0,
-               resource: {
-                  buffer: this.viewPortChunk.manager.buffer,
-               },
-            },
-         ],
-      })
-   }
-
-   private build2DPipeline() {
-      this.shaderModule ??= this.device.createShaderModule({ code: SimpleShader })
+   private buildPipelines() {
       this.updateSampling()
-      this.uniformBindGroupLayout = this.device.createBindGroupLayout({
-         entries: [
-            {
-               binding: 0,
-               visibility: GPUShaderStage.VERTEX,
-               buffer: {
-                  type: 'uniform',
-               },
-            },
-         ],
-      })
-      this.pipeline = this.device.createRenderPipeline({
-         layout: this.device.createPipelineLayout({
-            bindGroupLayouts: [this.uniformBindGroupLayout],
-         }),
-         vertex: {
-            module: this.shaderModule,
-            entryPoint: 'vertex',
-            buffers: [
-               {
-                  arrayStride: 2 * VBO_ARRAY.BYTES_PER_ELEMENT,
-                  stepMode: 'vertex',
-                  attributes: [
-                     {
-                        format: 'float32x2',
-                        offset: 0,
-                        shaderLocation: 0,
-                     },
-                  ],
-               },
-               {
-                  arrayStride: 4 * VBO_ARRAY.BYTES_PER_ELEMENT,
-                  stepMode: 'instance',
-                  attributes: [
-                     {
-                        format: 'float32x4',
-                        offset: 0,
-                        shaderLocation: 1,
-                     },
-                  ],
-               },
-            ],
-         },
-         fragment: {
-            module: this.shaderModule,
-            entryPoint: 'fragment',
-            targets: [{ format: this.mainFormat }],
-         },
-         primitive: {
-            topology: 'triangle-list',
-         },
-         multisample: {
-            count: this._sampleCount,
-         },
-      })
+      for (const pipeline of this.pipelines) {
+         pipeline.build()
+      }
    }
 
    public async printAdapterInfo(adapter: GPUAdapter) {
-      console.log('Limits', adapter.limits)
+      console.log('Limits', adapter.limits, 'features', [...adapter.features])
       if (adapter.requestAdapterInfo) {
          const info = await adapter.requestAdapterInfo()
          // @ts-ignore
@@ -209,10 +104,8 @@ export class WebGPURenderer {
       const pass = commandEncoder.beginRenderPass({
          colorAttachments: [this.attachment],
       })
-      pass.setBindGroup(0, this.uniformBindGroup)
-      pass.setPipeline(this.pipeline)
-      for (const mGroup of this.mGroups) {
-         mGroup.recordRenderPass(pass)
+      for (const pipeline of this.pipelines) {
+         pipeline.recordRenderPass(pass)
       }
       pass.end()
       this.device.queue.submit([commandEncoder.finish()])
