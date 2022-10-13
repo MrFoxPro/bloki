@@ -1,6 +1,6 @@
 import { Point2DTupleView } from '../../types'
-import { Chunk } from './buffer/chunk'
 import { IndexedMeshGroup } from './mesh_group'
+import { Chunk } from './pool';
 
 export type BoundingBox2D = {
    pivot: Point2DTupleView

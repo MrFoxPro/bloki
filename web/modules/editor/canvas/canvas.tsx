@@ -79,7 +79,7 @@ export function Whiteboard() {
                }}
                initialValue={1}
                onChange={(e) => {
-                  scene.renderer.zoom = +e.value
+                  scene.zoom = +e.value
                   scene.render()
                }}
             />

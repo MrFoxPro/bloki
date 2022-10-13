@@ -1,14 +1,10 @@
-import { BufferPool } from './buffer/pool'
-import { UBO_ARRAY, VBO_ARRAY } from './utils'
+import { VBO_ARRAY } from './utils'
 import { isBlink } from '@solid-primitives/platform'
-import { Chunk } from './buffer/chunk'
 import { MeshGroup } from './mesh_group'
 import { SingleColorStrokeShaderCode } from './objects/line/line2d'
 
-// TODO: split to scene and renderer
-export class WebGPURenderer {
+export class Renderer {
    readonly mGroups: MeshGroup[] = []
-   private viewportChunk: Chunk
    private shaderModule: GPUShaderModule
 
    // target
@@ -20,7 +16,6 @@ export class WebGPURenderer {
    // settings
    private powerPreference: GPUPowerPreference = 'low-power'
    private _sampleCount = 4
-   private _zoom = 1
 
    // realtime
    private attachment: GPURenderPassColorAttachment = {
@@ -32,8 +27,8 @@ export class WebGPURenderer {
    }
 
    // internal
-   private uniformBindGroup: GPUBindGroup
-   private pipeline: GPURenderPipeline
+   readonly globalBindGroups: { index: number; group: GPUBindGroup }[] = []
+   public pipeline: GPURenderPipeline
 
    get inited() {
       return !!this._device
@@ -43,20 +38,6 @@ export class WebGPURenderer {
    }
    addMeshGroup(group: MeshGroup) {
       this.mGroups.push(group)
-   }
-   get zoom() {
-      return this._zoom
-   }
-   set zoom(value: number) {
-      if (this._zoom === value) return
-
-      this._zoom = value
-
-      this._device.queue.writeBuffer(
-         this.viewportChunk.manager.buffer,
-         3 * UBO_ARRAY.BYTES_PER_ELEMENT,
-         new UBO_ARRAY([value])
-      )
    }
 
    get sampleCount() {
@@ -78,7 +59,7 @@ export class WebGPURenderer {
       if (!adapter) throw new Error('WebGPU supported but disabled')
       this._device = await adapter.requestDevice()
 
-      // if (import.meta.env.DEV) this.printAdapterInfo(adapter)
+      if (import.meta.env.DEV) this.printAdapterInfo(adapter)
 
       this.ctx = canvas.getContext('webgpu')
       this.mainFormat = navigator.gpu.getPreferredCanvasFormat()
@@ -88,54 +69,20 @@ export class WebGPURenderer {
          format: this.mainFormat,
          alphaMode: 'premultiplied',
       })
-      this.initScene()
-      this.buildPipelines()
-      this.render()
-      return this
    }
 
    get screenFormat() {
       return this.mainFormat
    }
 
-   private initScene() {
-      const viewPort = [this.ctx.canvas.width / 2, this.ctx.canvas.height / 2, 10, this._zoom]
-      const ubo = new BufferPool(this._device, new UBO_ARRAY(viewPort), GPUBufferUsage.UNIFORM)
-      this.viewportChunk = ubo.create(viewPort)
-   }
-
-   private buildPipelines() {
-      for (const group of this.mGroups) {
-
-      }
+   buildPipelines() {
       this.shaderModule ??= this._device.createShaderModule({ code: SingleColorStrokeShaderCode })
       this.updateSampling()
-      const uniformBindGroupLayout = this._device.createBindGroupLayout({
-         entries: [
-            {
-               binding: 0,
-               visibility: GPUShaderStage.VERTEX,
-               buffer: {
-                  type: 'uniform',
-               },
-            },
-         ],
-      })
-      this.uniformBindGroup = this._device.createBindGroup({
-         layout: uniformBindGroupLayout,
-         entries: [
-            {
-               binding: 0,
-               resource: {
-                  buffer: this.viewportChunk.manager.buffer,
-               },
-            },
-         ],
-      })
-      const bindGroupLayouts = [uniformBindGroupLayout]
-      const pipelineLayout = this._device.createPipelineLayout({
-         bindGroupLayouts,
-      })
+
+      // const bindGroupLayouts: GPUBindGroupLayout[] = this.globalBindGroups.map((g) => g.layout)
+      // const pipelineLayout = this._device.createPipelineLayout({
+      //    bindGroupLayouts,
+      // })
 
       const vertexShaderModule = this.shaderModule
       const vertexState: GPUVertexState = {
@@ -155,6 +102,7 @@ export class WebGPURenderer {
             },
          ],
       }
+
       const fragmentShaderModule = this.shaderModule
       const fragmentState: GPUFragmentState = {
          module: fragmentShaderModule,
@@ -167,8 +115,9 @@ export class WebGPURenderer {
       const primitiveState: GPUPrimitiveState = {
          topology: 'triangle-list',
       }
-      this.pipeline = this._device.createRenderPipeline({
-         layout: pipelineLayout,
+      this.pipeline = this.device.createRenderPipeline({
+         layout: 'auto',
+         // layout: pipelineLayout,
          vertex: vertexState,
          fragment: fragmentState,
          primitive: primitiveState,
@@ -177,7 +126,7 @@ export class WebGPURenderer {
    }
 
    async printAdapterInfo(adapter: GPUAdapter) {
-      console.log('Limits', adapter.limits)
+      // console.log('Limits', adapter.limits)
       if (adapter.requestAdapterInfo) {
          const info = await adapter.requestAdapterInfo()
          // @ts-ignore
@@ -216,7 +165,7 @@ export class WebGPURenderer {
    //    console.info('Recorded render bundle')
    // }
    render() {
-      const commandEncoder = this._device.createCommandEncoder()
+      const commandEncoder = this.device.createCommandEncoder()
 
       const view = this.ctx.getCurrentTexture().createView()
       if (this._sampleCount > 1) this.attachment.resolveTarget = view
@@ -227,13 +176,15 @@ export class WebGPURenderer {
       })
       // if (this.renderBundle) pass.executeBundles([this.renderBundle])
 
-      pass.setBindGroup(0, this.uniformBindGroup)
+      // pass.setBindGroup(0, this.uniformBindGroup)
+      for (const { index, group } of this.globalBindGroups) {
+         pass.setBindGroup(index, group)
+      }
       pass.setPipeline(this.pipeline)
       for (const mGroup of this.mGroups) {
          mGroup.recordRender(pass)
       }
-
       pass.end()
-      this._device.queue.submit([commandEncoder.finish()])
+      this.device.queue.submit([commandEncoder.finish()])
    }
 }

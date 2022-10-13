@@ -1,6 +1,6 @@
 import { Point2DArray, Point2DTupleView } from '@/modules/editor/types'
 import { IndexedMesh, Mesh2D, SerializableMesh } from '../../mesh'
-import { ObjectKind } from '../object_kind'
+import { Chunk } from '../../pool';
 import { FatLineBuilder } from './fat/builder'
 import { getCurvePoints } from './processing/cardinal_spline'
 
@@ -34,15 +34,6 @@ type FatLine2DSerialized = {
 }
 
 export class FatLine2D extends IndexedMesh implements Mesh2D, SerializableMesh<FatLine2DSerialized> {
-   serialize() {
-      return { points: this.points, style: this.style, color: this.color }
-   }
-   deserialize({ points, color, style }: FatLine2DSerialized) {
-      this.points = points
-      this.color = color
-      Object.assign(this.style, style)
-      this.build()
-   }
    /** The width (thickness) of any lines drawn. */
    readonly style: FatLineStyle = {
       width: 3,
@@ -55,15 +46,13 @@ export class FatLine2D extends IndexedMesh implements Mesh2D, SerializableMesh<F
       alignment: 0.1,
       closePointEps: 1e-4,
    }
-   readonly shape = {
-      closeStroke: false,
-      type: ObjectKind.POLY,
-   }
    readonly position: Point2DTupleView
    color: RGBAColorArray = [1, 0, 0, 1]
+   clrChunk: Chunk
+   clrBindGroup: GPUBindGroup
    constructor(public points: Point2DArray = [], style?: FatLineStyle) {
       super()
-      this.style = style ?? this.style
+      Object.assign(this.style, style)
    }
    // addSegment(segment: Point2DArray) {
    //    const splined = getCurvePoints(segment, CARDINAL_TENSION, CARDINAL_SEGEMENTS, false)
@@ -75,10 +64,19 @@ export class FatLine2D extends IndexedMesh implements Mesh2D, SerializableMesh<F
    //    }
    //    this.vertices = this.vertices.concat()
    // }
-   public get isAttached() {
+   get isAttached() {
       return !!this.group
    }
-   public remove() {
+   serialize() {
+      return { points: this.points, style: this.style, color: this.color }
+   }
+   deserialize({ points, color, style }: FatLine2DSerialized) {
+      this.points = points
+      this.color = color
+      Object.assign(this.style, style)
+      this.build()
+   }
+   remove() {
       return this.group?.removeMesh(this)
    }
    lineTo(p: Point2DTupleView) {
@@ -96,7 +94,7 @@ export class FatLine2D extends IndexedMesh implements Mesh2D, SerializableMesh<F
       if (!this.isAttached) return
       this.vChunk.splice(0, mesh.vertices.length, ...mesh.vertices)
       this.iChunk.splice(0, mesh.indices.length, ...mesh.indices)
-
+      this.clrChunk.splice(0, this.color.length, ...this.color)
       // setInterval(() => {
       //    const clr = new Array(4).fill(0)
       //    for (let i = 0; i < 3; i++) {
@@ -123,30 +121,18 @@ export class FatLine2D extends IndexedMesh implements Mesh2D, SerializableMesh<F
 }
 
 export const SingleColorStrokeShaderCode = /*wgsl*/ `
-   struct VertexInput {
-      @location(0) position: vec2<f32>,
-      // @location(1) color: vec4<f32>,
-   }
-   struct VSOutput {
-      @builtin(position) position: vec4<f32>,
-      @location(0) color: vec4<f32>,
-   }
-   struct Uniforms {
-      viewPort: vec4<f32>,
-      color: vec4<f32>,
-   }
-   @binding(0) @group(0) var<uniform> uniforms : Uniforms;
+   @binding(0) @group(0) var<uniform> viewport : vec4<f32>;
+   @binding(0) @group(1) var<uniform> color : vec4<f32>;
+
    @vertex
-   fn vertex(vert: VertexInput) -> VSOutput {
-      var out: VSOutput;
-      //  out.color = vert.color;
-      // out.color = vec4(1.0, 1.0, 1.0, 1.0);
-      out.color = uniforms.color;
-      out.position = vec4(vert.position.xy, 0.0, 1.0) / uniforms.viewPort;
+   fn vertex(@location(0) position: vec2<f32>) -> @builtin(position) vec4<f32> {
+      var out: vec4<f32>;
+      out = vec4(position.xy, 0.0, 1.0) / viewport;
       return out;
    }
+
    @fragment
-   fn fragment(in: VSOutput) -> @location(0) vec4<f32> {
-      return in.color;
+   fn fragment() -> @location(0) vec4<f32> {
+      return color;
    }
 `

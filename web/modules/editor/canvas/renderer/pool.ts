@@ -1,11 +1,15 @@
-import { TypedArray, TypedArrayConstructor } from '../utils'
-import { Chunk } from './chunk'
+import { TypedArray, TypedArrayConstructor } from './utils'
 
 export class BufferPool {
    buffer: GPUBuffer
    readonly chunks = new Set<Chunk>()
    readonly ArrayConstructor: TypedArrayConstructor
-   constructor(readonly device: GPUDevice, public array: TypedArray, readonly purpose: GPUFlagsConstant) {
+   constructor(
+      readonly device: GPUDevice,
+      public array: TypedArray,
+      readonly purpose: GPUFlagsConstant,
+      public label: string = undefined
+   ) {
       this.ArrayConstructor = array.constructor as TypedArrayConstructor
       this.respawn()
    }
@@ -31,24 +35,25 @@ export class BufferPool {
       }
    }
    protected respawn() {
-      this.buffer?.destroy()
+      // this.buffer?.destroy()
       const buffer = this.device.createBuffer({
          size: this.array.byteLength,
          usage: this.purpose | GPUBufferUsage.COPY_DST,
          mappedAtCreation: true,
+         label: this.label,
       })
       const mappedRange = new this.ArrayConstructor(buffer.getMappedRange())
       mappedRange.set(this.array)
-      this.buffer = buffer
       buffer.unmap()
+      this.buffer = buffer
    }
-   create(data: ArrayLike<number>) {
+   create(data: ArrayLike<number>, length = data.length) {
       const offset = this.array.length
-      const new_array = new this.ArrayConstructor(offset + data.length)
+      const new_array = new this.ArrayConstructor(offset + length)
       new_array.set(this.array)
       new_array.set(data, offset)
       this.array = new_array
-      const chunk = new Chunk(this, offset, data.length)
+      const chunk = new Chunk(this, offset, length)
       this.chunks.add(chunk)
       this.respawn()
       return chunk
@@ -82,6 +87,25 @@ export class BufferPool {
    }
 }
 
+class Chunk {
+   constructor(readonly manager: BufferPool, public offset: number, public size: number) {}
+   get end() {
+      return this.offset + this.size
+   }
+   set(data: ArrayLike<number>, offset: number = 0) {
+      return this.manager.set(this, data, offset)
+   }
+   slice(start?: number, end?: number) {
+      return this.manager.slice(this, start, end)
+   }
+   splice(start: number, deleteCount: number, ...items: number[]) {
+      return this.manager.splice(this, start, deleteCount, ...items)
+   }
+   remove() {
+      return this.manager.remove(this)
+   }
+}
+export type { Chunk }
 // export class BlockedPool extends Pool {
 //    readonly chunks = new Set<BlockedChunk>()
 //    constructor(device: GPUDevice, array: TypedArray, purpose: number, readonly block_size: number) {

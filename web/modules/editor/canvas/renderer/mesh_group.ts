@@ -1,7 +1,8 @@
-import { BufferPool } from './buffer/pool'
+import { BufferPool } from './pool'
 import { Mesh2D } from './mesh'
 import { FatLine2D } from './objects/line/line2d'
-import { VBO_ARRAY, IBO_ARRAY, INDEX_FORMAT, ELEMENT_PER_VERTEX } from './utils'
+import { VBO_ARRAY, IBO_ARRAY, INDEX_FORMAT, ELEMENT_PER_VERTEX, UBO_ARRAY } from './utils'
+import { Renderer } from './output'
 
 export interface MeshGroup<T extends Mesh2D = Mesh2D> {
    readonly objects: Set<T>
@@ -10,17 +11,38 @@ export interface MeshGroup<T extends Mesh2D = Mesh2D> {
    recordRender(pass: GPURenderPassEncoder | GPURenderBundleEncoder): void
 }
 
+const floatsInUBOAlignment = 256 / Float32Array.BYTES_PER_ELEMENT
 export class IndexedMeshGroup implements MeshGroup<FatLine2D> {
    vbo: BufferPool
    ibo: BufferPool
+   ubo: BufferPool
    objects = new Set<FatLine2D>()
-   constructor(device: GPUDevice) {
-      this.vbo = new BufferPool(device, new VBO_ARRAY(), GPUBufferUsage.VERTEX)
-      this.ibo = new BufferPool(device, new IBO_ARRAY(), GPUBufferUsage.INDEX)
+   constructor(readonly renderer: Renderer) {
+      this.vbo = new BufferPool(renderer.device, new VBO_ARRAY(), GPUBufferUsage.VERTEX, 'vbo')
+      this.ibo = new BufferPool(renderer.device, new IBO_ARRAY(), GPUBufferUsage.INDEX, 'ibo')
+      this.ubo = new BufferPool(renderer.device, new UBO_ARRAY(), GPUBufferUsage.UNIFORM, 'ubo')
    }
    initChunks(mesh: FatLine2D) {
       mesh.vChunk = this.vbo.create(mesh.vertices)
       mesh.iChunk = this.ibo.create(mesh.indices)
+      mesh.clrChunk = this.ubo.create(mesh.color, floatsInUBOAlignment)
+      this.setColorBindGroup(mesh)
+   }
+   setColorBindGroup(mesh: FatLine2D) {
+      mesh.clrBindGroup = this.renderer.device.createBindGroup({
+         label: 'color bind group',
+         layout: this.renderer.pipeline.getBindGroupLayout(1),
+         entries: [
+            {
+               binding: 0,
+               resource: {
+                  offset: mesh.clrChunk.offset * Float32Array.BYTES_PER_ELEMENT,
+                  size: 4 * Float32Array.BYTES_PER_ELEMENT,
+                  buffer: this.ubo.buffer,
+               },
+            },
+         ],
+      })
    }
    addMesh(mesh: FatLine2D) {
       mesh.group = this
@@ -33,6 +55,8 @@ export class IndexedMeshGroup implements MeshGroup<FatLine2D> {
          mesh.vChunk = null
          mesh.iChunk.remove()
          mesh.vChunk = null
+         mesh.clrChunk.remove()
+         mesh.clrChunk = null
          return mesh
       }
    }
@@ -42,6 +66,7 @@ export class IndexedMeshGroup implements MeshGroup<FatLine2D> {
       pass.setIndexBuffer(this.ibo.buffer, INDEX_FORMAT)
       const isBundle = pass instanceof GPURenderBundleEncoder
       for (const mesh of this.objects) {
+         pass.setBindGroup(1, mesh.clrBindGroup)
          pass.drawIndexed(mesh.iChunk.size, 1, mesh.iChunk.offset, mesh.vChunk.offset / ELEMENT_PER_VERTEX)
       }
    }

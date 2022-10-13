@@ -1,24 +1,65 @@
-import { SerializableMesh } from './mesh'
-import { IndexedMeshGroup, MeshGroup } from './mesh_group'
+import { IndexedMeshGroup } from './mesh_group'
 import { FatLine2D } from './objects/line/line2d'
-import { WebGPURenderer } from './wgpurenderer'
+import { Chunk } from './pool'
+import { UBO_ARRAY } from './utils'
+import { Renderer } from './output'
 
 const SCENE_KEY = 'scene'
 export class Scene2D {
-   renderer: WebGPURenderer
-   mgroup: MeshGroup<SerializableMesh>
+   renderer: Renderer
+   mgroup: IndexedMeshGroup
    viewport: [x0: number, y0: number, wtf: number, zoom: number] = [0, 0, 10, 1]
+   viewportChunk: Chunk
+   clrChunk: Chunk
+   _zoom: number = 1
    async init(canvas: HTMLCanvasElement) {
-      const r = new WebGPURenderer()
-      this.renderer = await r.init(canvas)
-      this.mgroup = new IndexedMeshGroup(this.renderer.device)
+      this.renderer = new Renderer()
+      await this.renderer.init(canvas)
+      this.mgroup = new IndexedMeshGroup(this.renderer)
       this.renderer.addMeshGroup(this.mgroup)
+
+      this.viewport = [canvas.width / 2, canvas.height / 2, 10, this._zoom]
+      this.viewportChunk = this.mgroup.ubo.create(this.viewport, 256 / Float32Array.BYTES_PER_ELEMENT)
+      const color = [1, 0.5, 0.5, 1]
+      this.clrChunk = this.mgroup.ubo.create(color, 256 / Float32Array.BYTES_PER_ELEMENT)
+
+      this.renderer.buildPipelines()
+      const viewportBG = this.renderer.device.createBindGroup({
+         layout: this.renderer.pipeline.getBindGroupLayout(0),
+         entries: [
+            {
+               binding: 0,
+               resource: {
+                  offset: 0,
+                  size: 4 * Float32Array.BYTES_PER_ELEMENT,
+                  buffer: this.mgroup.ubo.buffer,
+               },
+            },
+         ],
+      })
+      this.renderer.globalBindGroups.push({
+         index: 0,
+         group: viewportBG,
+      })
+      this.renderer.render()
+   }
+   get zoom() {
+      return this._zoom
+   }
+   set zoom(value: number) {
+      if (this._zoom === value) return
+      this._zoom = value
+      this.renderer.device.queue.writeBuffer(
+         this.viewportChunk.manager.buffer,
+         3 * UBO_ARRAY.BYTES_PER_ELEMENT,
+         new UBO_ARRAY([value])
+      )
+   }
+   addObject(mesh: FatLine2D) {
+      this.mgroup.addMesh(mesh)
    }
    get objects() {
       return Array.from(this.mgroup?.objects ?? [])
-   }
-   addObject(mesh: SerializableMesh) {
-      this.mgroup.addMesh(mesh)
    }
    load(key: string = 'scene') {
       const item = localStorage.getItem(key)
