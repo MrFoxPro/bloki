@@ -1,8 +1,10 @@
+import { Route, Router, Routes } from '@solidjs/router'
 import { lazy } from 'solid-js'
+// import LandingView from './landing/landing'
 // import { Link, Route, Router, Routes } from '@solidjs/router'
 const LandingView = lazy(() => import('./landing/landing'))
 const PlaygroundView = lazy(() => import('./playground/playground'))
-const WelcomeView = lazy(() => import('./welcome/welcome.view'))
+// const WelcomeView = lazy(() => import('./welcome/welcome.view'))
 
 export enum AppPath {
    Index = '/',
@@ -34,17 +36,14 @@ export function BlokiAppRouter() {
    //    )
    // }
    return (
-      <WelcomeView />
-      // <Router base="/app">
-      //    <Routes>
-      //       <Route path={AppPath.Index} component={LandingView} />
-      //       <Route path={AppPath.Welcome} component={WelcomeView} />
-      //       <Route path={AppPath.Welcome_Confirm} component={WelcomeView} />
-      //       <Route path={AppPath.Playground} component={PlaygroundView} />
-      //       {/* <Route path="/dev" component={DevIndex} /> */}
-      //       {/* {DevRoutes} */}
-      //       <Route path={'*'} element="Not found" />
-      //    </Routes>
-      // </Router>
+      <Router base="/app">
+         <Routes>
+            <Route path={AppPath.Index} component={LandingView} />
+            <Route path={AppPath.Playground} component={PlaygroundView} />
+            {/* <Route path="/dev" component={DevIndex} /> */}
+            {/* {DevRoutes} */}
+            <Route path={'*'} element="Not found" />
+         </Routes>
+      </Router>
    )
 }
