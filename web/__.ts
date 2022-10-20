@@ -1,33 +1,46 @@
 import path from 'path'
 import { execSync } from 'child_process'
-import { ConfigEnv, UserConfig } from 'vite'
+import type { ConfigEnv, UserConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 import viteCompression from 'vite-plugin-compression'
 import solidSvg from 'vite-plugin-solid-svg'
-import visualizer from 'rollup-plugin-visualizer'
+import { visualizer } from 'rollup-plugin-visualizer'
 import cssnanoPlugin from 'cssnano'
 // https://github.com/ElMassimo/vite-plugin-image-presets
 import imagePresets from 'vite-plugin-image-presets'
+import mdx from '@mdx-js/rollup'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+// import solidSsgPages from 'vite-solid-ssg-pages'
+
+declare global {
+   const GIT_COMMIT_DATE: string
+   const GIT_LAST_COMMIT_MESSAGE: string
+   const GIT_BRANCH_NAME: string
+   const GIT_COMMIT_HASH: string
+}
 
 export default async ({ mode }: ConfigEnv) => {
    const dev = mode === 'development'
 
-   const commitDate = execSync('git log -1 --format=%cI').toString().trimEnd()
-   const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trimEnd()
-   const commitHash = execSync('git rev-parse --short HEAD').toString().trimEnd()
-   const lastCommitMessage = execSync('git show -s --format=%s').toString().trimEnd()
-
-   process.env.VITE_GIT_COMMIT_DATE = commitDate
-   process.env.VITE_GIT_BRANCH_NAME = branchName
-   process.env.VITE_GIT_COMMIT_HASH = commitHash
-   process.env.VITE_GIT_LAST_COMMIT_MESSAGE = lastCommitMessage
+   const readGit = (cmd: string) => `'${execSync(cmd).toString().trimEnd()}'`
+   const GIT_COMMIT_DATE = readGit('git log -1 --format=%cI')
+   const GIT_BRANCH_NAME = readGit('git rev-parse --abbrev-ref HEAD')
+   const GIT_COMMIT_HASH = readGit('git rev-parse --short HEAD')
+   const GIT_LAST_COMMIT_MESSAGE = readGit('git show -s --format=%s')
 
    const outDir = '../dist/web'
    const config: UserConfig = {
       base: dev ? './' : '/',
-      assetsInclude: ['**/*.gltf', '**/*.mov'],
+      publicDir: false,
       clearScreen: true,
-      // optimizeDeps: {},
+      appType: 'spa',
+      define: {
+         GIT_COMMIT_DATE,
+         GIT_BRANCH_NAME,
+         GIT_COMMIT_HASH,
+         GIT_LAST_COMMIT_MESSAGE,
+      },
       server: {
          host: '0.0.0.0',
          port: 3000,
@@ -37,6 +50,9 @@ export default async ({ mode }: ConfigEnv) => {
                changeOrigin: true,
             },
          },
+      },
+      ssr: {
+         noExternal: ['solid-js', 'solid-js/web'],
       },
       worker: {
          format: 'es',
@@ -64,15 +80,26 @@ export default async ({ mode }: ConfigEnv) => {
                },
             },
          }),
+         {
+            ...mdx({
+               jsx: true,
+               jsxImportSource: 'solid-js',
+               providerImportSource: 'solid-mdx',
+               remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+            }),
+            enforce: 'pre',
+         },
          solid({
             hot: dev,
             dev: dev,
-            ssr: false,
+            extensions: ['.md'],
+            ssr: true,
          }),
-         imagePresets(),
+         // imagePresets(),
          !dev &&
             viteCompression({
                filter: /\.(js|mjs|json|css|html|woff2)$/i,
+               verbose: false,
             }),
          !dev &&
             visualizer({
@@ -82,53 +109,35 @@ export default async ({ mode }: ConfigEnv) => {
             }),
       ],
       build: {
-         // polyfillDynamicImport: false,
+         outDir,
          polyfillModulePreload: false,
          sourcemap: false,
          target: 'esnext',
-         reportCompressedSize: true,
-         outDir: outDir,
-         rollupOptions: {
-            output: {
-               // manualChunks: {
-               //    solid: ['solid-js'],
-               //    graphql: ['graphql-tag', 'graphql-request']
-               // },
-               entryFileNames: '[name].js',
-               chunkFileNames: '[name].js',
-               assetFileNames: 'assets/[name].[ext]',
-            },
-         },
+         reportCompressedSize: false,
          minify: 'esbuild',
-         // terserOptions: {
-         // 	compress: true,
-         // 	ecma: 2020,
-         // 	sourceMap: false,
-         // 	module: true,
-         // 	mangle: true,
-         // 	toplevel: true
-         // },
          emptyOutDir: true,
          cssCodeSplit: true,
+         rollupOptions: {
+            input: {
+               app: './index.html',
+            },
+            output: {
+               manualChunks: {
+                  // solid: ['solid-js'],
+                  // graphql: ['graphql-tag', 'graphql-request']
+               },
+               validate: !dev,
+               // entryFileNames: '[name].js',
+               // chunkFileNames: '[name].js',
+               // assetFileNames: 'assets/[name].[ext]',
+            },
+         },
       },
       css: {
          modules: false,
-         // modules: {
-         //    // https://github.com/madyankin/postcss-modules
-         //    // generateScopedName: '[local]-[hash:base64:2]',
-         //    generateScopedName: '[local]',
-         //    localsConvention: 'camelCaseOnly',
-         //    scopeBehaviour: 'local',
-         // },
          postcss: {
             plugins: [],
          },
-         // preprocessorOptions: {
-         //    scss: {
-         //       additionalData: '@use "@/styles/vars.scss";\n'
-         //       // includePaths: ['./styles']
-         //    }
-         // }
       },
       resolve: {
          alias: [

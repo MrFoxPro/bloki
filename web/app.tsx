@@ -10,7 +10,7 @@ import { BlokiAppRouter } from './views/router'
 import { SettingsProvider } from './modules/settings.store'
 import { Toaster } from 'solid-toast'
 
-function App() {
+export default function App() {
    if (import.meta.env.PROD) printBuildInfo()
    return (
       <MetaProvider>
@@ -27,4 +27,4 @@ function App() {
    )
 }
 
-render(App, document.body)
+// render(App, document.body)

@@ -6,8 +6,7 @@ import { Loader } from '@/components/loader/loader'
 import { langs } from '@/modules/i18n/i18n.module'
 import { useYandexMetrica } from '@/lib/ym'
 import { Theme, useThemeContext } from '@/modules/theme.store'
-const BlokiEditor = lazy(() => import('@/modules/editor/editor'))
-import { landingDoc } from '@/lib/samples'
+// import { landingDoc } from '@/lib/samples'
 
 import FileStructureImage from './assets/fs.webp'
 
@@ -177,11 +176,11 @@ export function LandingView() {
                   />
                </svg>
             </div>
-            <div class="interactive">
+            {/* <div class="interactive">
                <Suspense fallback={<Loader size="medium" center />}>
                   <BlokiEditor document={landingDoc} />
                </Suspense>
-            </div>
+            </div> */}
          </section>
          <section class="feature">
             <div class="window">

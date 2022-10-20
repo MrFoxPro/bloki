@@ -1,6 +1,5 @@
 import { BufferPool } from './buffer/pool'
 import { UBO_ARRAY, VBO_ARRAY } from './utils'
-import { isBlink } from '@solid-primitives/platform'
 import { Chunk } from './buffer/chunk'
 import { MeshGroup } from './mesh_group'
 import { SingleColorStrokeShaderCode } from './objects/line/line2d'
@@ -70,15 +69,12 @@ export class WebGPURenderer {
    }
 
    async init(canvas: HTMLCanvasElement) {
-      if (!isBlink) {
-         throw alert('Unsupported browser')
-      }
       if (!navigator.gpu) throw new Error('WebGPU is not supported on this browser.')
       const adapter = await navigator.gpu.requestAdapter({ powerPreference: this.powerPreference })
       if (!adapter) throw new Error('WebGPU supported but disabled')
       this._device = await adapter.requestDevice()
 
-      // if (import.meta.env.DEV) this.printAdapterInfo(adapter)
+      if (import.meta.env.DEV) this.printAdapterInfo(adapter)
 
       this.ctx = canvas.getContext('webgpu')
       this.mainFormat = navigator.gpu.getPreferredCanvasFormat()
