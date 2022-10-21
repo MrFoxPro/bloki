@@ -55,9 +55,9 @@ jobs:
         run: pnpm build
 
       - name: publish cloudflare pages
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: wrangler pages publish ../dist/web/
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
 
       # - name: copy via scp
       #   uses: appleboy/scp-action@v0.1.2
