@@ -9,7 +9,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import cssnano from 'cssnano'
 import image_presets from 'vite-plugin-image-presets'
 
-const git = (cmd) => `'${execSync(cmd).toString().trimEnd()}'`
+const git = (cmd) => `'${execSync(cmd).toString().trimEnd().replaceAll("'", '"')}'`
 const GIT_COMMIT_DATE = git('git log -1 --format=%cI')
 const GIT_BRANCH_NAME = git('git rev-parse --abbrev-ref HEAD')
 const GIT_COMMIT_HASH = git('git rev-parse --short HEAD')
