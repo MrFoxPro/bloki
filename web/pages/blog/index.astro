@@ -1,0 +1,25 @@
+---
+const posts = await Astro.glob('./*.md')
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body>
+    <h1>Articles</h1>
+    <ul>
+      {
+        posts.map((article) => (
+          <Fragment>
+            <li>
+              <h4>{article.frontmatter.title}</h4>
+              <p>{article.frontmatter.description}</p>
+            </li>
+          </Fragment>
+        ))
+      }
+    </ul>
+  </body>
+</html>

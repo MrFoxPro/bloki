@@ -6,8 +6,7 @@ import { Loader } from '@/components/loader/loader'
 import { langs } from '@/modules/i18n/i18n.module'
 import { useYandexMetrica } from '@/lib/ym'
 import { Theme, useThemeContext } from '@/modules/theme.store'
-const BlokiEditor = lazy(() => import('@/modules/editor/editor'))
-import { landingDoc } from '@/lib/samples'
+// import { landingDoc } from '@/lib/samples'
 
 import FileStructureImage from './assets/fs.webp'
 
@@ -108,7 +107,10 @@ export function LandingView() {
             </svg>
             <svg class="line" width="1033" height="543" viewBox="0 0 1033 543" fill="none">
                <defs>
-                  <path id="path2" d="M6.50099,2C-28.0005,83.5 174,212.02 588.608,267.5C870.855,305.268 1030.11,379.5 1030.11,540.5" />
+                  <path
+                     id="path2"
+                     d="M6.50099,2C-28.0005,83.5 174,212.02 588.608,267.5C870.855,305.268 1030.11,379.5 1030.11,540.5"
+                  />
                   <mask id="mask2">
                      <use class="mask" href="#path2" use:animatedash={500} />
                   </mask>
@@ -123,7 +125,10 @@ export function LandingView() {
             </svg>
             <svg class="line" width="1152" height="657" viewBox="0 0 1152 657" fill="none">
                <defs>
-                  <path id="path3" d="M1083 2C1209.48 84.4521 1208.59 296.927 581.071 390.5C78.5 465.442 2.57297 566.5 2.57227 655" />
+                  <path
+                     id="path3"
+                     d="M1083 2C1209.48 84.4521 1208.59 296.927 581.071 390.5C78.5 465.442 2.57297 566.5 2.57227 655"
+                  />
                   <mask id="mask3">
                      <use class="mask" href="#path3" use:animatedash={500} />
                   </mask>
@@ -177,11 +182,11 @@ export function LandingView() {
                   />
                </svg>
             </div>
-            <div class="interactive">
+            {/* <div class="interactive">
                <Suspense fallback={<Loader size="medium" center />}>
                   <BlokiEditor document={landingDoc} />
                </Suspense>
-            </div>
+            </div> */}
          </section>
          <section class="feature">
             <div class="window">
@@ -212,7 +217,13 @@ export function LandingView() {
             </div>
             <div class="text">
                <div class="heading">
-                  <svg class="decoration workspaces" width="100%" height="38" viewBox="0 0 403 38" fill="none">
+                  <svg
+                     class="decoration workspaces"
+                     width="100%"
+                     height="38"
+                     viewBox="0 0 403 38"
+                     fill="none"
+                  >
                      <path
                         class="mark"
                         use:animatedash
@@ -240,7 +251,13 @@ export function LandingView() {
             <div class="text">
                <div class="heading">
                   <div>{t().teamwork.heading}</div>
-                  <svg class="decoration collaboration" width="100%" height="105" viewBox="0 0 334 105" fill="none">
+                  <svg
+                     class="decoration collaboration"
+                     width="100%"
+                     height="105"
+                     viewBox="0 0 334 105"
+                     fill="none"
+                  >
                      <path
                         class="mark"
                         use:animatedash
@@ -285,15 +302,29 @@ export function LandingView() {
             <div class="end">
                <a href="/demo">{t().outro[1]}</a>
                <svg class="decoration smile" width="62" height="57" viewBox="0 0 62 57" fill="none">
-                  <path class="mark" use:animatedash={800} d="M13.7129 3C15.1984 7.64236 16.3057 12.4269 17.8338 17.011" />
-                  <path class="mark" use:animatedash={950} d="M32.6699 4.64844C33.3539 8.44837 33.9437 12.5908 35.1424 16.1869" />
+                  <path
+                     class="mark"
+                     use:animatedash={800}
+                     d="M13.7129 3C15.1984 7.64236 16.3057 12.4269 17.8338 17.011"
+                  />
+                  <path
+                     class="mark"
+                     use:animatedash={950}
+                     d="M32.6699 4.64844C33.3539 8.44837 33.9437 12.5908 35.1424 16.1869"
+                  />
                   <path
                      class="mark"
                      use:animatedash={1100}
                      d="M3 41.7357C7.54615 45.2122 11.433 48.2118 17.1484 49.5654C24.2904 51.2569 39.4402 55.9261 45.9029 50.7559C51.0262 46.6572 54.528 42.6519 57.2125 36.5159C57.6626 35.487 58.9473 30.1973 58.2198 30.1973"
                   />
                </svg>
-               <svg class="decoration create-account" width="100%" height="15" viewBox="0 0 450 15" fill="none">
+               <svg
+                  class="decoration create-account"
+                  width="100%"
+                  height="15"
+                  viewBox="0 0 450 15"
+                  fill="none"
+               >
                   <path
                      class="mark"
                      use:animatedash={350}
@@ -357,7 +388,8 @@ const t = langs({
       },
       lib: {
          heading: 'Библиотеки',
-         description: 'Вы всегда можете обратиться к готовым библиотекам либо загрузить свои материалы и использовать их',
+         description:
+            'Вы всегда можете обратиться к готовым библиотекам либо загрузить свои материалы и использовать их',
       },
       outro: {
          0: 'А ещё у нас есть',

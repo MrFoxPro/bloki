@@ -1,5 +1,4 @@
 import { VBO_ARRAY } from './utils'
-import { isBlink } from '@solid-primitives/platform'
 import { MeshGroup } from './mesh_group'
 import { SingleColorStrokeShaderCode } from './objects/line/line2d'
 
@@ -51,9 +50,6 @@ export class Renderer {
    }
 
    async init(canvas: HTMLCanvasElement) {
-      if (!isBlink) {
-         throw alert('Unsupported browser')
-      }
       if (!navigator.gpu) throw new Error('WebGPU is not supported on this browser.')
       const adapter = await navigator.gpu.requestAdapter({ powerPreference: this.powerPreference })
       if (!adapter) throw new Error('WebGPU supported but disabled')

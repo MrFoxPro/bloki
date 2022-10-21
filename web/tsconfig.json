@@ -1,6 +1,7 @@
 {
    "compilerOptions": {
       // "strict": true,
+      "checkJs": true,
       "noImplicitOverride": true,
       "baseUrl": "./",
       "target": "ESNext",
