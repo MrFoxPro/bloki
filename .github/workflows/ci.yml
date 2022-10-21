@@ -59,7 +59,7 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         with:
-          command: pages publish ./dist/web/
+          command: pages publish ./dist/web/ --project-name=bloki
           apiToken: ${{ secrets.CF_API_TOKEN }}
 
       # - name: copy via scp
