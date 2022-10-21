@@ -20,12 +20,6 @@ jobs:
         with:
           node-version: 18.11.0
 
-      - name: get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
-
       - name: install pnpm
         uses: pnpm/action-setup@v2
         id: pnpm-install
@@ -33,10 +27,16 @@ jobs:
           version: 7
           run_install: false
 
-      - name: setup pnpm cache
-        uses: actions/cache@v3
+      - name: get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: setup pnpm cache
         with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
