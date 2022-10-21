@@ -3,6 +3,7 @@ name: bloki CI
 on:
   push:
     branches:
+      - master
       - preview/**
       - next
 
