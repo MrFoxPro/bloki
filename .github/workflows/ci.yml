@@ -31,18 +31,18 @@ jobs:
         id: pnpm-cache
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
 
       - name: setup pnpm cache
         uses: actions/cache@v3
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
       - name: pnpm install
-        run: pnpm i
+        run: pnpm i --frozen-lockfile
 
       #   - name: install pw browsers
       #     working-directory: ./tests
@@ -59,7 +59,7 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         with:
-          command: pages publish ./dist/web/ --project-name=bloki
+          command: pages publish --project-name=bloki --commit-dirty=true ./dist/web/
           apiToken: ${{ secrets.CF_API_TOKEN }}
 
       # - name: copy via scp
