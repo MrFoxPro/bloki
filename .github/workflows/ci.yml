@@ -20,18 +20,18 @@ jobs:
         with:
           node-version: 18.11.0
 
+      - name: get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+
       - name: install pnpm
         uses: pnpm/action-setup@v2
         id: pnpm-install
         with:
           version: 7
           run_install: false
-
-      - name: get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
 
       - name: setup pnpm cache
         uses: actions/cache@v3
