@@ -1,68 +1,89 @@
-name: Build and deploy to bloki.app
+name: bloki CI
 
 on:
   push:
-    branches: 
-      - master
+    branches:
+      - preview/**
+      - next
 
 jobs:
-  frontend:
+  deploy:
     runs-on: ubuntu-latest
+    env:
+      CI: 1
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-         ref: "master"
-      
-    - name: Cache pnpm modules
-      uses: actions/cache@v2
-      with:
-        path: ~/.pnpm-store
-        key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-
+      - name: checkout
+        uses: actions/checkout@v3
 
-    - name: Build frontend
-      uses: pnpm/action-setup@v2.1.0
-      with:
-        version: 6.31.0
-        run_install: true
-    - run: pnpm build
+      - name: install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.11.0
 
-    - name: Copy frontend via scp
-      uses: appleboy/scp-action@v0.1.2
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        port: ${{ secrets.PORT }}
-        key: ${{ secrets.SSHKEY }}
-        # This is important to keep "/"
-        source: "dist/" 
-        target: "/home/deploy/bloki/dist"
-        rm: true
-        command_timeout: 1m
-        strip_components: 1
+      - name: install pnpm
+        uses: pnpm/action-setup@v2
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
 
-    - name: Pull on server service
-      uses: appleboy/ssh-action@v0.1.4
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        port: ${{ secrets.PORT }}
-        key: ${{ secrets.SSHKEY }}
-        script: cd ./bloki && git pull && pnpm i && sudo systemctl restart bloki
-        
-    - name: Collect commit messages
-      run: |  
-         echo "messages=${{join(github.event.commits.*.message, '<pre>\n</pre>')}}" >> $GITHUB_ENV  
-         echo "${{ env.messages }}"
+      - name: get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-    - name: Send tg message
-      uses: appleboy/telegram-action@v0.1.1
-      with:
-         token: ${{ secrets.TG_KEY }}
-         to: ${{ secrets.RECEIVER_1 }}
-         format: 'html'
-         message: |
-            ${{ env.messages }}
-            See changes: https://bloki.app
+      - name: setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: pnpm install
+        run: pnpm i
+
+      #   - name: install pw browsers
+      #     working-directory: ./tests
+      #     run: pnpx playwright install --with-deps
+
+      #   - name: run tests
+      #     run: pnpm test
+
+      - name: build all
+        run: pnpm build
+
+      - name: publish cloudflare pages
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: wrangler pages publish ../dist/web/
+
+      # - name: copy via scp
+      #   uses: appleboy/scp-action@v0.1.2
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     port: ${{ secrets.PORT }}
+      #     key: ${{ secrets.SSHKEY }}
+      #     # This is important to keep "/"
+      #     source: 'dist/api,dist/web'
+      #     target: '/home/deploy/bloki-next'
+      #     overwrite: true
+      #     command_timeout: 1m
+      #     strip_components: 1
+
+      #   - name: Restart service bloki-next
+      #     uses: appleboy/ssh-action@v0.1.4
+      #     with:
+      #       host: ${{ secrets.HOST }}
+      #       username: ${{ secrets.USERNAME }}
+      #       port: ${{ secrets.PORT }}
+      #       key: ${{ secrets.SSHKEY }}
+      #       script: sudo systemctl restart bloki-next
+
+      - name: Notify telegram
+        env:
+          TG_KEY: ${{ secrets.TG_KEY }}
+          TG_CHANNEL: ${{ secrets.TG_CHANNEL }}
+        run: pnpm run -F tg start
