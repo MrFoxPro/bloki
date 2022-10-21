@@ -1,7 +1,6 @@
 import '@/styles/app.scss'
 import './lib/ext'
 
-import { render } from 'solid-js/web'
 import { MetaProvider, Title } from '@solidjs/meta'
 import { printBuildInfo } from './lib/build_info'
 import { I18n } from './modules/i18n/i18n.module'
@@ -10,7 +9,7 @@ import { BlokiAppRouter } from './views/router'
 import { SettingsProvider } from './modules/settings.store'
 import { Toaster } from 'solid-toast'
 
-export default function App() {
+export function App() {
    if (import.meta.env.PROD) printBuildInfo()
    return (
       <MetaProvider>
@@ -26,5 +25,3 @@ export default function App() {
       </MetaProvider>
    )
 }
-
-// render(App, document.getElementById('root'))

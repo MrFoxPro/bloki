@@ -36,7 +36,7 @@ export function BlokiAppRouter() {
    //    )
    // }
    return (
-      <Router base="/app">
+      <Router>
          <Routes>
             <Route path={AppPath.Index} component={LandingView} />
             <Route path={AppPath.Playground} component={PlaygroundView} />

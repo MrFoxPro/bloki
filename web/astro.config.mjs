@@ -16,15 +16,15 @@ const GIT_COMMIT_HASH = git('git rev-parse --short HEAD')
 const GIT_LAST_COMMIT_MESSAGE = git('git show -s --format=%s')
 
 const dev = process.env.npm_lifecycle_event === 'dev'
-console.log('dev mode:', dev)
+console.log('dev mode:', dev, 'root', path.resolve('./'))
 const outDir = '../dist/web'
 
 /**@type import('astro/config').AstroUserConfig */
 const config = {
    output: 'static',
    outDir: '../dist/web',
-   srcDir: '.',
-   root: '.',
+   srcDir: './',
+   root: './',
    trailingSlash: 'ignore',
    integrations: [solid_astro()],
    build: {
