@@ -56,6 +56,8 @@ jobs:
 
       - name: publish cloudflare pages
         uses: cloudflare/wrangler-action@2.0.0
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         with:
           command: pages publish ./dist/web/
           apiToken: ${{ secrets.CF_API_TOKEN }}
