@@ -57,6 +57,7 @@ jobs:
       - name: publish cloudflare pages
         uses: cloudflare/wrangler-action@2.0.0
         with:
+          command: pages publish ./dist/web/
           apiToken: ${{ secrets.CF_API_TOKEN }}
 
       # - name: copy via scp
