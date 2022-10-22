@@ -6,15 +6,10 @@ import solid_svg from 'vite-plugin-solid-svg'
 import solid from 'vite-plugin-solid'
 import compression from 'vite-plugin-compression'
 import { visualizer } from 'rollup-plugin-visualizer'
-import cssnano from 'cssnano'
 import image_presets from 'vite-plugin-image-presets'
+import cssnano from 'cssnano'
 
 const git = (cmd) => `'${execSync(cmd).toString().trimEnd().replaceAll("'", '"')}'`
-const GIT_COMMIT_DATE = git('git log -1 --format=%cI')
-const GIT_BRANCH_NAME = git('git rev-parse --abbrev-ref HEAD')
-const GIT_COMMIT_HASH = git('git rev-parse --short HEAD')
-const GIT_LAST_COMMIT_MESSAGE = git('git show -s --format=%s')
-
 const dev = process.env.npm_lifecycle_event === 'dev'
 console.log('dev mode:', dev, 'root', path.resolve('./'))
 const outDir = '../dist/web'
@@ -32,10 +27,10 @@ const config = {
    },
    vite: {
       define: {
-         GIT_COMMIT_DATE,
-         GIT_BRANCH_NAME,
-         GIT_COMMIT_HASH,
-         GIT_LAST_COMMIT_MESSAGE,
+         GIT_COMMIT_DATE: git('git log -1 --format=%cI'),
+         GIT_BRANCH_NAME: git('git rev-parse --abbrev-ref HEAD'),
+         GIT_COMMIT_HASH: git('git rev-parse --short HEAD'),
+         GIT_LAST_COMMIT_MESSAGE: git('git show -s --format=%s'),
       },
       server: {
          host: '0.0.0.0',
@@ -75,7 +70,7 @@ const config = {
       css: {
          modules: false,
          postcss: {
-            plugins: [],
+            plugins: !dev ? [cssnano()] : [],
          },
       },
       build: {
@@ -88,9 +83,5 @@ const config = {
          cssCodeSplit: true,
       },
    },
-}
-if (!dev) {
-   // @ts-ignore
-   config.vite.css.postcss.plugins.push(cssnano())
 }
 export default config
