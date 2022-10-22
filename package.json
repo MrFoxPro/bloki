@@ -10,10 +10,5 @@
       "web",
       "tests",
       "./misc/tg"
-   ],
-   "pnpm": {
-      "overrides": {
-         "babel-preset-solid": "1.5.7"
-      }
-   }
+   ]
 }

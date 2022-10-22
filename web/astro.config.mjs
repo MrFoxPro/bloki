@@ -1,17 +1,14 @@
 import path from 'node:path'
 import { execSync } from 'node:child_process'
-
 import solid_astro from '@astrojs/solid-js'
 import solid_svg from 'vite-plugin-solid-svg'
 import solid from 'vite-plugin-solid'
-import compression from 'vite-plugin-compression'
 import { visualizer } from 'rollup-plugin-visualizer'
 import image_presets from 'vite-plugin-image-presets'
 import cssnano from 'cssnano'
 
 const git = (cmd) => `'${execSync(cmd).toString().trimEnd().replaceAll("'", '"')}'`
 const dev = process.env.npm_lifecycle_event === 'dev'
-console.log('dev mode:', dev, 'root', path.resolve('./'))
 const outDir = '../dist/web'
 
 /**@type import('astro/config').AstroUserConfig */
@@ -26,6 +23,7 @@ const config = {
       format: 'file',
    },
    vite: {
+      clearScreen: true,
       define: {
          GIT_COMMIT_DATE: git('git log -1 --format=%cI'),
          GIT_BRANCH_NAME: git('git rev-parse --abbrev-ref HEAD'),
@@ -42,22 +40,18 @@ const config = {
             },
          },
       },
-      clearScreen: true,
       plugins: [
          solid(),
          solid_svg(),
          image_presets(),
-         !dev &&
-            compression({
-               filter: /\.(js|mjs|json|css|html|woff2)$/i,
-               verbose: false,
-            }),
          !dev &&
             visualizer({
                open: false,
                filename: path.resolve(outDir, 'stats.html'),
                gzipSize: true,
             }),
+         // Not using compression as CF pages don't suppord precompressed assets
+         // https://community.cloudflare.com/t/pre-compressed-assets-in-pages/300028
       ],
       resolve: {
          alias: [
