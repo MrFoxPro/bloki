@@ -1,4 +1,4 @@
-import './ctx_menu.scss'
+// import './ctx_menu.css'
 
 import { createEffect, createMemo, Show } from 'solid-js'
 import DeleteIcon from './assets/delete.svg'

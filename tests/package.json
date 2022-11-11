@@ -1,5 +1,6 @@
 {
-	"name": "tests",
+	"name": "@bloki/tests",
+	"type": "module",
 	"scripts": {
 		"start": "playwright test",
 		"test": "pnpm test"
@@ -7,5 +8,8 @@
 	"dependencies": {
 		"@faker-js/faker": "^7.6.0",
 		"@playwright/test": "^1.27.1"
+	},
+	"devDependencies": {
+		"@types/node": "^18.11.9"
 	}
 }

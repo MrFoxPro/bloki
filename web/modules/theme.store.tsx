@@ -20,7 +20,7 @@ const ThemeContext = createContext({
 export function ThemeContextProvider(props: ParentProps) {
    let actualTheme: Theme | null = null
    const preferDark = matchMedia('(prefers-color-scheme: dark)')
-
+   const root = document.documentElement
    function getInitialTheme() {
       let theme = BlokiCookies.get(BlokiCookieKey.Theme) as Theme
       if (!isSupportedTheme(theme)) {
@@ -28,11 +28,11 @@ export function ThemeContextProvider(props: ParentProps) {
       }
       return theme
    }
-   const getCSSColor = (colorName: string, el = document.body) => getComputedStyle(el).getPropertyValue(colorName)
+   const getCSSColor = (colorName: string, el = root) => getComputedStyle(el).getPropertyValue(colorName)
    const [theme, setTheme] = createSignal(getInitialTheme())
    const [themeColor, setThemeColor] = createSignal<string>(getCSSColor('--color-bg-main'))
 
-   const createCSSColorMemo = (colorName: string, el = document.body) =>
+   const createCSSColorMemo = (colorName: string, el = root) =>
       createMemo(() => {
          theme()
          return getCSSColor(colorName, el)
@@ -41,18 +41,18 @@ export function ThemeContextProvider(props: ParentProps) {
    applyTheme(theme())
 
    function transitTheme(to: Theme) {
-      document.body.classList.add('switch-theme')
+      root.classList.add('switch-theme')
       applyTheme(to)
       queueMicrotask(() => {
-         document.body.classList.remove('switch-theme')
+         root.classList.remove('switch-theme')
          setTheme(to)
       })
    }
 
    function applyTheme(theme: Theme) {
       if (actualTheme) {
-         document.body.classList.replace(actualTheme, theme)
-      } else document.body.classList.add(theme)
+         root.classList.replace(actualTheme, theme)
+      } else root.classList.add(theme)
       setThemeColor(getCSSColor('--color-bg-main'))
       if (actualTheme) {
          BlokiCookies.set(BlokiCookieKey.Theme, theme)

@@ -1,4 +1,4 @@
-import './canvas.scss'
+import './canvas.css'
 import { useEditorContext } from '../toolbox/editor.store'
 import { onMount } from 'solid-js'
 import { Point2DTupleView } from '../types'

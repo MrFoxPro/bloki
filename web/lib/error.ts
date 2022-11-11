@@ -1,4 +1,4 @@
-import { langs } from '@/modules/i18n/i18n.module'
+import { langs } from '@/modules/i18n/i18n'
 import toast from 'solid-toast'
 
 export function reportBlokiError(e: any) {

@@ -1,0 +1,12 @@
+@layer reset {
+   * {
+      box-sizing: border-box;
+   }
+   html, body {
+      margin: 0;
+   }
+   a {
+      text-decoration: unset;
+      color: unset;
+   }
+}

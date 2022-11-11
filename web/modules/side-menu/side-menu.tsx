@@ -10,7 +10,7 @@ import PageIcon from './assets/page.svg';
 import SearchIcon from './assets/search.svg';
 import SettingsIcon from './assets/settings.svg';
 import TrashIcon from './assets/trash.svg';
-import { langs } from '../i18n/i18n.module';
+import { langs } from '../i18n/i18n';
 import { useLayersContext } from '../layers/layers';
 // const Settings = lazy(() => import('../settings/settings'));
 // import { useModalStore } from '../modals/modal';

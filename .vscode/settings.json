@@ -1,20 +1,22 @@
 {
-   "html.format.wrapLineLength": 120,
+   // #region css
+   "unocss.root": "web",
+   "unocss.colorPreview": true,
+   // #endregion
+
+   "prettier.documentSelectors": ["**/*.astro"],
+   "[astro]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+   },
    "typescript.preferences.importModuleSpecifier": "shortest",
-   "typescript.format.semicolons": "insert",
    // "typescript.preferences.quoteStyle": "single",
-   "typescript.format.enable": true,
    "typescript.preferences.useAliasesForRenames": false,
-   "scss.format.spaceAroundSelectorSeparator": true,
-   "scss.format.newlineBetweenSelectors": false,
-   "scss.format.newlineBetweenRules": false,
-   "scss.validate": true,
+
    "editor.insertSpaces": true,
    "editor.tabSize": 3,
-   "scss.format.enable": true,
-   "vscode-color-picker.languages": ["typescript", "typescriptreact", "xml"],
+   "vscode-color-picker.languages": ["javascript", "typescript", "typescriptreact", "xml"],
    "path-autocomplete.pathMappings": {
-      "@": "${folder}/client"
+      "@": "${folder}/web"
    },
    "files.exclude": {
       "**/.git": true,
@@ -22,20 +24,16 @@
       "**/.hg": true,
       "**/CVS": true,
       "**/.DS_Store": true,
-      "**/Thumbs.db": true,
+      "**/Thumbs.db": true
       // "**/node_modules": true
    },
-   // "emmet.includeLanguages": {
-   //    "javascriptreact": "xml",
-   //    "typescriptreact": "xml"
-   // },
+   "html.format.wrapLineLength": 120,
    "emmet.syntaxProfiles": {
       "xml": {
          "attr_quotes": "double"
       }
    },
-   "editor.tokenColorCustomizations": {
-      "comments": "",
-      "textMateRules": []
-   }
+   "lldb.launch.terminal": "integrated",
+   "npm.packageManager": "pnpm",
+   "prettier.useEditorConfig": true
 }

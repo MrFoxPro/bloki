@@ -1,14 +1,12 @@
 root = true
+
 [*]
 charset = utf-8
 end_of_line = lf
 indent_style = space
+indent_size = 3
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{js,jsx,mjs,ts,tsx,scss,json,css,cs}]
-indent_size = 3
-
 [*.{yml,yaml}]
-indent_style = space
 indent_size = 2

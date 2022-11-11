@@ -2,48 +2,46 @@
    "version": "0.2.0",
    "configurations": [
       {
-         "command": "pnpm dev",
-         "name": "[web] pnpm dev",
+         "name": "api:dev",
+         "type": "lldb",
          "request": "launch",
-         "type": "node-terminal",
-         "cwd": "${workspaceFolder}/web"
+         "program": "${workspaceFolder}/api/target/debug/api",
+         "preLaunchTask": "api:build",
+         "console": "integratedTerminal",
+         "args": [],
+         "cwd": "${workspaceFolder}/api"
       },
       {
-         "command": "pnpm build -- --force",
-         "name": "[web] pnpm build",
+         "name": "api:test",
+         "type": "lldb",
          "request": "launch",
-         "type": "node-terminal",
-         "cwd": "${workspaceFolder}/web"
+         "cargo": {
+            "args": [
+               "test",
+               "--manifest-path=${workspaceFolder}/api/Cargo.toml",
+               "--no-run",
+               "--bin=api",
+               "--package=api"
+            ],
+            "filter": {
+               "name": "api",
+               "kind": "bin"
+            }
+         },
+         "args": [],
+         "cwd": "${workspaceFolder}/api"
       },
       {
-         "name": "Launch Chrome",
+         "name": "web:vite dev",
          "request": "launch",
-         "type": "chrome",
-         "url": "http://localhost:3000/playground",
-         "webRoot": "${workspaceFolder}/web",
-         "userDataDir": false
-      },
-      {
-         "name": "Client",
-         "request": "launch",
-         "cwd": "${workspaceFolder}/client",
+         "cwd": "${workspaceFolder}/web",
          "runtimeArgs": ["dev"],
          "runtimeExecutable": "pnpm",
          "skipFiles": ["<node_internals>/**"],
          "type": "node",
-         "console": "internalConsole"
+         "console": "integratedTerminal"
       }
    ],
    "compounds": [
-      {
-         "name": "Start all",
-         "configurations": ["Client"],
-         "stopAll": false,
-         "presentation": {
-            "hidden": false,
-            "group": "Project",
-            "order": 1
-         }
-      }
    ]
 }

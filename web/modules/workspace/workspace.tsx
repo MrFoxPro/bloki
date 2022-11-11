@@ -1,4 +1,5 @@
-import './workspace.scss'
+import 'uno.css'
+import './workspace.css'
 
 import { lazy, Show } from 'solid-js'
 import { Avatars } from '../collab/avatars/avatars.component'
@@ -11,24 +12,24 @@ import { sampleDoc } from '@/lib/samples'
 
 function TopBar() {
    const layers = useLayersContext()
-
    return (
-      <div class="top-bar">
-         {/* <Avatars /> */}
-         <button class="share">
-            <ShareIcon class="icon" />
-            <span>Share</span>
+      <div>
+         <button>
+            <ShareIcon />
+            <span color-primary hover:color-red>
+               Share
+            </span>
          </button>
-         <AbacusIcon class="icon clickable" onClick={[layers.toggle, 'settings']} />
+         <AbacusIcon class='icon clickable' onClick={[layers.toggle, 'settings']} />
       </div>
    )
 }
 
 export function Workspace() {
-   const { settings } = useSettings()
+   // const { settings } = useSettings()
 
    return (
-      <div class="workspace">
+      <div class='workspace'>
          <TopBar />
          <BlokiEditor document={sampleDoc} />
       </div>

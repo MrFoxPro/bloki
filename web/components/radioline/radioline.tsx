@@ -1,4 +1,4 @@
-import './radioline.scss';
+// import './radioline.scss';
 import { ComponentProps, ParentProps, splitProps } from 'solid-js';
 
 type RadioLineProps = ParentProps<{}> & ComponentProps<'input'>;

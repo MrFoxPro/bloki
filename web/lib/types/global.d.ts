@@ -4,7 +4,7 @@ declare global {
 
 declare module 'solid-js' {
    namespace JSX {
-      interface HTMLAttributes {
+      interface HTMLAttributes<T> {
          /**
           * Pointer for playwright tests
           */

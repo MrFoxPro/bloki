@@ -1,0 +1,93 @@
+---
+import HeadCommon from '../_common/_head.astro'
+import BlokiLogo from '@/assets/img/logo-dark.svg?component-astro'
+import Squares from './squares.svg?component-astro'
+import BlokiPreview from './preview.jpg'
+import FileStructureImage from './assets/fs.webp'
+
+import WorkspacesImageAV1 from './assets/workspaces.av1.mp4'
+import CursorsImageAV1 from './assets/cursors.av1.mp4'
+import LibImageAV1 from './assets/libs.av1.mp4'
+
+import WorkspacesImageVP9 from './assets/workspaces.vp9.webm'
+import CursorsImageVP9 from './assets/cursors.vp9.webm'
+import LibImageVP9 from './assets/libs.vp9.webm'
+---
+
+<HeadCommon />
+<section class='bg-orange-900 overflow-y-visible overflow-x-clip'>
+  <div class='relative display-flow-root m-x-auto max-w-1440px'>
+    <header
+      class='justify-between w-100% max-w-1440px flex p-t-14px items-center p-x-80px gap-54px lt-sm:(flex-col items-stretch) color-grey-900 font-600 text-14px'
+    >
+      <a href='/'>
+        <BlokiLogo class='w-100px' />
+      </a>
+      <div class='whitespace-nowrap flex gap-24px lt-sm:(flex-col) sm:(w-100%)'>
+        <a href='/roadmap'>Roadmap</a>
+        <a href='https://discord.gg/X7p8vVA4Y5' target='_blank'>Discord</a>
+      </div>
+      <div class='flex whitespace-nowrap sm:items-center gap-24px lt-sm:(flex-col)'>
+        <a href='/login'>Войти</a>
+        <a href='/playground'>
+          <div class='p-y-5px px20px b-2px b-color-#31373E b-rd-5px w-fit'>Попробовать</div>
+        </a>
+      </div>
+    </header>
+    <Squares class='absolute left--400px bottom--307px lt-xl:opacity-0' />
+    <Squares class='absolute right--400px bottom--307px lt-xl:opacity-0' />
+    <div class='text-center'>
+      <div class='m-x-auto max-w-560px m-t-60px'>
+        <h1 class='font-vigril text-64px whitespace-nowrap m-x-auto'>Представляем Bloki</h1>
+        <p class='font-sans w-370px m-x-auto color-grey-900 font-500 lh-130% m-y-20px'>
+          Сервис поможет вам, когда необходимо записать что-то, сделать домашнее задание, нарисовать
+          схему или просто пофантазировать.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class='bg-#242527 b-rd-b-62px'>
+  <div class='display-flow-root m-x-auto max-w-1440px'>
+    <img class='relative b-rd-11px m-t-44px m-x-auto z-2 m-b-120px' src={BlokiPreview} />
+  </div>
+</section>
+<section class='display-flow-root bg-#FAFAFA'>
+  <div class='m-t-153px'>
+    <h2 class='color-grey-800 font-400 font-vigril text-48px w-500px m-x-auto text-center'>
+      <strong class='after:content-empty stroke-free'>Свободное</strong> расположение блоков
+    </h2>
+    <video
+      class='h-auto m-t-42px m-x-auto b-rd-11px shadow-md'
+      controls={false}
+      loop
+      muted
+      autoplay
+      playsinline
+    >
+      <source src={CursorsImageAV1} type='video/mp4; codecs=av01.0.05M.08,opus' />
+      <source src={CursorsImageVP9} type='video/webm; codecs=vp8, vorbis' />
+    </video>
+  </div>
+  <div class='m-t-153px'>
+    <h2>Рисование и пометки поверх блоков</h2>
+  </div>
+  <div>
+    <h2>Совместная работа в реальном времени</h2>
+    <img src='' alt='' />
+  </div>
+  <div>
+    <h2>Библиотека</h2>
+    <img src='' alt='' />
+  </div>
+</section>
+<section>
+  <h3>А еще в Bloki можно</h3>
+  <ul>
+    <li></li>
+  </ul>
+  <h3>И много чего еще!</h3>
+  <h3>Попробовать бесплатно</h3>
+</section>
+<footer></footer>
+<script is:inline></script>

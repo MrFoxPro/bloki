@@ -1,14 +1,13 @@
 {
-	"name": "tg",
-	"type": "module",
-	"scripts": {
-		"start": "node ./index.mjs"
-	},
-	"devDependencies": {
-		"telegraf": "^4.10.0"
-	},
-	"dependencies": {
-		"dotenv": "^16.0.3",
-		"fast-glob": "^3.2.12"
-	}
+   "type": "module",
+   "scripts": {
+      "start": "node ./index.js"
+   },
+   "devDependencies": {
+      "telegraf": "^4.10.0"
+   },
+   "dependencies": {
+      "dotenv": "^16.0.3",
+      "fast-glob": "^3.2.12"
+   }
 }

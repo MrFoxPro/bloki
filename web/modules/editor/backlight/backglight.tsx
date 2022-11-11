@@ -1,4 +1,4 @@
-import './backlight.scss'
+import './backlight.css'
 
 import { isInsideRect } from '../misc'
 import { CellState, FillColors } from './shared'

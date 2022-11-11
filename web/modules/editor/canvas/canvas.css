@@ -1,0 +1,8 @@
+.drawer {
+   position: absolute;
+   /* pointer-events: none;
+   z-index: 40; */
+   &.ontop {
+      pointer-events: all;
+   }
+}

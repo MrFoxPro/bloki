@@ -1,4 +1,4 @@
 node_modules
-
+.astro
 .env
 .pnpm-debug.log

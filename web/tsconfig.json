@@ -3,7 +3,7 @@
       // "strict": true,
       "checkJs": true,
       "noImplicitOverride": true,
-      "baseUrl": "./",
+      "baseUrl": ".",
       "target": "ESNext",
       "module": "ESNext",
       "isolatedModules": true,
@@ -22,7 +22,7 @@
       "paths": {
          "@/*": ["./*"]
       },
-      "types": ["vite/client", "@webgpu/types", "@types/offscreencanvas"]
+      "types": ["vite/client", "@webgpu/types", "@foxpro/astro-svg-components/types", "vite-plugin-solid-svg/types"]
    },
    "exclude": ["node_modules", ".vscode", "assets", ".git", "temp", "dist"]
 }

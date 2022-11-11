@@ -1,4 +1,4 @@
-import './editor.scss'
+// import './editor.css'
 import { createMemo, onCleanup, Show, createEffect } from 'solid-js'
 import { isFirefox } from '@solid-primitives/platform'
 import { Repeat } from '@solid-primitives/range'

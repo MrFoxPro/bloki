@@ -1,4 +1,4 @@
-import './toolbox.scss'
+// import './toolbox.css'
 import { createEffect, createSignal, For, onCleanup, onError } from 'solid-js'
 import { ToolType } from '../misc'
 import PlusIcon from '@/assets/img/plus.svg'

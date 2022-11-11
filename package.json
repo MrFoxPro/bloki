@@ -1,14 +1,15 @@
 {
+   "name": "@bloki/app",
    "homepage": "https://bloki.app",
    "scripts": {
       "test": "pnpm run -F tests start",
       "dev": "pnpm run --parallel --stream -F web -F api dev",
-      "build": "pnpm run --parallel -F web build"
+      "build": "pnpm run -F web build"
    },
    "workspaces": [
       "api",
       "web",
       "tests",
-      "./misc/tg"
+      "misc/tg"
    ]
 }

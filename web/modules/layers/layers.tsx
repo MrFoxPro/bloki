@@ -1,4 +1,4 @@
-import './layers.scss';
+import './layers.css';
 import { Component, createContext, createSignal, For, onMount, ParentProps, Suspense, useContext } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { Dynamic } from 'solid-js/web';

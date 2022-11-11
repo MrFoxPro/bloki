@@ -1,7 +1,6 @@
 export function getBuildInfo() {
    const date = new Date(GIT_COMMIT_DATE)
-   const text = `
-   Bloki
+   const text = `Bloki
    Date: ${date.toLocaleString('ru', { dateStyle: 'full', timeStyle: 'medium' })}
    Message: ${GIT_LAST_COMMIT_MESSAGE}
    Branch/Commit: ${GIT_BRANCH_NAME}/${GIT_COMMIT_HASH}

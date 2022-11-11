@@ -1,0 +1,41 @@
+<svg width="739" height="493" viewBox="0 0 739 493" fill="none" xmlns="http://www.w3.org/2000/svg">
+   <mask id="mask0_64_11752" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="267" height="186">
+      <rect width="267" height="186" fill="#FFA61F" />
+   </mask>
+   <g mask="url(#mask0_64_11752)">
+      <rect x="25.7645" y="123.099" width="176" height="176" rx="23" transform="rotate(-32.7974 25.7645 123.099)"
+         stroke="#31373E" stroke-width="4" />
+   </g>
+   <rect x="373.765" y="292.099" width="176" height="235.587" rx="23" transform="rotate(-32.7974 373.765 292.099)"
+      stroke="#FFA61F" stroke-width="4" />
+   <mask id="mask1_64_11752" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="267" y="0" width="472" height="186">
+      <rect x="267" width="472" height="186" fill="#FFA61F" />
+   </mask>
+   <g mask="url(#mask1_64_11752)">
+      <rect x="268.765" y="129.099" width="176" height="176" rx="23" transform="rotate(-32.7974 268.765 129.099)"
+         stroke="#31373E" stroke-width="4" />
+      <rect x="492.765" y="117.099" width="176" height="176" rx="23" transform="rotate(-32.7974 492.765 117.099)"
+         stroke="#31373E" stroke-width="4" />
+   </g>
+   <mask id="mask2_64_11752" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="32" y="34" width="231" height="231">
+      <rect x="25.7645" y="123.099" width="176" height="176" rx="23" transform="rotate(-32.7974 25.7645 123.099)"
+         stroke="white" stroke-width="4" />
+   </mask>
+   <g mask="url(#mask2_64_11752)">
+      <rect y="186" width="290" height="122" fill="#FFA61F" />
+   </g>
+   <mask id="mask3_64_11752" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="275" y="40" width="231" height="231">
+      <rect x="268.765" y="129.099" width="176" height="176" rx="23" transform="rotate(-32.7974 268.765 129.099)"
+         stroke="white" stroke-width="4" />
+   </mask>
+   <g mask="url(#mask3_64_11752)">
+      <rect x="290" y="186" width="225" height="122" fill="#FFA61F" />
+   </g>
+   <mask id="mask4_64_11752" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="499" y="28" width="231" height="231">
+      <rect x="492.765" y="117.099" width="176" height="176" rx="23" transform="rotate(-32.7974 492.765 117.099)"
+         stroke="white" stroke-width="4" />
+   </mask>
+   <g mask="url(#mask4_64_11752)">
+      <rect x="515" y="186" width="225" height="122" fill="#FFA61F" />
+   </g>
+</svg>
