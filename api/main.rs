@@ -19,7 +19,7 @@ async fn main() {
    let edb = edgedb_tokio::create_client().await.unwrap();
    println!("Bloki api is starting...");
 
-   axum::Server::bind(&SocketAddr::from(([127, 0, 0, 1], 3001)))
+   axum::Server::bind(&SocketAddr::from(([127, 0, 0, 1], 4001)))
       .serve(
          Router::with_state(edb)
             .route("/", get(root))

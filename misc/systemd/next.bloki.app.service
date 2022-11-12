@@ -6,10 +6,10 @@ StartLimitIntervalSec=90
 [Service]
 Type=simple
 User=deploy
-WorkingDirectory=/home/deploy/bloki-next/api
-ExecStart=/home/deploy/bloki-next/api/bloki
+WorkingDirectory=/home/deploy/next.bloki.app/api
+ExecStart=./bloki-api
 Restart=always
-RestartSec=30
+RestartSec=60
 
 [Install]
 WantedBy=multi-user.target

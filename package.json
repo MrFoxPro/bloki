@@ -4,7 +4,7 @@
    "scripts": {
       "test": "pnpm run -F tests start",
       "dev": "pnpm run --parallel --stream -F web -F api dev",
-      "build": "pnpm run -F web build"
+      "build": "pnpm run -F web -F api build"
    },
    "workspaces": [
       "api",

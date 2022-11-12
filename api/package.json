@@ -3,6 +3,7 @@
    "version": "0.0.1",
    "scripts": {
       "dev": "cargo run",
-      "build": "cargo build --release"
+      "build": "cargo build --profile release -Z unstable-options --out-dir ../dist/api",
+      "build:prod": "cargo build --profile prod --out-dir ../dist/api"
    }
 }

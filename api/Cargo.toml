@@ -1,14 +1,24 @@
-[package]
-name = "api"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-axum = { version = "0.6.0-rc.3", features = ["ws", "json", "headers"] }
-edgedb-tokio = "0.3.0"
-serde = { version = "1.0.147", features = ["derive"] }
-tokio = { version = "1.21.2", features = ["macros"] }
+cargo-features = ['profile-rustflags']
 
 [[bin]]
-name = "api"
-path = "main.rs"
+name = 'api'
+path = 'main.rs'
+
+[package]
+name = 'bloki-api'
+version = '0.1.0'
+edition = '2021'
+
+[profile.release]
+opt-level = 3
+lto = 'fat'
+
+[profile.prod]
+inherits = 'release'
+rustflags = ['-Ctarget-cpu=skylake-avx512']
+
+[dependencies]
+axum = { version = '0.6.0-rc.3', features = ['ws', 'json', 'headers'] }
+edgedb-tokio = '0.3.0'
+serde = { version = '1.0.147', features = ['derive'] }
+tokio = { version = '1.21.2', features = ['macros'] }

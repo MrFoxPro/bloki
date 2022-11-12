@@ -4,14 +4,13 @@ on:
   push:
     branches:
       - master
-      - preview/**
       - next
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      CI: 1
+      TARGET_NAME: ${{ github.ref_name }}.bloki.app
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -45,6 +44,28 @@ jobs:
       - name: pnpm install
         run: pnpm i --frozen-lockfile
 
+      - name: install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: setup cargo cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
       #   - name: install pw browsers
       #     working-directory: ./tests
       #     run: pnpx playwright install --with-deps
@@ -55,13 +76,28 @@ jobs:
       - name: build all
         run: pnpm build
 
-      - name: publish cloudflare pages
-        uses: cloudflare/wrangler-action@2.0.0
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: scp rust build
+        uses: appleboy/scp-action@v0.1.2
         with:
-          command: pages publish --project-name=bloki --commit-dirty=true ./dist/web/
-          apiToken: ${{ secrets.CF_API_TOKEN }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          # This is important to keep "/"
+          source: dist/api,dist/web
+          target: /home/deploy/${{ TARGET_NAME }}
+          overwrite: true
+          command_timeout: 1m
+          strip_components: 1
+
+      - name: Restart service next.bloki.app
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: sudo systemctl restart ${{ TARGET_NAME }}
 
       - name: Notify telegram
         env:
