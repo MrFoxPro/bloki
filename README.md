@@ -76,9 +76,9 @@ Collaboration demo: https://youtu.be/PsEwt068DGk
 
 Deployment map:
 
-| Target     | URL                      | API port | Nginx config                         | Systemd unit                              |
-| ---------- | ------------------------ | -------- | ------------------------------------ | ----------------------------------------- |
-| Old        | https://old.bloki.app    | 22810    | [misc/nginx/old.bloki.app.conf]()    | [misc/systemd/old.bloki.app.service]()    |
-| Next       | https://next.bloki.app   | 22811    | [misc/nginx/next.bloki.app.conf]()   | [misc/systemd/next.bloki.app.service]()   |
-| Master     | https://master.bloki.app | 22812    | [misc/nginx/master.bloki.app.conf]() | [misc/systemd/master.bloki.app.service]() |
-| Production | https://bloki.app        | 22813    | missing                              | mssing                                    |
+| TARGET_NAME | URL                      | API port | Nginx config                         | Systemd unit                              |
+| ----------- | ------------------------ | -------- | ------------------------------------ | ----------------------------------------- |
+| Old         | https://old.bloki.app    | 22810    | [misc/nginx/old.bloki.app.conf]()    | [misc/systemd/old.bloki.app.service]()    |
+| Next        | https://next.bloki.app   | 22811    | [misc/nginx/next.bloki.app.conf]()   | [misc/systemd/next.bloki.app.service]()   |
+| Master      | https://master.bloki.app | 22812    | [misc/nginx/master.bloki.app.conf]() | [misc/systemd/master.bloki.app.service]() |
+| Production  | https://bloki.app        | 22813    | missing                              | mssing                                    |
