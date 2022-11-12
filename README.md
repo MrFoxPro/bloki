@@ -29,7 +29,7 @@ Collaboration demo: https://youtu.be/PsEwt068DGk
 - Change block type (code, headers, images, etc)
 - Draw on top of blocks
 - Do it with your team
-- Manage document with hierarchy
+- Manage documents hierarchy
 
 ## Roadmap
 
@@ -56,8 +56,6 @@ Collaboration demo: https://youtu.be/PsEwt068DGk
 - [ ] Controls for addding rows/cols
 - [ ] Cell style
 ### System ❌
-- [ ] Axum backend
-- [ ] PostgreSQL DB
 - [ ] Prefabs
 - [x] I18n
 - [ ] Search across documents
@@ -71,4 +69,16 @@ Collaboration demo: https://youtu.be/PsEwt068DGk
 - [ ] Wolfram Alpha
 - [ ] Marketplace
 #### Collaboration ⏳
-- [ ] Sync text and block editing via CRDT or OT
+- [ ] Sync text and block editing via CRDT
+
+
+## Blog
+
+Deployment map:
+
+| Target     | URL                      | API port | Nginx config                         | Systemd unit                              |
+| ---------- | ------------------------ | -------- | ------------------------------------ | ----------------------------------------- |
+| Old        | https://old.bloki.app    | 22810    | [misc/nginx/old.bloki.app.conf]()    | [misc/systemd/old.bloki.app.service]()    |
+| Next       | https://next.bloki.app   | 22811    | [misc/nginx/next.bloki.app.conf]()   | [misc/systemd/next.bloki.app.service]()   |
+| Master     | https://master.bloki.app | 22812    | [misc/nginx/master.bloki.app.conf]() | [misc/systemd/master.bloki.app.service]() |
+| Production | https://bloki.app        | 22813    | missing                              | mssing                                    |
