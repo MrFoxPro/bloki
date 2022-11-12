@@ -85,7 +85,7 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           # This is important to keep "/"
           source: dist/api,dist/web
-          target: /home/deploy/${{ TARGET_NAME }}
+          target: /home/deploy/${{ env.TARGET_NAME }}
           overwrite: true
           command_timeout: 1m
           strip_components: 1
@@ -97,7 +97,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          script: sudo systemctl restart ${{ TARGET_NAME }}
+          script: sudo systemctl restart ${{ env.TARGET_NAME }}
 
       - name: Notify telegram
         env:
