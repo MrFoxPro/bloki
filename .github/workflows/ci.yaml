@@ -8,14 +8,12 @@ on:
   release:
     types: [created]
 
-env:
-  IS_RELEASE: github.event_name == 'release' && github.event.action == 'created'
-
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      TARGET_NAME: ${{ env.IS_RELEASE && 'bloki.app' || format('{0}.bloki.app', github.ref_name) }}
+      IS_RELEASE: github.event_name == 'release' && github.event.action == 'created'
+      TARGET_NAME: ${{ (github.event_name == 'release' && github.event.action == 'created') && 'bloki.app' || format('{0}.bloki.app', github.ref_name) }}
     steps:
       - name: checkout
         uses: actions/checkout@v3
