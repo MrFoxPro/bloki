@@ -1,5 +1,6 @@
 {
    "type": "module",
+   "name": "@bloki/tg",
    "scripts": {
       "start": "node ./index.js"
    },
