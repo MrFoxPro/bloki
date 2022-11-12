@@ -49,7 +49,6 @@ jobs:
 
       - name: setup cargo cache
         uses: actions/cache@v3
-        continue-on-error: false
         with:
           path: |
             ~/.cargo/bin/
@@ -57,7 +56,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             ./api/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('./api/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
@@ -84,13 +83,13 @@ jobs:
       - name: setup ssh
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSHKEY }}" > ~/.ssh/deploy
-          chmod 600 ~/.ssh/deploy
+          echo "${{ secrets.SSHKEY }}" > ~/.ssh/staging
+          chmod 600 ~/.ssh/staging
           cat >>~/.ssh/config <<END
-          Host deploy
+          Host staging
             HostName ${{ secrets.HOST }}
             User ${{ secrets.USERNAME }}
-            IdentityFile ~/.ssh/deploy
+            IdentityFile ~/.ssh/staging
             Port ${{ secrets.PORT }}
             StrictHostKeyChecking no
             ConnectTimeout 10
@@ -98,15 +97,15 @@ jobs:
 
       - name: scp build
         run: |
-          scp -r ./dist/* deploy:~/${{ env.TARGET_NAME }}
-          ssh deploy "sudo tee /etc/systemd/system/${{ env.TARGET_NAME }}.service" < ./misc/systemd/master.bloki.app.service
-          ssh deploy "sudo tee /etc/nginx/sites/${{ env.TARGET_NAME }}.conf" < ./misc/nginx/${{ env.TARGET_NAME }}.conf
+          scp -r ./dist/* staging:~/${{ env.TARGET_NAME }}
+          ssh staging "sudo tee /etc/systemd/system/${{ env.TARGET_NAME }}.service" < ./misc/systemd/master.bloki.app.service
+          ssh staging "sudo tee /etc/nginx/sites/${{ env.TARGET_NAME }}.conf" < ./misc/nginx/${{ env.TARGET_NAME }}.conf
 
-      - name: restart nginx and systemd ${{ env.TARGET_NAME }}
+      - name: restart nginx and systemd
         run: |
-          ssh deploy 'sudo nginx -s reload'
-          ssh deploy 'sudo systemctl reenable ${{ env.TARGET_NAME }}'
-          ssh deploy 'sudo systemctl restart ${{ env.TARGET_NAME }}''
+          ssh staging 'sudo nginx -s reload'
+          ssh staging 'sudo systemctl reenable ${{ env.TARGET_NAME }}'
+          ssh staging 'sudo systemctl restart ${{ env.TARGET_NAME }}'
 
       - name: notify telegram
         env:
