@@ -3,6 +3,7 @@ import { Telegraf } from "telegraf";
 import { extname } from "path";
 import fg from "fast-glob";
 import { createReadStream } from "fs";
+import { git } from "../git";
 
 const { TARGET_NAME } = process.env;
 const branchName = git("git rev-parse --abbrev-ref HEAD");
