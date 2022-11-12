@@ -99,8 +99,8 @@ jobs:
       - name: scp build
         run: |
           scp -r ./dist/* deploy:~/${{ env.TARGET_NAME }}
-          ssh deploy "tee /etc/systemd/system/${{ env.TARGET_NAME }}.service" < ./misc/systemd/master.bloki.app.service
-          ssh deploy "tee /etc/nginx/sites/${{ env.TARGET_NAME }}.conf" < ./misc/nginx/${{ env.TARGET_NAME }}.conf
+          ssh deploy "sudo tee /etc/systemd/system/${{ env.TARGET_NAME }}.service" < ./misc/systemd/master.bloki.app.service
+          ssh deploy "sudo tee /etc/nginx/sites/${{ env.TARGET_NAME }}.conf" < ./misc/nginx/${{ env.TARGET_NAME }}.conf
 
       - name: restart nginx and systemd ${{ env.TARGET_NAME }}
         run: |

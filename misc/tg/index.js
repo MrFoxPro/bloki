@@ -1,16 +1,13 @@
-import { execSync } from "child_process";
 import dotenv from "dotenv";
 import { Telegraf } from "telegraf";
-import { basename, extname } from "path";
+import { extname } from "path";
 import fg from "fast-glob";
 import { createReadStream } from "fs";
 
+const { TARGET_NAME } = process.env;
 const branchName = git("git rev-parse --abbrev-ref HEAD");
-const branchDeployMap = {
-   master: "https://bloki.app",
-   next: "https://next.bloki.app",
-};
-if (!branchDeployMap[branchName]) process.exit();
+
+if (!TARGET_NAME) process.exit();
 
 const commitDate = git(
    'git log -1 --pretty="format:%cd" --date=format:"%H:%M:%S %d-%m-%Y"'
@@ -22,7 +19,7 @@ dotenv.config();
 
 const message = `
 Branch *${branchName}* was deployed
-${branchDeployMap[branchName]}
+https://${TARGET_NAME}
 ${commitDate}
 
 \`\`\`
@@ -34,7 +31,7 @@ const artifacts = (await fg("../../dist/tests/**/*.(png|webm)")) ?? [];
 
 console.log("artifacts", artifacts);
 
-const ci = process.env.CI === "1";
+const ci = !!process.env.CI;
 
 if (!ci) {
    console.warn("This is not CI env");
