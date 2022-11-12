@@ -81,56 +81,34 @@ jobs:
       - name: build all
         run: pnpm build
 
+      - name: setup ssh
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSHKEY }}" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+          cat >>~/.ssh/config <<END
+          Host deploy
+            HostName ${{ secrets.SSHKEY }}
+            User ${{ secrets.USERNAME }}
+            IdentityFile ~/.ssh/deploy
+            Port ${{ secrets.PORT }}
+            StrictHostKeyChecking no
+            ConnectTimeout 10
+          END
+
       - name: scp build
-        uses: appleboy/scp-action@v0.1.2
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          key: ${{ secrets.SSHKEY }}
-          source: dist/api,dist/web
-          target: /home/deploy/${{ env.TARGET_NAME }}
-          overwrite: true
-          command_timeout: 1m
-          strip_components: 1
-
-      - name: scp nginx file
-        uses: appleboy/scp-action@v0.1.2
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          key: ${{ secrets.SSHKEY }}
-          source: ./misc/nginx/${{ env.TARGET_NAME }}.conf
-          target: /etc/nginx/sites/
-          overwrite: true
-          command_timeout: 30s
-          strip_components: 2
-
-      - name: scp systemd file
-        uses: appleboy/scp-action@v0.1.2
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          key: ${{ secrets.SSHKEY }}
-          source: ./misc/systemd/${{ env.TARGET_NAME }}.service
-          target: /etc/systemd/system/
-          overwrite: true
-          command_timeout: 30s
-          strip_components: 2
+        env:
+          HOSTNAME: ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+        run: |
+          scp -r ./dist/* ${{ env.HOSTNAME }}:~/${{ env.TARGET_NAME }}
+          ssh deploy "tee /etc/systemd/system/${{ env.TARGET_NAME }}.service" < ./misc/systemd/master.bloki.app.service
+          ssh deploy "tee /etc/nginx/sites/${{ env.TARGET_NAME }}.conf" < ./misc/nginx/${{ env.TARGET_NAME }}.conf
 
       - name: restart nginx and systemd ${{ env.TARGET_NAME }}
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          key: ${{ secrets.SSHKEY }}
-          script: |
-            sudo nginx -s reload
-            sudo systemctl reenable ${{ env.TARGET_NAME }}
-            sudo systemctl restart ${{ env.TARGET_NAME }}
+        run: |
+          ssh deploy 'sudo nginx -s reload'
+          ssh deploy 'systemctl reenable ${{ env.TARGET_NAME }}'
+          ssh deploy 'sudo systemctl restart ${{ env.TARGET_NAME }}''
 
       - name: notify telegram
         env:
