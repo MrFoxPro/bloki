@@ -14,9 +14,11 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      TARGET_NAME: ${{ env.IS_RELEASE && 'bloki.app' || format('{0}.bloki.app', github.ref_name) }}
     steps:
+      - name: prepare
+        env:
+          TARGET_NAME: ${{ env.IS_RELEASE && 'bloki.app' || format('{0}.bloki.app', github.ref_name) }}
+
       - name: checkout
         uses: actions/checkout@v3
 
