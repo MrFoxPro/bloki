@@ -105,7 +105,7 @@ jobs:
       - name: restart nginx and systemd ${{ env.TARGET_NAME }}
         run: |
           ssh deploy 'sudo nginx -s reload'
-          ssh deploy 'systemctl reenable ${{ env.TARGET_NAME }}'
+          ssh deploy 'sudo systemctl reenable ${{ env.TARGET_NAME }}'
           ssh deploy 'sudo systemctl restart ${{ env.TARGET_NAME }}''
 
       - name: notify telegram
