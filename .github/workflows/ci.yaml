@@ -88,7 +88,7 @@ jobs:
           chmod 600 ~/.ssh/deploy
           cat >>~/.ssh/config <<END
           Host deploy
-            HostName ${{ secrets.SSHKEY }}
+            HostName ${{ secrets.HOST }}
             User ${{ secrets.USERNAME }}
             IdentityFile ~/.ssh/deploy
             Port ${{ secrets.PORT }}
@@ -97,10 +97,8 @@ jobs:
           END
 
       - name: scp build
-        env:
-          HOSTNAME: ${{ secrets.USERNAME }}@${{ secrets.HOST }}
         run: |
-          scp -r ./dist/* ${{ env.HOSTNAME }}:~/${{ env.TARGET_NAME }}
+          scp -r ./dist/* deploy:~/${{ env.TARGET_NAME }}
           ssh deploy "tee /etc/systemd/system/${{ env.TARGET_NAME }}.service" < ./misc/systemd/master.bloki.app.service
           ssh deploy "tee /etc/nginx/sites/${{ env.TARGET_NAME }}.conf" < ./misc/nginx/${{ env.TARGET_NAME }}.conf
 
