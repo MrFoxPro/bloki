@@ -1,16 +1,19 @@
-name: bloki CI
+name: bloki ci
 
 on:
   push:
     branches:
       - master
       - next
+  release:
+    types: [created]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     env:
-      TARGET_NAME: ${{ github.ref_name }}.bloki.app
+      IS_RELEASE: github.event_name == 'release' && github.event.action == 'created'
+      TARGET_NAME: ${{ env.IS_RELEASE && 'bloki.app' || format('{0}.bloki.app', github.ref_name) }}
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -18,13 +21,13 @@ jobs:
       - name: install node
         uses: actions/setup-node@v3
         with:
-          node-version: 18.11.0
+          node-version: latest
 
       - name: install pnpm
         uses: pnpm/action-setup@v2
         id: pnpm-install
         with:
-          version: 7
+          version: latest
           run_install: false
 
       - name: get pnpm store directory
@@ -44,14 +47,6 @@ jobs:
       - name: pnpm install
         run: pnpm i --frozen-lockfile
 
-      - name: install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-
       - name: setup cargo cache
         uses: actions/cache@v3
         continue-on-error: false
@@ -66,40 +61,78 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      #   - name: install pw browsers
-      #     working-directory: ./tests
-      #     run: pnpx playwright install --with-deps
+      - name: install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          # components: rustfmt, clippy
 
-      #   - name: run tests
-      #     run: pnpm test
+      # - name: install pw browsers
+      #   if: ${{ env.IS_RELEASE }}
+      #   working-directory: ./tests
+      #   run: pnpx playwright install --with-deps
+
+      # - name: run tests
+      #   if: ${{ env.IS_RELEASE }}
+      #   run: pnpm test
 
       - name: build all
         run: pnpm build
 
-      - name: scp rust build
+      - name: scp build
         uses: appleboy/scp-action@v0.1.2
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          # This is important to keep "/"
           source: dist/api,dist/web
           target: /home/deploy/${{ env.TARGET_NAME }}
           overwrite: true
           command_timeout: 1m
           strip_components: 1
 
-      - name: Restart service next.bloki.app
+      - name: scp nginx file
+        uses: appleboy/scp-action@v0.1.2
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          source: ./misc/nginx/${{ env.TARGET_NAME }}.conf
+          target: /etc/nginx/sites/
+          overwrite: true
+          command_timeout: 30s
+          strip_components: 2
+
+      - name: scp systemd file
+        uses: appleboy/scp-action@v0.1.2
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          source: ./misc/systemd/${{ env.TARGET_NAME }}.service
+          target: /etc/systemd/system/
+          overwrite: true
+          command_timeout: 30s
+          strip_components: 2
+
+      - name: restart nginx and systemd ${{ env.TARGET_NAME }}
         uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          script: sudo systemctl restart ${{ env.TARGET_NAME }}
+          script: |
+            sudo nginx -s reload
+            sudo systemctl reenable ${{ env.TARGET_NAME }}
+            sudo systemctl restart ${{ env.TARGET_NAME }}
 
-      - name: Notify telegram
+      - name: notify telegram
         env:
           TG_KEY: ${{ secrets.TG_KEY }}
           TG_CHANNEL: ${{ secrets.TG_CHANNEL }}
