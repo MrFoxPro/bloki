@@ -104,8 +104,7 @@ jobs:
       - name: restart nginx and systemd
         run: |
           ssh staging 'sudo nginx -s reload'
-          ssh staging 'sudo systemctl reenable ${{ env.TARGET_NAME }}'
-          ssh staging 'sudo systemctl restart ${{ env.TARGET_NAME }}'
+          ssh staging 'sudo systemctl reenable ${{ env.TARGET_NAME }} && sudo systemctl restart ${{ env.TARGET_NAME }}'
 
       - name: notify telegram
         env:
