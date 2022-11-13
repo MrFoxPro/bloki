@@ -104,7 +104,7 @@ jobs:
       - name: restart nginx and systemd
         run: |
           ssh vps 'sudo nginx -s reload'
-          ssh vps 'systemctl --user reenable --now ${{ env.TARGET_NAME }}'
+          ssh vps 'systemctl --user reenable ${{ env.TARGET_NAME }} && systemctl --user restart ${{ env.TARGET_NAME }}'
 
       - name: notify telegram
         env:
