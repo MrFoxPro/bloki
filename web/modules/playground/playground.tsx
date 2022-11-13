@@ -14,7 +14,7 @@ const layersViews = {
    settings: SettingsView,
 }
 
-export function Playground() {
+export default function Playground() {
    return (
       <main class="m2 dark:hover:color-red">
          <WindowsContextProvider graph={layersGraph} views={layersViews}>
@@ -23,4 +23,3 @@ export function Playground() {
       </main>
    )
 }
-export default Playground
