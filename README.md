@@ -80,5 +80,4 @@ Deployment map:
 | ----------- | ------------------------ | -------- | ------------------------------------ | ----------------------------------------- |
 | Old         | https://old.bloki.app    | 22810    | [misc/nginx/old.bloki.app.conf]()    | [misc/systemd/old.bloki.app.service]()    |
 | Next        | https://next.bloki.app   | 22811    | [misc/nginx/next.bloki.app.conf]()   | [misc/systemd/next.bloki.app.service]()   |
-| Master      | https://master.bloki.app | 22812    | [misc/nginx/master.bloki.app.conf]() | [misc/systemd/master.bloki.app.service]() |
-| Production  | https://bloki.app        | 22813    | missing                              | mssing                                    |
+| Production  | https://bloki.app        | 22812    | missing                              | mssing                                    |

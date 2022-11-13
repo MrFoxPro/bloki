@@ -9,7 +9,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     env:
       IS_RELEASE: github.event_name == 'release' && github.event.action == 'created'
@@ -83,13 +83,13 @@ jobs:
       - name: setup ssh
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSHKEY }}" > ~/.ssh/staging
-          chmod 600 ~/.ssh/staging
+          echo "${{ secrets.SSHKEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           cat >>~/.ssh/config <<END
-          Host staging
+          Host vps
             HostName ${{ secrets.HOST }}
             User ${{ secrets.USERNAME }}
-            IdentityFile ~/.ssh/staging
+            IdentityFile ~/.ssh/id_rsa
             Port ${{ secrets.PORT }}
             StrictHostKeyChecking no
             ConnectTimeout 10
@@ -97,14 +97,14 @@ jobs:
 
       - name: scp build
         run: |
-          scp -r ./dist/* staging:~/${{ env.TARGET_NAME }}
-          ssh staging 'sudo tee /etc/systemd/system/${{ env.TARGET_NAME }}.service' < ./misc/systemd/master.bloki.app.service
-          ssh staging 'sudo tee /etc/nginx/sites/${{ env.TARGET_NAME }}.conf' < ./misc/nginx/${{ env.TARGET_NAME }}.conf
+          scp -rC ./dist/* vps:~/deployment/${{ env.TARGET_NAME }}
+          scp ./misc/systemd/${{ env.TARGET_NAME }}.service vps:~/.config/systemd/user/
+          scp ./misc/nginx/${{ env.TARGET_NAME }}.conf vps:/etc/nginx/sites/
 
       - name: restart nginx and systemd
         run: |
-          ssh staging 'sudo nginx -s reload'
-          ssh staging 'sudo systemctl reenable ${{ env.TARGET_NAME }} && sudo systemctl restart ${{ env.TARGET_NAME }}'
+          ssh vps 'sudo nginx -s reload'
+          ssh vps 'systemctl --user reenable ${{ env.TARGET_NAME }} && systemctl --user restart ${{ env.TARGET_NAME }}'
 
       - name: notify telegram
         env:

@@ -5,8 +5,8 @@ StartLimitIntervalSec=200
 
 [Service]
 Type=simple
-WorkingDirectory=/home/foxpro/deployment/next.bloki.app/api
-ExecStart=/home/foxpro/deployment/next.bloki.app/api/api
+WorkingDirectory=/home/foxpro/deployment/bloki.app/api
+ExecStart=/home/foxpro/deployment/bloki.app/api/api
 Restart=always
 RestartSec=60
 

@@ -1,16 +1,14 @@
 [Unit]
 After=network.target
 StartLimitBurst=3
-StartLimitIntervalSec=90
+StartLimitIntervalSec=120
 
 [Service]
 Type=simple
-User=deploy
-WorkingDirectory=/home/deploy/bloki/
+WorkingDirectory=/home/foxpro/deployment/old.bloki.app/
 ExecStart=/usr/bin/node -r @swc-node/register ./server/index.ts
 Restart=always
-RestartSec=30
-
+RestartSec=60
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
