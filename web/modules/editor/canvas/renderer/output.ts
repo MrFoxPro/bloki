@@ -13,7 +13,7 @@ export class Renderer {
    private pxRatio = window.devicePixelRatio | 1
 
    // settings
-   private powerPreference: GPUPowerPreference = 'low-power'
+   private powerPreference: GPUPowerPreference = 'high-performance'
    private _sampleCount = 4
 
    // realtime

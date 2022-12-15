@@ -1,4 +1,5 @@
-// import './editor.css'
+import './editor.css'
+
 import { createMemo, onCleanup, Show, createEffect } from 'solid-js'
 import { isFirefox } from '@solid-primitives/platform'
 import { Repeat } from '@solid-primitives/range'
@@ -17,19 +18,20 @@ import { TextBlockFontFamily } from './blocks/text/types'
 import { Backlight } from './backlight/backglight'
 import { BlockContextMenu } from './context-menu/ctx_menu'
 import { Toolbox, toolsIconMap } from './toolbox/toolbox'
-import { EditorContextProvider, useEditorContext } from './toolbox/editor.store'
+import { EditorContextProvider, useEditorContext } from './editor.store'
 import { useThemeContext } from '../theme.store'
 import { Whiteboard } from './canvas/canvas'
+
 
 function BlokiEditor() {
    let wrapperRef: HTMLDivElement
    let containerRef: HTMLDivElement
 
    const { createCSSColorMemo } = useThemeContext()
-   const { editor, createBlock, selectBlock, boxSize, getRelPos, findNextSpaceBelow, check, toAbs } =
-      useEditorContext()
+   const editor = useEditorContext()
+   const { boxSize, selectBlock, getRelPos, findNextSpaceBelow, check, createBlock, toAbs } = editor
 
-   const containerBg = createMemo(() => {
+   const containerBackground = createMemo(() => {
       const {
          gridOptions: { size },
       } = editor.doc
@@ -73,7 +75,7 @@ function BlokiEditor() {
       // const { correct } = checkPlacement(block);
    }
 
-   function onMainGridMouseOut(e: MouseEvent) {}
+   function onMainGridMouseOut(e: MouseEvent) { }
 
    const pasteError = () => alert('We are allowing only images pasted from other internet sources!')
    async function onPaste(e: ClipboardEvent) {
@@ -202,6 +204,11 @@ function BlokiEditor() {
       </>
    )
 }
+
+export const createEditor = () => {
+   return [] as const
+}
+
 export default (props) => (
    <EditorContextProvider {...props}>
       <BlokiEditor />

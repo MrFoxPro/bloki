@@ -1,8 +1,8 @@
 {
    "compilerOptions": {
-      // "strict": true,
+      "strict": true,
+      // "noImplicitOverride": true,
       "checkJs": true,
-      "noImplicitOverride": true,
       "baseUrl": ".",
       "target": "ESNext",
       "module": "ESNext",
@@ -11,18 +11,34 @@
       "jsxImportSource": "solid-js",
       "noEmit": true,
       "allowSyntheticDefaultImports": true,
+      "noImplicitThis": true,
       "moduleResolution": "node",
       "noErrorTruncation": false,
       // Misc
       "forceConsistentCasingInFileNames": true,
       "esModuleInterop": true,
-      "skipDefaultLibCheck": true,
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
       "paths": {
-         "@/*": ["./*"]
+         "@/*": [
+            "./*"
+         ]
       },
-      "types": ["vite/client", "@webgpu/types", "@foxpro/astro-svg-components/types", "vite-plugin-solid-svg/types"]
+      "types": [
+         "vite/client",
+         "@types/w3c-css-typed-object-model-level-1",
+         "@webgpu/types",
+         "vite-plugin-solid-svg/types"
+      ],
+      "skipDefaultLibCheck": true,
+      "skipLibCheck": true,
    },
-   "exclude": ["node_modules", ".vscode", "assets", ".git", "temp", "dist"]
+   "exclude": [
+      "node_modules",
+      ".vscode",
+      "assets",
+      ".git",
+      "temp",
+      "dist"
+   ]
 }

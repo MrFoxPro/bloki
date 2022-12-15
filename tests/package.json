@@ -7,9 +7,9 @@
 	},
 	"dependencies": {
 		"@faker-js/faker": "^7.6.0",
-		"@playwright/test": "^1.27.1"
+		"@playwright/test": "^1.28.1"
 	},
 	"devDependencies": {
-		"@types/node": "^18.11.9"
+		"@types/node": "^18.11.15"
 	}
 }

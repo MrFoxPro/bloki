@@ -86,8 +86,7 @@ export const [{ lang, langs, setLang }, disposeLangRoot] = createRoot((d) => {
    return [{ lang, setLang, langs }, d] as const
 })
 
-type i18nProps = ParentProps<{}>
-export function I18n(props: i18nProps) {
+export function I18n(props: ParentProps<{}>) {
    createEffect(
       on(
          lang,

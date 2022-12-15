@@ -1,28 +1,28 @@
 .workspace {
    display: block;
    height: 100%;
-   .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-      height: 40px;
-      background: var(--color-bg-main);
-      border-bottom: 1px solid var(--color-border);
-      padding: 0 20px;
-      box-sizing: border-box;
-      z-index: 45;
-      min-width: 600px;
-   }
+}
+.workspace .top-bar {
+   display: flex;
+   align-items: center;
+   justify-content: flex-end;
+   gap: 10px;
+   height: 40px;
+   background: var(--color-bg-main);
+   border-bottom: 1px solid var(--color-border);
+   padding: 0 20px;
+   box-sizing: border-box;
+   z-index: 45;
+   min-width: 600px;
+}
 
-   .doc-title {
-      margin-left: 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-   }
-   .share {
-      width: 78px;
-      height: 28px;
-   }
+.workspace .doc-title {
+   margin-left: 15px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+}
+.workspace .share {
+   width: 78px;
+   height: 28px;
 }

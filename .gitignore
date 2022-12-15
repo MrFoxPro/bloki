@@ -1,7 +1,6 @@
 node_modules
 .env
 dist
-!.gitkeep
-
-
 .pnpm-debug.log
+
+!.gitkeep

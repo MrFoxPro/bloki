@@ -1,9 +1,9 @@
-// import './toolbox.css'
+import './toolbox.css'
 import { createEffect, createSignal, For, onCleanup, onError } from 'solid-js'
 import { ToolType } from '../misc'
 import PlusIcon from '@/assets/img/plus.svg'
 import { reportBlokiError } from '@/lib/error'
-import { useEditorContext } from './editor.store'
+import { useEditorContext } from '../editor.store'
 
 import CursorIcon from './assets/cursor.svg'
 import PenIcon from './assets/pen.svg'
@@ -95,8 +95,8 @@ export function Toolbox() {
    })
 
    return (
-      <div class="toolbox">
-         <div class="block tools">
+      <div class='toolbox'>
+         <div class='block tools'>
             <For each={/*@once*/ toolsIconMap}>
                {([type, Icon]) => (
                   <Icon
@@ -104,15 +104,15 @@ export function Toolbox() {
                         active: editor.tool === type,
                      }}
                      onClick={[onClick, type]}
-                     aria-label="This"
-                     aria-labelledby="This"
+                     aria-label='This'
+                     aria-labelledby='This'
                   />
                )}
             </For>
          </div>
-         <div class="block palette">
+         <div class='block palette'>
             <input
-               type="range"
+               type='range'
                min={2}
                max={10}
                step={0.5}
@@ -123,11 +123,11 @@ export function Toolbox() {
                   })
                }
             />
-            <div class="colors">
+            <div class='colors'>
                <For each={colorPalette()}>
                   {(color) => (
                      <div
-                        class="color"
+                        class='color'
                         style={{
                            background: color,
                         }}
@@ -135,23 +135,23 @@ export function Toolbox() {
                      />
                   )}
                </For>
-               <PlusIcon class="plus" />
+               <PlusIcon class='plus' />
             </div>
          </div>
-         <div class="block presets">
+         <div class='block presets'>
             <For each={presets()}>
                {(preset) => (
                   <div
-                     class="color selectable"
+                     class='color selectable'
                      classList={{
                         selected: editor.color === preset.color,
                      }}
                      onClick={() => setEditorStore({ color: preset.color })}
                   >
-                     <svg class="pad" viewBox="0 0 100 100">
+                     <svg class='pad' viewBox='0 0 100 100'>
                         <circle
-                           cx="50"
-                           cy="50"
+                           cx='50'
+                           cy='50'
                            r={(preset.width / 20) * 90}
                            style={{
                               fill: preset.color,
@@ -162,7 +162,7 @@ export function Toolbox() {
                )}
             </For>
          </div>
-         <div class="block picker">
+         <div class='block picker'>
             <ColorPicker />
          </div>
       </div>
@@ -180,17 +180,17 @@ function ColorPicker() {
       <>
          <input
             ref={colorRef}
-            type="color"
-            class="area"
+            type='color'
+            class='area'
             onChange={(e) => setHex(e.currentTarget.value)}
             value={hex()}
-            title="Click to select"
+            title='Click to select'
          />
          <input
-            type="text"
-            class="hex"
+            type='text'
+            class='hex'
             value={hex()}
-            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+            pattern='^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$'
             onInput={(e) => {
                const { valid } = e.currentTarget.validity
                if (valid) setHex(e.currentTarget.value)

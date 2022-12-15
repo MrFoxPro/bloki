@@ -1,25 +1,21 @@
-import './playground.css'
-
-import { lazy } from 'solid-js'
-import Workspace from '@/modules/workspace/workspace'
-import { WindowsContextProvider, TransitionGraph } from '@/modules/layers/layers'
-const SettingsView = lazy(() => import('./settings/settings.view'))
-
-const layersGraph: TransitionGraph = {
-   settings: ['password_change'],
-   password_change: [],
-}
-
-const layersViews = {
-   settings: SettingsView,
-}
+// import { css } from 'solid-styled-components'
+import { css } from '@linaria/core'
 
 export default function Playground() {
-   return (
-      <main class="m2 dark:hover:color-red">
-         <WindowsContextProvider graph={layersGraph} views={layersViews}>
-            <Workspace />
-         </WindowsContextProvider>
-      </main>
-   )
+	const VARS = {
+		main: () => 'red',
+		secondary: 'green',
+		test: 'orange',
+	} as const
+
+	const t = (props) => {
+		console.log('hi!')
+		return props.children
+	}
+	return (
+		<main>
+			<t ru>Hello</t>
+			<t en>Hello</t>
+		</main>
+	)
 }

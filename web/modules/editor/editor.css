@@ -8,11 +8,12 @@
 .zones {
    display: flex;
    position: absolute;
-   & .zone {
-      scroll-snap-align: center;
-      height: inherit;
-   }
 }
+.zones .zone {
+   scroll-snap-align: center;
+   height: inherit;
+}
+
 .container {
    background-attachment: local;
    position: relative;
@@ -30,8 +31,9 @@
    z-index: 0;
    position: absolute;
    height: inherit;
-   & .main {
-      display: initial;
-      width: inherit;
-   }
+}
+
+.grid.main {
+   display: initial;
+   width: inherit;
 }

@@ -3,7 +3,7 @@ import './backlight.css'
 import { isInsideRect } from '../misc'
 import { CellState, FillColors } from './shared'
 import { createEffect, on, onCleanup, onMount } from 'solid-js'
-import { useEditorContext } from '../toolbox/editor.store'
+import { useEditorContext } from '../editor.store'
 import { Transform, PlacementStatus } from '../types'
 
 export function Backlight() {

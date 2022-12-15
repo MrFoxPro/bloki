@@ -1,4 +1,4 @@
-// import './ctx_menu.css'
+import './ctx_menu.css'
 
 import { createEffect, createMemo, Show } from 'solid-js'
 import DeleteIcon from './assets/delete.svg'
@@ -14,7 +14,7 @@ import ImageIcon from './assets/image.svg'
 import CodeIcon from './assets/code.svg'
 
 import { BlockType } from '../misc'
-import { useEditorContext } from '../toolbox/editor.store'
+import { useEditorContext } from '../editor.store'
 
 type BlockContextMenuProps = {}
 

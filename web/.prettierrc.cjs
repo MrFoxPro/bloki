@@ -6,17 +6,10 @@ module.exports = {
    semi: false,
    useTabs: false,
    trailingComma: 'es5',
+   arrowParens: 'avoid',
    editorconfig: true,
    jsxSingleQuote: true,
    htmlWhitespaceSensitivity: 'ignore',
    quoteProps: 'consistent',
-   plugins: [require.resolve('prettier-plugin-astro')],
-   overrides: [
-      {
-         files: '*.astro',
-         options: {
-            parser: 'astro',
-         },
-      },
-   ],
+   tabWidth: 3
 }

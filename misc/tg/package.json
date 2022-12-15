@@ -5,7 +5,7 @@
       "start": "node ./index.js"
    },
    "devDependencies": {
-      "telegraf": "^4.10.0"
+      "telegraf": "^4.11.2"
    },
    "dependencies": {
       "dotenv": "^16.0.3",

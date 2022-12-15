@@ -6,7 +6,6 @@
       margin: 0;
    }
    a {
-      text-decoration: unset;
-      color: unset;
+      text-decoration: unset; color: unset;
    }
 }

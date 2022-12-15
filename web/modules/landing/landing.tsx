@@ -38,7 +38,7 @@ declare module 'solid-js' {
 }
 
 export function animatedash(el: HTMLElement, delay?: () => number) {
-   const observer = new IntersectionObserver((e) => {
+   const observer = new IntersectionObserver(e => {
       if (e[0]?.isIntersecting) {
          if (typeof delay() === 'number') {
             setTimeout(() => {
@@ -77,7 +77,6 @@ export function LandingView() {
          }}
       />
    ))
-
    const FOOTER_ITEMS = [
       [t().footer.about, [{ text: 'Source', a: 'https://github.com/MrFoxPro/bloki' }], UnderLine1],
       [t().footer.product, [], UnderLine2],
@@ -150,7 +149,7 @@ export function LandingView() {
                <Dynamic
                   component={{ light: MoonIcon, dark: SunIcon }[theme()]}
                   class='change-theme'
-                  onClick={[setTheme, (t) => (t === Theme.Dark ? Theme.Light : Theme.Dark)]}
+                  onClick={[setTheme, t => (t === Theme.Dark ? Theme.Light : Theme.Dark)]}
                />
                <a class='login' onClick={[navigate, AppPath.Welcome]}>
                   {t().login}
@@ -248,8 +247,22 @@ export function LandingView() {
                <div class='description'>{t().workspaces.description}</div>
             </div>
          </section>
-         <section class='feature'>
-            <div class='window'>
+         <section
+            css='
+               color: red;
+               font-size: medium;
+               margin: 12px;
+               box-sizing: border-box;
+            '
+         >
+            <div
+               css='
+                  color: red;
+                  font-size: medium;
+                  margin: 12px;
+                  box-sizing: border-box;
+            '
+            >
                {WindowControls}
                <video class='demo' controls={false} loop muted autoplay playsinline>
                   <source src={CursorsImageAV1} type='video/mp4; codecs=av01.0.05M.08,opus' />
@@ -286,7 +299,7 @@ export function LandingView() {
             </div>
             <div class='text'>
                <div class='heading'>
-                  <div> {t().lib.heading}</div>
+                  <div>{t().lib.heading}</div>
                   <svg class='decoration lib' width='100%' height='31' viewBox='0 0 371 31' fill='none'>
                      <path
                         class='mark'
@@ -305,7 +318,13 @@ export function LandingView() {
          </section>
          <section class='outro'>
             <div class='start'>
-               <div>{t().outro[0]}</div>
+               {/* {{ ru: 'Привет', en: 'Hello' }} */}
+               <div></div>
+               {/* <t>Hello</t> */}
+               {/* <div>{t({
+
+               })}</div> */}
+               {/* <div>{t(ru: 'Привет странный, ${user}', null, 'Hello, странный ${user}', 'Hallo, странный ${user}')}</div> */}
             </div>
             <div class='end'>
                <a href='/demo'>{t().outro[1]}</a>
@@ -352,7 +371,7 @@ export function LandingView() {
                         </h4>
                         <ul>
                            <For each={items}>
-                              {(item) => (
+                              {item => (
                                  <li>
                                     <GithubIcon />
                                     <a href={item.a} target='_blank'>

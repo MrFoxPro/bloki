@@ -4,10 +4,6 @@
    "unocss.colorPreview": true,
    // #endregion
 
-   "prettier.documentSelectors": ["**/*.astro"],
-   "[astro]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-   },
    "typescript.preferences.importModuleSpecifier": "shortest",
    // "typescript.preferences.quoteStyle": "single",
    "typescript.preferences.useAliasesForRenames": false,
@@ -35,5 +31,5 @@
    },
    "lldb.launch.terminal": "integrated",
    "npm.packageManager": "pnpm",
-   "prettier.useEditorConfig": true
+   "prettier.useEditorConfig": true,
 }
