@@ -71,7 +71,7 @@ export class WebGPURenderer {
    }
 
    public async init(canvas: HTMLCanvasElement) {
-      if (!isBlink) throw new Error('Unsupported browser')
+      // if (!isBlink) throw new Error('Unsupported browser')
       if (!navigator.gpu) throw new Error('WebGPU is not supported on this browser.')
       const adapter = await navigator.gpu.requestAdapter({ powerPreference: this.powerPreference })
       if (!adapter) throw new Error('WebGPU supported but disabled')
